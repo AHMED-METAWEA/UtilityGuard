@@ -91,7 +91,9 @@ class Engine:
         hour = local.hour + local.minute / 60 + local.second / 3600
         heat = max([e.severity for e in self._active("heat_wave")], default=0.0)
         holiday = self._active("holiday")
-        self.ambient = ambient_temp(hour, local.timetuple().tm_yday)
+        day_rng = np.random.default_rng([self.seed, local.toordinal()])
+        day_temp, day_demand = day_rng.normal(0, 2.2), day_rng.normal(1.0, 0.035)
+        self.ambient = ambient_temp(hour, local.timetuple().tm_yday) + day_temp
         if heat:
             self.ambient = max(self.ambient, heat - 4 + 4 * math.sin((hour - 9) / 24 * 2 * math.pi))
         temp_f = 1 + 0.012 * (self.ambient - 30)
@@ -108,6 +110,7 @@ class Engine:
             p = demand_profile(z.type, hour, local.weekday(), bool(holiday))
             if holiday and z.type == "residential":
                 p *= hol_factor
+            p *= day_demand
             self.zone_demand[z.id] = (w * p * (0.6 + 0.4 * temp_f),
                                       e * (0.55 + 0.45 * p) * (0.8 + 0.2 * temp_f),
                                       c * (0.4 + 0.6 * p) * temp_f ** 3)
@@ -239,7 +242,12 @@ class Engine:
             ts = start + timedelta(minutes=k * step_minutes)
             self.state = {}
             _, _, r = self.step(ts)
-            out.append((ts, dict(r)))
+            row = dict(r)
+            row["weather:ambient"] = self.ambient
+            for z, (w, e, c) in self.zone_demand.items():
+                noise = self.rng.normal(1.0, 0.012, 3)
+                row[f"demand:water:{z}"], row[f"demand:electricity:{z}"], row[f"demand:cooling:{z}"] = w * noise[0], e * noise[1], c * noise[2]
+            out.append((ts, row))
         self.rng, self.state, self.tick = saved
         return out
 

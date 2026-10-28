@@ -15,6 +15,7 @@ from starlette.exceptions import HTTPException
 
 from app import scenarios
 from app.agents.service import AgentService
+from app.ml.service import MLService
 from app.runtime import runtime
 from app.schemas import ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
 
@@ -38,6 +39,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 api = APIRouter(prefix="/api/v1")
 _run_ids = itertools.count(1)
 service = AgentService(runtime)
+ml_service = MLService(runtime, service.detector)
 
 
 @app.exception_handler(ApiError)
@@ -163,6 +165,19 @@ async def put_assumptions(changes: dict[str, float]) -> dict:
         raise ApiError(422, "unknown_assumption", f"Unknown assumption {e.args[0]}.") from e
     n = await service.recompute()
     return {"assumptions": out(service.A.all()), "recomputed": n}
+
+
+@api.get("/forecast")
+def forecast(network: str = "water", zoneId: str = "zone-gov", horizonHours: int = 24) -> dict:  # noqa: N803
+    try:
+        return out(ml_service.forecast(network, zoneId, max(1, min(horizonHours, 72))))
+    except KeyError as e:
+        raise ApiError(404, "no_forecast", f"No forecast for {network} in {zoneId}.") from e
+
+
+@api.get("/metrics")
+def metrics() -> dict:
+    return out(ml_service.metrics())
 
 
 @api.get("/findings")

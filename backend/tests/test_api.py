@@ -84,3 +84,26 @@ def test_burst_propagates():
     assert after < before - 1.0
     assert status in ("warning", "fault")
     assert runtime is not rt
+
+
+def test_forecast_and_metrics_validate():
+    with TestClient(app) as c:
+        f = S.Forecast.model_validate(c.get("/api/v1/forecast?network=water&zoneId=zone-gov&horizonHours=24").json())
+        assert len(f.points) == 48 and all(p.lower <= p.predicted <= p.upper for p in f.points)
+        assert 0 < f.metrics.mape < 15 and f.top_features
+        m = S.ModelMetrics.model_validate(c.get("/api/v1/metrics").json())
+        assert {n.network for n in m.forecasting} == {"water", "electricity", "cooling"}
+        assert 0 < m.detection["precision"] <= 1 and 0 < m.detection["recall"] <= 1
+        assert c.get("/api/v1/forecast?network=cooling&zoneId=zone-res-2").status_code == 404
+        S.ErrorResponse.model_validate(c.get("/api/v1/forecast?network=cooling&zoneId=zone-res-2").json())
+
+
+def test_assumptions_roundtrip():
+    with TestClient(app) as c:
+        items = [S.Assumption.model_validate(a) for a in c.get("/api/v1/assumptions").json()]
+        assert any(a.key == "water_price" for a in items)
+        r = c.put("/api/v1/assumptions", json={"water_price": 9.5}).json()
+        assert next(a for a in r["assumptions"] if a["key"] == "water_price")["value"] == 9.5
+        assert c.put("/api/v1/assumptions", json={"nope": 1}).status_code == 422
+        c.post("/api/v1/scenarios/reset")
+        assert next(a for a in c.get("/api/v1/assumptions").json() if a["key"] == "water_price")["value"] == 8
