@@ -12,7 +12,7 @@ from pathlib import Path
 
 from app.schemas import (
     AgentFinding, Alert, Assumption, AssetStatus, CalcInput, Calculation, CalculationRecord, ChatAccepted,
-    ChatChunk, ChatDone, Compare, CompareSide, Cost, CostItem, DriftIndicator, Explanation, FeatureImportance,
+    ChatChunk, ChatDone, ChatRoute, Compare, CompareSide, Cost, CostItem, DriftIndicator, Explanation, FeatureImportance,
     Forecast, ForecastMetrics, ForecastPoint, Health, Incident, LatLng, ModelMetrics, NetworkMetrics,
     PlacementSuggestion, PredictedImpact, Reading, ReadingBatch, Reason, RecommendedAction, RouteStep, Scenario,
     ScenarioParam, ScenarioRunResponse, ScenarioState, Sensitivity, Snapshot, envelope,
@@ -199,6 +199,7 @@ write("ws/chat_chunk.json", envelope("chat_chunk", ChatChunk(message_id="msg-000
 routing = [RouteStep(agent="electricity", reason="Substation trip and load transfer"),
            RouteStep(agent="water", reason="SS-02 powers pumps P-04 and P-05"),
            RouteStep(agent="cooling", reason="SS-02 powers DCP-01")]
+write("ws/chat_route.json", envelope("chat_route", ChatRoute(message_id="msg-0001", routing=routing)))
 write("ws/chat_done.json", envelope("chat_done", ChatDone(message_id="msg-0001", agents_consulted=["electricity", "water", "cooling"],
                                                           routing=routing, calculation_id="calc-0001")))
 

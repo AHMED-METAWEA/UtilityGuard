@@ -94,7 +94,8 @@ The fixtures folder is the exact reference for these shapes, and the backend Pyd
 - An assumption has a stable `key`, which is used by PUT /assumptions as a `{key: value}` map, and by sensitivity rows as `input`.
 - An incident is `{id, title, networks, zoneIds, severity, state, openedAt, alertIds, findingIds, calculationId}`.
 - On connect, the WebSocket sends `snapshot` first: `{tick, timestamp, topology, latest, assets, alerts, incidents, findings, scenarios, llm}`.
-- `chat_chunk` also has `agent`. `chat_done` has `agentsConsulted`, `routing: [{agent, reason}]`, `fallback`, `calculationId` and `findingIds`.
+- New WS type `chat_route` `{messageId, routing: [{agent, reason}]}` is sent as soon as the orchestrator decides, before any chunk, so the UI can show the routing live. `chat_chunk` also has `agent`. `chat_done` has `agentsConsulted`, `routing: [{agent, reason}]`, `fallback`, `calculationId` and `findingIds`.
+- GET /api/v1/findings lists agent findings. PUT /api/v1/assumptions takes a `{key: value}` map and returns `{assumptions, recomputed}`; recomputed findings are re-sent over the WS with the same id.
 - The demo sequence is in fixtures/sequence/burst.json, as an array of `{delayMs, message}`.
 
 ## 5. Scenario Control
