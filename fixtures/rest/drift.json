@@ -1,0 +1,14 @@
+[
+  {
+    "sensorId": "water-pipe-05-pressure",
+    "drift": 0.18,
+    "unit": "bar",
+    "status": "watch"
+  },
+  {
+    "sensorId": "elec-sub-02-load",
+    "drift": 0.4,
+    "unit": "MW",
+    "status": "ok"
+  }
+]

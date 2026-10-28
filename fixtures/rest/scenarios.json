@@ -1,0 +1,104 @@
+[
+  {
+    "id": "scn-pipe-burst",
+    "name": "Pipe burst",
+    "description": "A main pipe bursts and loses water.",
+    "network": "water",
+    "parameters": [
+      {
+        "name": "targetAsset",
+        "type": "asset",
+        "default": "water-pipe-04"
+      },
+      {
+        "name": "severity",
+        "type": "number",
+        "default": 0.6,
+        "min": 0.1,
+        "max": 1.0
+      }
+    ]
+  },
+  {
+    "id": "scn-stuck-sensor",
+    "name": "Stuck sensor",
+    "description": "A sensor freezes on one value.",
+    "network": "water",
+    "parameters": [
+      {
+        "name": "targetSensor",
+        "type": "select",
+        "default": "water-pipe-05-pressure"
+      }
+    ]
+  },
+  {
+    "id": "scn-substation-trip",
+    "name": "Substation trip",
+    "description": "A substation trips; pumps and cooling lose power.",
+    "network": "multi",
+    "parameters": [
+      {
+        "name": "targetAsset",
+        "type": "asset",
+        "default": "elec-sub-02"
+      }
+    ]
+  },
+  {
+    "id": "scn-pump-failure",
+    "name": "Pump failure",
+    "description": "A pump degrades and stops.",
+    "network": "water",
+    "parameters": [
+      {
+        "name": "targetAsset",
+        "type": "asset",
+        "default": "water-pump-05"
+      }
+    ]
+  },
+  {
+    "id": "scn-cooling-fault",
+    "name": "Cooling plant fault",
+    "description": "A chiller fails and supply temperature rises.",
+    "network": "cooling",
+    "parameters": [
+      {
+        "name": "targetAsset",
+        "type": "asset",
+        "default": "cool-plant-01"
+      }
+    ]
+  },
+  {
+    "id": "scn-heat-wave",
+    "name": "Heat wave",
+    "description": "Air temperature rises to 46 °C.",
+    "network": "multi",
+    "parameters": [
+      {
+        "name": "temperature",
+        "type": "number",
+        "default": 46,
+        "min": 38.0,
+        "max": 50.0
+      }
+    ]
+  },
+  {
+    "id": "scn-holiday",
+    "name": "Holiday demand",
+    "description": "Government zones quiet, residential busy.",
+    "network": "multi",
+    "parameters": [
+      {
+        "name": "factor",
+        "type": "number",
+        "default": 1.3,
+        "min": 1.0,
+        "max": 1.8
+      }
+    ]
+  }
+]

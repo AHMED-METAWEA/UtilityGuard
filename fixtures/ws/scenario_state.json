@@ -1,0 +1,9 @@
+{
+  "type": "scenario_state",
+  "payload": {
+    "runId": "run-0001",
+    "scenarioId": "scn-pipe-burst",
+    "state": "running",
+    "startedAt": "2026-10-28T11:30:30Z"
+  }
+}

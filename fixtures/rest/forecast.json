@@ -1,0 +1,179 @@
+{
+  "network": "water",
+  "zoneId": "zone-gov",
+  "unit": "m3/h",
+  "horizonHours": 24,
+  "points": [
+    {
+      "timestamp": "2026-10-28T11:30:00Z",
+      "predicted": 446.0,
+      "lower": 414.8,
+      "upper": 477.2
+    },
+    {
+      "timestamp": "2026-10-28T12:30:00Z",
+      "predicted": 481.6,
+      "lower": 447.9,
+      "upper": 515.3
+    },
+    {
+      "timestamp": "2026-10-28T13:30:00Z",
+      "predicted": 528.0,
+      "lower": 491.0,
+      "upper": 565.0
+    },
+    {
+      "timestamp": "2026-10-28T14:30:00Z",
+      "predicted": 582.0,
+      "lower": 541.3,
+      "upper": 622.8
+    },
+    {
+      "timestamp": "2026-10-28T15:30:00Z",
+      "predicted": 640.0,
+      "lower": 595.2,
+      "upper": 684.8
+    },
+    {
+      "timestamp": "2026-10-28T16:30:00Z",
+      "predicted": 698.0,
+      "lower": 649.1,
+      "upper": 746.8
+    },
+    {
+      "timestamp": "2026-10-28T17:30:00Z",
+      "predicted": 752.0,
+      "lower": 699.4,
+      "upper": 804.6
+    },
+    {
+      "timestamp": "2026-10-28T18:30:00Z",
+      "predicted": 798.4,
+      "lower": 742.5,
+      "upper": 854.3
+    },
+    {
+      "timestamp": "2026-10-28T19:30:00Z",
+      "predicted": 834.0,
+      "lower": 775.6,
+      "upper": 892.4
+    },
+    {
+      "timestamp": "2026-10-28T20:30:00Z",
+      "predicted": 856.4,
+      "lower": 796.4,
+      "upper": 916.3
+    },
+    {
+      "timestamp": "2026-10-28T21:30:00Z",
+      "predicted": 864.0,
+      "lower": 803.5,
+      "upper": 924.5
+    },
+    {
+      "timestamp": "2026-10-28T22:30:00Z",
+      "predicted": 856.4,
+      "lower": 796.4,
+      "upper": 916.3
+    },
+    {
+      "timestamp": "2026-10-28T23:30:00Z",
+      "predicted": 834.0,
+      "lower": 775.6,
+      "upper": 892.4
+    },
+    {
+      "timestamp": "2026-10-29T00:30:00Z",
+      "predicted": 798.4,
+      "lower": 742.5,
+      "upper": 854.3
+    },
+    {
+      "timestamp": "2026-10-29T01:30:00Z",
+      "predicted": 752.0,
+      "lower": 699.4,
+      "upper": 804.6
+    },
+    {
+      "timestamp": "2026-10-29T02:30:00Z",
+      "predicted": 698.0,
+      "lower": 649.1,
+      "upper": 746.8
+    },
+    {
+      "timestamp": "2026-10-29T03:30:00Z",
+      "predicted": 640.0,
+      "lower": 595.2,
+      "upper": 684.8
+    },
+    {
+      "timestamp": "2026-10-29T04:30:00Z",
+      "predicted": 582.0,
+      "lower": 541.3,
+      "upper": 622.8
+    },
+    {
+      "timestamp": "2026-10-29T05:30:00Z",
+      "predicted": 528.0,
+      "lower": 491.0,
+      "upper": 565.0
+    },
+    {
+      "timestamp": "2026-10-29T06:30:00Z",
+      "predicted": 481.6,
+      "lower": 447.9,
+      "upper": 515.3
+    },
+    {
+      "timestamp": "2026-10-29T07:30:00Z",
+      "predicted": 446.0,
+      "lower": 414.8,
+      "upper": 477.2
+    },
+    {
+      "timestamp": "2026-10-29T08:30:00Z",
+      "predicted": 423.6,
+      "lower": 394.0,
+      "upper": 453.3
+    },
+    {
+      "timestamp": "2026-10-29T09:30:00Z",
+      "predicted": 416.0,
+      "lower": 386.9,
+      "upper": 445.1
+    },
+    {
+      "timestamp": "2026-10-29T10:30:00Z",
+      "predicted": 423.6,
+      "lower": 394.0,
+      "upper": 453.3
+    }
+  ],
+  "metrics": {
+    "mae": 18.4,
+    "rmse": 24.1,
+    "mape": 3.2
+  },
+  "topFeatures": [
+    {
+      "feature": "hour_of_day",
+      "importance": 0.38
+    },
+    {
+      "feature": "lag_1h",
+      "importance": 0.24
+    },
+    {
+      "feature": "temperature",
+      "importance": 0.16
+    },
+    {
+      "feature": "weekday",
+      "importance": 0.12
+    },
+    {
+      "feature": "lag_24h",
+      "importance": 0.1
+    }
+  ]
+}

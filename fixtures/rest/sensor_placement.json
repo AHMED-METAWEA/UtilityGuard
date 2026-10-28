@@ -1,0 +1,13 @@
+[
+  {
+    "position": {
+      "lat": 30.0285,
+      "lng": 31.7285
+    },
+    "nearAssetId": "water-pipe-05",
+    "network": "water",
+    "kind": "pressure",
+    "detectionImprovement": 0.14,
+    "reason": "Longest unmonitored segment between two pressure sensors"
+  }
+]

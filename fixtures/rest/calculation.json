@@ -1,0 +1,437 @@
+{
+  "id": "calc-0001",
+  "incidentId": "inc-0001",
+  "createdAt": "2026-10-28T11:30:43Z",
+  "cost": {
+    "currency": "EGP",
+    "actNow": 18400.0,
+    "delayPerHour": 3820.0,
+    "expectedSaving": 36020.0,
+    "delayHours": 6.0,
+    "costOfDelay": 54420.0,
+    "breakdown": [
+      {
+        "label": "Crew call-out",
+        "amount": 3400.0,
+        "cause": "assumed crew cost"
+      },
+      {
+        "label": "Pipe repair parts",
+        "amount": 15000.0,
+        "cause": "assumed parts cost"
+      },
+      {
+        "label": "Water loss",
+        "amount": 6720.0,
+        "cause": "140 m3/h × 6 h × 8 EGP"
+      },
+      {
+        "label": "Service disruption",
+        "amount": 15000.0,
+        "cause": "2,500 EGP/h × 6 h"
+      },
+      {
+        "label": "Secondary effects",
+        "amount": 1200.0,
+        "cause": "pump overdraw 200 EGP/h × 6 h"
+      },
+      {
+        "label": "Late repair",
+        "amount": 31500.0,
+        "cause": "grown burst repair cost"
+      }
+    ],
+    "explanation": {
+      "reasons": [
+        {
+          "text": "Pressure fell from 3.8 to 2.1 bar in 4 minutes",
+          "evidenceType": "measured",
+          "evidenceRef": "water-pipe-04-pressure"
+        },
+        {
+          "text": "Inflow is 140 m3/h higher than outflow",
+          "evidenceType": "measured",
+          "evidenceRef": "water-pipe-04-flow-in"
+        },
+        {
+          "text": "Neighbouring sensors read normal, so this is not a sensor fault",
+          "evidenceType": "rule",
+          "evidenceRef": "rule:neighbour-consistency"
+        },
+        {
+          "text": "Pump P-04 draw is up 12% as it compensates",
+          "evidenceType": "measured",
+          "evidenceRef": "water-pump-04-flow"
+        }
+      ],
+      "calculations": [
+        {
+          "name": "Water loss per hour",
+          "formula": "Q_leak × P_water",
+          "inputs": [
+            {
+              "name": "Q_leak",
+              "value": 140.0,
+              "unit": "m3/h",
+              "source": "measured"
+            },
+            {
+              "name": "P_water",
+              "value": 8.0,
+              "unit": "EGP/m3",
+              "source": "assumed"
+            }
+          ],
+          "result": 1120.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Cost of delay per hour",
+          "formula": "C_loss + C_disruption + C_secondary",
+          "inputs": [
+            {
+              "name": "C_loss",
+              "value": 1120.0,
+              "unit": "EGP/h",
+              "source": "rule"
+            },
+            {
+              "name": "C_disruption",
+              "value": 2500.0,
+              "unit": "EGP/h",
+              "source": "assumed"
+            },
+            {
+              "name": "C_secondary",
+              "value": 200.0,
+              "unit": "EGP/h",
+              "source": "rule"
+            }
+          ],
+          "result": 3820.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Repair now",
+          "formula": "crew_callout + parts + equipment",
+          "inputs": [
+            {
+              "name": "crew_callout",
+              "value": 3400.0,
+              "unit": "EGP",
+              "source": "assumed"
+            },
+            {
+              "name": "parts",
+              "value": 15000.0,
+              "unit": "EGP",
+              "source": "assumed"
+            }
+          ],
+          "result": 18400.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Saving from acting now",
+          "formula": "(C_delay × t_delay + C_repair_late) − C_repair_now",
+          "inputs": [
+            {
+              "name": "C_delay",
+              "value": 3820.0,
+              "unit": "EGP/h",
+              "source": "rule"
+            },
+            {
+              "name": "t_delay",
+              "value": 6.0,
+              "unit": "h",
+              "source": "assumed"
+            },
+            {
+              "name": "C_repair_late",
+              "value": 31500.0,
+              "unit": "EGP",
+              "source": "rule"
+            },
+            {
+              "name": "C_repair_now",
+              "value": 18400.0,
+              "unit": "EGP",
+              "source": "rule"
+            }
+          ],
+          "result": 36020.0,
+          "unit": "EGP"
+        }
+      ],
+      "assumptions": [
+        {
+          "name": "Water production cost",
+          "key": "water_price",
+          "value": 8.0,
+          "unit": "EGP/m3",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Electricity tariff",
+          "key": "elec_tariff",
+          "value": 1.6,
+          "unit": "EGP/kWh",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Cooling energy cost",
+          "key": "cooling_price",
+          "value": 2.2,
+          "unit": "EGP/ton-h",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Crew call-out cost",
+          "key": "crew_callout",
+          "value": 3400.0,
+          "unit": "EGP/dispatch",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Pipe repair parts",
+          "key": "parts_pipe",
+          "value": 15000.0,
+          "unit": "EGP/repair",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Disruption penalty, government zone",
+          "key": "penalty_government",
+          "value": 2500.0,
+          "unit": "EGP/h",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Hours until repair if delayed",
+          "key": "delay_hours",
+          "value": 6.0,
+          "unit": "h",
+          "source": "default assumption",
+          "userChanged": false
+        }
+      ],
+      "sensitivity": [
+        {
+          "input": "water_price",
+          "changePercent": -20.0,
+          "newSaving": 34676.0
+        },
+        {
+          "input": "water_price",
+          "changePercent": 20.0,
+          "newSaving": 37364.0
+        }
+      ],
+      "confidence": 0.92,
+      "calculationId": "calc-0001"
+    }
+  },
+  "explanation": {
+    "reasons": [
+      {
+        "text": "Pressure fell from 3.8 to 2.1 bar in 4 minutes",
+        "evidenceType": "measured",
+        "evidenceRef": "water-pipe-04-pressure"
+      },
+      {
+        "text": "Inflow is 140 m3/h higher than outflow",
+        "evidenceType": "measured",
+        "evidenceRef": "water-pipe-04-flow-in"
+      },
+      {
+        "text": "Neighbouring sensors read normal, so this is not a sensor fault",
+        "evidenceType": "rule",
+        "evidenceRef": "rule:neighbour-consistency"
+      },
+      {
+        "text": "Pump P-04 draw is up 12% as it compensates",
+        "evidenceType": "measured",
+        "evidenceRef": "water-pump-04-flow"
+      }
+    ],
+    "calculations": [
+      {
+        "name": "Water loss per hour",
+        "formula": "Q_leak × P_water",
+        "inputs": [
+          {
+            "name": "Q_leak",
+            "value": 140.0,
+            "unit": "m3/h",
+            "source": "measured"
+          },
+          {
+            "name": "P_water",
+            "value": 8.0,
+            "unit": "EGP/m3",
+            "source": "assumed"
+          }
+        ],
+        "result": 1120.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Cost of delay per hour",
+        "formula": "C_loss + C_disruption + C_secondary",
+        "inputs": [
+          {
+            "name": "C_loss",
+            "value": 1120.0,
+            "unit": "EGP/h",
+            "source": "rule"
+          },
+          {
+            "name": "C_disruption",
+            "value": 2500.0,
+            "unit": "EGP/h",
+            "source": "assumed"
+          },
+          {
+            "name": "C_secondary",
+            "value": 200.0,
+            "unit": "EGP/h",
+            "source": "rule"
+          }
+        ],
+        "result": 3820.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Repair now",
+        "formula": "crew_callout + parts + equipment",
+        "inputs": [
+          {
+            "name": "crew_callout",
+            "value": 3400.0,
+            "unit": "EGP",
+            "source": "assumed"
+          },
+          {
+            "name": "parts",
+            "value": 15000.0,
+            "unit": "EGP",
+            "source": "assumed"
+          }
+        ],
+        "result": 18400.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Saving from acting now",
+        "formula": "(C_delay × t_delay + C_repair_late) − C_repair_now",
+        "inputs": [
+          {
+            "name": "C_delay",
+            "value": 3820.0,
+            "unit": "EGP/h",
+            "source": "rule"
+          },
+          {
+            "name": "t_delay",
+            "value": 6.0,
+            "unit": "h",
+            "source": "assumed"
+          },
+          {
+            "name": "C_repair_late",
+            "value": 31500.0,
+            "unit": "EGP",
+            "source": "rule"
+          },
+          {
+            "name": "C_repair_now",
+            "value": 18400.0,
+            "unit": "EGP",
+            "source": "rule"
+          }
+        ],
+        "result": 36020.0,
+        "unit": "EGP"
+      }
+    ],
+    "assumptions": [
+      {
+        "name": "Water production cost",
+        "key": "water_price",
+        "value": 8.0,
+        "unit": "EGP/m3",
+        "source": "default assumption",
+        "userChanged": false
+      },
+      {
+        "name": "Electricity tariff",
+        "key": "elec_tariff",
+        "value": 1.6,
+        "unit": "EGP/kWh",
+        "source": "default assumption",
+        "userChanged": false
+      },
+      {
+        "name": "Cooling energy cost",
+        "key": "cooling_price",
+        "value": 2.2,
+        "unit": "EGP/ton-h",
+        "source": "default assumption",
+        "userChanged": false
+      },
+      {
+        "name": "Crew call-out cost",
+        "key": "crew_callout",
+        "value": 3400.0,
+        "unit": "EGP/dispatch",
+        "source": "default assumption",
+        "userChanged": false
+      },
+      {
+        "name": "Pipe repair parts",
+        "key": "parts_pipe",
+        "value": 15000.0,
+        "unit": "EGP/repair",
+        "source": "default assumption",
+        "userChanged": false
+      },
+      {
+        "name": "Disruption penalty, government zone",
+        "key": "penalty_government",
+        "value": 2500.0,
+        "unit": "EGP/h",
+        "source": "default assumption",
+        "userChanged": false
+      },
+      {
+        "name": "Hours until repair if delayed",
+        "key": "delay_hours",
+        "value": 6.0,
+        "unit": "h",
+        "source": "default assumption",
+        "userChanged": false
+      }
+    ],
+    "sensitivity": [
+      {
+        "input": "water_price",
+        "changePercent": -20.0,
+        "newSaving": 34676.0
+      },
+      {
+        "input": "water_price",
+        "changePercent": 20.0,
+        "newSaving": 37364.0
+      }
+    ],
+    "confidence": 0.92,
+    "calculationId": "calc-0001"
+  }
+}

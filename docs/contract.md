@@ -81,6 +81,22 @@ GET /api/v1/forecast?network=water&zoneId=zone-gov&horizonHours=24 returns a ser
 
 GET /api/v1/metrics returns forecasting metrics per network, detection precision and recall, and the date of the last model run. Also top feature importances per model for the explainability view.
 
+### 4.9 Clarifications fixed in Phase 0
+
+The fixtures folder is the exact reference for these shapes, and the backend Pydantic models live in backend/app/schemas.
+
+- JSON field names are camelCase.
+- The reading payload is `{tick, timestamp, readings: [Reading]}`.
+- Asset geometry is `{type: point|line, coordinates: [{lat, lng}]}`.
+- Pipe sensors use suffixes `-flow-in`, `-flow-out` and `-pressure`. Cooling plants use `-supply-temp`, and loops use `-return-temp`.
+- An agent finding keeps `explanation` as plain text, and its explanation block (4.6A) is in `explain`. The cost object carries the same block in `cost.explanation`. The finding also has `createdAt`, `fallback` and `numberCheck` (passed or corrected).
+- The cost object adds `delayHours` and `costOfDelay` (that is, `delayPerHour × delayHours + lateRepair`), so the UI can show the act now / delay / saving tiles without doing any math.
+- An assumption has a stable `key`, which is used by PUT /assumptions as a `{key: value}` map, and by sensitivity rows as `input`.
+- An incident is `{id, title, networks, zoneIds, severity, state, openedAt, alertIds, findingIds, calculationId}`.
+- On connect, the WebSocket sends `snapshot` first: `{tick, timestamp, topology, latest, assets, alerts, incidents, findings, scenarios, llm}`.
+- `chat_chunk` also has `agent`. `chat_done` has `agentsConsulted`, `routing: [{agent, reason}]`, `fallback`, `calculationId` and `findingIds`.
+- The demo sequence is in fixtures/sequence/burst.json, as an array of `{delayMs, message}`.
+
 ## 5. Scenario Control
 
 - GET /api/v1/scenarios lists available scenarios with id, name, description, network, and parameters (for example severity and target asset).

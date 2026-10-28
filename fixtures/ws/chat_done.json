@@ -1,0 +1,28 @@
+{
+  "type": "chat_done",
+  "payload": {
+    "messageId": "msg-0001",
+    "agentsConsulted": [
+      "electricity",
+      "water",
+      "cooling"
+    ],
+    "routing": [
+      {
+        "agent": "electricity",
+        "reason": "Substation trip and load transfer"
+      },
+      {
+        "agent": "water",
+        "reason": "SS-02 powers pumps P-04 and P-05"
+      },
+      {
+        "agent": "cooling",
+        "reason": "SS-02 powers DCP-01"
+      }
+    ],
+    "fallback": false,
+    "calculationId": "calc-0001",
+    "findingIds": []
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "chat_chunk",
+  "payload": {
+    "messageId": "msg-0001",
+    "text": "A trip at SS-02 stops pump P-04, ",
+    "agent": "orchestrator"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "alert",
+  "payload": {
+    "id": "alert-0001",
+    "incidentId": "inc-0001",
+    "network": "water",
+    "zoneId": "zone-gov",
+    "assetIds": [
+      "water-pipe-04",
+      "water-pump-04"
+    ],
+    "severity": "critical",
+    "title": "Pipe burst suspected",
+    "summary": "Pressure drop and flow mismatch on the Government District main.",
+    "detectedAt": "2026-10-28T11:30:40Z",
+    "state": "open",
+    "confidence": 0.92
+  }
+}

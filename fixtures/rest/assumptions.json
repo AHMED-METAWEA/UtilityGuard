@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Water production cost",
+    "key": "water_price",
+    "value": 8.0,
+    "unit": "EGP/m3",
+    "source": "default assumption",
+    "userChanged": false
+  },
+  {
+    "name": "Electricity tariff",
+    "key": "elec_tariff",
+    "value": 1.6,
+    "unit": "EGP/kWh",
+    "source": "default assumption",
+    "userChanged": false
+  },
+  {
+    "name": "Cooling energy cost",
+    "key": "cooling_price",
+    "value": 2.2,
+    "unit": "EGP/ton-h",
+    "source": "default assumption",
+    "userChanged": false
+  },
+  {
+    "name": "Crew call-out cost",
+    "key": "crew_callout",
+    "value": 3400.0,
+    "unit": "EGP/dispatch",
+    "source": "default assumption",
+    "userChanged": false
+  },
+  {
+    "name": "Pipe repair parts",
+    "key": "parts_pipe",
+    "value": 15000.0,
+    "unit": "EGP/repair",
+    "source": "default assumption",
+    "userChanged": false
+  },
+  {
+    "name": "Disruption penalty, government zone",
+    "key": "penalty_government",
+    "value": 2500.0,
+    "unit": "EGP/h",
+    "source": "default assumption",
+    "userChanged": false
+  },
+  {
+    "name": "Hours until repair if delayed",
+    "key": "delay_hours",
+    "value": 6.0,
+    "unit": "h",
+    "source": "default assumption",
+    "userChanged": false
+  }
+]
