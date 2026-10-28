@@ -8,7 +8,7 @@
       {
         "name": "targetAsset",
         "type": "asset",
-        "default": "water-pipe-04"
+        "default": "water-pipe-01"
       },
       {
         "name": "severity",
@@ -28,7 +28,7 @@
       {
         "name": "targetSensor",
         "type": "select",
-        "default": "water-pipe-05-pressure"
+        "default": "water-pipe-03-pressure"
       }
     ]
   },
@@ -54,7 +54,7 @@
       {
         "name": "targetAsset",
         "type": "asset",
-        "default": "water-pump-05"
+        "default": "water-pump-03"
       }
     ]
   },

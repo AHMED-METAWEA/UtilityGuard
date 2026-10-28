@@ -4,7 +4,7 @@
       "lat": 30.0285,
       "lng": 31.7285
     },
-    "nearAssetId": "water-pipe-05",
+    "nearAssetId": "water-pipe-03",
     "network": "water",
     "kind": "pressure",
     "detectionImprovement": 0.14,

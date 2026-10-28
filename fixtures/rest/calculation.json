@@ -46,12 +46,12 @@
         {
           "text": "Pressure fell from 3.8 to 2.1 bar in 4 minutes",
           "evidenceType": "measured",
-          "evidenceRef": "water-pipe-04-pressure"
+          "evidenceRef": "water-pipe-01-pressure"
         },
         {
           "text": "Inflow is 140 m3/h higher than outflow",
           "evidenceType": "measured",
-          "evidenceRef": "water-pipe-04-flow-in"
+          "evidenceRef": "water-pipe-01-flow-in"
         },
         {
           "text": "Neighbouring sensors read normal, so this is not a sensor fault",
@@ -61,7 +61,7 @@
         {
           "text": "Pump P-04 draw is up 12% as it compensates",
           "evidenceType": "measured",
-          "evidenceRef": "water-pump-04-flow"
+          "evidenceRef": "water-pump-01-flow"
         }
       ],
       "calculations": [
@@ -243,12 +243,12 @@
       {
         "text": "Pressure fell from 3.8 to 2.1 bar in 4 minutes",
         "evidenceType": "measured",
-        "evidenceRef": "water-pipe-04-pressure"
+        "evidenceRef": "water-pipe-01-pressure"
       },
       {
         "text": "Inflow is 140 m3/h higher than outflow",
         "evidenceType": "measured",
-        "evidenceRef": "water-pipe-04-flow-in"
+        "evidenceRef": "water-pipe-01-flow-in"
       },
       {
         "text": "Neighbouring sensors read normal, so this is not a sensor fault",
@@ -258,7 +258,7 @@
       {
         "text": "Pump P-04 draw is up 12% as it compensates",
         "evidenceType": "measured",
-        "evidenceRef": "water-pump-04-flow"
+        "evidenceRef": "water-pump-01-flow"
       }
     ],
     "calculations": [

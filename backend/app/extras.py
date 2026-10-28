@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from app.runtime import Runtime
 
 KEY_SENSOR = {"scn-pipe-burst": "{target}-pressure", "scn-pump-failure": "{target}-pressure",
-              "scn-substation-trip": "water-pump-04-pressure", "scn-cooling-fault": "{target}-supply-temp",
+              "scn-substation-trip": "water-pump-01-pressure", "scn-cooling-fault": "{target}-supply-temp",
               "scn-stuck-sensor": "{target}", "scn-heat-wave": "elec-sub-02-load", "scn-holiday": "elec-sub-01-load"}
 
 

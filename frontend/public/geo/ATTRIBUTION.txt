@@ -1,0 +1,1 @@
+OpenStreetMap data © OpenStreetMap contributors, ODbL 1.0. Extract of the New Administrative Capital (bbox 29.985,31.66,30.06,31.80), fetched 2026-10-28 via Overpass API.

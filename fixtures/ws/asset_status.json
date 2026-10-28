@@ -1,7 +1,7 @@
 {
   "type": "asset_status",
   "payload": {
-    "assetId": "water-pipe-04",
+    "assetId": "water-pipe-01",
     "status": "fault",
     "healthScore": 34.0,
     "failureProbability": 0.88

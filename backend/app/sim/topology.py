@@ -1,8 +1,10 @@
-"""Static synthetic twin of a slice of the New Administrative Capital.
+"""Static synthetic twin placed on the real geography of the New Administrative Capital.
 
-Layout follows the real district order (north to south): Diplomatic / Government /
-Presidential, the Green River, then R2 / CBD / R5, then R7 / Medical City / R8.
-Coordinates are real-world-ish around 30.02 N, 31.72 E; the network is synthetic.
+District positions follow OpenStreetMap: R2 and the CBD (Iconic Tower) in the west by the
+Green River, the Arts and Culture City, the Government District (Parliament, Cabinet,
+ministries) in the east, Justice City to its south-east, the Presidential District to the
+north, and residential districts to the north and north-east. The utility network itself
+is synthetic.
 """
 
 from __future__ import annotations
@@ -14,45 +16,49 @@ from app.schemas import Asset, Geometry, LatLng, Link, Range, Sensor, Topology, 
 
 # (id, name, type, south, west, north, east)
 _ZONES = [
-    ("zone-dip", "Diplomatic District", "government", 30.040, 31.700, 30.052, 31.715),
-    ("zone-gov", "Government District", "government", 30.040, 31.720, 30.052, 31.737),
-    ("zone-pres", "Presidential District", "government", 30.040, 31.742, 30.052, 31.757),
-    ("zone-res-2", "Residential R2", "residential", 30.018, 31.700, 30.030, 31.714),
-    ("zone-cbd", "Central Business District", "business", 30.018, 31.719, 30.030, 31.738),
-    ("zone-res-5", "Residential R5", "residential", 30.018, 31.743, 30.030, 31.757),
-    ("zone-res-7", "Residential R7", "residential", 30.003, 31.700, 30.015, 31.714),
-    ("zone-med", "Medical City", "services", 30.003, 31.719, 30.015, 31.738),
-    ("zone-res-8", "Residential R8", "residential", 30.003, 31.743, 30.015, 31.757),
+    ("zone-gov", "Government District", "government", 30.0070, 31.7380, 30.0210, 31.7660),
+    ("zone-cult", "Arts and Culture City", "services", 30.0050, 31.7160, 30.0170, 31.7360),
+    ("zone-cbd", "Central Business District", "business", 30.0050, 31.6870, 30.0175, 31.7060),
+    ("zone-res-2", "Residential R2", "residential", 30.0130, 31.6580, 30.0260, 31.6800),
+    ("zone-just", "Justice City", "government", 30.0000, 31.7670, 30.0130, 31.7800),
+    ("zone-pres", "Presidential District", "government", 30.0245, 31.7480, 30.0360, 31.7630),
+    ("zone-res-n", "Residential North", "residential", 30.0270, 31.7300, 30.0450, 31.7470),
+    ("zone-res-ne", "Residential North-East", "residential", 30.0280, 31.7660, 30.0440, 31.7820),
+    ("zone-res-far", "Residential Far North-East", "residential", 30.0450, 31.7720, 30.0610, 31.7880),
 ]
 
-# Base demand per zone (water m3/h, electricity MW, cooling ton-of-refrigeration-equivalent MW)
+# Base demand per zone (water m3/h, electricity MW, cooling MW thermal)
 ZONE_BASE = {
-    "zone-dip": (420, 18, 6), "zone-gov": (640, 34, 14), "zone-pres": (380, 16, 6),
-    "zone-res-2": (560, 22, 0), "zone-cbd": (720, 42, 16), "zone-res-5": (500, 20, 4),
-    "zone-res-7": (460, 17, 0), "zone-med": (520, 26, 9), "zone-res-8": (430, 16, 0),
+    "zone-gov": (640, 34, 14), "zone-cult": (420, 18, 6), "zone-cbd": (720, 42, 16),
+    "zone-res-2": (560, 22, 0), "zone-just": (380, 16, 6), "zone-pres": (380, 16, 6),
+    "zone-res-n": (500, 20, 0), "zone-res-ne": (460, 17, 0), "zone-res-far": (430, 16, 0),
 }
 
 # Which substation powers each zone
 ZONE_SUBSTATION = {
-    "zone-dip": "elec-sub-01", "zone-res-2": "elec-sub-01", "zone-res-7": "elec-sub-01",
-    "zone-gov": "elec-sub-02", "zone-cbd": "elec-sub-02",
-    "zone-pres": "elec-sub-03", "zone-res-5": "elec-sub-03",
-    "zone-med": "elec-sub-04", "zone-res-8": "elec-sub-04",
+    "zone-res-2": "elec-sub-01", "zone-cbd": "elec-sub-01",
+    "zone-gov": "elec-sub-02", "zone-cult": "elec-sub-02",
+    "zone-pres": "elec-sub-03", "zone-res-n": "elec-sub-03",
+    "zone-just": "elec-sub-04", "zone-res-ne": "elec-sub-04", "zone-res-far": "elec-sub-04",
 }
 # Backup substation used when the primary trips
 SUBSTATION_BACKUP = {"elec-sub-01": "elec-sub-02", "elec-sub-02": "elec-sub-03",
                      "elec-sub-03": "elec-sub-04", "elec-sub-04": "elec-sub-01"}
+SUBSTATION_POS = {"elec-sub-01": (30.0195, 31.6840), "elec-sub-02": (30.0228, 31.7400),
+                  "elec-sub-03": (30.0385, 31.7520), "elec-sub-04": (30.0270, 31.7790)}
+RESERVOIR_POS = (30.0228, 31.7330)
 
 # District cooling plants and the zones they serve
 COOLING_PLANTS = {
-    "cool-plant-01": ("DCP-01 Government", "zone-gov", ["zone-dip", "zone-gov", "zone-pres"]),
-    "cool-plant-02": ("DCP-02 CBD", "zone-cbd", ["zone-cbd", "zone-res-5", "zone-med"]),
+    "cool-plant-01": ("DCP-01 Government", "zone-gov", ["zone-gov", "zone-pres", "zone-just"]),
+    "cool-plant-02": ("DCP-02 CBD", "zone-cbd", ["zone-cbd", "zone-cult"]),
 }
 
-# Water: the reservoir feeds the north trunk; the spine carries water south.
-TRUNK_ORDER = ["zone-dip", "zone-gov", "zone-pres"]  # north trunk, west -> east
-SPINE = {"zone-res-2": "zone-dip", "zone-res-7": "zone-res-2", "zone-cbd": "zone-gov",
-         "zone-med": "zone-cbd", "zone-res-5": "zone-pres", "zone-res-8": "zone-res-5"}
+# Water: the reservoir feeds the west trunk (Government -> Culture City -> CBD -> R2);
+# branches carry water north and south-east from the Government District.
+TRUNK_ORDER = ["zone-gov", "zone-cult", "zone-cbd", "zone-res-2"]
+SPINE = {"zone-just": "zone-gov", "zone-pres": "zone-gov", "zone-res-n": "zone-pres",
+         "zone-res-ne": "zone-pres", "zone-res-far": "zone-res-ne"}
 
 UNITS = {"pressure": "bar", "flow": "m3/h", "load": "MW", "voltage": "kV", "temperature": "°C"}
 
@@ -104,11 +110,10 @@ def build() -> TwinGraph:
     g = TwinGraph(Topology(zones=zones, assets=[], sensors=[], links=[]), {}, {}, {})
 
     # ---------- electricity ----------
-    sub_pos = {"elec-sub-01": (30.034, 31.703), "elec-sub-02": (30.037, 31.728),
-               "elec-sub-03": (30.034, 31.752), "elec-sub-04": (30.016, 31.740)}
+    sub_pos = SUBSTATION_POS
     for i, (sid, pos) in enumerate(sub_pos.items(), 1):
         served = [z for z, s in ZONE_SUBSTATION.items() if s == sid]
-        zone = served[0] if sid != "elec-sub-02" else "zone-gov"
+        zone = min(served, key=lambda z: (ctr(z)[0] - pos[0]) ** 2 + (ctr(z)[1] - pos[1]) ** 2)
         assets.append(Asset(id=sid, network="electricity", kind="substation", name=f"SS-0{i}",
                             zoneId=zone, geometry=_pt(*pos)))
         add_sensor(sid, "electricity", "load", 10, 110, pos)
@@ -130,15 +135,15 @@ def build() -> TwinGraph:
         links.append(Link(fromAsset=fid, toAsset=tid, relation="feeds"))
 
     # ---------- water ----------
-    res = (30.046, 31.6965)
+    res = RESERVOIR_POS
     assets.append(Asset(id="water-res-01", network="water", kind="reservoir", name="RES-01",
-                        zoneId="zone-dip", geometry=_pt(*res)))
+                        zoneId="zone-gov", geometry=_pt(*res)))
     add_sensor("water-res-01", "water", "pressure", 4.2, 5.2, res)
     add_sensor("water-res-01", "water", "flow", 2000, 6500, res)
-    links.append(Link(fromAsset="elec-sub-01", toAsset="water-res-01", relation="powers"))
+    links.append(Link(fromAsset="elec-sub-02", toAsset="water-res-01", relation="powers"))
 
     pipe_n = 0
-    for i, z in enumerate(ZONE_SUBSTATION, 1):
+    for i, z in enumerate(TRUNK_ORDER + list(SPINE), 1):  # upstream zones first
         c = ctr(z)
         pump = f"water-pump-{i:02d}"
         g.zone_pump[z] = pump

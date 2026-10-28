@@ -1,126 +1,64 @@
 {
   "zones": [
     {
-      "id": "zone-dip",
-      "name": "Diplomatic District",
-      "type": "government",
-      "center": {
-        "lat": 30.046,
-        "lng": 31.7075
-      },
-      "polygon": [
-        {
-          "lat": 30.04,
-          "lng": 31.7
-        },
-        {
-          "lat": 30.04,
-          "lng": 31.715
-        },
-        {
-          "lat": 30.052,
-          "lng": 31.715
-        },
-        {
-          "lat": 30.052,
-          "lng": 31.7
-        },
-        {
-          "lat": 30.04,
-          "lng": 31.7
-        }
-      ]
-    },
-    {
       "id": "zone-gov",
       "name": "Government District",
       "type": "government",
       "center": {
-        "lat": 30.046,
-        "lng": 31.7285
+        "lat": 30.014,
+        "lng": 31.752
       },
       "polygon": [
         {
-          "lat": 30.04,
-          "lng": 31.72
+          "lat": 30.007,
+          "lng": 31.738
         },
         {
-          "lat": 30.04,
-          "lng": 31.737
+          "lat": 30.007,
+          "lng": 31.766
         },
         {
-          "lat": 30.052,
-          "lng": 31.737
+          "lat": 30.021,
+          "lng": 31.766
         },
         {
-          "lat": 30.052,
-          "lng": 31.72
+          "lat": 30.021,
+          "lng": 31.738
         },
         {
-          "lat": 30.04,
-          "lng": 31.72
+          "lat": 30.007,
+          "lng": 31.738
         }
       ]
     },
     {
-      "id": "zone-pres",
-      "name": "Presidential District",
-      "type": "government",
+      "id": "zone-cult",
+      "name": "Arts and Culture City",
+      "type": "services",
       "center": {
-        "lat": 30.046,
-        "lng": 31.7495
+        "lat": 30.011,
+        "lng": 31.726
       },
       "polygon": [
         {
-          "lat": 30.04,
-          "lng": 31.742
+          "lat": 30.005,
+          "lng": 31.716
         },
         {
-          "lat": 30.04,
-          "lng": 31.757
+          "lat": 30.005,
+          "lng": 31.736
         },
         {
-          "lat": 30.052,
-          "lng": 31.757
+          "lat": 30.017,
+          "lng": 31.736
         },
         {
-          "lat": 30.052,
-          "lng": 31.742
+          "lat": 30.017,
+          "lng": 31.716
         },
         {
-          "lat": 30.04,
-          "lng": 31.742
-        }
-      ]
-    },
-    {
-      "id": "zone-res-2",
-      "name": "Residential R2",
-      "type": "residential",
-      "center": {
-        "lat": 30.024,
-        "lng": 31.707
-      },
-      "polygon": [
-        {
-          "lat": 30.018,
-          "lng": 31.7
-        },
-        {
-          "lat": 30.018,
-          "lng": 31.714
-        },
-        {
-          "lat": 30.03,
-          "lng": 31.714
-        },
-        {
-          "lat": 30.03,
-          "lng": 31.7
-        },
-        {
-          "lat": 30.018,
-          "lng": 31.7
+          "lat": 30.005,
+          "lng": 31.716
         }
       ]
     },
@@ -129,153 +67,215 @@
       "name": "Central Business District",
       "type": "business",
       "center": {
-        "lat": 30.024,
-        "lng": 31.7285
+        "lat": 30.01125,
+        "lng": 31.6965
       },
       "polygon": [
         {
-          "lat": 30.018,
-          "lng": 31.719
+          "lat": 30.005,
+          "lng": 31.687
         },
         {
-          "lat": 30.018,
-          "lng": 31.738
+          "lat": 30.005,
+          "lng": 31.706
         },
         {
-          "lat": 30.03,
-          "lng": 31.738
+          "lat": 30.0175,
+          "lng": 31.706
         },
         {
-          "lat": 30.03,
-          "lng": 31.719
+          "lat": 30.0175,
+          "lng": 31.687
         },
         {
-          "lat": 30.018,
-          "lng": 31.719
+          "lat": 30.005,
+          "lng": 31.687
         }
       ]
     },
     {
-      "id": "zone-res-5",
-      "name": "Residential R5",
+      "id": "zone-res-2",
+      "name": "Residential R2",
       "type": "residential",
       "center": {
-        "lat": 30.024,
-        "lng": 31.75
+        "lat": 30.0195,
+        "lng": 31.669
       },
       "polygon": [
         {
-          "lat": 30.018,
-          "lng": 31.743
+          "lat": 30.013,
+          "lng": 31.658
         },
         {
-          "lat": 30.018,
-          "lng": 31.757
+          "lat": 30.013,
+          "lng": 31.68
         },
         {
-          "lat": 30.03,
-          "lng": 31.757
+          "lat": 30.026,
+          "lng": 31.68
         },
         {
-          "lat": 30.03,
-          "lng": 31.743
+          "lat": 30.026,
+          "lng": 31.658
         },
         {
-          "lat": 30.018,
-          "lng": 31.743
+          "lat": 30.013,
+          "lng": 31.658
         }
       ]
     },
     {
-      "id": "zone-res-7",
-      "name": "Residential R7",
+      "id": "zone-just",
+      "name": "Justice City",
+      "type": "government",
+      "center": {
+        "lat": 30.0065,
+        "lng": 31.7735
+      },
+      "polygon": [
+        {
+          "lat": 30.0,
+          "lng": 31.767
+        },
+        {
+          "lat": 30.0,
+          "lng": 31.78
+        },
+        {
+          "lat": 30.013,
+          "lng": 31.78
+        },
+        {
+          "lat": 30.013,
+          "lng": 31.767
+        },
+        {
+          "lat": 30.0,
+          "lng": 31.767
+        }
+      ]
+    },
+    {
+      "id": "zone-pres",
+      "name": "Presidential District",
+      "type": "government",
+      "center": {
+        "lat": 30.03025,
+        "lng": 31.7555
+      },
+      "polygon": [
+        {
+          "lat": 30.0245,
+          "lng": 31.748
+        },
+        {
+          "lat": 30.0245,
+          "lng": 31.763
+        },
+        {
+          "lat": 30.036,
+          "lng": 31.763
+        },
+        {
+          "lat": 30.036,
+          "lng": 31.748
+        },
+        {
+          "lat": 30.0245,
+          "lng": 31.748
+        }
+      ]
+    },
+    {
+      "id": "zone-res-n",
+      "name": "Residential North",
       "type": "residential",
       "center": {
-        "lat": 30.009,
-        "lng": 31.707
+        "lat": 30.036,
+        "lng": 31.7385
       },
       "polygon": [
         {
-          "lat": 30.003,
-          "lng": 31.7
+          "lat": 30.027,
+          "lng": 31.73
         },
         {
-          "lat": 30.003,
-          "lng": 31.714
+          "lat": 30.027,
+          "lng": 31.747
         },
         {
-          "lat": 30.015,
-          "lng": 31.714
+          "lat": 30.045,
+          "lng": 31.747
         },
         {
-          "lat": 30.015,
-          "lng": 31.7
+          "lat": 30.045,
+          "lng": 31.73
         },
         {
-          "lat": 30.003,
-          "lng": 31.7
+          "lat": 30.027,
+          "lng": 31.73
         }
       ]
     },
     {
-      "id": "zone-med",
-      "name": "Medical City",
-      "type": "services",
-      "center": {
-        "lat": 30.009,
-        "lng": 31.7285
-      },
-      "polygon": [
-        {
-          "lat": 30.003,
-          "lng": 31.719
-        },
-        {
-          "lat": 30.003,
-          "lng": 31.738
-        },
-        {
-          "lat": 30.015,
-          "lng": 31.738
-        },
-        {
-          "lat": 30.015,
-          "lng": 31.719
-        },
-        {
-          "lat": 30.003,
-          "lng": 31.719
-        }
-      ]
-    },
-    {
-      "id": "zone-res-8",
-      "name": "Residential R8",
+      "id": "zone-res-ne",
+      "name": "Residential North-East",
       "type": "residential",
       "center": {
-        "lat": 30.009,
-        "lng": 31.75
+        "lat": 30.036,
+        "lng": 31.774
       },
       "polygon": [
         {
-          "lat": 30.003,
-          "lng": 31.743
+          "lat": 30.028,
+          "lng": 31.766
         },
         {
-          "lat": 30.003,
-          "lng": 31.757
+          "lat": 30.028,
+          "lng": 31.782
         },
         {
-          "lat": 30.015,
-          "lng": 31.757
+          "lat": 30.044,
+          "lng": 31.782
         },
         {
-          "lat": 30.015,
-          "lng": 31.743
+          "lat": 30.044,
+          "lng": 31.766
         },
         {
-          "lat": 30.003,
-          "lng": 31.743
+          "lat": 30.028,
+          "lng": 31.766
+        }
+      ]
+    },
+    {
+      "id": "zone-res-far",
+      "name": "Residential Far North-East",
+      "type": "residential",
+      "center": {
+        "lat": 30.053,
+        "lng": 31.78
+      },
+      "polygon": [
+        {
+          "lat": 30.045,
+          "lng": 31.772
+        },
+        {
+          "lat": 30.045,
+          "lng": 31.788
+        },
+        {
+          "lat": 30.061,
+          "lng": 31.788
+        },
+        {
+          "lat": 30.061,
+          "lng": 31.772
+        },
+        {
+          "lat": 30.045,
+          "lng": 31.772
         }
       ]
     }
@@ -286,13 +286,13 @@
       "network": "electricity",
       "kind": "substation",
       "name": "SS-01",
-      "zoneId": "zone-dip",
+      "zoneId": "zone-cbd",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.034,
-            "lng": 31.703
+            "lat": 30.0195,
+            "lng": 31.684
           }
         ]
       },
@@ -308,8 +308,8 @@
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.037,
-            "lng": 31.728
+            "lat": 30.0228,
+            "lng": 31.74
           }
         ]
       },
@@ -325,7 +325,7 @@
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.034,
+            "lat": 30.0385,
             "lng": 31.752
           }
         ]
@@ -337,13 +337,13 @@
       "network": "electricity",
       "kind": "substation",
       "name": "SS-04",
-      "zoneId": "zone-med",
+      "zoneId": "zone-res-ne",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.016,
-            "lng": 31.74
+            "lat": 30.027,
+            "lng": 31.779
           }
         ]
       },
@@ -354,21 +354,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-01",
-      "zoneId": "zone-dip",
+      "zoneId": "zone-res-2",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.034,
-            "lng": 31.703
+            "lat": 30.0195,
+            "lng": 31.684
           },
           {
-            "lat": 30.034,
-            "lng": 31.7045
+            "lat": 30.0195,
+            "lng": 31.666
           },
           {
-            "lat": 30.043,
-            "lng": 31.7045
+            "lat": 30.0165,
+            "lng": 31.666
           }
         ]
       },
@@ -379,13 +379,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-01",
-      "zoneId": "zone-dip",
+      "zoneId": "zone-res-2",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.043,
-            "lng": 31.7045
+            "lat": 30.0165,
+            "lng": 31.666
           }
         ]
       },
@@ -396,21 +396,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-02",
-      "zoneId": "zone-res-2",
+      "zoneId": "zone-cbd",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.034,
-            "lng": 31.703
+            "lat": 30.0195,
+            "lng": 31.684
           },
           {
-            "lat": 30.034,
-            "lng": 31.704
+            "lat": 30.0195,
+            "lng": 31.6935
           },
           {
-            "lat": 30.021,
-            "lng": 31.704
+            "lat": 30.00825,
+            "lng": 31.6935
           }
         ]
       },
@@ -421,13 +421,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-02",
-      "zoneId": "zone-res-2",
+      "zoneId": "zone-cbd",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.021,
-            "lng": 31.704
+            "lat": 30.00825,
+            "lng": 31.6935
           }
         ]
       },
@@ -438,21 +438,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-03",
-      "zoneId": "zone-res-7",
+      "zoneId": "zone-gov",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.034,
-            "lng": 31.703
+            "lat": 30.0228,
+            "lng": 31.74
           },
           {
-            "lat": 30.034,
-            "lng": 31.704
+            "lat": 30.0228,
+            "lng": 31.749
           },
           {
-            "lat": 30.006,
-            "lng": 31.704
+            "lat": 30.011,
+            "lng": 31.749
           }
         ]
       },
@@ -463,13 +463,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-03",
-      "zoneId": "zone-res-7",
+      "zoneId": "zone-gov",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.006,
-            "lng": 31.704
+            "lat": 30.011,
+            "lng": 31.749
           }
         ]
       },
@@ -480,21 +480,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-04",
-      "zoneId": "zone-gov",
+      "zoneId": "zone-cult",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.037,
-            "lng": 31.728
+            "lat": 30.0228,
+            "lng": 31.74
           },
           {
-            "lat": 30.037,
-            "lng": 31.7255
+            "lat": 30.0228,
+            "lng": 31.723
           },
           {
-            "lat": 30.043,
-            "lng": 31.7255
+            "lat": 30.008,
+            "lng": 31.723
           }
         ]
       },
@@ -505,13 +505,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-04",
-      "zoneId": "zone-gov",
+      "zoneId": "zone-cult",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.043,
-            "lng": 31.7255
+            "lat": 30.008,
+            "lng": 31.723
           }
         ]
       },
@@ -522,21 +522,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-05",
-      "zoneId": "zone-cbd",
+      "zoneId": "zone-pres",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.037,
-            "lng": 31.728
+            "lat": 30.0385,
+            "lng": 31.752
           },
           {
-            "lat": 30.037,
-            "lng": 31.7255
+            "lat": 30.0385,
+            "lng": 31.7525
           },
           {
-            "lat": 30.021,
-            "lng": 31.7255
+            "lat": 30.02725,
+            "lng": 31.7525
           }
         ]
       },
@@ -547,13 +547,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-05",
-      "zoneId": "zone-cbd",
+      "zoneId": "zone-pres",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.021,
-            "lng": 31.7255
+            "lat": 30.02725,
+            "lng": 31.7525
           }
         ]
       },
@@ -564,21 +564,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-06",
-      "zoneId": "zone-pres",
+      "zoneId": "zone-res-n",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.034,
+            "lat": 30.0385,
             "lng": 31.752
           },
           {
-            "lat": 30.034,
-            "lng": 31.7465
+            "lat": 30.0385,
+            "lng": 31.7355
           },
           {
-            "lat": 30.043,
-            "lng": 31.7465
+            "lat": 30.033,
+            "lng": 31.7355
           }
         ]
       },
@@ -589,13 +589,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-06",
-      "zoneId": "zone-pres",
+      "zoneId": "zone-res-n",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.043,
-            "lng": 31.7465
+            "lat": 30.033,
+            "lng": 31.7355
           }
         ]
       },
@@ -606,21 +606,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-07",
-      "zoneId": "zone-res-5",
+      "zoneId": "zone-just",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.034,
-            "lng": 31.752
+            "lat": 30.027,
+            "lng": 31.779
           },
           {
-            "lat": 30.034,
-            "lng": 31.747
+            "lat": 30.027,
+            "lng": 31.7705
           },
           {
-            "lat": 30.021,
-            "lng": 31.747
+            "lat": 30.0035,
+            "lng": 31.7705
           }
         ]
       },
@@ -631,13 +631,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-07",
-      "zoneId": "zone-res-5",
+      "zoneId": "zone-just",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.021,
-            "lng": 31.747
+            "lat": 30.0035,
+            "lng": 31.7705
           }
         ]
       },
@@ -648,21 +648,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-08",
-      "zoneId": "zone-med",
+      "zoneId": "zone-res-ne",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.016,
-            "lng": 31.74
+            "lat": 30.027,
+            "lng": 31.779
           },
           {
-            "lat": 30.016,
-            "lng": 31.7255
+            "lat": 30.027,
+            "lng": 31.771
           },
           {
-            "lat": 30.006,
-            "lng": 31.7255
+            "lat": 30.033,
+            "lng": 31.771
           }
         ]
       },
@@ -673,13 +673,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-08",
-      "zoneId": "zone-med",
+      "zoneId": "zone-res-ne",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.006,
-            "lng": 31.7255
+            "lat": 30.033,
+            "lng": 31.771
           }
         ]
       },
@@ -690,21 +690,21 @@
       "network": "electricity",
       "kind": "feeder",
       "name": "Feeder F-09",
-      "zoneId": "zone-res-8",
+      "zoneId": "zone-res-far",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.016,
-            "lng": 31.74
+            "lat": 30.027,
+            "lng": 31.779
           },
           {
-            "lat": 30.016,
-            "lng": 31.747
+            "lat": 30.027,
+            "lng": 31.777
           },
           {
-            "lat": 30.006,
-            "lng": 31.747
+            "lat": 30.05,
+            "lng": 31.777
           }
         ]
       },
@@ -715,13 +715,13 @@
       "network": "electricity",
       "kind": "transformer",
       "name": "TX-09",
-      "zoneId": "zone-res-8",
+      "zoneId": "zone-res-far",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.006,
-            "lng": 31.747
+            "lat": 30.05,
+            "lng": 31.777
           }
         ]
       },
@@ -732,13 +732,13 @@
       "network": "water",
       "kind": "reservoir",
       "name": "RES-01",
-      "zoneId": "zone-dip",
+      "zoneId": "zone-gov",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.046,
-            "lng": 31.6965
+            "lat": 30.0228,
+            "lng": 31.733
           }
         ]
       },
@@ -749,13 +749,13 @@
       "network": "water",
       "kind": "pump",
       "name": "P-01",
-      "zoneId": "zone-dip",
+      "zoneId": "zone-gov",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.05,
-            "lng": 31.7035
+            "lat": 30.018,
+            "lng": 31.748
           }
         ]
       },
@@ -765,22 +765,22 @@
       "id": "water-pipe-01",
       "network": "water",
       "kind": "pipe",
-      "name": "Main WP-DIP-01",
-      "zoneId": "zone-dip",
+      "name": "Main WP-GOV-01",
+      "zoneId": "zone-gov",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.046,
-            "lng": 31.6965
+            "lat": 30.0228,
+            "lng": 31.733
           },
           {
-            "lat": 30.046,
-            "lng": 31.7035
+            "lat": 30.0228,
+            "lng": 31.748
           },
           {
-            "lat": 30.05,
-            "lng": 31.7035
+            "lat": 30.018,
+            "lng": 31.748
           }
         ]
       },
@@ -791,13 +791,13 @@
       "network": "water",
       "kind": "pump",
       "name": "P-02",
-      "zoneId": "zone-res-2",
+      "zoneId": "zone-cult",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.028,
-            "lng": 31.703
+            "lat": 30.015,
+            "lng": 31.722
           }
         ]
       },
@@ -807,22 +807,22 @@
       "id": "water-pipe-02",
       "network": "water",
       "kind": "pipe",
-      "name": "Main WP-RES-2-02",
-      "zoneId": "zone-res-2",
+      "name": "Main WP-CULT-02",
+      "zoneId": "zone-cult",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.05,
-            "lng": 31.7035
+            "lat": 30.018,
+            "lng": 31.748
           },
           {
-            "lat": 30.028,
-            "lng": 31.7035
+            "lat": 30.018,
+            "lng": 31.722
           },
           {
-            "lat": 30.028,
-            "lng": 31.703
+            "lat": 30.015,
+            "lng": 31.722
           }
         ]
       },
@@ -833,13 +833,13 @@
       "network": "water",
       "kind": "pump",
       "name": "P-03",
-      "zoneId": "zone-res-7",
+      "zoneId": "zone-cbd",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.013,
-            "lng": 31.703
+            "lat": 30.01525,
+            "lng": 31.6925
           }
         ]
       },
@@ -849,22 +849,22 @@
       "id": "water-pipe-03",
       "network": "water",
       "kind": "pipe",
-      "name": "Main WP-RES-7-03",
-      "zoneId": "zone-res-7",
+      "name": "Main WP-CBD-03",
+      "zoneId": "zone-cbd",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.028,
-            "lng": 31.703
+            "lat": 30.015,
+            "lng": 31.722
           },
           {
-            "lat": 30.013,
-            "lng": 31.703
+            "lat": 30.015,
+            "lng": 31.6925
           },
           {
-            "lat": 30.013,
-            "lng": 31.703
+            "lat": 30.01525,
+            "lng": 31.6925
           }
         ]
       },
@@ -875,13 +875,13 @@
       "network": "water",
       "kind": "pump",
       "name": "P-04",
-      "zoneId": "zone-gov",
+      "zoneId": "zone-res-2",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.05,
-            "lng": 31.7245
+            "lat": 30.0235,
+            "lng": 31.665
           }
         ]
       },
@@ -891,22 +891,22 @@
       "id": "water-pipe-04",
       "network": "water",
       "kind": "pipe",
-      "name": "Main WP-GOV-04",
-      "zoneId": "zone-gov",
+      "name": "Main WP-RES-2-04",
+      "zoneId": "zone-res-2",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.05,
-            "lng": 31.7035
+            "lat": 30.01525,
+            "lng": 31.6925
           },
           {
-            "lat": 30.05,
-            "lng": 31.7245
+            "lat": 30.01525,
+            "lng": 31.665
           },
           {
-            "lat": 30.05,
-            "lng": 31.7245
+            "lat": 30.0235,
+            "lng": 31.665
           }
         ]
       },
@@ -917,13 +917,13 @@
       "network": "water",
       "kind": "pump",
       "name": "P-05",
-      "zoneId": "zone-cbd",
+      "zoneId": "zone-just",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.028,
-            "lng": 31.7245
+            "lat": 30.0105,
+            "lng": 31.7695
           }
         ]
       },
@@ -933,22 +933,22 @@
       "id": "water-pipe-05",
       "network": "water",
       "kind": "pipe",
-      "name": "Main WP-CBD-05",
-      "zoneId": "zone-cbd",
+      "name": "Main WP-JUST-05",
+      "zoneId": "zone-just",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.05,
-            "lng": 31.7245
+            "lat": 30.018,
+            "lng": 31.748
           },
           {
-            "lat": 30.028,
-            "lng": 31.7245
+            "lat": 30.0105,
+            "lng": 31.748
           },
           {
-            "lat": 30.028,
-            "lng": 31.7245
+            "lat": 30.0105,
+            "lng": 31.7695
           }
         ]
       },
@@ -964,8 +964,8 @@
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.05,
-            "lng": 31.7455
+            "lat": 30.03425,
+            "lng": 31.7515
           }
         ]
       },
@@ -981,16 +981,16 @@
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.05,
-            "lng": 31.7245
+            "lat": 30.018,
+            "lng": 31.748
           },
           {
-            "lat": 30.05,
-            "lng": 31.7455
+            "lat": 30.03425,
+            "lng": 31.748
           },
           {
-            "lat": 30.05,
-            "lng": 31.7455
+            "lat": 30.03425,
+            "lng": 31.7515
           }
         ]
       },
@@ -1001,13 +1001,13 @@
       "network": "water",
       "kind": "pump",
       "name": "P-07",
-      "zoneId": "zone-res-5",
+      "zoneId": "zone-res-n",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.028,
-            "lng": 31.746
+            "lat": 30.04,
+            "lng": 31.7345
           }
         ]
       },
@@ -1017,22 +1017,22 @@
       "id": "water-pipe-07",
       "network": "water",
       "kind": "pipe",
-      "name": "Main WP-RES-5-07",
-      "zoneId": "zone-res-5",
+      "name": "Main WP-RES-N-07",
+      "zoneId": "zone-res-n",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.05,
-            "lng": 31.7455
+            "lat": 30.03425,
+            "lng": 31.7515
           },
           {
-            "lat": 30.028,
-            "lng": 31.7455
+            "lat": 30.04,
+            "lng": 31.7515
           },
           {
-            "lat": 30.028,
-            "lng": 31.746
+            "lat": 30.04,
+            "lng": 31.7345
           }
         ]
       },
@@ -1043,13 +1043,13 @@
       "network": "water",
       "kind": "pump",
       "name": "P-08",
-      "zoneId": "zone-med",
+      "zoneId": "zone-res-ne",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.013,
-            "lng": 31.7245
+            "lat": 30.04,
+            "lng": 31.77
           }
         ]
       },
@@ -1059,22 +1059,22 @@
       "id": "water-pipe-08",
       "network": "water",
       "kind": "pipe",
-      "name": "Main WP-MED-08",
-      "zoneId": "zone-med",
+      "name": "Main WP-RES-NE-08",
+      "zoneId": "zone-res-ne",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.028,
-            "lng": 31.7245
+            "lat": 30.03425,
+            "lng": 31.7515
           },
           {
-            "lat": 30.013,
-            "lng": 31.7245
+            "lat": 30.04,
+            "lng": 31.7515
           },
           {
-            "lat": 30.013,
-            "lng": 31.7245
+            "lat": 30.04,
+            "lng": 31.77
           }
         ]
       },
@@ -1085,13 +1085,13 @@
       "network": "water",
       "kind": "pump",
       "name": "P-09",
-      "zoneId": "zone-res-8",
+      "zoneId": "zone-res-far",
       "geometry": {
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.013,
-            "lng": 31.746
+            "lat": 30.057,
+            "lng": 31.776
           }
         ]
       },
@@ -1101,22 +1101,22 @@
       "id": "water-pipe-09",
       "network": "water",
       "kind": "pipe",
-      "name": "Main WP-RES-8-09",
-      "zoneId": "zone-res-8",
+      "name": "Main WP-RES-FAR-09",
+      "zoneId": "zone-res-far",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.028,
-            "lng": 31.746
+            "lat": 30.04,
+            "lng": 31.77
           },
           {
-            "lat": 30.013,
-            "lng": 31.746
+            "lat": 30.057,
+            "lng": 31.77
           },
           {
-            "lat": 30.013,
-            "lng": 31.746
+            "lat": 30.057,
+            "lng": 31.776
           }
         ]
       },
@@ -1132,8 +1132,8 @@
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.042,
-            "lng": 31.7335
+            "lat": 30.01,
+            "lng": 31.757
           }
         ]
       },
@@ -1144,37 +1144,37 @@
       "network": "cooling",
       "kind": "loop",
       "name": "Loop CL-01",
-      "zoneId": "zone-dip",
+      "zoneId": "zone-gov",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.042,
-            "lng": 31.7335
+            "lat": 30.01,
+            "lng": 31.757
           },
           {
-            "lat": 30.046,
-            "lng": 31.7335
+            "lat": 30.014,
+            "lng": 31.757
           },
           {
-            "lat": 30.042,
-            "lng": 31.702
+            "lat": 30.009,
+            "lng": 31.74
           },
           {
-            "lat": 30.042,
-            "lng": 31.713
+            "lat": 30.009,
+            "lng": 31.764
           },
           {
-            "lat": 30.05,
-            "lng": 31.713
+            "lat": 30.019,
+            "lng": 31.764
           },
           {
-            "lat": 30.05,
-            "lng": 31.702
+            "lat": 30.019,
+            "lng": 31.74
           },
           {
-            "lat": 30.042,
-            "lng": 31.702
+            "lat": 30.009,
+            "lng": 31.74
           }
         ]
       },
@@ -1185,37 +1185,37 @@
       "network": "cooling",
       "kind": "loop",
       "name": "Loop CL-02",
-      "zoneId": "zone-gov",
+      "zoneId": "zone-pres",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.042,
-            "lng": 31.7335
+            "lat": 30.01,
+            "lng": 31.757
           },
           {
-            "lat": 30.046,
-            "lng": 31.7335
+            "lat": 30.03025,
+            "lng": 31.757
           },
           {
-            "lat": 30.042,
-            "lng": 31.722
+            "lat": 30.0265,
+            "lng": 31.75
           },
           {
-            "lat": 30.042,
-            "lng": 31.735
+            "lat": 30.0265,
+            "lng": 31.761
           },
           {
-            "lat": 30.05,
-            "lng": 31.735
+            "lat": 30.034,
+            "lng": 31.761
           },
           {
-            "lat": 30.05,
-            "lng": 31.722
+            "lat": 30.034,
+            "lng": 31.75
           },
           {
-            "lat": 30.042,
-            "lng": 31.722
+            "lat": 30.0265,
+            "lng": 31.75
           }
         ]
       },
@@ -1226,37 +1226,37 @@
       "network": "cooling",
       "kind": "loop",
       "name": "Loop CL-03",
-      "zoneId": "zone-pres",
+      "zoneId": "zone-just",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.042,
-            "lng": 31.7335
+            "lat": 30.01,
+            "lng": 31.757
           },
           {
-            "lat": 30.046,
-            "lng": 31.7335
+            "lat": 30.0065,
+            "lng": 31.757
           },
           {
-            "lat": 30.042,
-            "lng": 31.744
+            "lat": 30.002,
+            "lng": 31.769
           },
           {
-            "lat": 30.042,
-            "lng": 31.755
+            "lat": 30.002,
+            "lng": 31.778
           },
           {
-            "lat": 30.05,
-            "lng": 31.755
+            "lat": 30.011,
+            "lng": 31.778
           },
           {
-            "lat": 30.05,
-            "lng": 31.744
+            "lat": 30.011,
+            "lng": 31.769
           },
           {
-            "lat": 30.042,
-            "lng": 31.744
+            "lat": 30.002,
+            "lng": 31.769
           }
         ]
       },
@@ -1272,8 +1272,8 @@
         "type": "point",
         "coordinates": [
           {
-            "lat": 30.02,
-            "lng": 31.7335
+            "lat": 30.00725,
+            "lng": 31.7015
           }
         ]
       },
@@ -1289,32 +1289,32 @@
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.02,
-            "lng": 31.7335
+            "lat": 30.00725,
+            "lng": 31.7015
           },
           {
-            "lat": 30.024,
-            "lng": 31.7335
+            "lat": 30.01125,
+            "lng": 31.7015
           },
           {
-            "lat": 30.02,
-            "lng": 31.721
+            "lat": 30.007,
+            "lng": 31.689
           },
           {
-            "lat": 30.02,
-            "lng": 31.736
+            "lat": 30.007,
+            "lng": 31.704
           },
           {
-            "lat": 30.028,
-            "lng": 31.736
+            "lat": 30.0155,
+            "lng": 31.704
           },
           {
-            "lat": 30.028,
-            "lng": 31.721
+            "lat": 30.0155,
+            "lng": 31.689
           },
           {
-            "lat": 30.02,
-            "lng": 31.721
+            "lat": 30.007,
+            "lng": 31.689
           }
         ]
       },
@@ -1325,78 +1325,37 @@
       "network": "cooling",
       "kind": "loop",
       "name": "Loop CL-05",
-      "zoneId": "zone-res-5",
+      "zoneId": "zone-cult",
       "geometry": {
         "type": "line",
         "coordinates": [
           {
-            "lat": 30.02,
-            "lng": 31.7335
+            "lat": 30.00725,
+            "lng": 31.7015
           },
           {
-            "lat": 30.024,
-            "lng": 31.7335
+            "lat": 30.011,
+            "lng": 31.7015
           },
           {
-            "lat": 30.02,
-            "lng": 31.745
+            "lat": 30.007,
+            "lng": 31.718
           },
           {
-            "lat": 30.02,
-            "lng": 31.755
+            "lat": 30.007,
+            "lng": 31.734
           },
           {
-            "lat": 30.028,
-            "lng": 31.755
+            "lat": 30.015,
+            "lng": 31.734
           },
           {
-            "lat": 30.028,
-            "lng": 31.745
+            "lat": 30.015,
+            "lng": 31.718
           },
           {
-            "lat": 30.02,
-            "lng": 31.745
-          }
-        ]
-      },
-      "status": "normal"
-    },
-    {
-      "id": "cool-loop-06",
-      "network": "cooling",
-      "kind": "loop",
-      "name": "Loop CL-06",
-      "zoneId": "zone-med",
-      "geometry": {
-        "type": "line",
-        "coordinates": [
-          {
-            "lat": 30.02,
-            "lng": 31.7335
-          },
-          {
-            "lat": 30.009,
-            "lng": 31.7335
-          },
-          {
-            "lat": 30.005,
-            "lng": 31.721
-          },
-          {
-            "lat": 30.005,
-            "lng": 31.736
-          },
-          {
-            "lat": 30.013,
-            "lng": 31.736
-          },
-          {
-            "lat": 30.013,
-            "lng": 31.721
-          },
-          {
-            "lat": 30.005,
-            "lng": 31.721
+            "lat": 30.007,
+            "lng": 31.718
           }
         ]
       },
@@ -1411,12 +1370,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 42.0,
-        "max": 68.0
+        "min": 48.0,
+        "max": 85.0
       },
       "position": {
-        "lat": 30.034,
-        "lng": 31.703
+        "lat": 30.0195,
+        "lng": 31.684
       }
     },
     {
@@ -1426,12 +1385,12 @@
       "kind": "voltage",
       "unit": "kV",
       "normalRange": {
-        "min": 20.63,
-        "max": 22.84
+        "min": 20.48,
+        "max": 22.75
       },
       "position": {
-        "lat": 30.034,
-        "lng": 31.703
+        "lat": 30.0195,
+        "lng": 31.684
       }
     },
     {
@@ -1441,12 +1400,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 64.0,
-        "max": 123.0
+        "min": 44.0,
+        "max": 81.0
       },
       "position": {
-        "lat": 30.037,
-        "lng": 31.728
+        "lat": 30.0228,
+        "lng": 31.74
       }
     },
     {
@@ -1456,12 +1415,12 @@
       "kind": "voltage",
       "unit": "kV",
       "normalRange": {
-        "min": 20.02,
-        "max": 22.52
+        "min": 20.5,
+        "max": 22.82
       },
       "position": {
-        "lat": 30.037,
-        "lng": 31.728
+        "lat": 30.0228,
+        "lng": 31.74
       }
     },
     {
@@ -1471,11 +1430,11 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 25.97,
-        "max": 40.14
+        "min": 25.41,
+        "max": 40.87
       },
       "position": {
-        "lat": 30.034,
+        "lat": 30.0385,
         "lng": 31.752
       }
     },
@@ -1486,11 +1445,11 @@
       "kind": "voltage",
       "unit": "kV",
       "normalRange": {
-        "min": 20.94,
-        "max": 23.08
+        "min": 20.93,
+        "max": 23.07
       },
       "position": {
-        "lat": 30.034,
+        "lat": 30.0385,
         "lng": 31.752
       }
     },
@@ -1501,12 +1460,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 33.54,
-        "max": 45.76
+        "min": 34.0,
+        "max": 57.0
       },
       "position": {
-        "lat": 30.016,
-        "lng": 31.74
+        "lat": 30.027,
+        "lng": 31.779
       }
     },
     {
@@ -1516,12 +1475,12 @@
       "kind": "voltage",
       "unit": "kV",
       "normalRange": {
-        "min": 20.87,
-        "max": 23.0
+        "min": 20.78,
+        "max": 22.93
       },
       "position": {
-        "lat": 30.016,
-        "lng": 31.74
+        "lat": 30.027,
+        "lng": 31.779
       }
     },
     {
@@ -1531,12 +1490,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 13.84,
-        "max": 25.61
+        "min": 15.22,
+        "max": 28.92
       },
       "position": {
-        "lat": 30.043,
-        "lng": 31.7045
+        "lat": 30.0165,
+        "lng": 31.666
       }
     },
     {
@@ -1546,12 +1505,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 44.0,
-        "max": 59.0
+        "min": 43.0,
+        "max": 60.0
       },
       "position": {
-        "lat": 30.043,
-        "lng": 31.7045
+        "lat": 30.0165,
+        "lng": 31.666
       }
     },
     {
@@ -1561,12 +1520,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 15.63,
-        "max": 28.83
+        "min": 33.0,
+        "max": 65.0
       },
       "position": {
-        "lat": 30.021,
-        "lng": 31.704
+        "lat": 30.00825,
+        "lng": 31.6935
       }
     },
     {
@@ -1576,12 +1535,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 45.0,
-        "max": 59.0
+        "min": 54.0,
+        "max": 83.0
       },
       "position": {
-        "lat": 30.021,
-        "lng": 31.704
+        "lat": 30.00825,
+        "lng": 31.6935
       }
     },
     {
@@ -1591,12 +1550,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 12.0,
-        "max": 21.93
+        "min": 28.0,
+        "max": 60.0
       },
       "position": {
-        "lat": 30.006,
-        "lng": 31.704
+        "lat": 30.011,
+        "lng": 31.749
       }
     },
     {
@@ -1606,12 +1565,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 43.0,
-        "max": 55.0
+        "min": 51.0,
+        "max": 80.0
       },
       "position": {
-        "lat": 30.006,
-        "lng": 31.704
+        "lat": 30.011,
+        "lng": 31.749
       }
     },
     {
@@ -1621,12 +1580,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 29.0,
-        "max": 57.0
+        "min": 15.23,
+        "max": 21.54
       },
       "position": {
-        "lat": 30.043,
-        "lng": 31.7255
+        "lat": 30.008,
+        "lng": 31.723
       }
     },
     {
@@ -1636,12 +1595,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 53.0,
-        "max": 78.0
+        "min": 43.0,
+        "max": 58.0
       },
       "position": {
-        "lat": 30.043,
-        "lng": 31.7255
+        "lat": 30.008,
+        "lng": 31.723
       }
     },
     {
@@ -1651,12 +1610,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 35.0,
-        "max": 66.0
+        "min": 11.43,
+        "max": 21.27
       },
       "position": {
-        "lat": 30.021,
-        "lng": 31.7255
+        "lat": 30.02725,
+        "lng": 31.7525
       }
     },
     {
@@ -1666,12 +1625,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 56.0,
-        "max": 83.0
+        "min": 41.0,
+        "max": 57.0
       },
       "position": {
-        "lat": 30.021,
-        "lng": 31.7255
+        "lat": 30.02725,
+        "lng": 31.7525
       }
     },
     {
@@ -1681,12 +1640,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 11.54,
-        "max": 20.8
+        "min": 13.8,
+        "max": 26.35
       },
       "position": {
-        "lat": 30.043,
-        "lng": 31.7465
+        "lat": 30.033,
+        "lng": 31.7355
       }
     },
     {
@@ -1697,11 +1656,11 @@
       "unit": "°C",
       "normalRange": {
         "min": 42.0,
-        "max": 56.0
+        "max": 58.0
       },
       "position": {
-        "lat": 30.043,
-        "lng": 31.7465
+        "lat": 30.033,
+        "lng": 31.7355
       }
     },
     {
@@ -1711,12 +1670,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 14.19,
-        "max": 26.18
+        "min": 11.09,
+        "max": 20.75
       },
       "position": {
-        "lat": 30.021,
-        "lng": 31.747
+        "lat": 30.0035,
+        "lng": 31.7705
       }
     },
     {
@@ -1726,12 +1685,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 44.0,
-        "max": 58.0
+        "min": 40.0,
+        "max": 57.0
       },
       "position": {
-        "lat": 30.021,
-        "lng": 31.747
+        "lat": 30.0035,
+        "lng": 31.7705
       }
     },
     {
@@ -1741,12 +1700,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 22.14,
-        "max": 29.29
+        "min": 11.85,
+        "max": 22.78
       },
       "position": {
-        "lat": 30.006,
-        "lng": 31.7255
+        "lat": 30.033,
+        "lng": 31.771
       }
     },
     {
@@ -1756,12 +1715,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 49.0,
-        "max": 61.0
+        "min": 41.0,
+        "max": 56.0
       },
       "position": {
-        "lat": 30.006,
-        "lng": 31.7255
+        "lat": 30.033,
+        "lng": 31.771
       }
     },
     {
@@ -1771,12 +1730,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 11.28,
-        "max": 20.61
+        "min": 11.06,
+        "max": 21.07
       },
       "position": {
-        "lat": 30.006,
-        "lng": 31.747
+        "lat": 30.05,
+        "lng": 31.777
       }
     },
     {
@@ -1786,12 +1745,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 42.0,
-        "max": 54.0
+        "min": 40.0,
+        "max": 55.0
       },
       "position": {
-        "lat": 30.006,
-        "lng": 31.747
+        "lat": 30.05,
+        "lng": 31.777
       }
     },
     {
@@ -1801,12 +1760,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.2,
-        "max": 4.77
+        "min": 4.21,
+        "max": 4.78
       },
       "position": {
-        "lat": 30.046,
-        "lng": 31.6965
+        "lat": 30.0228,
+        "lng": 31.733
       }
     },
     {
@@ -1816,12 +1775,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 2016.0,
-        "max": 5135.0
+        "min": 1753.0,
+        "max": 5158.0
       },
       "position": {
-        "lat": 30.046,
-        "lng": 31.6965
+        "lat": 30.0228,
+        "lng": 31.733
       }
     },
     {
@@ -1832,11 +1791,11 @@
       "unit": "bar",
       "normalRange": {
         "min": 4.44,
-        "max": 4.97
+        "max": 4.98
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7035
+        "lat": 30.018,
+        "lng": 31.748
       }
     },
     {
@@ -1846,12 +1805,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 2015.0,
-        "max": 5136.0
+        "min": 1759.0,
+        "max": 5152.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7035
+        "lat": 30.018,
+        "lng": 31.748
       }
     },
     {
@@ -1861,12 +1820,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 2016.0,
-        "max": 5138.0
+        "min": 1760.0,
+        "max": 5139.0
       },
       "position": {
-        "lat": 30.046,
-        "lng": 31.6965
+        "lat": 30.0228,
+        "lng": 31.733
       }
     },
     {
@@ -1876,12 +1835,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 2016.0,
-        "max": 5143.0
+        "min": 1762.0,
+        "max": 5156.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7035
+        "lat": 30.018,
+        "lng": 31.748
       }
     },
     {
@@ -1891,12 +1850,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.96,
-        "max": 4.45
+        "min": 3.97,
+        "max": 4.46
       },
       "position": {
-        "lat": 30.046,
-        "lng": 31.7035
+        "lat": 30.0228,
+        "lng": 31.748
       }
     },
     {
@@ -1906,12 +1865,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.55,
-        "max": 5.11
+        "min": 4.52,
+        "max": 5.1
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.703
+        "lat": 30.015,
+        "lng": 31.722
       }
     },
     {
@@ -1921,12 +1880,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 371.0,
-        "max": 1601.0
+        "min": 739.0,
+        "max": 2021.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.703
+        "lat": 30.015,
+        "lng": 31.722
       }
     },
     {
@@ -1936,12 +1895,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 371.0,
-        "max": 1600.0
+        "min": 739.0,
+        "max": 2021.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7035
+        "lat": 30.018,
+        "lng": 31.748
       }
     },
     {
@@ -1951,12 +1910,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 371.0,
-        "max": 1598.0
+        "min": 741.0,
+        "max": 2020.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.703
+        "lat": 30.015,
+        "lng": 31.722
       }
     },
     {
@@ -1966,12 +1925,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.07,
-        "max": 4.59
+        "min": 4.04,
+        "max": 4.57
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.7035
+        "lat": 30.018,
+        "lng": 31.722
       }
     },
     {
@@ -1981,12 +1940,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.51,
-        "max": 4.96
+        "min": 4.47,
+        "max": 4.94
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.703
+        "lat": 30.01525,
+        "lng": 31.6925
       }
     },
     {
@@ -1996,12 +1955,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 167.0,
-        "max": 721.0
+        "min": 465.0,
+        "max": 1511.0
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.703
+        "lat": 30.01525,
+        "lng": 31.6925
       }
     },
     {
@@ -2011,12 +1970,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 168.0,
-        "max": 720.0
+        "min": 460.0,
+        "max": 1510.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.703
+        "lat": 30.015,
+        "lng": 31.722
       }
     },
     {
@@ -2026,12 +1985,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 167.0,
-        "max": 720.0
+        "min": 463.0,
+        "max": 1508.0
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.703
+        "lat": 30.01525,
+        "lng": 31.6925
       }
     },
     {
@@ -2041,12 +2000,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.03,
-        "max": 4.44
+        "min": 4.0,
+        "max": 4.42
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.703
+        "lat": 30.015,
+        "lng": 31.6925
       }
     },
     {
@@ -2056,12 +2015,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.45,
-        "max": 5.07
+        "min": 4.5,
+        "max": 4.96
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7245
+        "lat": 30.0235,
+        "lng": 31.665
       }
     },
     {
@@ -2071,12 +2030,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 1420.0,
-        "max": 3860.0
+        "min": 182.0,
+        "max": 912.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7245
+        "lat": 30.0235,
+        "lng": 31.665
       }
     },
     {
@@ -2086,12 +2045,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 1418.0,
-        "max": 3861.0
+        "min": 182.0,
+        "max": 910.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7035
+        "lat": 30.01525,
+        "lng": 31.6925
       }
     },
     {
@@ -2101,12 +2060,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 1420.0,
-        "max": 3859.0
+        "min": 183.0,
+        "max": 914.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7245
+        "lat": 30.0235,
+        "lng": 31.665
       }
     },
     {
@@ -2116,12 +2075,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.97,
-        "max": 4.54
+        "min": 4.02,
+        "max": 4.44
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7245
+        "lat": 30.01525,
+        "lng": 31.665
       }
     },
     {
@@ -2131,12 +2090,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.47,
-        "max": 4.94
+        "min": 4.57,
+        "max": 5.13
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.7245
+        "lat": 30.0105,
+        "lng": 31.7695
       }
     },
     {
@@ -2146,12 +2105,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 637.0,
-        "max": 1716.0
+        "min": 126.0,
+        "max": 604.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.7245
+        "lat": 30.0105,
+        "lng": 31.7695
       }
     },
     {
@@ -2161,12 +2120,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 637.0,
-        "max": 1717.0
+        "min": 126.0,
+        "max": 604.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7245
+        "lat": 30.018,
+        "lng": 31.748
       }
     },
     {
@@ -2176,12 +2135,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 638.0,
-        "max": 1718.0
+        "min": 126.0,
+        "max": 604.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.7245
+        "lat": 30.0105,
+        "lng": 31.7695
       }
     },
     {
@@ -2191,12 +2150,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.99,
-        "max": 4.42
+        "min": 4.09,
+        "max": 4.61
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.7245
+        "lat": 30.0105,
+        "lng": 31.748
       }
     },
     {
@@ -2206,12 +2165,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.48,
-        "max": 4.94
+        "min": 4.52,
+        "max": 5.1
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7455
+        "lat": 30.03425,
+        "lng": 31.7515
       }
     },
     {
@@ -2221,12 +2180,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 507.0,
-        "max": 1653.0
+        "min": 608.0,
+        "max": 2463.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7455
+        "lat": 30.03425,
+        "lng": 31.7515
       }
     },
     {
@@ -2236,12 +2195,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 507.0,
-        "max": 1651.0
+        "min": 611.0,
+        "max": 2458.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7245
+        "lat": 30.018,
+        "lng": 31.748
       }
     },
     {
@@ -2251,12 +2210,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 507.0,
-        "max": 1649.0
+        "min": 610.0,
+        "max": 2466.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7455
+        "lat": 30.03425,
+        "lng": 31.7515
       }
     },
     {
@@ -2266,12 +2225,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.0,
-        "max": 4.42
+        "min": 4.04,
+        "max": 4.59
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7455
+        "lat": 30.03425,
+        "lng": 31.748
       }
     },
     {
@@ -2281,12 +2240,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.48,
-        "max": 4.95
+        "min": 4.51,
+        "max": 4.96
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.746
+        "lat": 30.04,
+        "lng": 31.7345
       }
     },
     {
@@ -2296,12 +2255,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 338.0,
-        "max": 1460.0
+        "min": 163.0,
+        "max": 815.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.746
+        "lat": 30.04,
+        "lng": 31.7345
       }
     },
     {
@@ -2311,12 +2270,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 338.0,
-        "max": 1458.0
+        "min": 163.0,
+        "max": 812.0
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.7455
+        "lat": 30.03425,
+        "lng": 31.7515
       }
     },
     {
@@ -2326,12 +2285,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 338.0,
-        "max": 1458.0
+        "min": 163.0,
+        "max": 813.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.746
+        "lat": 30.04,
+        "lng": 31.7345
       }
     },
     {
@@ -2341,12 +2300,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.01,
-        "max": 4.43
+        "min": 4.03,
+        "max": 4.44
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.7455
+        "lat": 30.04,
+        "lng": 31.7515
       }
     },
     {
@@ -2356,12 +2315,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.5,
-        "max": 4.96
+        "min": 4.48,
+        "max": 4.95
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.7245
+        "lat": 30.04,
+        "lng": 31.77
       }
     },
     {
@@ -2371,12 +2330,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 367.0,
-        "max": 622.0
+        "min": 290.0,
+        "max": 1446.0
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.7245
+        "lat": 30.04,
+        "lng": 31.77
       }
     },
     {
@@ -2386,12 +2345,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 367.0,
-        "max": 621.0
+        "min": 291.0,
+        "max": 1454.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.7245
+        "lat": 30.03425,
+        "lng": 31.7515
       }
     },
     {
@@ -2401,12 +2360,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 367.0,
-        "max": 622.0
+        "min": 290.0,
+        "max": 1447.0
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.7245
+        "lat": 30.04,
+        "lng": 31.77
       }
     },
     {
@@ -2416,12 +2375,12 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.03,
+        "min": 4.01,
         "max": 4.43
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.7245
+        "lat": 30.04,
+        "lng": 31.7515
       }
     },
     {
@@ -2432,11 +2391,11 @@
       "unit": "bar",
       "normalRange": {
         "min": 4.51,
-        "max": 4.96
+        "max": 4.97
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.746
+        "lat": 30.057,
+        "lng": 31.776
       }
     },
     {
@@ -2446,12 +2405,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 157.0,
-        "max": 675.0
+        "min": 140.0,
+        "max": 700.0
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.746
+        "lat": 30.057,
+        "lng": 31.776
       }
     },
     {
@@ -2461,12 +2420,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 157.0,
-        "max": 674.0
+        "min": 140.0,
+        "max": 701.0
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.746
+        "lat": 30.04,
+        "lng": 31.77
       }
     },
     {
@@ -2476,12 +2435,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 156.0,
-        "max": 674.0
+        "min": 141.0,
+        "max": 701.0
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.746
+        "lat": 30.057,
+        "lng": 31.776
       }
     },
     {
@@ -2495,8 +2454,8 @@
         "max": 4.44
       },
       "position": {
-        "lat": 30.013,
-        "lng": 31.746
+        "lat": 30.057,
+        "lng": 31.77
       }
     },
     {
@@ -2507,11 +2466,11 @@
       "unit": "°C",
       "normalRange": {
         "min": 5.71,
-        "max": 6.3
+        "max": 6.45
       },
       "position": {
-        "lat": 30.042,
-        "lng": 31.7335
+        "lat": 30.01,
+        "lng": 31.757
       }
     },
     {
@@ -2521,12 +2480,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 1688.0,
-        "max": 5456.0
+        "min": 1343.0,
+        "max": 6088.0
       },
       "position": {
-        "lat": 30.042,
-        "lng": 31.7335
+        "lat": 30.01,
+        "lng": 31.757
       }
     },
     {
@@ -2536,12 +2495,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 14.07,
-        "max": 45.49
+        "min": 11.22,
+        "max": 50.67
       },
       "position": {
-        "lat": 30.042,
-        "lng": 31.7335
+        "lat": 30.01,
+        "lng": 31.757
       }
     },
     {
@@ -2551,12 +2510,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.21,
-        "max": 12.34
+        "min": 11.56,
+        "max": 12.84
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.713
+        "lat": 30.019,
+        "lng": 31.764
       }
     },
     {
@@ -2566,12 +2525,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 390.0,
-        "max": 1260.0
+        "min": 726.0,
+        "max": 3273.0
       },
       "position": {
-        "lat": 30.042,
-        "lng": 31.702
+        "lat": 30.009,
+        "lng": 31.74
       }
     },
     {
@@ -2581,12 +2540,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.56,
-        "max": 12.73
+        "min": 11.19,
+        "max": 12.48
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.735
+        "lat": 30.034,
+        "lng": 31.761
       }
     },
     {
@@ -2596,12 +2555,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 913.0,
-        "max": 2943.0
+        "min": 311.0,
+        "max": 1399.0
       },
       "position": {
-        "lat": 30.042,
-        "lng": 31.722
+        "lat": 30.0265,
+        "lng": 31.75
       }
     },
     {
@@ -2611,12 +2570,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.22,
-        "max": 12.34
+        "min": 11.21,
+        "max": 12.47
       },
       "position": {
-        "lat": 30.05,
-        "lng": 31.755
+        "lat": 30.011,
+        "lng": 31.778
       }
     },
     {
@@ -2626,12 +2585,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 389.0,
-        "max": 1259.0
+        "min": 312.0,
+        "max": 1399.0
       },
       "position": {
-        "lat": 30.042,
-        "lng": 31.744
+        "lat": 30.002,
+        "lng": 31.769
       }
     },
     {
@@ -2641,12 +2600,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 5.72,
-        "max": 6.3
+        "min": 5.71,
+        "max": 6.46
       },
       "position": {
-        "lat": 30.02,
-        "lng": 31.7335
+        "lat": 30.00725,
+        "lng": 31.7015
       }
     },
     {
@@ -2656,12 +2615,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 2153.0,
-        "max": 5492.0
+        "min": 1273.0,
+        "max": 4960.0
       },
       "position": {
-        "lat": 30.02,
-        "lng": 31.7335
+        "lat": 30.00725,
+        "lng": 31.7015
       }
     },
     {
@@ -2671,12 +2630,12 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 17.99,
-        "max": 45.73
+        "min": 10.6,
+        "max": 41.24
       },
       "position": {
-        "lat": 30.02,
-        "lng": 31.7335
+        "lat": 30.00725,
+        "lng": 31.7015
       }
     },
     {
@@ -2686,12 +2645,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.48,
-        "max": 12.78
+        "min": 11.7,
+        "max": 13.08
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.736
+        "lat": 30.0155,
+        "lng": 31.704
       }
     },
     {
@@ -2701,12 +2660,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 1037.0,
-        "max": 3358.0
+        "min": 830.0,
+        "max": 3747.0
       },
       "position": {
-        "lat": 30.02,
-        "lng": 31.721
+        "lat": 30.007,
+        "lng": 31.689
       }
     },
     {
@@ -2716,12 +2675,12 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.09,
-        "max": 12.27
+        "min": 11.25,
+        "max": 12.57
       },
       "position": {
-        "lat": 30.028,
-        "lng": 31.755
+        "lat": 30.015,
+        "lng": 31.734
       }
     },
     {
@@ -2731,42 +2690,12 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 267.0,
-        "max": 777.0
+        "min": 442.0,
+        "max": 1243.0
       },
       "position": {
-        "lat": 30.02,
-        "lng": 31.745
-      }
-    },
-    {
-      "id": "cool-loop-06-return-temp",
-      "assetId": "cool-loop-06",
-      "network": "cooling",
-      "kind": "temperature",
-      "unit": "°C",
-      "normalRange": {
-        "min": 11.31,
-        "max": 12.52
-      },
-      "position": {
-        "lat": 30.013,
-        "lng": 31.736
-      }
-    },
-    {
-      "id": "cool-loop-06-flow",
-      "assetId": "cool-loop-06",
-      "network": "cooling",
-      "kind": "flow",
-      "unit": "m3/h",
-      "normalRange": {
-        "min": 804.0,
-        "max": 1657.0
-      },
-      "position": {
-        "lat": 30.005,
-        "lng": 31.721
+        "lat": 30.007,
+        "lng": 31.718
       }
     }
   ],
@@ -2792,7 +2721,7 @@
       "relation": "feeds"
     },
     {
-      "fromAsset": "elec-sub-01",
+      "fromAsset": "elec-sub-02",
       "toAsset": "elec-feeder-03",
       "relation": "feeds"
     },
@@ -2812,7 +2741,7 @@
       "relation": "feeds"
     },
     {
-      "fromAsset": "elec-sub-02",
+      "fromAsset": "elec-sub-03",
       "toAsset": "elec-feeder-05",
       "relation": "feeds"
     },
@@ -2832,7 +2761,7 @@
       "relation": "feeds"
     },
     {
-      "fromAsset": "elec-sub-03",
+      "fromAsset": "elec-sub-04",
       "toAsset": "elec-feeder-07",
       "relation": "feeds"
     },
@@ -2862,12 +2791,12 @@
       "relation": "feeds"
     },
     {
-      "fromAsset": "elec-sub-01",
+      "fromAsset": "elec-sub-02",
       "toAsset": "water-res-01",
       "relation": "powers"
     },
     {
-      "fromAsset": "elec-sub-01",
+      "fromAsset": "elec-sub-02",
       "toAsset": "water-pump-01",
       "relation": "powers"
     },
@@ -2882,7 +2811,7 @@
       "relation": "supplies"
     },
     {
-      "fromAsset": "elec-sub-01",
+      "fromAsset": "elec-sub-02",
       "toAsset": "water-pump-02",
       "relation": "powers"
     },
@@ -2912,7 +2841,7 @@
       "relation": "supplies"
     },
     {
-      "fromAsset": "elec-sub-02",
+      "fromAsset": "elec-sub-01",
       "toAsset": "water-pump-04",
       "relation": "powers"
     },
@@ -2922,12 +2851,12 @@
       "relation": "supplies"
     },
     {
-      "fromAsset": "water-pump-01",
+      "fromAsset": "water-pump-03",
       "toAsset": "water-pipe-04",
       "relation": "supplies"
     },
     {
-      "fromAsset": "elec-sub-02",
+      "fromAsset": "elec-sub-04",
       "toAsset": "water-pump-05",
       "relation": "powers"
     },
@@ -2937,7 +2866,7 @@
       "relation": "supplies"
     },
     {
-      "fromAsset": "water-pump-04",
+      "fromAsset": "water-pump-01",
       "toAsset": "water-pipe-05",
       "relation": "supplies"
     },
@@ -2952,7 +2881,7 @@
       "relation": "supplies"
     },
     {
-      "fromAsset": "water-pump-04",
+      "fromAsset": "water-pump-01",
       "toAsset": "water-pipe-06",
       "relation": "supplies"
     },
@@ -2982,7 +2911,7 @@
       "relation": "supplies"
     },
     {
-      "fromAsset": "water-pump-05",
+      "fromAsset": "water-pump-06",
       "toAsset": "water-pipe-08",
       "relation": "supplies"
     },
@@ -2997,7 +2926,7 @@
       "relation": "supplies"
     },
     {
-      "fromAsset": "water-pump-07",
+      "fromAsset": "water-pump-08",
       "toAsset": "water-pipe-09",
       "relation": "supplies"
     },
@@ -3022,7 +2951,7 @@
       "relation": "cools"
     },
     {
-      "fromAsset": "elec-sub-02",
+      "fromAsset": "elec-sub-01",
       "toAsset": "cool-plant-02",
       "relation": "powers"
     },
@@ -3034,11 +2963,6 @@
     {
       "fromAsset": "cool-plant-02",
       "toAsset": "cool-loop-05",
-      "relation": "cools"
-    },
-    {
-      "fromAsset": "cool-plant-02",
-      "toAsset": "cool-loop-06",
       "relation": "cools"
     }
   ]

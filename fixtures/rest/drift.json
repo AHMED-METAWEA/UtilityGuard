@@ -1,6 +1,6 @@
 [
   {
-    "sensorId": "water-pipe-05-pressure",
+    "sensorId": "water-pipe-03-pressure",
     "drift": 0.18,
     "unit": "bar",
     "status": "watch"

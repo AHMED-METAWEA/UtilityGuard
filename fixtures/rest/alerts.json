@@ -5,8 +5,8 @@
     "network": "water",
     "zoneId": "zone-gov",
     "assetIds": [
-      "water-pipe-04",
-      "water-pump-04"
+      "water-pipe-01",
+      "water-pump-01"
     ],
     "severity": "critical",
     "title": "Pipe burst suspected",
