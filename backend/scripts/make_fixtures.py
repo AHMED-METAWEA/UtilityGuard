@@ -17,10 +17,12 @@ from app.schemas import (
     PlacementSuggestion, PredictedImpact, Reading, ReadingBatch, Reason, RecommendedAction, RouteStep, Scenario,
     ScenarioParam, ScenarioRunResponse, ScenarioState, Sensitivity, Snapshot, envelope,
 )
+from app.sim.engine import Engine
 from app.sim.topology import build
 
 ROOT = Path(__file__).resolve().parents[2] / "fixtures"
 T0 = datetime(2026, 10, 28, 11, 30, 0, tzinfo=timezone.utc)
+Engine()  # calibrates normal ranges in place, same as the live backend
 g = build()
 topo = g.topology
 

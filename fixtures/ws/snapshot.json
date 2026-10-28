@@ -1416,8 +1416,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 10.0,
-            "max": 110.0
+            "min": 42.0,
+            "max": 68.0
           },
           "position": {
             "lat": 30.034,
@@ -1431,8 +1431,8 @@
           "kind": "voltage",
           "unit": "kV",
           "normalRange": {
-            "min": 21.0,
-            "max": 23.0
+            "min": 20.63,
+            "max": 22.84
           },
           "position": {
             "lat": 30.034,
@@ -1446,8 +1446,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 10.0,
-            "max": 110.0
+            "min": 64.0,
+            "max": 123.0
           },
           "position": {
             "lat": 30.037,
@@ -1461,8 +1461,8 @@
           "kind": "voltage",
           "unit": "kV",
           "normalRange": {
-            "min": 21.0,
-            "max": 23.0
+            "min": 20.02,
+            "max": 22.52
           },
           "position": {
             "lat": 30.037,
@@ -1476,8 +1476,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 10.0,
-            "max": 110.0
+            "min": 25.97,
+            "max": 40.14
           },
           "position": {
             "lat": 30.034,
@@ -1491,8 +1491,8 @@
           "kind": "voltage",
           "unit": "kV",
           "normalRange": {
-            "min": 21.0,
-            "max": 23.0
+            "min": 20.94,
+            "max": 23.08
           },
           "position": {
             "lat": 30.034,
@@ -1506,8 +1506,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 10.0,
-            "max": 110.0
+            "min": 33.54,
+            "max": 45.76
           },
           "position": {
             "lat": 30.016,
@@ -1521,7 +1521,7 @@
           "kind": "voltage",
           "unit": "kV",
           "normalRange": {
-            "min": 21.0,
+            "min": 20.87,
             "max": 23.0
           },
           "position": {
@@ -1536,8 +1536,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 13.84,
+            "max": 25.61
           },
           "position": {
             "lat": 30.043,
@@ -1551,8 +1551,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 44.0,
+            "max": 59.0
           },
           "position": {
             "lat": 30.043,
@@ -1566,8 +1566,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 15.63,
+            "max": 28.83
           },
           "position": {
             "lat": 30.021,
@@ -1581,8 +1581,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 45.0,
+            "max": 59.0
           },
           "position": {
             "lat": 30.021,
@@ -1596,8 +1596,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 12.0,
+            "max": 21.93
           },
           "position": {
             "lat": 30.006,
@@ -1611,8 +1611,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 43.0,
+            "max": 55.0
           },
           "position": {
             "lat": 30.006,
@@ -1626,8 +1626,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 29.0,
+            "max": 57.0
           },
           "position": {
             "lat": 30.043,
@@ -1641,8 +1641,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 53.0,
+            "max": 78.0
           },
           "position": {
             "lat": 30.043,
@@ -1656,8 +1656,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 35.0,
+            "max": 66.0
           },
           "position": {
             "lat": 30.021,
@@ -1671,8 +1671,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 56.0,
+            "max": 83.0
           },
           "position": {
             "lat": 30.021,
@@ -1686,8 +1686,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 11.54,
+            "max": 20.8
           },
           "position": {
             "lat": 30.043,
@@ -1701,8 +1701,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 42.0,
+            "max": 56.0
           },
           "position": {
             "lat": 30.043,
@@ -1716,8 +1716,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 14.19,
+            "max": 26.18
           },
           "position": {
             "lat": 30.021,
@@ -1731,8 +1731,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 44.0,
+            "max": 58.0
           },
           "position": {
             "lat": 30.021,
@@ -1746,8 +1746,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 22.14,
+            "max": 29.29
           },
           "position": {
             "lat": 30.006,
@@ -1761,8 +1761,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 49.0,
+            "max": 61.0
           },
           "position": {
             "lat": 30.006,
@@ -1776,8 +1776,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 2.0,
-            "max": 60.0
+            "min": 11.28,
+            "max": 20.61
           },
           "position": {
             "lat": 30.006,
@@ -1791,8 +1791,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 35.0,
-            "max": 85.0
+            "min": 42.0,
+            "max": 54.0
           },
           "position": {
             "lat": 30.006,
@@ -1807,7 +1807,7 @@
           "unit": "bar",
           "normalRange": {
             "min": 4.2,
-            "max": 5.2
+            "max": 4.77
           },
           "position": {
             "lat": 30.046,
@@ -1821,8 +1821,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 2000.0,
-            "max": 6500.0
+            "min": 2016.0,
+            "max": 5135.0
           },
           "position": {
             "lat": 30.046,
@@ -1836,8 +1836,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.44,
+            "max": 4.97
           },
           "position": {
             "lat": 30.05,
@@ -1851,8 +1851,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 2015.0,
+            "max": 5136.0
           },
           "position": {
             "lat": 30.05,
@@ -1866,8 +1866,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 2016.0,
+            "max": 5138.0
           },
           "position": {
             "lat": 30.046,
@@ -1881,8 +1881,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 2016.0,
+            "max": 5143.0
           },
           "position": {
             "lat": 30.05,
@@ -1896,8 +1896,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 3.96,
+            "max": 4.45
           },
           "position": {
             "lat": 30.046,
@@ -1911,8 +1911,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.55,
+            "max": 5.11
           },
           "position": {
             "lat": 30.028,
@@ -1926,8 +1926,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 371.0,
+            "max": 1601.0
           },
           "position": {
             "lat": 30.028,
@@ -1941,8 +1941,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 371.0,
+            "max": 1600.0
           },
           "position": {
             "lat": 30.05,
@@ -1956,8 +1956,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 371.0,
+            "max": 1598.0
           },
           "position": {
             "lat": 30.028,
@@ -1971,8 +1971,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 4.07,
+            "max": 4.59
           },
           "position": {
             "lat": 30.028,
@@ -1986,8 +1986,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.51,
+            "max": 4.96
           },
           "position": {
             "lat": 30.013,
@@ -2001,8 +2001,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 167.0,
+            "max": 721.0
           },
           "position": {
             "lat": 30.013,
@@ -2016,8 +2016,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 168.0,
+            "max": 720.0
           },
           "position": {
             "lat": 30.028,
@@ -2031,8 +2031,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 167.0,
+            "max": 720.0
           },
           "position": {
             "lat": 30.013,
@@ -2046,8 +2046,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 4.03,
+            "max": 4.44
           },
           "position": {
             "lat": 30.013,
@@ -2061,8 +2061,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.45,
+            "max": 5.07
           },
           "position": {
             "lat": 30.05,
@@ -2076,8 +2076,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 1420.0,
+            "max": 3860.0
           },
           "position": {
             "lat": 30.05,
@@ -2091,8 +2091,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 1418.0,
+            "max": 3861.0
           },
           "position": {
             "lat": 30.05,
@@ -2106,8 +2106,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 1420.0,
+            "max": 3859.0
           },
           "position": {
             "lat": 30.05,
@@ -2121,8 +2121,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 3.97,
+            "max": 4.54
           },
           "position": {
             "lat": 30.05,
@@ -2136,8 +2136,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.47,
+            "max": 4.94
           },
           "position": {
             "lat": 30.028,
@@ -2151,8 +2151,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 637.0,
+            "max": 1716.0
           },
           "position": {
             "lat": 30.028,
@@ -2166,8 +2166,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 637.0,
+            "max": 1717.0
           },
           "position": {
             "lat": 30.05,
@@ -2181,8 +2181,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 638.0,
+            "max": 1718.0
           },
           "position": {
             "lat": 30.028,
@@ -2196,8 +2196,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 3.99,
+            "max": 4.42
           },
           "position": {
             "lat": 30.028,
@@ -2211,8 +2211,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.48,
+            "max": 4.94
           },
           "position": {
             "lat": 30.05,
@@ -2226,8 +2226,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 507.0,
+            "max": 1653.0
           },
           "position": {
             "lat": 30.05,
@@ -2241,8 +2241,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 507.0,
+            "max": 1651.0
           },
           "position": {
             "lat": 30.05,
@@ -2256,8 +2256,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 507.0,
+            "max": 1649.0
           },
           "position": {
             "lat": 30.05,
@@ -2271,8 +2271,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 4.0,
+            "max": 4.42
           },
           "position": {
             "lat": 30.05,
@@ -2286,8 +2286,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.48,
+            "max": 4.95
           },
           "position": {
             "lat": 30.028,
@@ -2301,8 +2301,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 338.0,
+            "max": 1460.0
           },
           "position": {
             "lat": 30.028,
@@ -2316,8 +2316,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 338.0,
+            "max": 1458.0
           },
           "position": {
             "lat": 30.05,
@@ -2331,8 +2331,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 338.0,
+            "max": 1458.0
           },
           "position": {
             "lat": 30.028,
@@ -2346,8 +2346,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 4.01,
+            "max": 4.43
           },
           "position": {
             "lat": 30.028,
@@ -2361,8 +2361,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.5,
+            "max": 4.96
           },
           "position": {
             "lat": 30.013,
@@ -2376,8 +2376,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 367.0,
+            "max": 622.0
           },
           "position": {
             "lat": 30.013,
@@ -2391,8 +2391,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 367.0,
+            "max": 621.0
           },
           "position": {
             "lat": 30.028,
@@ -2406,8 +2406,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 367.0,
+            "max": 622.0
           },
           "position": {
             "lat": 30.013,
@@ -2421,8 +2421,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 4.03,
+            "max": 4.43
           },
           "position": {
             "lat": 30.013,
@@ -2436,8 +2436,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 3.2,
-            "max": 4.6
+            "min": 4.51,
+            "max": 4.96
           },
           "position": {
             "lat": 30.013,
@@ -2451,8 +2451,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1100.0
+            "min": 157.0,
+            "max": 675.0
           },
           "position": {
             "lat": 30.013,
@@ -2466,8 +2466,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 157.0,
+            "max": 674.0
           },
           "position": {
             "lat": 30.028,
@@ -2481,8 +2481,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 4000.0
+            "min": 156.0,
+            "max": 674.0
           },
           "position": {
             "lat": 30.013,
@@ -2496,8 +2496,8 @@
           "kind": "pressure",
           "unit": "bar",
           "normalRange": {
-            "min": 2.5,
-            "max": 4.8
+            "min": 4.03,
+            "max": 4.44
           },
           "position": {
             "lat": 30.013,
@@ -2511,8 +2511,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 5.0,
-            "max": 7.0
+            "min": 5.71,
+            "max": 6.3
           },
           "position": {
             "lat": 30.042,
@@ -2526,8 +2526,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 800.0,
-            "max": 3200.0
+            "min": 1688.0,
+            "max": 5456.0
           },
           "position": {
             "lat": 30.042,
@@ -2541,8 +2541,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 4.0,
-            "max": 45.0
+            "min": 14.07,
+            "max": 45.49
           },
           "position": {
             "lat": 30.042,
@@ -2556,8 +2556,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 11.0,
-            "max": 14.0
+            "min": 11.21,
+            "max": 12.34
           },
           "position": {
             "lat": 30.05,
@@ -2571,8 +2571,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1400.0
+            "min": 390.0,
+            "max": 1260.0
           },
           "position": {
             "lat": 30.042,
@@ -2586,8 +2586,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 11.0,
-            "max": 14.0
+            "min": 11.56,
+            "max": 12.73
           },
           "position": {
             "lat": 30.05,
@@ -2601,8 +2601,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1400.0
+            "min": 913.0,
+            "max": 2943.0
           },
           "position": {
             "lat": 30.042,
@@ -2616,8 +2616,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 11.0,
-            "max": 14.0
+            "min": 11.22,
+            "max": 12.34
           },
           "position": {
             "lat": 30.05,
@@ -2631,8 +2631,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1400.0
+            "min": 389.0,
+            "max": 1259.0
           },
           "position": {
             "lat": 30.042,
@@ -2646,8 +2646,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 5.0,
-            "max": 7.0
+            "min": 5.72,
+            "max": 6.3
           },
           "position": {
             "lat": 30.02,
@@ -2661,8 +2661,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 800.0,
-            "max": 3200.0
+            "min": 2153.0,
+            "max": 5492.0
           },
           "position": {
             "lat": 30.02,
@@ -2676,8 +2676,8 @@
           "kind": "load",
           "unit": "MW",
           "normalRange": {
-            "min": 4.0,
-            "max": 45.0
+            "min": 17.99,
+            "max": 45.73
           },
           "position": {
             "lat": 30.02,
@@ -2691,8 +2691,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 11.0,
-            "max": 14.0
+            "min": 11.48,
+            "max": 12.78
           },
           "position": {
             "lat": 30.028,
@@ -2706,8 +2706,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1400.0
+            "min": 1037.0,
+            "max": 3358.0
           },
           "position": {
             "lat": 30.02,
@@ -2721,8 +2721,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 11.0,
-            "max": 14.0
+            "min": 11.09,
+            "max": 12.27
           },
           "position": {
             "lat": 30.028,
@@ -2736,8 +2736,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1400.0
+            "min": 267.0,
+            "max": 777.0
           },
           "position": {
             "lat": 30.02,
@@ -2751,8 +2751,8 @@
           "kind": "temperature",
           "unit": "°C",
           "normalRange": {
-            "min": 11.0,
-            "max": 14.0
+            "min": 11.31,
+            "max": 12.52
           },
           "position": {
             "lat": 30.013,
@@ -2766,8 +2766,8 @@
           "kind": "flow",
           "unit": "m3/h",
           "normalRange": {
-            "min": 150.0,
-            "max": 1400.0
+            "min": 804.0,
+            "max": 1657.0
           },
           "position": {
             "lat": 30.005,
@@ -3052,513 +3052,513 @@
       {
         "sensorId": "elec-sub-01-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 60.0,
+        "value": 55.0,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 55.0
       },
       {
         "sensorId": "elec-sub-01-voltage",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 22.37,
+        "value": 22.1,
         "quality": "ok",
-        "forecast": 22.0
+        "forecast": 21.73
       },
       {
         "sensorId": "elec-sub-02-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 61.09,
+        "value": 95.2,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 93.5
       },
       {
         "sensorId": "elec-sub-02-voltage",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 22.06,
+        "value": 21.33,
         "quality": "ok",
-        "forecast": 22.0
+        "forecast": 21.27
       },
       {
         "sensorId": "elec-sub-03-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 59.09,
+        "value": 32.55,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 33.05
       },
       {
         "sensorId": "elec-sub-03-voltage",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 21.58,
+        "value": 21.59,
         "quality": "ok",
-        "forecast": 22.0
+        "forecast": 22.01
       },
       {
         "sensorId": "elec-sub-04-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 59.66,
+        "value": 39.43,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 39.65
       },
       {
         "sensorId": "elec-sub-04-voltage",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 22.29,
+        "value": 22.23,
         "quality": "ok",
-        "forecast": 22.0
+        "forecast": 21.94
       },
       {
         "sensorId": "elec-feeder-01-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 31.61,
+        "value": 20.12,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 19.73
       },
       {
         "sensorId": "elec-tx-01-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 60.49,
+        "value": 51.92,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 51.5
       },
       {
         "sensorId": "elec-feeder-02-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 30.66,
+        "value": 21.99,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 22.23
       },
       {
         "sensorId": "elec-tx-02-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 58.8,
+        "value": 50.96,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 52.0
       },
       {
         "sensorId": "elec-feeder-03-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 30.67,
+        "value": 16.78,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 16.96
       },
       {
         "sensorId": "elec-tx-03-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 60.5,
+        "value": 49.41,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 49.0
       },
       {
         "sensorId": "elec-feeder-04-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 31.61,
+        "value": 43.85,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 43.0
       },
       {
         "sensorId": "elec-tx-04-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 60.78,
+        "value": 66.35,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 65.5
       },
       {
         "sensorId": "elec-feeder-05-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 30.82,
+        "value": 50.21,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 50.5
       },
       {
         "sensorId": "elec-tx-05-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 58.85,
+        "value": 68.16,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 69.5
       },
       {
         "sensorId": "elec-feeder-06-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 30.53,
+        "value": 15.93,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 16.17
       },
       {
         "sensorId": "elec-tx-06-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 60.18,
+        "value": 49.15,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 49.0
       },
       {
         "sensorId": "elec-feeder-07-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 31.57,
+        "value": 20.55,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 20.18
       },
       {
         "sensorId": "elec-tx-07-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 61.0,
+        "value": 51.85,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 51.0
       },
       {
         "sensorId": "elec-feeder-08-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 30.99,
+        "value": 25.71,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 25.71
       },
       {
         "sensorId": "elec-tx-08-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 58.98,
+        "value": 54.07,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 55.0
       },
       {
         "sensorId": "elec-feeder-09-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 30.44,
+        "value": 15.66,
         "quality": "ok",
-        "forecast": 31.0
+        "forecast": 15.95
       },
       {
         "sensorId": "elec-tx-09-temperature",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 59.84,
+        "value": 47.87,
         "quality": "ok",
-        "forecast": 60.0
+        "forecast": 48.0
       },
       {
         "sensorId": "water-res-01-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 4.77,
+        "value": 4.55,
         "quality": "ok",
-        "forecast": 4.7
+        "forecast": 4.48
       },
       {
         "sensorId": "water-res-01-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 4331.29,
+        "value": 3643.89,
         "quality": "ok",
-        "forecast": 4250.0
+        "forecast": 3575.5
       },
       {
         "sensorId": "water-pump-01-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.92,
+        "value": 4.74,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.71
       },
       {
         "sensorId": "water-pump-01-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 616.7,
+        "value": 3528.04,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 3575.5
       },
       {
         "sensorId": "water-pipe-01-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2034.0,
+        "value": 3506.32,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 3577.0
       },
       {
         "sensorId": "water-pipe-01-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2058.23,
+        "value": 3550.57,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 3579.5
       },
       {
         "sensorId": "water-pipe-01-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.69,
+        "value": 4.26,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.21
       },
       {
         "sensorId": "water-pump-02-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.98,
+        "value": 4.93,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.83
       },
       {
         "sensorId": "water-pump-02-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 631.61,
+        "value": 996.43,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 986.0
       },
       {
         "sensorId": "water-pipe-02-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2057.23,
+        "value": 977.06,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 985.5
       },
       {
         "sensorId": "water-pipe-02-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2033.84,
+        "value": 964.97,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 984.5
       },
       {
         "sensorId": "water-pipe-02-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.6,
+        "value": 4.27,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.33
       },
       {
         "sensorId": "water-pump-03-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.92,
+        "value": 4.76,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.73
       },
       {
         "sensorId": "water-pump-03-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 637.05,
+        "value": 452.56,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 444.0
       },
       {
         "sensorId": "water-pipe-03-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2105.92,
+        "value": 450.62,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 444.0
       },
       {
         "sensorId": "water-pipe-03-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2068.42,
+        "value": 442.09,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 443.5
       },
       {
         "sensorId": "water-pipe-03-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.58,
+        "value": 4.16,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.24
       },
       {
         "sensorId": "water-pump-04-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.84,
+        "value": 4.68,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.76
       },
       {
         "sensorId": "water-pump-04-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 625.22,
+        "value": 2640.93,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 2640.0
       },
       {
         "sensorId": "water-pipe-04-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2110.31,
+        "value": 2684.42,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 2639.5
       },
       {
         "sensorId": "water-pipe-04-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2112.42,
+        "value": 2687.11,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 2639.5
       },
       {
         "sensorId": "water-pipe-04-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.66,
+        "value": 4.26,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.25
       },
       {
         "sensorId": "water-pump-05-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.84,
+        "value": 4.64,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.71
       },
       {
         "sensorId": "water-pump-05-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 613.08,
+        "value": 1154.06,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 1176.5
       },
       {
         "sensorId": "water-pipe-05-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2064.11,
+        "value": 1170.82,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 1177.0
       },
       {
         "sensorId": "water-pipe-05-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2102.81,
+        "value": 1193.79,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 1178.0
       },
       {
         "sensorId": "water-pipe-05-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.72,
+        "value": 4.29,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.21
       },
       {
         "sensorId": "water-pump-06-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.93,
+        "value": 4.75,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.71
       },
       {
         "sensorId": "water-pump-06-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 618.02,
+        "value": 1067.93,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 1080.0
       },
       {
         "sensorId": "water-pipe-06-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2033.51,
+        "value": 1057.43,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 1079.0
       },
       {
         "sensorId": "water-pipe-06-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2053.36,
+        "value": 1066.76,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 1078.0
       },
       {
         "sensorId": "water-pipe-06-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.68,
+        "value": 4.25,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.21
       },
       {
         "sensorId": "water-pump-07-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.98,
+        "value": 4.8,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.71
       },
       {
         "sensorId": "water-pump-07-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 632.96,
+        "value": 910.45,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 899.0
       },
       {
         "sensorId": "water-pipe-07-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2062.35,
+        "value": 892.53,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 898.0
       },
       {
         "sensorId": "water-pipe-07-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2034.91,
+        "value": 880.65,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 898.0
       },
       {
         "sensorId": "water-pipe-07-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.6,
+        "value": 4.16,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.22
       },
       {
         "sensorId": "water-pump-08-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.91,
+        "value": 4.75,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.73
       },
       {
         "sensorId": "water-pump-08-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 636.5,
+        "value": 503.6,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 494.5
       },
       {
         "sensorId": "water-pipe-08-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2109.31,
+        "value": 502.17,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 494.0
       },
       {
         "sensorId": "water-pipe-08-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2073.9,
+        "value": 494.24,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 494.5
       },
       {
         "sensorId": "water-pipe-08-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.59,
+        "value": 4.16,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.23
       },
       {
         "sensorId": "water-pump-09-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.83,
+        "value": 4.65,
         "quality": "ok",
-        "forecast": 3.9
+        "forecast": 4.73
       },
       {
         "sensorId": "water-pump-09-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 623.57,
+        "value": 415.04,
         "quality": "ok",
-        "forecast": 625.0
+        "forecast": 416.0
       },
       {
         "sensorId": "water-pipe-09-flow-in",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2107.12,
+        "value": 421.93,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 415.5
       },
       {
         "sensorId": "water-pipe-09-flow-out",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2114.47,
+        "value": 422.89,
         "quality": "ok",
-        "forecast": 2075.0
+        "forecast": 415.0
       },
       {
         "sensorId": "water-pipe-09-pressure",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 3.67,
+        "value": 4.26,
         "quality": "ok",
-        "forecast": 3.65
+        "forecast": 4.24
       },
       {
         "sensorId": "cool-plant-01-supply-temp",
@@ -3570,121 +3570,121 @@
       {
         "sensorId": "cool-plant-01-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 1960.59,
+        "value": 3501.62,
         "quality": "ok",
-        "forecast": 2000.0
+        "forecast": 3572.0
       },
       {
         "sensorId": "cool-plant-01-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 24.31,
+        "value": 29.55,
         "quality": "ok",
-        "forecast": 24.5
+        "forecast": 29.78
       },
       {
         "sensorId": "cool-loop-01-return-temp",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 12.64,
+        "value": 11.91,
         "quality": "ok",
-        "forecast": 12.5
+        "forecast": 11.78
       },
       {
         "sensorId": "cool-loop-01-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 790.49,
+        "value": 841.49,
         "quality": "ok",
-        "forecast": 775.0
+        "forecast": 825.0
       },
       {
         "sensorId": "cool-loop-02-return-temp",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 12.63,
+        "value": 12.26,
         "quality": "ok",
-        "forecast": 12.5
+        "forecast": 12.14
       },
       {
         "sensorId": "cool-loop-02-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 768.12,
+        "value": 1910.88,
         "quality": "ok",
-        "forecast": 775.0
+        "forecast": 1928.0
       },
       {
         "sensorId": "cool-loop-03-return-temp",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 12.25,
+        "value": 11.55,
         "quality": "ok",
-        "forecast": 12.5
+        "forecast": 11.78
       },
       {
         "sensorId": "cool-loop-03-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 765.24,
+        "value": 813.62,
         "quality": "ok",
-        "forecast": 775.0
+        "forecast": 824.0
       },
       {
         "sensorId": "cool-plant-02-supply-temp",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 6.04,
+        "value": 6.05,
         "quality": "ok",
-        "forecast": 6.0
+        "forecast": 6.01
       },
       {
         "sensorId": "cool-plant-02-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 2038.73,
+        "value": 3896.53,
         "quality": "ok",
-        "forecast": 2000.0
+        "forecast": 3822.5
       },
       {
         "sensorId": "cool-plant-02-load",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 24.86,
+        "value": 32.33,
         "quality": "ok",
-        "forecast": 24.5
+        "forecast": 31.86
       },
       {
         "sensorId": "cool-loop-04-return-temp",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 12.46,
+        "value": 12.09,
         "quality": "ok",
-        "forecast": 12.5
+        "forecast": 12.13
       },
       {
         "sensorId": "cool-loop-04-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 760.69,
+        "value": 2156.91,
         "quality": "ok",
-        "forecast": 775.0
+        "forecast": 2197.5
       },
       {
         "sensorId": "cool-loop-05-return-temp",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 12.29,
+        "value": 11.49,
         "quality": "ok",
-        "forecast": 12.5
+        "forecast": 11.68
       },
       {
         "sensorId": "cool-loop-05-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 775.55,
+        "value": 522.37,
         "quality": "ok",
-        "forecast": 775.0
+        "forecast": 522.0
       },
       {
         "sensorId": "cool-loop-06-return-temp",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 12.72,
+        "value": 12.11,
         "quality": "ok",
-        "forecast": 12.5
+        "forecast": 11.91
       },
       {
         "sensorId": "cool-loop-06-flow",
         "timestamp": "2026-10-28T11:30:00Z",
-        "value": 788.86,
+        "value": 1252.5,
         "quality": "ok",
-        "forecast": 775.0
+        "forecast": 1230.5
       }
     ],
     "assets": [

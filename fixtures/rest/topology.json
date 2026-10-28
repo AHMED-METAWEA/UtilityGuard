@@ -1411,8 +1411,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 10.0,
-        "max": 110.0
+        "min": 42.0,
+        "max": 68.0
       },
       "position": {
         "lat": 30.034,
@@ -1426,8 +1426,8 @@
       "kind": "voltage",
       "unit": "kV",
       "normalRange": {
-        "min": 21.0,
-        "max": 23.0
+        "min": 20.63,
+        "max": 22.84
       },
       "position": {
         "lat": 30.034,
@@ -1441,8 +1441,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 10.0,
-        "max": 110.0
+        "min": 64.0,
+        "max": 123.0
       },
       "position": {
         "lat": 30.037,
@@ -1456,8 +1456,8 @@
       "kind": "voltage",
       "unit": "kV",
       "normalRange": {
-        "min": 21.0,
-        "max": 23.0
+        "min": 20.02,
+        "max": 22.52
       },
       "position": {
         "lat": 30.037,
@@ -1471,8 +1471,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 10.0,
-        "max": 110.0
+        "min": 25.97,
+        "max": 40.14
       },
       "position": {
         "lat": 30.034,
@@ -1486,8 +1486,8 @@
       "kind": "voltage",
       "unit": "kV",
       "normalRange": {
-        "min": 21.0,
-        "max": 23.0
+        "min": 20.94,
+        "max": 23.08
       },
       "position": {
         "lat": 30.034,
@@ -1501,8 +1501,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 10.0,
-        "max": 110.0
+        "min": 33.54,
+        "max": 45.76
       },
       "position": {
         "lat": 30.016,
@@ -1516,7 +1516,7 @@
       "kind": "voltage",
       "unit": "kV",
       "normalRange": {
-        "min": 21.0,
+        "min": 20.87,
         "max": 23.0
       },
       "position": {
@@ -1531,8 +1531,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 13.84,
+        "max": 25.61
       },
       "position": {
         "lat": 30.043,
@@ -1546,8 +1546,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 44.0,
+        "max": 59.0
       },
       "position": {
         "lat": 30.043,
@@ -1561,8 +1561,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 15.63,
+        "max": 28.83
       },
       "position": {
         "lat": 30.021,
@@ -1576,8 +1576,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 45.0,
+        "max": 59.0
       },
       "position": {
         "lat": 30.021,
@@ -1591,8 +1591,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 12.0,
+        "max": 21.93
       },
       "position": {
         "lat": 30.006,
@@ -1606,8 +1606,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 43.0,
+        "max": 55.0
       },
       "position": {
         "lat": 30.006,
@@ -1621,8 +1621,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 29.0,
+        "max": 57.0
       },
       "position": {
         "lat": 30.043,
@@ -1636,8 +1636,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 53.0,
+        "max": 78.0
       },
       "position": {
         "lat": 30.043,
@@ -1651,8 +1651,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 35.0,
+        "max": 66.0
       },
       "position": {
         "lat": 30.021,
@@ -1666,8 +1666,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 56.0,
+        "max": 83.0
       },
       "position": {
         "lat": 30.021,
@@ -1681,8 +1681,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 11.54,
+        "max": 20.8
       },
       "position": {
         "lat": 30.043,
@@ -1696,8 +1696,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 42.0,
+        "max": 56.0
       },
       "position": {
         "lat": 30.043,
@@ -1711,8 +1711,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 14.19,
+        "max": 26.18
       },
       "position": {
         "lat": 30.021,
@@ -1726,8 +1726,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 44.0,
+        "max": 58.0
       },
       "position": {
         "lat": 30.021,
@@ -1741,8 +1741,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 22.14,
+        "max": 29.29
       },
       "position": {
         "lat": 30.006,
@@ -1756,8 +1756,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 49.0,
+        "max": 61.0
       },
       "position": {
         "lat": 30.006,
@@ -1771,8 +1771,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 2.0,
-        "max": 60.0
+        "min": 11.28,
+        "max": 20.61
       },
       "position": {
         "lat": 30.006,
@@ -1786,8 +1786,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 35.0,
-        "max": 85.0
+        "min": 42.0,
+        "max": 54.0
       },
       "position": {
         "lat": 30.006,
@@ -1802,7 +1802,7 @@
       "unit": "bar",
       "normalRange": {
         "min": 4.2,
-        "max": 5.2
+        "max": 4.77
       },
       "position": {
         "lat": 30.046,
@@ -1816,8 +1816,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 2000.0,
-        "max": 6500.0
+        "min": 2016.0,
+        "max": 5135.0
       },
       "position": {
         "lat": 30.046,
@@ -1831,8 +1831,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.44,
+        "max": 4.97
       },
       "position": {
         "lat": 30.05,
@@ -1846,8 +1846,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 2015.0,
+        "max": 5136.0
       },
       "position": {
         "lat": 30.05,
@@ -1861,8 +1861,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 2016.0,
+        "max": 5138.0
       },
       "position": {
         "lat": 30.046,
@@ -1876,8 +1876,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 2016.0,
+        "max": 5143.0
       },
       "position": {
         "lat": 30.05,
@@ -1891,8 +1891,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 3.96,
+        "max": 4.45
       },
       "position": {
         "lat": 30.046,
@@ -1906,8 +1906,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.55,
+        "max": 5.11
       },
       "position": {
         "lat": 30.028,
@@ -1921,8 +1921,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 371.0,
+        "max": 1601.0
       },
       "position": {
         "lat": 30.028,
@@ -1936,8 +1936,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 371.0,
+        "max": 1600.0
       },
       "position": {
         "lat": 30.05,
@@ -1951,8 +1951,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 371.0,
+        "max": 1598.0
       },
       "position": {
         "lat": 30.028,
@@ -1966,8 +1966,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 4.07,
+        "max": 4.59
       },
       "position": {
         "lat": 30.028,
@@ -1981,8 +1981,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.51,
+        "max": 4.96
       },
       "position": {
         "lat": 30.013,
@@ -1996,8 +1996,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 167.0,
+        "max": 721.0
       },
       "position": {
         "lat": 30.013,
@@ -2011,8 +2011,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 168.0,
+        "max": 720.0
       },
       "position": {
         "lat": 30.028,
@@ -2026,8 +2026,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 167.0,
+        "max": 720.0
       },
       "position": {
         "lat": 30.013,
@@ -2041,8 +2041,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 4.03,
+        "max": 4.44
       },
       "position": {
         "lat": 30.013,
@@ -2056,8 +2056,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.45,
+        "max": 5.07
       },
       "position": {
         "lat": 30.05,
@@ -2071,8 +2071,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 1420.0,
+        "max": 3860.0
       },
       "position": {
         "lat": 30.05,
@@ -2086,8 +2086,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 1418.0,
+        "max": 3861.0
       },
       "position": {
         "lat": 30.05,
@@ -2101,8 +2101,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 1420.0,
+        "max": 3859.0
       },
       "position": {
         "lat": 30.05,
@@ -2116,8 +2116,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 3.97,
+        "max": 4.54
       },
       "position": {
         "lat": 30.05,
@@ -2131,8 +2131,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.47,
+        "max": 4.94
       },
       "position": {
         "lat": 30.028,
@@ -2146,8 +2146,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 637.0,
+        "max": 1716.0
       },
       "position": {
         "lat": 30.028,
@@ -2161,8 +2161,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 637.0,
+        "max": 1717.0
       },
       "position": {
         "lat": 30.05,
@@ -2176,8 +2176,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 638.0,
+        "max": 1718.0
       },
       "position": {
         "lat": 30.028,
@@ -2191,8 +2191,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 3.99,
+        "max": 4.42
       },
       "position": {
         "lat": 30.028,
@@ -2206,8 +2206,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.48,
+        "max": 4.94
       },
       "position": {
         "lat": 30.05,
@@ -2221,8 +2221,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 507.0,
+        "max": 1653.0
       },
       "position": {
         "lat": 30.05,
@@ -2236,8 +2236,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 507.0,
+        "max": 1651.0
       },
       "position": {
         "lat": 30.05,
@@ -2251,8 +2251,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 507.0,
+        "max": 1649.0
       },
       "position": {
         "lat": 30.05,
@@ -2266,8 +2266,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 4.0,
+        "max": 4.42
       },
       "position": {
         "lat": 30.05,
@@ -2281,8 +2281,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.48,
+        "max": 4.95
       },
       "position": {
         "lat": 30.028,
@@ -2296,8 +2296,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 338.0,
+        "max": 1460.0
       },
       "position": {
         "lat": 30.028,
@@ -2311,8 +2311,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 338.0,
+        "max": 1458.0
       },
       "position": {
         "lat": 30.05,
@@ -2326,8 +2326,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 338.0,
+        "max": 1458.0
       },
       "position": {
         "lat": 30.028,
@@ -2341,8 +2341,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 4.01,
+        "max": 4.43
       },
       "position": {
         "lat": 30.028,
@@ -2356,8 +2356,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.5,
+        "max": 4.96
       },
       "position": {
         "lat": 30.013,
@@ -2371,8 +2371,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 367.0,
+        "max": 622.0
       },
       "position": {
         "lat": 30.013,
@@ -2386,8 +2386,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 367.0,
+        "max": 621.0
       },
       "position": {
         "lat": 30.028,
@@ -2401,8 +2401,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 367.0,
+        "max": 622.0
       },
       "position": {
         "lat": 30.013,
@@ -2416,8 +2416,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 4.03,
+        "max": 4.43
       },
       "position": {
         "lat": 30.013,
@@ -2431,8 +2431,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.2,
-        "max": 4.6
+        "min": 4.51,
+        "max": 4.96
       },
       "position": {
         "lat": 30.013,
@@ -2446,8 +2446,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1100.0
+        "min": 157.0,
+        "max": 675.0
       },
       "position": {
         "lat": 30.013,
@@ -2461,8 +2461,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 157.0,
+        "max": 674.0
       },
       "position": {
         "lat": 30.028,
@@ -2476,8 +2476,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 4000.0
+        "min": 156.0,
+        "max": 674.0
       },
       "position": {
         "lat": 30.013,
@@ -2491,8 +2491,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 2.5,
-        "max": 4.8
+        "min": 4.03,
+        "max": 4.44
       },
       "position": {
         "lat": 30.013,
@@ -2506,8 +2506,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 5.0,
-        "max": 7.0
+        "min": 5.71,
+        "max": 6.3
       },
       "position": {
         "lat": 30.042,
@@ -2521,8 +2521,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 800.0,
-        "max": 3200.0
+        "min": 1688.0,
+        "max": 5456.0
       },
       "position": {
         "lat": 30.042,
@@ -2536,8 +2536,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 4.0,
-        "max": 45.0
+        "min": 14.07,
+        "max": 45.49
       },
       "position": {
         "lat": 30.042,
@@ -2551,8 +2551,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.0,
-        "max": 14.0
+        "min": 11.21,
+        "max": 12.34
       },
       "position": {
         "lat": 30.05,
@@ -2566,8 +2566,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1400.0
+        "min": 390.0,
+        "max": 1260.0
       },
       "position": {
         "lat": 30.042,
@@ -2581,8 +2581,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.0,
-        "max": 14.0
+        "min": 11.56,
+        "max": 12.73
       },
       "position": {
         "lat": 30.05,
@@ -2596,8 +2596,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1400.0
+        "min": 913.0,
+        "max": 2943.0
       },
       "position": {
         "lat": 30.042,
@@ -2611,8 +2611,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.0,
-        "max": 14.0
+        "min": 11.22,
+        "max": 12.34
       },
       "position": {
         "lat": 30.05,
@@ -2626,8 +2626,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1400.0
+        "min": 389.0,
+        "max": 1259.0
       },
       "position": {
         "lat": 30.042,
@@ -2641,8 +2641,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 5.0,
-        "max": 7.0
+        "min": 5.72,
+        "max": 6.3
       },
       "position": {
         "lat": 30.02,
@@ -2656,8 +2656,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 800.0,
-        "max": 3200.0
+        "min": 2153.0,
+        "max": 5492.0
       },
       "position": {
         "lat": 30.02,
@@ -2671,8 +2671,8 @@
       "kind": "load",
       "unit": "MW",
       "normalRange": {
-        "min": 4.0,
-        "max": 45.0
+        "min": 17.99,
+        "max": 45.73
       },
       "position": {
         "lat": 30.02,
@@ -2686,8 +2686,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.0,
-        "max": 14.0
+        "min": 11.48,
+        "max": 12.78
       },
       "position": {
         "lat": 30.028,
@@ -2701,8 +2701,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1400.0
+        "min": 1037.0,
+        "max": 3358.0
       },
       "position": {
         "lat": 30.02,
@@ -2716,8 +2716,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.0,
-        "max": 14.0
+        "min": 11.09,
+        "max": 12.27
       },
       "position": {
         "lat": 30.028,
@@ -2731,8 +2731,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1400.0
+        "min": 267.0,
+        "max": 777.0
       },
       "position": {
         "lat": 30.02,
@@ -2746,8 +2746,8 @@
       "kind": "temperature",
       "unit": "°C",
       "normalRange": {
-        "min": 11.0,
-        "max": 14.0
+        "min": 11.31,
+        "max": 12.52
       },
       "position": {
         "lat": 30.013,
@@ -2761,8 +2761,8 @@
       "kind": "flow",
       "unit": "m3/h",
       "normalRange": {
-        "min": 150.0,
-        "max": 1400.0
+        "min": 804.0,
+        "max": 1657.0
       },
       "position": {
         "lat": 30.005,

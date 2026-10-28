@@ -68,6 +68,7 @@ class TwinGraph:
     zone_feeder: dict[str, str] = field(default_factory=dict)
     zone_loop: dict[str, str] = field(default_factory=dict)
     upstream_zone: dict[str, str | None] = field(default_factory=dict)
+    calibrated: bool = False
 
 
 def _ll(lat: float, lng: float) -> LatLng:
