@@ -347,6 +347,11 @@ class ChatChunk(Model):
     agent: AgentName = "orchestrator"
 
 
+class ChatRoute(Model):
+    message_id: str
+    routing: list[RouteStep]
+
+
 class ChatDone(Model):
     message_id: str
     agents_consulted: list[AgentName]
@@ -425,6 +430,7 @@ WS_PAYLOADS: dict[str, type[Model]] = {
     "agent_finding": AgentFinding,
     "scenario_state": ScenarioState,
     "forecast_update": Forecast,
+    "chat_route": ChatRoute,
     "chat_chunk": ChatChunk,
     "chat_done": ChatDone,
 }

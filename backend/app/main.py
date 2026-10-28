@@ -14,8 +14,9 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from app import scenarios
+from app.agents.service import AgentService
 from app.runtime import runtime
-from app.schemas import Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
+from app.schemas import ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -36,6 +37,7 @@ app = FastAPI(title="UtilityGuard Twin", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 api = APIRouter(prefix="/api/v1")
 _run_ids = itertools.count(1)
+service = AgentService(runtime)
 
 
 @app.exception_handler(ApiError)
@@ -125,11 +127,47 @@ async def stop_scenario(req: ScenarioStopRequest) -> dict:
 async def reset() -> dict:
     stopped = [r.model_copy(update={"state": "stopped"}) for r in runtime.runs.values() if r.state == "running"]
     runtime.reset_state()
+    service.A.reset()
     for st in stopped:
         await runtime.broadcast("scenario_state", st)
     for ws in list(runtime.clients):
         await ws.send_json(envelope("snapshot", runtime.snapshot()))
     return {"status": "reset", "tick": runtime.engine.tick}
+
+
+@api.post("/chat")
+def chat(req: ChatRequest) -> dict:
+    if not req.message.strip():
+        raise ApiError(422, "empty_message", "Message must not be empty.")
+    return out(ChatAccepted(message_id=service.chat(req.message, req.incident_id)))
+
+
+@api.get("/calculations/{calc_id}")
+def calculation(calc_id: str) -> dict:
+    rec = runtime.calculations.get(calc_id)
+    if not rec:
+        raise ApiError(404, "not_found", f"Calculation {calc_id} does not exist.")
+    return out(rec)
+
+
+@api.get("/assumptions")
+def get_assumptions() -> list:
+    return out(service.A.all())
+
+
+@api.put("/assumptions")
+async def put_assumptions(changes: dict[str, float]) -> dict:
+    try:
+        service.A.update(changes)
+    except KeyError as e:
+        raise ApiError(422, "unknown_assumption", f"Unknown assumption {e.args[0]}.") from e
+    n = await service.recompute()
+    return {"assumptions": out(service.A.all()), "recomputed": n}
+
+
+@api.get("/findings")
+def findings() -> list:
+    return out(list(runtime.findings.values()))
 
 
 @app.websocket("/ws/stream")

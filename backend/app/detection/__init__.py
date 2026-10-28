@@ -84,6 +84,14 @@ class Detector:
     def reset(self) -> None:
         self.state = DetectionState()
 
+    def clone(self, rt: "Runtime") -> "Detector":
+        d = Detector.__new__(Detector)
+        d.__dict__.update(self.__dict__)
+        d.rt, d.g, d.state = rt, rt.engine.g, DetectionState()
+        d.on_incident, d.on_incident_update = [], []
+        d.anomaly_scores = deque(maxlen=300)
+        return d
+
     # ---------- graph helpers ----------
     def _build_neighbours(self) -> dict[str, set[str]]:
         nb: dict[str, set[str]] = {}

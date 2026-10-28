@@ -50,6 +50,7 @@ class Runtime:
         self.findings: dict[str, AgentFinding] = {}
         self.runs: dict[str, ScenarioState] = {}
         self.forecasts: dict[str, float] = {}
+        self.calculations: dict = {}
         self.now = datetime.now(timezone.utc)
         for hook in self.reset_hooks:
             hook()
@@ -157,6 +158,19 @@ class Runtime:
                 self.asset_status[a.id] = new
                 if prev is not None:
                     await self.broadcast("asset_status", new)
+
+    def clone(self) -> "Runtime":
+        """Independent sandbox copy for what-if runs: same state, no clients, own RNG stream."""
+        import copy
+        sb = Runtime.__new__(Runtime)
+        sb.seed, sb._base_health, sb.llm_mode = self.seed, self._base_health, self.llm_mode
+        sb.engine = copy.deepcopy(self.engine)
+        sb.engine.rng = np.random.default_rng(self.seed + 99)
+        sb.clients, sb.tick_hooks, sb.reset_hooks, sb._task, sb._lock = set(), [], [], None, asyncio.Lock()
+        sb.latest, sb.history = dict(self.latest), {k: list(v) for k, v in self.history.items()}
+        sb.asset_status, sb.alerts, sb.incidents, sb.findings = dict(self.asset_status), {}, {}, {}
+        sb.runs, sb.forecasts, sb.now, sb.calculations = {}, dict(self.forecasts), self.now, {}
+        return sb
 
     # ---------- scenarios ----------
     def add_event(self, ev: Event) -> None:
