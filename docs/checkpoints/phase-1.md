@@ -28,3 +28,10 @@ D6 (models changed to gpt-oss) and D11. See decisions.md.
 
 ## Next
 Codex P2–P3 frontend: the finding card and explainability panels, the scenario lab, chat routing, the asset drawer and the zone polygons. Backend: record the fallback cache for the demo questions and write `scripts/demo_check.py`.
+
+## Update: Codex frontend P2–P3 (merged)
+![Frontend P2](img/phase-2-frontend.png)
+- Done: open-alerts counter fixed, zone polygons drawn and the map fitted to the network, finding card, assumptions panel, scenario lab, chat with routing and suggested questions, asset drawer, status markers. Typecheck, lint, build and 15 tests pass.
+- Seen in the live run: the finding card is cut off at the bottom of the right panel, so the act now / delay / saving values are hidden. It needs a scroll area or a collapsible alert block. Zone labels also overlap the markers.
+- Still to check: scenario lab, chat and drawer clicks in a real browser, and the frame rate.
+- Open contract questions from Codex: "Repair now" has no `equipment` input (the formula text should say `crew_callout + parts`; already true in the backend), and hourly results use the unit `EGP/h` (already true in the backend).

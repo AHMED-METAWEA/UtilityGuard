@@ -7,7 +7,7 @@ import { readFile } from 'node:fs/promises';
 
 const timestamp = '2026-10-28T12:00:00.000Z';
 const reading = (sensorId = 'water-pump-03-pressure', value = 3): Reading => ({ sensorId, value, timestamp, quality: 'ok' });
-const snapshot = (tick = 10): SnapshotPayload => ({ tick, timestamp, latest: [reading()] });
+const snapshot = (tick = 10): SnapshotPayload => ({ tick, timestamp, latest: [reading()], topology: { zones: [], assets: [], sensors: [], links: [] }, assets: [], alerts: [], incidents: [], findings: [], scenarios: [], llm: 'live' });
 const batch = (tick: number, value: number) => ({ tick, timestamp, readings: [reading(undefined, value)] });
 
 test('stale and duplicate ticks are dropped per sensor, rather than globally', () => {
@@ -34,7 +34,7 @@ test('invalid JSON, unknown types and malformed known messages are ignored; extr
   assert.equal(parseEnvelope(JSON.stringify({ type: 'reading', extra: true, payload: { ...batch(5, 5), futureField: 'hello' } }))?.type, 'reading');
 });
 test('all shared WS fixtures use accepted envelopes; snapshot hydrates actual fixture fields', async () => {
-  for (const name of ['snapshot', 'reading', 'asset_status', 'alert', 'agent_finding', 'scenario_state', 'forecast_update', 'chat_chunk', 'chat_done']) {
+  for (const name of ['snapshot', 'reading', 'asset_status', 'alert', 'agent_finding', 'scenario_state', 'forecast_update', 'chat_route', 'chat_chunk', 'chat_done']) {
     const raw = await readFile(new URL(`../../fixtures/ws/${name}.json`, import.meta.url), 'utf8');
     const message = parseEnvelope(raw);
     assert.equal(message?.type, name);
@@ -78,4 +78,55 @@ test('reconnect waits for a new snapshot and refreshes state before accepting ne
   sockets[1].onmessage?.({ data: JSON.stringify({ type: 'snapshot', payload: snapshot(1) }) });
   assert.equal(useStore.getState().sensorTicks['water-pump-03-pressure'], 2);
   client.stop();
+});
+
+test('chat_route creates the reply before chunks, tracks the active specialist and preserves calculation links', async () => {
+  const { dispatchMessage } = await import('../src/api/ws');
+  useStore.setState({ chat: { data: [], status: 'ready' } });
+  for (const name of ['chat_route', 'chat_chunk', 'chat_done']) {
+    const message = parseEnvelope(await readFile(new URL(`../../fixtures/ws/${name}.json`, import.meta.url), 'utf8'));
+    assert.ok(message);
+    dispatchMessage(message);
+    const reply = useStore.getState().chat.data[0];
+    if (name === 'chat_route') { assert.equal(reply.text, ''); assert.equal(reply.routing.length, 3); assert.equal(reply.activeAgent, 'electricity'); assert.equal(reply.complete, false); }
+    if (name === 'chat_chunk') { assert.equal(reply.activeAgent, 'orchestrator'); assert.equal(reply.routing.length, 3); assert.ok(reply.text.includes('SS-02')); }
+    if (name === 'chat_done') { assert.equal(reply.complete, true); assert.equal(reply.calculationId, 'calc-0001'); assert.deepEqual(reply.agentsConsulted, ['electricity', 'water', 'cooling']); }
+  }
+  assert.equal(useStore.getState().chat.data.length, 1);
+});
+
+test('burst fixture sequence updates the open counter, statuses, findings and resolution over three rehearsals', async () => {
+  const { dispatchMessage } = await import('../src/api/ws');
+  const { isOpenAlert } = await import('../src/presentation');
+  const baseline = parseEnvelope(await readFile(new URL('../../fixtures/ws/snapshot.json', import.meta.url), 'utf8'))!;
+  const sequence = JSON.parse(await readFile(new URL('../../fixtures/sequence/burst.json', import.meta.url), 'utf8'));
+  for (let rehearsal = 0; rehearsal < 3; rehearsal++) {
+    dispatchMessage(baseline);
+    for (const entry of sequence) {
+      const message = parseEnvelope(JSON.stringify(entry.message)); assert.ok(message); dispatchMessage(message);
+      if (message.type === 'alert') {
+        const expected = message.payload.state === 'resolved' ? 0 : 1;
+        assert.equal(useStore.getState().alerts.data.filter(isOpenAlert).length, expected);
+        if (expected) { useStore.getState().upsertAlert({ ...message.payload, state: 'acknowledged' }); assert.equal(useStore.getState().alerts.data.filter(isOpenAlert).length, 1); }
+      }
+    }
+    assert.equal(useStore.getState().findings.data.length, 1);
+    const finding = useStore.getState().findings.data[0];
+    const recomputed = { ...finding, headline: 'Recomputed decision', cost: { ...finding.cost, expectedSaving: 12345 } };
+    useStore.getState().upsertFinding(recomputed);
+    assert.equal(useStore.getState().findings.data.length, 1);
+    assert.equal(useStore.getState().findings.data[0].cost.expectedSaving, 12345);
+    assert.equal(useStore.getState().alerts.data.filter(isOpenAlert).length, 0);
+    assert.ok(Object.values(useStore.getState().scenarioRuns).every((run) => run.state === 'stopped'));
+  }
+});
+
+test('formula view substitutes supplied inputs without calculating or inventing missing inputs', async () => {
+  const { keyCalculations, substitutedFormula } = await import('../src/presentation');
+  const record = JSON.parse(await readFile(new URL('../../fixtures/rest/calculation.json', import.meta.url), 'utf8'));
+  const calculations = record.explanation.calculations;
+  assert.deepEqual(keyCalculations(calculations).map((c) => c.name), ['Water loss per hour', 'Cost of delay per hour', 'Saving from acting now']);
+  assert.equal(substitutedFormula(calculations[0]), '140 m3/h × 8 EGP/m3');
+  assert.equal(substitutedFormula(calculations[2]), '3,400 EGP + 15,000 EGP + equipment');
+  assert.equal(calculations[0].result, 1120);
 });

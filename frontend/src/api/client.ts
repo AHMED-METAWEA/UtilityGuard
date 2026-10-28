@@ -1,4 +1,4 @@
-import type { Alert, ApiError, Health, Scenario, Topology } from './types';
+import type { AgentFinding, Alert, ApiError, Incident, Health, Scenario, Topology } from './types';
 import { useStore } from '../store';
 
 export class RequestError extends Error {
@@ -32,6 +32,13 @@ export async function loadResources(signal?: AbortSignal) {
       if (!Array.isArray(data)) throw new Error('INVALID_SCENARIOS');
       useStore.setState({ scenarios: { data, status: 'ready' } });
     }).catch(() => { if (!signal?.aborted) useStore.setState({ scenarios: { data: [], status: 'error' } }); }),
+    request<AgentFinding[]>('/findings', { signal }).then((data) => {
+      if (!Array.isArray(data)) throw new Error('INVALID_FINDINGS');
+      if (!useStore.getState().snapshotReady) useStore.setState({ findings: { data, status: 'ready' } });
+    }).catch(() => undefined),
+    request<Incident[]>('/incidents', { signal }).then((data) => {
+      if (Array.isArray(data) && !useStore.getState().snapshotReady) useStore.setState({ incidents: data });
+    }).catch(() => undefined),
     request<Health>('/health', { signal }).then(store.setHealth).catch(() => undefined),
   ];
   await Promise.allSettled(loads);

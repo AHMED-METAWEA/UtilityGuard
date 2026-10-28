@@ -5,6 +5,10 @@ const record = (value: unknown): value is Record<string, unknown> => typeof valu
 const text = (value: unknown): value is string => typeof value === 'string';
 const number = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 const list = (value: unknown): value is unknown[] => Array.isArray(value);
+const agent = (value: unknown) => ['water', 'electricity', 'cooling', 'orchestrator'].includes(String(value));
+const routing = (value: unknown) => list(value) && value.every((step) => record(step) && agent(step.agent) && text(step.reason));
+const calculation = (value: unknown) => record(value) && text(value.name) && text(value.formula) && number(value.result) && text(value.unit) && list(value.inputs) && value.inputs.every((input) => record(input) && text(input.name) && number(input.value) && text(input.unit) && text(input.source));
+const explanation = (value: unknown) => record(value) && number(value.confidence) && text(value.calculationId) && list(value.reasons) && value.reasons.every((reason) => record(reason) && text(reason.text) && ['measured', 'forecast', 'rule', 'assumed'].includes(String(reason.evidenceType))) && list(value.calculations) && value.calculations.every(calculation) && list(value.assumptions) && list(value.sensitivity);
 const reading = (value: unknown) => record(value) && text(value.sensorId) && text(value.timestamp) && number(value.value) && ['ok', 'suspect', 'missing'].includes(String(value.quality));
 
 /** Narrow known messages; additive fields never invalidate an otherwise known envelope. */
@@ -19,11 +23,12 @@ export function parseEnvelope(raw: string): WsEnvelope | null {
     case 'reading': valid = number(p.tick) && text(p.timestamp) && list(p.readings) && p.readings.every(reading); break;
     case 'asset_status': valid = text(p.assetId) && ['normal', 'warning', 'fault', 'offline'].includes(String(p.status)) && number(p.healthScore); break;
     case 'alert': valid = text(p.id) && text(p.incidentId) && text(p.title) && text(p.summary) && list(p.assetIds) && ['info', 'warning', 'critical'].includes(String(p.severity)); break;
-    case 'agent_finding': valid = text(p.id) && text(p.incidentId) && text(p.headline) && text(p.explanation) && list(p.reasoningSteps); break;
+    case 'agent_finding': valid = text(p.id) && text(p.incidentId) && agent(p.agent) && text(p.headline) && text(p.explanation) && list(p.reasoningSteps) && p.reasoningSteps.every(text) && text(p.createdAt) && explanation(p.explain) && record(p.recommendedAction) && text(p.recommendedAction.text) && text(p.recommendedAction.crewType) && text(p.recommendedAction.urgency) && record(p.cost) && number(p.cost.actNow) && number(p.cost.costOfDelay) && number(p.cost.delayHours) && number(p.cost.expectedSaving); break;
     case 'scenario_state': valid = text(p.runId) && text(p.scenarioId) && ['running', 'stopped'].includes(String(p.state)); break;
     case 'forecast_update': valid = text(p.network) && text(p.zoneId) && list(p.points) && record(p.metrics); break;
+    case 'chat_route': valid = text(p.messageId) && routing(p.routing); break;
     case 'chat_chunk': valid = text(p.messageId) && text(p.text); break;
-    case 'chat_done': valid = text(p.messageId) && list(p.agentsConsulted); break;
+    case 'chat_done': valid = text(p.messageId) && list(p.agentsConsulted) && p.agentsConsulted.every(agent) && routing(p.routing); break;
     default: return null;
   }
   return valid ? message as unknown as WsEnvelope : null;
@@ -39,6 +44,7 @@ export function dispatchMessage(message: WsEnvelope) {
     case 'agent_finding': store.upsertFinding(message.payload); break;
     case 'scenario_state': store.updateScenario(message.payload); break;
     case 'forecast_update': store.updateForecast(message.payload); break;
+    case 'chat_route': store.routeChat(message.payload); break;
     case 'chat_chunk': store.appendChunk(message.payload); break;
     case 'chat_done': store.finishChat(message.payload); break;
   }

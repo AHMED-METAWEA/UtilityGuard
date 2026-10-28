@@ -12,7 +12,7 @@ import { Sidebar } from './components/Sidebar';
 import { ActivityPanel } from './components/ActivityPanel';
 import { ChatPanel } from './components/ChatPanel';
 import { Telemetry } from './components/Telemetry';
-import { AssetDialog, CommandDialog, ScenarioDialog } from './components/Dialogs';
+import { AssetDialog, AssumptionsDialog, CalculationDialog, CommandDialog, ScenarioDialog } from './components/Dialogs';
 import { Button, Skeleton } from './design/primitives';
 
 const MapView = lazy(() => import('./components/MapView'));
@@ -31,11 +31,16 @@ export default function App() {
   const { t } = useTranslation();
   const [layers, setLayers] = useState<Record<Network, boolean>>({ water: true, electricity: true, cooling: true });
   const [charts, setCharts] = useState(true);
-  const [dialog, setDialog] = useState<'scenario' | 'commands' | null>(null);
+  const [dialog, setDialog] = useState<'scenario' | 'commands' | 'assumptions' | null>(null);
+  const [initialScenario, setInitialScenario] = useState<string>();
+  const [calculation, setCalculation] = useState<string | null>(null);
+  const closeCalculation = useCallback(() => setCalculation(null), []);
+  const openAssumptions = useCallback(() => setDialog('assumptions'), []);
   const [asset, setAsset] = useState<Asset | null>(null);
   const closeDialog = useCallback(() => setDialog(null), []);
   const closeAsset = useCallback(() => setAsset(null), []);
-  const openScenario = useCallback(() => setDialog('scenario'), []);
+  const openScenario = useCallback(() => { setInitialScenario(undefined); setDialog('scenario'); }, []);
+  const openQuickScenario = useCallback((id: string) => { setInitialScenario(id); setDialog('scenario'); }, []);
   const toggleCharts = useCallback(() => setCharts((value) => !value), []);
   const toggleLayer = useCallback((network: Network) => setLayers((old) => ({ ...old, [network]: !old[network] })), []);
 
@@ -59,15 +64,15 @@ export default function App() {
     const handle = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setDialog((current) => current === 'commands' ? null : 'commands'); return; }
-      if (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || event.metaKey || event.ctrlKey || event.altKey || dialog || asset) return;
+      if (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || event.metaKey || event.ctrlKey || event.altKey || dialog || asset || calculation) return;
       const network = ({ '1': 'water', '2': 'electricity', '3': 'cooling' } as const)[event.key as '1' | '2' | '3'];
       if (network) toggleLayer(network);
-      if (event.key.toLowerCase() === 'l') openScenario();
+      if (['s', 'l'].includes(event.key.toLowerCase())) openScenario();
       if (event.key.toLowerCase() === 'c') toggleCharts();
     };
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [toggleLayer, openScenario, toggleCharts, dialog, asset]);
+  }, [toggleLayer, openScenario, toggleCharts, dialog, asset, calculation]);
 
-  return <MotionConfig reducedMotion="user"><div className="app-shell"><a href="#operations" className="skip-link">{t('app.skip')}</a><Header onScenario={openScenario} onCommands={() => setDialog('commands')} /><main id="operations" className="operations" tabIndex={-1}><Suspense fallback={<div className="map-loading"><Skeleton /></div>}><MapView layers={layers} onSelectAsset={setAsset} /></Suspense><motion.div className="workspace" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}><Sidebar layers={layers} toggleLayer={toggleLayer} onScenario={openScenario} /><div className="center-workspace"><div className="map-context"><Crosshair size={14} /><span>{t('app.regionShort')}</span><span className="context-line" /><span>{t('layers.all')}</span></div><div className="center-bottom"><button className="command-hint" onClick={() => setDialog('commands')}><Command size={12} />{t('commands.hint')}<kbd>{t('commands.shortcut')}</kbd></button><Telemetry expanded={charts} toggle={toggleCharts} layers={layers} /></div></div><aside className="right-rail" aria-label={t('alerts.title')}><ActivityPanel /><ChatPanel /></aside></motion.div></main>{dialog === 'scenario' && <ScenarioDialog onClose={closeDialog} />}{dialog === 'commands' && <CommandDialog onClose={closeDialog} onScenario={openScenario} onLayer={toggleLayer} onCharts={toggleCharts} />}{asset && <AssetDialog asset={asset} onClose={closeAsset} />}</div></MotionConfig>;
+  return <MotionConfig reducedMotion="user"><div className="app-shell"><a href="#operations" className="skip-link">{t('app.skip')}</a><Header onScenario={openScenario} onCommands={() => setDialog('commands')} /><main id="operations" className="operations" tabIndex={-1}><Suspense fallback={<div className="map-loading"><Skeleton /></div>}><MapView layers={layers} onSelectAsset={setAsset} /></Suspense><motion.div className="workspace" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}><Sidebar layers={layers} toggleLayer={toggleLayer} onScenario={openScenario} onQuickScenario={openQuickScenario} /><div className="center-workspace"><div className="map-context"><Crosshair size={14} /><span>{t('app.regionShort')}</span><span className="context-line" /><span>{t('layers.all')}</span></div><div className="center-bottom"><button className="command-hint" onClick={() => setDialog('commands')}><Command size={12} />{t('commands.hint')}<kbd>{t('commands.shortcut')}</kbd></button><Telemetry expanded={charts} toggle={toggleCharts} layers={layers} /></div></div><aside className="right-rail" aria-label={t('alerts.title')}><ActivityPanel onAssumptions={openAssumptions} onCalculation={setCalculation} /><ChatPanel onCalculation={setCalculation} /></aside></motion.div></main>{dialog === 'scenario' && <ScenarioDialog onClose={closeDialog} initialScenario={initialScenario} />}{dialog === 'commands' && <CommandDialog onClose={closeDialog} onScenario={openScenario} onLayer={toggleLayer} onCharts={toggleCharts} onAssumptions={openAssumptions} />}{dialog === 'assumptions' && <AssumptionsDialog onClose={closeDialog} />}{calculation && <CalculationDialog key={calculation} id={calculation} onClose={closeCalculation} />}{asset && <AssetDialog asset={asset} onClose={closeAsset} />}</div></MotionConfig>;
 }

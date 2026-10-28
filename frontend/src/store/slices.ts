@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import type { AgentFinding, Alert, AssetStatusUpdate, ChatChunk, ChatDone, ChatMessage, Forecast, Health, Reading, ReadingPayload, Scenario, ScenarioState, SnapshotPayload, Topology } from '../api/types';
+import type { AgentFinding, Alert, AssetStatusUpdate, ChatChunk, ChatDone, ChatMessage, ChatRoute, Incident, Forecast, Health, Reading, ReadingPayload, Scenario, ScenarioState, SnapshotPayload, Topology } from '../api/types';
 
 export type LoadState = 'loading' | 'ready' | 'error';
 export interface Resource<T> { data: T; status: LoadState; error?: string }
@@ -11,9 +11,10 @@ export interface AssetsSlice { assets: Record<string, AssetStatusUpdate>; update
 export interface AlertsSlice { alerts: Resource<Alert[]>; upsertAlert: (alert: Alert) => void }
 export interface FindingsSlice { findings: Resource<AgentFinding[]>; upsertFinding: (finding: AgentFinding) => void }
 export interface ScenariosSlice { scenarios: Resource<Scenario[]>; scenarioRuns: Record<string, ScenarioState>; updateScenario: (state: ScenarioState) => void }
-export interface ChatSlice { chat: Resource<ChatMessage[]>; appendUserMessage: (text: string) => void; appendChunk: (chunk: ChatChunk) => void; finishChat: (done: ChatDone) => void }
+export interface IncidentsSlice { incidents: Incident[] }
+export interface ChatSlice { chat: Resource<ChatMessage[]>; appendUserMessage: (text: string) => void; routeChat: (route: ChatRoute) => void; appendChunk: (chunk: ChatChunk) => void; finishChat: (done: ChatDone) => void }
 export interface ForecastSlice { forecast: Record<string, Forecast>; updateForecast: (forecast: Forecast) => void }
-export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
+export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & IncidentsSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
 type Slice<T> = StateCreator<Store, [], [], T>;
 const upsert = <T extends { id: string }>(items: T[], item: T) => [item, ...items.filter((old) => old.id !== item.id)];
 export const connectionSlice: Slice<ConnectionSlice> = (set) => ({ connection: 'connecting', health: null, snapshotReady: false, setConnection: (connection) => set({ connection }), setHealth: (health) => set({ health }) });
@@ -36,14 +37,19 @@ export const scenariosSlice: Slice<ScenariosSlice> = (set) => ({ scenarios: { da
 export const chatSlice: Slice<ChatSlice> = (set) => ({
   chat: { data: [], status: 'loading' },
   appendUserMessage: (text) => set((s) => ({ chat: { status: 'ready', data: [...s.chat.data, { messageId: crypto.randomUUID(), role: 'user', text, complete: true, routing: [], agentsConsulted: [], fallback: false }] } })),
+  routeChat: (route) => set((s) => {
+    const old = s.chat.data.find((m) => m.messageId === route.messageId);
+    const message: ChatMessage = { role: 'assistant', text: '', complete: false, agentsConsulted: [], fallback: false, ...old, ...route, activeAgent: route.routing[0]?.agent };
+    return { chat: { status: 'ready', data: old ? s.chat.data.map((m) => m.messageId === route.messageId ? message : m) : [...s.chat.data, message] } };
+  }),
   appendChunk: (chunk) => set((s) => {
     const old = s.chat.data.find((m) => m.messageId === chunk.messageId);
-    const message: ChatMessage = { messageId: chunk.messageId, role: 'assistant', complete: false, agentsConsulted: [], routing: [], fallback: false, ...old, text: (old?.text ?? '') + chunk.text, ...(chunk.routing ? { routing: chunk.routing } : {}), ...(chunk.fallback !== undefined ? { fallback: chunk.fallback } : {}) };
+    const message: ChatMessage = { messageId: chunk.messageId, role: 'assistant', complete: false, agentsConsulted: [], routing: [], fallback: false, ...old, text: (old?.text ?? '') + chunk.text, activeAgent: chunk.agent };
     return { chat: { status: 'ready', data: old ? s.chat.data.map((m) => m.messageId === chunk.messageId ? message : m) : [...s.chat.data, message] } };
   }),
   finishChat: (done) => set((s) => {
     const old = s.chat.data.find((m) => m.messageId === done.messageId);
-    const message: ChatMessage = { role: 'assistant', text: '', routing: [], fallback: false, ...old, ...done, complete: true };
+    const message: ChatMessage = { role: 'assistant', text: '', ...old, ...done, complete: true, activeAgent: undefined };
     return { chat: { status: 'ready', data: old ? s.chat.data.map((m) => m.messageId === done.messageId ? message : m) : [...s.chat.data, message] } };
   }),
 });

@@ -1,34 +1,42 @@
-# UtilityGuard frontend · Phase 0
+# UtilityGuard frontend
 
-Run from `frontend/` with Node 22+:
+Run from `frontend/` with the installed dependencies:
 
 ```sh
-npm install
 npm run mock
-# In a second terminal:
+# In another terminal:
 npm run dev
-npm run build
+```
+
+Vite proxies `/api` and `/ws` to port 8000, for either the real backend or the mock. No packages need adding. Fonts and the topology map style are local; the map uses no remote tiles or glyph services.
+
+The interface follows contract §4.9 and the regenerated fixtures. Costs, forecasts, explanations, sensitivities, and calculation results are rendered from backend data. Formula substitution is text-only; unknown inputs remain named instead of receiving invented values. Findings replace previous entries with the same ID. Open alerts include both `open` and `acknowledged` states.
+
+The decision card exposes evidence tags, the three main calculations, backend cost tiles, sensitivity, crew actions, staggered reasoning, verification/fallback badges, PDF download, and the full calculation drawer. Assumptions use stable keys in PUT requests; the backend re-sends updated findings. Scenario controls provide parameter sliders/dropdowns, run/stop, and a confirmed reset. Asset and sensor selection opens health, failure probability, all sensor charts, and recent alerts. Solid chart lines are measured; dashed lines use `reading.forecast`.
+
+Keyboard: `1/2/3` toggle networks, `S` (also `L`) opens Scenario Lab, `C` toggles charts, and `Cmd/Ctrl+K` opens commands, including assumptions. Dialogs trap focus and support Escape. Reduced motion is respected. English strings are in `src/i18n/en.json`; Arabic remains a partial stub with English fallback and RTL layout.
+
+## Mock behavior and limits
+
+The mock reads repository-root `fixtures/`, without writing them. `UTILITYGUARD_FIXTURES` and `PORT` permit isolated tests. Burst sequence delays are cumulative; readings advance monotonically. Snapshot reconnects retain the replay state. Chat emits `chat_route`, `chat_chunk`, then `chat_done`, using unique IDs for subsequent requests. Assumption saves return `{assumptions, recomputed}` and re-emit the recorded finding with its existing ID and updated assumption metadata.
+
+Only the pipe-burst simulation has a recorded sequence. Other scenario controls exercise run/stop state but cannot synthesize unprovided simulation results. Assumption changes in the mock retain recorded monetary results; real cost recomputation belongs to the backend. Report export returns a structured 404 because there is no PDF fixture. The UI displays that error; the real backend report endpoint is wired for PDF download.
+
+## Contract questions for the backend owner
+
+- Scenario parameter fixtures have no `options`. The UI accepts provided options and otherwise derives asset choices of the default asset's kind, or sensor choices of the default sensor's kind, from topology. Should the backend supply explicit allowed options?
+- The recorded “Repair now” formula includes `equipment` without a matching input. The UI leaves that token visible; what input value should the backend include?
+- Hourly calculation records use `unit: "EGP"` although their names/inputs indicate EGP/h. The UI preserves the supplied result unit. Should these records use `EGP/h`?
+
+## Verification
+
+```sh
 npm run typecheck
 npm run lint
+npm run build
 npm test
 ```
 
-Vite proxies `/api` and `/ws` to port 8000. The mock resolves **repository-root** `fixtures/` relative to its own file, regardless of the launch directory. It never writes fixtures. Missing JSON returns HTTP 404 `{code, message}`; a missing WS snapshot closes with code 1013 and the client reconnects. `UTILITYGUARD_FIXTURES` and `PORT` allow isolated mock tests. Optional burst sequence delays are cumulative (each `delayMs` is relative to the previous entry). Baseline noise pauses during a replay; sequence reading ticks advance monotonically so a late demo run is not rejected as stale. Chat replays the provided chunk and done fixtures. Report export returns a structured 404 because no PDF fixture is specified.
+Tests cover real fixture parsing, per-sensor ordering, reconnect hydration, alert counting including acknowledgement, same-ID finding replacement, three complete burst sequence rehearsals, live chat routing and completion, assumptions HTTP serialization/re-emission, and rendered decision-card evidence/totals. HTTP integration runs through Express with in-memory streams, without opening a port. These state-level rehearsals do not establish browser frame rate or visual correctness.
 
-The scenario lab is intentionally a Phase 0 placeholder. Asset overlays and telemetry use connected data only. The CARTO basemap falls back to a dark canvas without blocking panels. Fonts are bundled locally. Arabic is a partial translation stub with English fallback; changing language sets document `lang` and `dir`. Keyboard: `1/2/3` layers, `L` scenario lab, `C` charts, `Cmd/Ctrl+K` quick actions. Dialogs trap focus and support Escape; reduced motion is respected.
-
-## Contract ambiguities requiring coordination
-
-- The task fixes batched readings as `{tick, timestamp, readings}`; contract 4.2 also describes a singular reading. The task's batch is implemented.
-- No snapshot payload is specified in the contract prose. The shared fixture resolves it as `{tick, timestamp, topology, latest, assets, alerts, incidents, findings, scenarios, llm}`. Optional collections default empty. Readings buffer until the snapshot is applied. Reconnect replaces streaming state with the new baseline; per-sensor ticks drop duplicates and older readings, retaining 300 samples. Unknown message types and additive fields are ignored.
-- Geometry only says “point or line.” The shared fixtures resolve this to lowercase `point` / `line` and `{lat, lng}[]` coordinates; the map converts them to GeoJSON. Zone polygons also use `{lat, lng}[]`. No mock geometries are fabricated.
-- Section 4.5 already uses `explanation` for plain text, while 4.6A requires an explanation block on findings. The shared fixture resolves this with `explain`; cost uses `explanation`. Fixture field names also resolve `userChanged`, sensitivity `input`, `changePercent`, `newSaving`, and impact `zoneIds`.
-- Forecast wrappers, model metrics, assumptions, incidents, health, comparison, placement, drift and routing lack complete JSON schemas in the prose. Types follow the now-available shared fixtures: health `{status, llm: 'live'|'fallback'}`, chat done `agentsConsulted`, routing `{agent, reason}[]`, metrics `lastRun`, comparison `saving`, scenario parameter definitions as an array, and scenario network `multi` for cross-network events. These details should eventually be written into the shared contract by its owners.
-- The scenario request calls for a “scenario id” without a key: this client types it as `scenarioId`. `delayMs` relative versus absolute is unspecified; the mock uses relative delays, preserving payloads except for monotonically advancing reading ticks. Reset reconnects clients to ensure a fresh baseline snapshot.
-- No incident-report fixture filename is provided. The mock exposes the route with a structured missing-fixture 404.
-
-No backend, shared fixture, or documentation files are changed by this frontend scaffold.
-
-## Verification in this environment
-
-`npm test`: 9 passing tests. `npm run lint`: passes. Both `npm run build` and `npm run typecheck` currently fail with `TS2307: Cannot find module 'echarts-for-react'`. Registry access fails with `ENOTFOUND registry.npmjs.org`; ECharts, echarts-for-react, both font packages and deck.gl geo-layers are absent from the local cache. The available real dependencies were restored from that cache to check the remaining source and run the tests. No dependency stubs were introduced. A full `npm install` is still required when registry access is available. The sandbox also denies binding a listening port (`listen EPERM`), so mock integration tests exercise real Express request/response serialization through in-memory streams.
+In this sandbox, `npm run mock` and `npm run dev` are blocked by `listen EPERM`. Browser visual review also requires an approved computer-use surface. Real-backend/browser integration and frame-rate review remain to be performed in a normal local session.

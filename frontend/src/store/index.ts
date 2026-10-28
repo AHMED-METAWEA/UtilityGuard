@@ -5,13 +5,15 @@ export const useStore = create<Store>()((...args) => ({
   ...connectionSlice(...args), ...topologySlice(...args), ...readingsSlice(...args),
   ...assetsSlice(...args), ...alertsSlice(...args), ...findingsSlice(...args),
   ...scenariosSlice(...args), ...chatSlice(...args), ...forecastSlice(...args),
+  incidents: [],
   applySnapshot: (snapshot) => {
     const [set, get] = args;
     set({
+      incidents: snapshot.incidents ?? [],
       snapshotReady: true, readings: {}, sensorTicks: {}, assets: {}, forecast: {}, scenarioRuns: {},
       alerts: { data: snapshot.alerts ?? [], status: 'ready' },
       findings: { data: snapshot.findings ?? [], status: 'ready' },
-      chat: { data: snapshot.chat ?? [], status: 'ready' },
+      chat: { data: get().chat.data, status: 'ready' },
       ...(snapshot.topology ? { topology: { data: snapshot.topology, status: 'ready' } } : {}),
       ...(snapshot.llm ? { health: { status: 'ok', llm: snapshot.llm } } : {}),
     });
@@ -20,6 +22,5 @@ export const useStore = create<Store>()((...args) => ({
     snapshot.assets?.forEach(store.updateAsset);
     snapshot.findings?.forEach(store.upsertFinding);
     snapshot.scenarios?.forEach(store.updateScenario);
-    snapshot.forecast?.forEach(store.updateForecast);
   },
 }));

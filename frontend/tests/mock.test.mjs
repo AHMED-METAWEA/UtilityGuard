@@ -85,3 +85,43 @@ test('scenario run replays optional ordered messages and stop cancels pending ev
     assert.equal(messages[1].payload.state, 'stopped');
   } finally { mock.close(); await rm(dir, { recursive: true, force: true }); }
 });
+
+test('mock chat emits route before chunks and done, with unique message IDs on follow-ups', async () => {
+  const mock = createMockServer(); const messages = [];
+  mock.wss.clients.add({ readyState: 1, snapshotSent: true, send(raw) { messages.push(JSON.parse(raw)); }, terminate() {} });
+  try {
+    const first = await invoke(mock.app, 'POST', '/api/v1/chat', { message: 'What happens if SS-02 trips?' });
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    assert.deepEqual(messages.map((m) => m.type), ['chat_route', 'chat_chunk', 'chat_done']);
+    assert.ok(messages.every((m) => m.payload.messageId === first.body.messageId));
+    assert.equal(messages[0].payload.routing.length, 3);
+    assert.equal(messages[2].payload.calculationId, 'calc-0001');
+    const second = await invoke(mock.app, 'POST', '/api/v1/chat', { message: 'And the cost?' });
+    assert.notEqual(first.body.messageId, second.body.messageId);
+  } finally { mock.close(); }
+});
+
+test('assumptions save uses stable keys and replays the same finding ID without a frontend cost model', async () => {
+  const dir = await mkdtemp(fileURLToPath(new URL('./.mock-fixtures-', import.meta.url)));
+  const { readFile } = await import('node:fs/promises');
+  await Promise.all(['rest', 'ws', 'sequence'].map((path) => mkdir(`${dir}/${path}`)));
+  const root = new URL('../../fixtures/', import.meta.url);
+  for (const path of ['rest/scenario_run.json', 'rest/assumptions.json', 'ws/scenario_state.json', 'ws/snapshot.json']) await writeFile(`${dir}/${path}`, await readFile(new URL(path, root)));
+  const finding = JSON.parse(await readFile(new URL('ws/agent_finding.json', root), 'utf8'));
+  await writeFile(`${dir}/sequence/burst.json`, JSON.stringify([{ delayMs: 0, message: finding }]));
+  const mock = createMockServer({ fixtureRoot: dir }); const messages = [];
+  mock.wss.clients.add({ readyState: 1, snapshotSent: true, send(raw) { messages.push(JSON.parse(raw)); }, terminate() {} });
+  try {
+    await invoke(mock.app, 'POST', '/api/v1/scenarios/run', { scenarioId: 'scn-pipe-burst' });
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    const response = await invoke(mock.app, 'PUT', '/api/v1/assumptions', { water_price: 9 });
+    assert.equal(response.body.recomputed, 1);
+    assert.equal(response.body.assumptions.find((a) => a.key === 'water_price').value, 9);
+    assert.equal(response.body.assumptions.find((a) => a.key === 'water_price').userChanged, true);
+    const findings = messages.filter((m) => m.type === 'agent_finding');
+    assert.equal(findings.length, 2);
+    assert.equal(findings[0].payload.id, findings[1].payload.id);
+    assert.equal(findings[1].payload.cost.expectedSaving, finding.payload.cost.expectedSaving);
+    assert.equal((await invoke(mock.app, 'PUT', '/api/v1/assumptions', { unknown: 8 })).status, 422);
+  } finally { mock.close(); await rm(dir, { recursive: true, force: true }); }
+});
