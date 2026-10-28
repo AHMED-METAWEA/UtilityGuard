@@ -1,0 +1,10 @@
+{
+  "app": { "name": "UtilityGuard", "subtitle": "ذكاء البنية التحتية", "title": "UtilityGuard · ذكاء البنية التحتية", "language": "التبديل إلى الإنجليزية", "region": "العاصمة الإدارية الجديدة", "workspace": "مساحة العمليات" },
+  "networks": { "water": "المياه", "electricity": "الكهرباء", "cooling": "التبريد", "orchestrator": "المنسق" },
+  "layers": { "title": "طبقات الشبكات" },
+  "zones": { "title": "مناطق الحي", "all": "كل المناطق" },
+  "scenario": { "title": "مختبر السيناريوهات" },
+  "alerts": { "title": "النشاط والتنبيهات" },
+  "chat": { "title": "اسأل الفريق", "placeholder": "اسأل عن منطقتك…", "send": "إرسال" },
+  "common": { "close": "إغلاق", "retry": "حاول مجددًا" }
+}
