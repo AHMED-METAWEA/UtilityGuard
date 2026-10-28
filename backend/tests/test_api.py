@@ -107,3 +107,45 @@ def test_assumptions_roundtrip():
         assert c.put("/api/v1/assumptions", json={"nope": 1}).status_code == 422
         c.post("/api/v1/scenarios/reset")
         assert next(a for a in c.get("/api/v1/assumptions").json() if a["key"] == "water_price")["value"] == 8
+
+
+def test_extras_validate():
+    with TestClient(app) as c:
+        import time
+        time.sleep(2.5)  # let the live loop produce a reading for drift
+        for p in c.get("/api/v1/sensor-placement").json():
+            S.PlacementSuggestion.model_validate(p)
+        for d in c.get("/api/v1/drift").json():
+            S.DriftIndicator.model_validate(d)
+        cmp = S.Compare.model_validate(c.get("/api/v1/compare?scenarioId=scn-pipe-burst").json())
+        assert cmp.saving > 0 and cmp.with_intervention.total_cost < cmp.without_intervention.total_cost
+        assert c.get("/api/v1/incidents/inc-9999/report").status_code == 404
+
+
+def test_incident_report_pdf():
+    from app.agents.service import AgentService
+    from app.cost import Assumptions
+    from app.extras import incident_pdf
+    import tempfile
+    from pathlib import Path
+    rt = Runtime(42)
+    svc = AgentService(rt, Assumptions(Path(tempfile.mkdtemp()) / "a.json"))
+    svc.settle_seconds = 0
+    t0 = datetime(2026, 10, 28, 9, tzinfo=timezone.utc)
+    from app.scenarios import events_for
+
+    async def go():
+        for i in range(20):
+            await rt.tick_once(t0 + timedelta(seconds=2 * i))
+        for ev in events_for("scn-pipe-burst", {}, "r"):
+            rt.add_event(ev)
+        for i in range(20, 40):
+            await rt.tick_once(t0 + timedelta(seconds=2 * i))
+        await asyncio.gather(*svc.tasks)
+
+    import os
+    os.environ["LLM_OFFLINE"] = "1"
+    asyncio.run(go())
+    inc = next(iter(rt.incidents))
+    pdf = incident_pdf(rt, inc)
+    assert pdf[:4] == b"%PDF" and len(pdf) > 3000

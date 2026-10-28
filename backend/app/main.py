@@ -10,10 +10,10 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException
 
-from app import scenarios
+from app import extras, scenarios
 from app.agents.service import AgentService
 from app.ml.service import MLService
 from app.runtime import runtime
@@ -178,6 +178,32 @@ def forecast(network: str = "water", zoneId: str = "zone-gov", horizonHours: int
 @api.get("/metrics")
 def metrics() -> dict:
     return out(ml_service.metrics())
+
+
+@api.get("/incidents/{incident_id}/report")
+def report(incident_id: str) -> Response:
+    if incident_id not in runtime.incidents:
+        raise ApiError(404, "not_found", f"Incident {incident_id} does not exist.")
+    pdf = extras.incident_pdf(runtime, incident_id)
+    return Response(pdf, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="utilityguard-{incident_id}.pdf"'})
+
+
+@api.get("/compare")
+async def compare(scenarioId: str = "scn-pipe-burst") -> dict:  # noqa: N803
+    if scenarioId not in scenarios.BY_ID:
+        raise ApiError(404, "unknown_scenario", f"Scenario {scenarioId} does not exist.")
+    return out(await extras.compare(runtime, service, scenarioId))
+
+
+@api.get("/sensor-placement")
+def sensor_placement() -> list:
+    return out(extras.sensor_placement(runtime))
+
+
+@api.get("/drift")
+def drift() -> list:
+    return out(extras.drift(runtime))
 
 
 @api.get("/findings")
