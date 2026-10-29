@@ -30,20 +30,25 @@ export interface Alert {
 }
 export type EvidenceType = 'measured' | 'forecast' | 'rule' | 'assumed';
 export interface Reason { text: string; evidenceType: EvidenceType; evidenceRef: string }
-export interface CalculationInput { name: string; value: number; unit: string; source: EvidenceType }
+export type AssumptionStatus = 'official' | 'benchmark' | 'engineering' | 'planning';
+export interface CalculationInput { name: string; value: number; unit: string; source: EvidenceType; key?: string; basis?: string; status?: AssumptionStatus }
 export interface Calculation { name: string; formula: string; inputs: CalculationInput[]; result: number; unit: string }
-export interface Assumption { name: string; key: string; value: number; unit: string; source: string; userChanged: boolean }
+export interface Assumption {
+  name: string; key: string; value: number; unit: string; source: string; userChanged: boolean;
+  basis: string; status: AssumptionStatus; low: number; high: number; reviewed: string;
+}
+export interface TornadoRow { input: string; name: string; low: number; high: number; savingAtLow: number; savingAtHigh: number }
 export interface Sensitivity { input: string; changePercent: number; newSaving: number }
 export interface Explanation {
   reasons: Reason[]; calculations: Calculation[]; assumptions: Assumption[];
-  sensitivity: Sensitivity[]; confidence: number; calculationId: string;
+  sensitivity: Sensitivity[]; tornado?: TornadoRow[]; confidence: number; calculationId: string;
 }
 export interface CalculationRecord { id: string; incidentId: string; createdAt: Timestamp; cost: Cost; explanation: Explanation }
 export type CalcInputLike = CalculationInput;
 export interface Cost {
   currency: 'EGP'; actNow: number; delayPerHour: number; expectedSaving: number;
-  delayHours: number; costOfDelay: number; responseHours?: number; actNowLosses?: number; savingRange?: { p10: number; p50: number; p90: number; runs: number };
-  breakdown: { label: string; amount: number; cause: string }[]; explanation: Explanation;
+  delayHours: number; costOfDelay: number; responseHours?: number; actNowLosses?: number; review?: boolean; reviewReason?: string; savingRange?: { p10: number; p50: number; p90: number; runs: number };
+  breakdown: { label: string; amount: number; cause: string; group?: string }[]; explanation: Explanation;
 }
 export interface AgentFinding {
   id: string; incidentId: string; agent: Agent; headline: string; explanation: string;

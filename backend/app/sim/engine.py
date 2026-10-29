@@ -93,6 +93,14 @@ class Engine:
     def _active(self, kind: str) -> list[Event]:
         return [e for e in self.events if e.kind == kind]
 
+    def ambient_at(self, ts: datetime, heat: float = 0.0) -> float:
+        """Air temperature at a time, the same value the physics uses. Doubles as the weather feed the forecast reads."""
+        local = ts.astimezone(CAIRO)
+        hour = local.hour + local.minute / 60 + local.second / 3600
+        day_temp = np.random.default_rng([self.seed, local.toordinal()]).normal(0, 2.2)
+        a = ambient_temp(hour, local.timetuple().tm_yday) + day_temp
+        return max(a, heat - 4 + 4 * math.sin((hour - 9) / 24 * 2 * math.pi)) if heat else a
+
     # ---------- physics ----------
     def _targets(self, ts: datetime) -> dict[str, float]:
         g = self.g
@@ -257,14 +265,18 @@ class Engine:
         self.tick += 1
         return ts, self.truth, readings
 
-    def history(self, start: datetime, hours: int, step_minutes: int = 15) -> list[tuple[datetime, dict[str, float]]]:
-        """Fast-forward on a coarse grid for model training. Uses a separate RNG stream."""
-        saved = (self.rng, self.state, self.tick)
+    def history(self, start: datetime, hours: int, step_minutes: int = 15,
+                schedule=None) -> list[tuple[datetime, dict[str, float]]]:
+        """Fast-forward on a coarse grid for model training. Uses a separate RNG stream.
+        `schedule(ts)` may return the events active at that time (heat waves, holidays) for training on scenario days."""
+        saved = (self.rng, self.state, self.tick, self.events)
         self.rng, self.state = np.random.default_rng(self.seed + 1), {}
         out = []
         for k in range(hours * 60 // step_minutes):
             ts = start + timedelta(minutes=k * step_minutes)
             self.state = {}
+            if schedule:
+                self.events = schedule(ts)
             _, _, r = self.step(ts)
             row = dict(r)
             row["weather:ambient"] = self.ambient
@@ -273,7 +285,7 @@ class Engine:
                 noise = self.rng.normal(1.0, 0.012, 3)
                 row[f"demand:water:{z}"], row[f"demand:electricity:{z}"], row[f"demand:cooling:{z}"] = w * noise[0], e * noise[1], c * noise[2]
             out.append((ts, row))
-        self.rng, self.state, self.tick = saved
+        self.rng, self.state, self.tick, self.events = saved
         return out
 
 

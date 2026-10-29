@@ -4,6 +4,7 @@ import { useFetch, type Opportunity, type SavingsReport } from '../api/dash';
 import { useUi } from '../store/ui';
 import { Card, Empty, NetIcon, NET, Skeleton } from '../ui';
 import { RangeBar, Reasons } from '../ui/Calc';
+import { Basis } from '../ui/Provenance';
 import { HBars } from '../ui/parts';
 import { compact, fmt } from '../lib/format';
 import type { Network } from '../api/types';
@@ -26,7 +27,7 @@ function Detail({ o }: { o: Opportunity }) {
         <RangeBar {...o.savingRange} />
         <div>
           <div className="row spread" style={{ marginBottom: 6 }}><div className="card-title">Assumptions</div><button className="btn sm" onClick={() => set({ assumptionsOpen: true })}><SlidersHorizontal size={14} />Edit</button></div>
-          <table className="table"><tbody>{o.assumptions.map((a) => <tr key={a.key}><td>{a.name}{a.userChanged && <span className="chip warn" style={{ marginInlineStart: 8 }}>changed</span>}</td><td className="r num">{fmt(a.value, a.value % 1 ? 2 : 0)} <span className="muted">{a.unit}</span></td></tr>)}</tbody></table>
+          <table className="table"><tbody>{o.assumptions.map((a) => <tr key={a.key}><td style={{ verticalAlign: 'top' }}><details><summary style={{ cursor: 'pointer' }}>{a.name}{a.userChanged && <span className="chip warn" style={{ marginInlineStart: 8 }}>changed</span>}</summary><div style={{ margin: '6px 0 4px' }}><Basis a={a} /></div></details></td><td className="r num" style={{ verticalAlign: 'top' }}>{fmt(a.value, a.value % 1 ? 2 : 0)} <span className="muted">{a.unit}</span></td></tr>)}</tbody></table>
         </div>
       </div>
     </div>
@@ -63,7 +64,7 @@ export function Savings({ id }: { id?: string }) {
         <Card title="By network" sub="EGP per month available">
           {byNet ? <HBars unit="EGP" rows={byNet.map((x) => ({ id: x.n, label: NET[x.n].label, value: x.v, max: maxNet, color: NET[x.n].color }))} /> : <Skeleton h={120} />}
         </Card>
-        <Card title="How sure are we" sub={data ? `${fmt(data.totalRange.runs)} simulated runs, every assumption varied by 20%` : undefined}>
+        <Card title="How sure are we" sub={data ? `${fmt(data.totalRange.runs)} simulated runs, each assumption varied within its own range` : undefined}>
           {data ? <RangeBar {...data.totalRange} /> : <Skeleton h={80} />}
           <p className="muted" style={{ fontSize: 12, margin: '10px 0 0' }}>The range is the spread of the total when prices, set-points and factors move together within their limits. Measured inputs come from the twin.</p>
         </Card>
@@ -72,10 +73,10 @@ export function Savings({ id }: { id?: string }) {
       <Card title="Opportunities" sub="Ranked by monthly saving. Open a row to see the reasons, the values and the assumptions." pad={false}>
         {error && !data && <Empty title="Could not load the savings advisor">{error}</Empty>}
         <div style={{ overflowX: 'auto' }}>
-          <table className="table" style={{ minWidth: 860 }}>
-            <thead><tr><th style={{ width: 28 }} /><th>Opportunity</th><th>EGP / month</th><th>Likely range</th><th className="r">Investment</th><th className="r">Payback</th><th className="r">Confidence</th></tr></thead>
+          <table className="table" style={{ minWidth: 940 }}>
+            <thead><tr><th style={{ width: 28 }} /><th>Opportunity</th><th>EGP / month</th><th>Likely range</th><th className="r">Investment</th><th className="r">Payback</th><th className="r">3-year value</th><th className="r">Confidence</th></tr></thead>
             <tbody>
-              {!data && [0, 1, 2, 3].map((i) => <tr key={i}><td colSpan={7}><Skeleton h={34} /></td></tr>)}
+              {!data && [0, 1, 2, 3].map((i) => <tr key={i}><td colSpan={8}><Skeleton h={34} /></td></tr>)}
               {data?.opportunities.map((o) => {
                 const isOpen = open === o.id;
                 return (
@@ -87,9 +88,10 @@ export function Savings({ id }: { id?: string }) {
                       <td className="num sub">{compact(o.savingRange.p10)} to {compact(o.savingRange.p90)}</td>
                       <td className="r num">{o.investment ? fmt(o.investment) : '0'}</td>
                       <td className="r num">{payback(o)}</td>
+                      <td className="r num" title="Net present value over 36 months at the finance discount rate, after the investment">{o.npv3Years != null ? compact(o.npv3Years) : '–'}</td>
                       <td className="r num">{fmt(o.confidence * 100)}%</td>
                     </tr>
-                    {isOpen && <tr><td colSpan={7} style={{ background: 'var(--surface-2)' }}><Detail o={o} /></td></tr>}
+                    {isOpen && <tr><td colSpan={8} style={{ background: 'var(--surface-2)' }}><Detail o={o} /></td></tr>}
                   </Fragment>
                 );
               })}

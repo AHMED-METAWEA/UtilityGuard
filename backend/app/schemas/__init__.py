@@ -148,6 +148,9 @@ class CalcInput(Model):
     value: float
     unit: str
     source: Literal["measured", "forecast", "rule", "assumed"]
+    key: str | None = None
+    basis: str = ""
+    status: Literal["official", "benchmark", "engineering", "planning"] | None = None
 
 
 class Calculation(Model):
@@ -165,6 +168,11 @@ class Assumption(Model):
     unit: str
     source: str
     user_changed: bool = False
+    basis: str
+    status: Literal["official", "benchmark", "engineering", "planning"]
+    low: float
+    high: float
+    reviewed: str
 
 
 class Sensitivity(Model):
@@ -173,11 +181,21 @@ class Sensitivity(Model):
     new_saving: float
 
 
+class Tornado(Model):
+    input: str
+    name: str
+    low: float
+    high: float
+    saving_at_low: float
+    saving_at_high: float
+
+
 class Explanation(Model):
     reasons: list[Reason]
     calculations: list[Calculation]
     assumptions: list[Assumption]
     sensitivity: list[Sensitivity]
+    tornado: list[Tornado] = []
     confidence: float = Field(ge=0, le=1)
     calculation_id: str | None = None
 
@@ -188,6 +206,7 @@ class CostItem(Model):
     label: str
     amount: float
     cause: str
+    group: str
 
 
 class SavingRange(Model):
@@ -209,6 +228,8 @@ class Cost(Model):
     saving_range: SavingRange | None = None
     breakdown: list[CostItem]
     explanation: Explanation | None = None
+    review: bool = False
+    review_reason: str | None = None
 
 
 class CalculationRecord(Model):
@@ -285,6 +306,65 @@ class NetworkMetrics(Model):
     rmse: float
     mape: float
     unit: str
+
+
+class ModelScore(Model):
+    mae: float
+    rmse: float
+    mape: float
+    bias: float  # percent, forecast minus actual over actual. Negative = under-forecast
+
+
+class BaselineScore(Model):
+    name: str
+    mae: float
+    mape: float
+
+
+class HourError(Model):
+    hour: int
+    mape: float
+
+
+class ScenarioScore(Model):
+    days: int
+    mape: float  # on heat-wave and holiday days, model given the scenario
+    mape_blind: float  # same days if the model had not been told about the scenario
+
+
+class CorrectionScore(Model):
+    tau_hours: float
+    mae_without: float
+    mae_with: float
+
+
+class ZoneScore(Model):
+    zone_id: str
+    name: str
+    mae: float
+    rmse: float
+    mape: float
+
+
+class ForecastEvidence(Model):
+    """Everything behind the accuracy claim for one network: test window, scores against naive baselines, band coverage."""
+    network: Network
+    unit: str
+    train_days: int
+    test_days: int
+    points: int
+    trained_through: datetime
+    weather_error_c: float
+    model: ModelScore
+    baselines: list[BaselineScore]
+    skill: float  # 1 - model MAE / best baseline MAE
+    coverage: float  # share of test points inside the band
+    nominal: float  # share the band was built to contain
+    by_hour: list[HourError]
+    scenario: ScenarioScore
+    live_correction: CorrectionScore
+    zones: list[ZoneScore]
+    importances: list[FeatureImportance]
 
 
 class ModelMetrics(Model):
@@ -394,6 +474,7 @@ class Compare(Model):
     without_intervention: CompareSide
     with_intervention: CompareSide
     saving: float
+    explanation: Explanation | None = None
 
 
 class PlacementSuggestion(Model):
@@ -452,6 +533,18 @@ class SensorHistory(Model):
     points: list[SensorHistoryPoint]
 
 
+class ForecastDrivers(Model):
+    """What the forecast was given. Shown beside the chart so every number can be traced to an input."""
+    temperature_now: float
+    temperature_peak: float
+    heat_wave: float | None = None  # peak deg C of a running heat wave scenario
+    holiday: float | None = None  # residential factor of a running holiday scenario
+    live_correction: float = 1.0  # live actual / forecast ratio applied to the near-term forecast (1 = none)
+    correction_hours: float = 0  # hours until that correction has faded
+    weather_error_c: float
+    trained_through: datetime
+
+
 class DemandSeries(Model):
     network: Network
     zone_id: str
@@ -460,6 +553,10 @@ class DemandSeries(Model):
     actual: list[SeriesPoint]
     forecast: list[ForecastPoint]
     metrics: ForecastMetrics
+    baseline: list[ForecastPoint] | None = None  # the same forecast on a normal day, present while a scenario runs
+    hindcast: list[SeriesPoint] = []  # what the model would have said for the past hours, to compare with `actual`
+    hindcast_mape: float | None = None
+    drivers: ForecastDrivers | None = None
 
 
 class NamedSeries(Model):
@@ -496,7 +593,10 @@ class Opportunity(Model):
     saving_range: SavingRange
     investment: float
     payback_days: float | None
+    payback_months: float | None
+    npv3_years: float
     formula: str
+    calculations: list[Calculation]
     inputs: list[CalcInput]
     reasons: list[Reason]
     assumptions: list[Assumption]

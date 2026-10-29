@@ -1,10 +1,11 @@
-"""Deterministic cost and explanation engine (spec 9 and 9A).
+"""Deterministic cost and explanation engine.
 
-Every incident cost is built from named terms:
-    C_delay      = C_loss + C_disruption + C_secondary            (EGP per hour)
-    CostOfDelay  = C_delay × t_delay + C_repair_late
-    Saving       = CostOfDelay − C_repair_now
-The LLM never produces any of these numbers; it only reads the record.
+    C_delay     = C_loss + C_disruption + C_secondary             (EGP/h)
+    ActNow      = C_repair_now + C_delay × t_response
+    CostOfDelay = C_delay × t_delay + C_repair_now × late_multiplier
+    Saving      = CostOfDelay − ActNow
+Each consequence has one owner. VoLL owns customer economic outage harm;
+disruption owns utility notification/support only; secondary owns extra purchases.
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ from __future__ import annotations
 import dataclasses
 import itertools
 import json
+import math
 import zlib
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -20,48 +22,117 @@ from pathlib import Path
 import numpy as np
 
 from app.schemas import (
-    Assumption, CalcInput, Calculation, CalculationRecord, Cost, CostItem, Explanation, Reason, SavingRange, Sensitivity,
+    Assumption, CalcInput, Calculation, CalculationRecord, Cost, CostItem, Explanation, Reason, SavingRange, Sensitivity, Tornado,
 )
+from app.sim.topology import ZONE_CUSTOMERS
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 ASSUMPTIONS_FILE = DATA / "assumptions.json"
+REVIEWED = "2026-10-29"
 
-# key: (name, value, unit)
-DEFAULTS: dict[str, tuple[str, float, str]] = {
-    "water_price": ("Water production cost", 8.0, "EGP/m3"),
-    "elec_tariff": ("Electricity tariff", 1.6, "EGP/kWh"),
-    "cooling_price": ("Cooling energy cost", 1.5, "EGP/ton-h"),
-    "crew_callout": ("Crew call-out cost", 3400.0, "EGP/dispatch"),
-    "parts_pipe": ("Pipe repair parts", 15000.0, "EGP/repair"),
-    "parts_pump": ("Pump repair parts", 42000.0, "EGP/repair"),
-    "parts_substation": ("Substation restore and inspection", 26000.0, "EGP/repair"),
-    "parts_chiller": ("Chiller repair parts", 58000.0, "EGP/repair"),
-    "parts_sensor": ("Sensor recalibration or replacement", 2400.0, "EGP/repair"),
-    "penalty_government": ("Disruption penalty, government zone", 2500.0, "EGP/h"),
-    "penalty_business": ("Disruption penalty, business zone", 3000.0, "EGP/h"),
-    "penalty_residential": ("Disruption penalty, residential zone", 1200.0, "EGP/h"),
-    "penalty_services": ("Disruption penalty, services zone", 4000.0, "EGP/h"),
-    "delay_hours": ("Hours until repair if delayed", 6.0, "h"),
-    "response_hours": ("Crew response time when sent now", 1.0, "h"),
-    "late_multiplier": ("Late repair cost multiplier", 1.7, "×"),
-    "false_dispatch": ("Cost of a crew sent on a false alarm", 3400.0, "EGP/dispatch"),
-    "setback_reduction": ("Off-hours cooling cut by a setback", 0.35, "fraction"),
-    "setback_invest": ("Setback commissioning in the building systems", 25000.0, "EGP"),
-    "pm_target_pressure": ("Night pressure target after pressure management", 3.4, "bar"),
-    "pm_n1": ("Leakage-pressure exponent N1 (FAVAD)", 1.0, "×"),
-    "pm_invest": ("Pressure-reducing valves and controllers", 140000.0, "EGP"),
-    "reset_delta_c": ("Supply water temperature raise on mild days", 1.0, "°C"),
-    "reset_pct_per_c": ("Chiller energy saved per °C of raise", 0.025, "fraction"),
-    "reset_invest": ("Controls change for temperature reset", 10000.0, "EGP"),
-    "clean_invest": ("Condenser cleaning, per plant", 250000.0, "EGP"),
-    "planned_factor": ("Planned repair cost relative to an emergency repair", 0.6, "×"),
+
+def _default(name, value, unit, low, high, basis, status="planning") -> dict:
+    return dict(name=name, value=value, unit=unit, low=round(low, 12), high=round(high, 12), basis=basis, status=status, reviewed=REVIEWED)
+
+
+DEFAULTS = {
+    "water_price": _default("Water production cost", 8.0, "EGP/m3", 6, 10,
+        "Illustrative marginal treatment and delivery cost, not a verified Egyptian tariff. Verify against the utility's water production cost ledger and supply contract."),
+    "elec_tariff": _default("Electricity tariff", 1.6, "EGP/kWh", 1.2, 2.0,
+        "Illustrative purchased-energy rate; Egyptian tariffs cannot be verified offline. Verify against the current electricity supply contract and invoices."),
+    "cooling_price": _default("Cooling energy cost", 1.5, "EGP/ton-h", 1.1, 1.9,
+        "Illustrative marginal cooling delivery cost. Verify against the district cooling operating cost ledger, avoiding retail revenue and energy-cost overlap."),
+    "crew_callout": _default("Crew call-out cost", 3400.0, "EGP/dispatch", 2500, 4300,
+        "Budget allowance for transport and emergency labour per dispatch. Verify against crew timesheets and the maintenance contractor rate card."),
+    "parts_pipe": _default("Pipe repair parts", 15000.0, "EGP/repair", 10000, 20000,
+        "Budget for one district-main joint/section repair. Verify against the pipe bill of quantities and recent supplier quotations."),
+    "parts_pump": _default("Pump repair parts", 42000.0, "EGP/repair", 30000, 54000,
+        "Budget for a pump mechanical/electrical repair. Verify against the pump asset bill of materials and maintenance work orders."),
+    "parts_substation": _default("Substation restore and inspection", 26000.0, "EGP/repair", 18000, 34000,
+        "Budget for reset, inspection and minor switchgear work, not transformer replacement. Verify against substation restoration work orders."),
+    "parts_chiller": _default("Chiller repair parts", 58000.0, "EGP/repair", 40000, 76000,
+        "Budget for a minor chiller component repair. Verify against OEM service quotations and plant work orders."),
+    "parts_sensor": _default("Sensor recalibration or replacement", 2400.0, "EGP/repair", 1600, 3200,
+        "Budget for a field sensor replacement or calibration. Verify against the instrument register and calibration contractor rate card."),
+    "response_hours": _default("Crew response time when sent now", 1.0, "h", 0.5, 1.5,
+        "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA."),
+    "false_dispatch": _default("Cost of a crew sent on a false alarm", 3400.0, "EGP/dispatch", 2500, 4300,
+        "One unnecessary visit uses the same budget as an emergency crew dispatch. Verify against false-alarm work orders and contractor invoices."),
+    "false_dispatch_interval": _default("Interval between false dispatches", 4.0, "h/dispatch", 2, 6,
+        "One false dispatch per four unresolved sensor-fault hours is an illustrative frequency, not observed evidence. Verify against alarm and dispatch history."),
+    "setback_reduction": _default("Off-hours cooling cut by a setback", 0.35, "fraction", 0.25, 0.45,
+        "A 35% off-hours reduction is a commissioning target. Verify with occupancy schedules, BMS trends and a setback measurement-and-verification trial."),
+    "setback_invest": _default("Setback commissioning in the building systems", 25000.0, "EGP", 18000, 32000,
+        "Budget for BMS scheduling and commissioning. Verify against the controls contractor scope and quotation."),
+    "pm_target_pressure": _default("Night pressure target after pressure management", 3.4, "bar", 3.0, 3.8,
+        "Trial target chosen below normal night pressure while retaining service head. Verify against the hydraulic model and minimum customer pressure SLA."),
+    "pm_n1": _default("Leakage-pressure exponent N1 (FAVAD)", 1.0, "×", 0.5, 1.5,
+        "The FAVAD power-law approximation uses a midpoint exponent of one. Calibrate the 0.5–1.5 benchmark range with district pressure-step tests and the leakage study.", "benchmark"),
+    "pm_invest": _default("Pressure-reducing valves and controllers", 140000.0, "EGP", 100000, 180000,
+        "Budget for pressure-control hardware and installation. Verify against the valve schedule and supplier installation quotations."),
+    "reset_delta_c": _default("Supply water temperature raise on mild days", 1.0, "°C", 0.5, 1.5,
+        "One degree is a trial control reset. Verify against OEM operating limits and building comfort commissioning records."),
+    "reset_pct_per_c": _default("Chiller energy saved per °C of raise", 0.025, "fraction/°C", 0.02, 0.03,
+        "A 2–3% energy reduction per degree is an illustrative engineering benchmark, not a physical law. Verify against OEM performance curves and a metered reset trial.", "benchmark"),
+    "reset_invest": _default("Controls change for temperature reset", 10000.0, "EGP", 7000, 13000,
+        "Budget for controls programming and commissioning. Verify against the BMS change quotation."),
+    "clean_invest": _default("Condenser cleaning, per plant", 250000.0, "EGP", 180000, 320000,
+        "Budget for one plant cleaning intervention. Verify against the condenser service scope and contractor quotation."),
+    "planned_factor": _default("Planned repair cost relative to an emergency repair", 0.6, "×", 0.45, 0.75,
+        "Planned work is budgeted at 60% of emergency crew-plus-parts cost. Verify against matched planned and emergency maintenance work orders."),
+    "discount_rate": _default("Effective annual discount rate", 0.18, "fraction/year", 0.12, 0.24,
+        "Planning rate for investment appraisal; verify with finance against the approved capital-budget discount-rate memorandum."),
+    "background_loss_ratio": _default("Background leakage relative to billed demand", 0.115, "fraction", 0.085, 0.145,
+        "Synthetic baseline leakage is 11.5% of billed demand; this is not a measured district water balance. Verify against minimum-night-flow tests and production/billing meter reconciliation."),
+    "maintenance_leak_m3h": _default("Maintenance pipe-failure leak proxy", 100.0, "m3/h", 75, 125,
+        "A 100 m3/h leak represents an illustrative future pipe failure. Verify against pipe diameter, hydraulic breach modelling and historical burst work orders."),
+    "maintenance_unserved_fraction": _default("Maintenance trip unserved-load proxy", 0.45, "fraction", 0.3, 0.6,
+        "Assume 45% of current zone electrical demand remains unserved after backup transfer. Verify against the substation contingency and protection study."),
+    "maintenance_cooling_fraction": _default("Maintenance cooling-deficit proxy", 0.5, "fraction", 0.35, 0.65,
+        "Assume half of plant thermal delivery is lost in a future failure. Verify against the plant redundancy and chiller availability study."),
+    "maintenance_cooling_fallback_mw": _default("Maintenance fallback plant thermal delivery", 10.0, "MW", 7.5, 12.5,
+        "Use 10 MW thermal only when the live plant metric is unavailable. Verify against plant duty records and the rated-load schedule."),
 }
+
+for _type, _rate, _voll in [("government", 5.0, 45.0), ("business", 2.5, 60.0),
+                            ("residential", 0.15, 20.0), ("services", 8.0, 75.0)]:
+    DEFAULTS[f"customer_hour_{_type}"] = _default(f"Utility outage administration, {_type}", _rate, "EGP/customer-h", _rate * 0.5, _rate * 1.5,
+        f"Illustrative {_type} account-hour budget for notification and utility customer support only; excludes customer economic harm covered by VoLL. Verify against the utility support cost ledger and outage notification work orders.")
+    DEFAULTS[f"voll_{_type}"] = _default(f"Value of lost load, {_type}", _voll, "EGP/kWh", _voll * 0.5, _voll * 1.5,
+        f"Illustrative {_type} customer economic outage value, including lost downstream services; not an official Egyptian VoLL. Verify against a local customer interruption-cost survey and the regulator's approved VoLL study, if available.")
+
+for _zone, _count in ZONE_CUSTOMERS.items():
+    DEFAULTS[f"customers_{_zone.replace('-', '_')}"] = _default(f"Service accounts, {_zone}", _count, "customers", _count * 0.75, _count * 1.25,
+        "Planning service-account count scaled to the district demand in ZONE_BASE; residential accounts are households, institutional accounts are service connections, not people. Verify against the district occupancy and utility connection registers.")
+
+# (delay hours, escalation multiplier, minimum saving, maximum saving)
+POLICIES = {
+    "pipe_burst": (6.0, 1.7, 0, 2000000), "pump_failure": (8.0, 1.4, 0, 500000),
+    "substation_trip": (4.0, 1.25, 0, 50000000), "cooling_fault": (10.0, 1.5, 0, 5000000),
+    "stuck_sensor": (12.0, 1.1, 0, 50000), "energy_waste": (6.0, 1.0, 0, 5000000),
+}
+POLICY_BASIS = {
+    "pipe_burst": "Continuing erosion can enlarge excavation and pipe damage",
+    "pump_failure": "An idle failed pump requires slower mechanical restoration",
+    "substation_trip": "A protection trip needs prompt inspection with modest assumed additional damage",
+    "cooling_fault": "A deferred chiller repair risks additional component damage over a longer service window",
+    "stuck_sensor": "An instrument fault can persist through a shift with little additional physical damage",
+    "energy_waste": "An efficiency intervention can wait one shift without assumed additional repair damage",
+}
+for _kind, (_hours, _mult, _min, _max) in POLICIES.items():
+    DEFAULTS[f"delay_hours_{_kind}"] = _default(f"Deferred response horizon, {_kind}", _hours, "h", _hours * 0.75, _hours * 1.25,
+        f"{POLICY_BASIS[_kind]}; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.")
+    DEFAULTS[f"late_multiplier_{_kind}"] = _default(f"Late repair multiplier, {_kind}", _mult, "×", max(1.0, _mult - 0.2), _mult + 0.2 if _mult > 1 else 1.0,
+        f"{POLICY_BASIS[_kind]}; the multiplier is a planning allowance, not an estimated growth law. Verify against matched early and deferred repair work orders.")
+    for _bound, _value in [("min", _min), ("max", _max)]:
+        DEFAULTS[f"saving_{_bound}_{_kind}"] = _default(f"Plausible saving {_bound}, {_kind}", _value, "EGP", _value, _value,
+            "Planning review threshold for a single district incident, not a cap on the computed value. Verify against the asset replacement budget and historical incident-loss register.")
 
 
 class Assumptions:
     def __init__(self, path: Path = ASSUMPTIONS_FILE):
         self.path = path
-        self.values = {k: v for k, (_, v, _) in DEFAULTS.items()}
+        self.values = {k: d["value"] for k, d in DEFAULTS.items()}
         self.changed: dict[str, str] = {}
         if path.exists():
             saved = json.loads(path.read_text())
@@ -76,31 +147,34 @@ class Assumptions:
         for k, v in changes.items():
             if k not in self.values:
                 raise KeyError(k)
+            if not math.isfinite(float(v)):
+                raise ValueError("Assumptions must be finite")
+        for k, v in changes.items():
             self.values[k] = float(v)
             self.changed[k] = f"{source} {datetime.now(timezone.utc).date().isoformat()}"
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps({k: {"value": self.values[k], "source": s} for k, s in self.changed.items()}, indent=2))
 
     def reset(self) -> None:
-        self.values = {k: v for k, (_, v, _) in DEFAULTS.items()}
+        self.values = {k: d["value"] for k, d in DEFAULTS.items()}
         self.changed = {}
         if self.path.exists():
             self.path.unlink()
 
     def item(self, k: str) -> Assumption:
-        name, _, unit = DEFAULTS[k]
-        return Assumption(name=name, key=k, value=self.values[k], unit=unit,
+        return Assumption(**{**DEFAULTS[k], "value": self.values[k]}, key=k,
                           source=self.changed.get(k, "default assumption"), user_changed=k in self.changed)
 
     def all(self) -> list[Assumption]:
         return [self.item(k) for k in DEFAULTS]
 
-    def sampled(self, rng, spread: float, keys=None) -> "Assumptions":
-        """A copy with every uncertain assumption multiplied by U(1-spread, 1+spread), for Monte Carlo."""
+    def sampled(self, rng, spread: float = 0.2, keys=None) -> "Assumptions":
+        """Uniform draws from documented absolute ranges; spread is a legacy fallback."""
         clone = Assumptions.__new__(Assumptions)
-        clone.path, clone.changed = self.path, dict(self.changed)
-        pick = UNCERTAIN if keys is None else keys
-        clone.values = {k: (v * rng.uniform(1 - spread, 1 + spread) if k in pick else v) for k, v in self.values.items()}
+        clone.path, clone.changed, clone.values = self.path, dict(self.changed), dict(self.values)
+        for k in sorted(UNCERTAIN if keys is None else keys):
+            d = DEFAULTS[k]
+            clone.values[k] = rng.uniform(d.get("low", self[k] * (1 - spread)), d.get("high", self[k] * (1 + spread)))
         return clone
 
     def with_override(self, k: str, v: float) -> "Assumptions":
@@ -112,86 +186,119 @@ class Assumptions:
 
 @dataclass
 class Term:
-    """One line of cost: amount = product of inputs (or an explicit total)."""
     label: str
-    group: str  # loss | disruption | secondary | repair
+    group: str
     formula: str
     inputs: list[CalcInput]
     cause: str
-    amount: float | None = None
+    amount: float
 
     @property
     def value(self) -> float:
-        if self.amount is not None:
-            return self.amount
-        v = 1.0
-        for i in self.inputs:
-            v *= i.value
-        return v
+        return self.amount
+
+    @property
+    def category(self) -> str:
+        return self.group.split(":")[0]
 
 
 @dataclass
 class IncidentFacts:
-    """Measured or forecast facts about an incident, produced by detection."""
-    kind: str  # leak, pump_failure, substation_trip, cooling_fault, energy_waste, sensor_fault
-    zone_types: dict[str, str]  # zone id -> zone type (affected zones)
+    """Synthetic measured/forecast facts; secondary_mw is extra purchased energy only."""
+    kind: str
+    zone_types: dict[str, str]
     leak_m3h: float = 0.0
     unserved_mw: float = 0.0
     excess_mw: float = 0.0
     cooling_deficit_tons: float = 0.0
-    secondary_mw: float = 0.0  # knock-on electrical overdraw in another network
+    secondary_mw: float = 0.0
     pumps_stopped: int = 0
     plants_affected: int = 0
     reasons: list[Reason] = field(default_factory=list)
     confidence: float = 0.8
+    input_source: str = "measured"
+    input_basis: str | None = None
 
 
-UNCERTAIN = {k for k in DEFAULTS if k in ('water_price', 'elec_tariff', 'cooling_price', 'crew_callout', 'parts_pipe', 'parts_pump', 'parts_substation', 'parts_chiller', 'parts_sensor', 'penalty_government', 'penalty_business', 'penalty_residential', 'penalty_services', 'delay_hours', 'late_multiplier', 'response_hours')}
-TONS_PER_MW = 284.3  # refrigeration tons per MW thermal
-INPUT_KEY = {"P_water": "water_price", "P_kWh": "elec_tariff", "P_cooling": "cooling_price"}
+UNCERTAIN = {k for k, d in DEFAULTS.items() if d["low"] != d["high"]}
+TONS_PER_MW = 284.3
+KIND_ALIASES = {"leak": "pipe_burst", "sensor_fault": "stuck_sensor"}
+MAIN_ASSUMPTION = {"pipe_burst": "water_price", "pump_failure": "parts_pump", "substation_trip": "voll_government",
+                   "cooling_fault": "cooling_price", "energy_waste": "elec_tariff", "stuck_sensor": "false_dispatch"}
 
-MAIN_ASSUMPTION = {"leak": "water_price", "pump_failure": "parts_pump", "substation_trip": "elec_tariff",
-                   "cooling_fault": "cooling_price", "energy_waste": "elec_tariff", "sensor_fault": "false_dispatch"}
+
+def policy_kind(f: IncidentFacts) -> str:
+    return KIND_ALIASES.get(f.kind, f.kind)
 
 
-def _a(name, value, unit, source="assumed") -> CalcInput:
-    return CalcInput(name=name, value=round(value, 4), unit=unit, source=source)
+def customer_key(zone: str) -> str:
+    return f"customers_{zone.replace('-', '_')}"
+
+
+def _a(name, value, unit, source="assumed", basis=None) -> CalcInput:
+    bases = {"measured": "Synthetic twin measurement or baseline history; verify against calibrated SCADA/meter records before operational use.",
+             "forecast": "Synthetic failure/demand forecast; verify calibration and the stated forecast horizon against observed outcomes.",
+             "rule": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units.",
+             "assumed": "Planning scenario input; verify against the operating procedure documented in docs/cost-model.md."}
+    return CalcInput(name=name, value=value, unit=unit, source=source, basis=basis or bases[source], status="planning" if source == "assumed" else None)
+
+
+def _ai(A: Assumptions, key: str, name=None) -> CalcInput:
+    d = A.item(key)
+    return CalcInput(name=name or key, key=key, value=d.value, unit=d.unit, source="assumed", basis=d.basis, status=d.status)
+
+
+def _fact(f, name, value, unit) -> CalcInput:
+    return _a(name, value, unit, f.input_source, f.input_basis)
 
 
 def build_terms(f: IncidentFacts, A: Assumptions) -> list[Term]:
     terms: list[Term] = []
+    kind = policy_kind(f)
     if f.leak_m3h:
-        terms.append(Term("Water loss", "loss", "Q_leak × P_water",
-                          [_a("Q_leak", f.leak_m3h, "m3/h", "measured"), _a("P_water", A["water_price"], "EGP/m3")],
-                          f"{f.leak_m3h:,.0f} m3/h × {A['water_price']:g} EGP/m3"))
+        terms.append(Term("Water loss", "loss:water", "Q_leak × P_water",
+                          [_fact(f, "Q_leak", f.leak_m3h, "m3/h"), _ai(A, "water_price", "P_water")],
+                          "Physical leaked water production cost", f.leak_m3h * A["water_price"]))
     if f.unserved_mw:
-        terms.append(Term("Energy not served", "loss", "E_unserved × P_kWh",
-                          [_a("E_unserved", f.unserved_mw * 1000, "kWh/h", "measured"), _a("P_kWh", A["elec_tariff"], "EGP/kWh")],
-                          f"{f.unserved_mw:,.1f} MW not delivered × {A['elec_tariff']:g} EGP/kWh"))
+        customers = sum(A[customer_key(z)] for z in f.zone_types)
+        if customers <= 0:
+            raise ValueError("Unserved energy requires positive affected customer counts")
+        for z, ztype in f.zone_types.items():
+            count = A[customer_key(z)]
+            key = f"voll_{ztype}"
+            terms.append(Term(f"Energy not served, {z}", f"loss:unserved:{z}", "E_unserved × customers_zone / customers_total × VoLL_zone",
+                [_fact(f, "E_unserved", f.unserved_mw * 1000, "kWh/h"), _ai(A, customer_key(z), "customers_zone"),
+                 _a("customers_total", customers, "customers", "rule", "Sum of affected-zone service accounts; customer shares are a planning proxy for unavailable zone-level unserved-energy metering."), _ai(A, key)],
+                f"Customer economic outage harm in {z}, including downstream lost services", f.unserved_mw * 1000 * count / customers * A[key]))
     if f.excess_mw:
-        terms.append(Term("Energy waste", "loss", "(E_actual − E_expected) × P_kWh",
-                          [_a("E_actual − E_expected", f.excess_mw * 1000, "kWh/h", "measured"), _a("P_kWh", A["elec_tariff"], "EGP/kWh")],
-                          f"{f.excess_mw:,.1f} MW above forecast × {A['elec_tariff']:g} EGP/kWh"))
-    if f.cooling_deficit_tons:
-        terms.append(Term("Cooling shortfall", "loss", "Q_deficit × P_cooling",
-                          [_a("Q_deficit", f.cooling_deficit_tons, "ton-h/h", "measured"), _a("P_cooling", A["cooling_price"], "EGP/ton-h")],
-                          f"{f.cooling_deficit_tons:,.0f} ton-h/h undelivered × {A['cooling_price']:g} EGP/ton-h"))
-    for z, ztype in f.zone_types.items():
-        if f.kind in ("sensor_fault", "energy_waste"):
-            break
-        key = f"penalty_{ztype}"
-        terms.append(Term(f"Service disruption, {z}", "disruption", "penalty_zone",
-                          [_a(key, A[key], "EGP/h")], f"{A[key]:,.0f} EGP/h for a {ztype} zone"))
+        terms.append(Term("Energy waste", "loss:energy_waste", "(E_actual − E_expected) × P_kWh",
+                          [_fact(f, "E_actual − E_expected", f.excess_mw * 1000, "kWh/h"), _ai(A, "elec_tariff", "P_kWh")],
+                          "Primary-network excess purchased electricity", f.excess_mw * 1000 * A["elec_tariff"]))
+    if f.cooling_deficit_tons and not f.unserved_mw:
+        terms.append(Term("Cooling shortfall", "loss:cooling", "Q_deficit × P_cooling",
+                          [_fact(f, "Q_deficit", f.cooling_deficit_tons, "ton-h/h"), _ai(A, "cooling_price", "P_cooling")],
+                          "Cooling shortfall independent of electricity outage harm", f.cooling_deficit_tons * A["cooling_price"]))
+    if kind not in ("stuck_sensor", "energy_waste"):
+        for z, ztype in f.zone_types.items():
+            key = f"customer_hour_{ztype}"
+            terms.append(Term(f"Service disruption, {z}", f"disruption:{z}", "customers_affected × customer_hour_rate × outage_hours",
+                [_ai(A, customer_key(z), "customers_affected"), _ai(A, key, "customer_hour_rate"),
+                 _a("outage_hours", 1, "h", "rule", "One outage hour establishes the hourly rate; the delay/response calculations apply the respective total hours once.")],
+                f"Utility notification and customer-support administration in {z}", A[customer_key(z)] * A[key]))
     if f.secondary_mw:
-        terms.append(Term("Knock-on overdraw in another network", "secondary", "ΔE_secondary × P_kWh",
-                          [_a("ΔE_secondary", f.secondary_mw * 1000, "kWh/h", "measured"), _a("P_kWh", A["elec_tariff"], "EGP/kWh")],
-                          f"{f.secondary_mw:,.2f} MW extra draw × {A['elec_tariff']:g} EGP/kWh"))
-
-    parts = {"leak": "parts_pipe", "pump_failure": "parts_pump", "substation_trip": "parts_substation",
-             "cooling_fault": "parts_chiller", "sensor_fault": "parts_sensor", "energy_waste": None}[f.kind]
-    terms.append(Term("Crew call-out", "repair", "crew_callout", [_a("crew_callout", A["crew_callout"], "EGP")], "assumed crew cost"))
-    if parts:
-        terms.append(Term(DEFAULTS[parts][0], "repair", parts, [_a(parts, A[parts], "EGP")], "assumed parts cost"))
+        terms.append(Term("Knock-on overdraw in another network", "secondary:electricity", "ΔE_secondary × P_kWh",
+                          [_a("ΔE_secondary", f.secondary_mw * 1000, "kWh/h", "measured",
+                              "Synthetic extra purchased electricity in a dependent network; excludes unserved energy and primary-network excess consumption."), _ai(A, "elec_tariff", "P_kWh")],
+                          "Incremental dependent-network purchased electricity", f.secondary_mw * 1000 * A["elec_tariff"]))
+    if kind == "stuck_sensor":
+        terms.append(Term("False dispatches", "disruption:false_dispatch", "false_dispatch / false_dispatch_interval",
+                          [_ai(A, "false_dispatch"), _ai(A, "false_dispatch_interval")],
+                          "Unnecessary visits caused by the unresolved instrument fault", A["false_dispatch"] / A["false_dispatch_interval"]))
+    parts = {"pipe_burst": "parts_pipe", "pump_failure": "parts_pump", "substation_trip": "parts_substation",
+             "cooling_fault": "parts_chiller", "stuck_sensor": "parts_sensor", "energy_waste": None}[kind]
+    inputs = [_ai(A, "crew_callout")] + ([_ai(A, parts)] if parts else [])
+    terms.append(Term("Repair now", "repair", " + ".join(i.name for i in inputs), inputs,
+                      "Restoration crew and parts", sum(i.value for i in inputs)))
     return terms
 
 
@@ -200,15 +307,12 @@ MC_RUNS, MC_SPREAD, MC_LEAK_ERR = 800, 0.20, 0.15
 
 
 def _summary(f: IncidentFacts, A: Assumptions) -> dict:
-    """The deterministic cost numbers as plain floats (also the inner loop of the Monte Carlo)."""
     terms = build_terms(f, A)
-    t_delay, late_mult, t_resp = A["delay_hours"], A["late_multiplier"], A["response_hours"]
-    g = lambda grp: sum(t.value for t in terms if t.group == grp)  # noqa: E731
+    kind = policy_kind(f)
+    t_delay, late_mult, t_resp = A[f"delay_hours_{kind}"], A[f"late_multiplier_{kind}"], A["response_hours"]
+    g = lambda grp: sum(t.value for t in terms if t.category == grp)  # noqa: E731
     c_loss, c_dis, c_sec, repair_now = g("loss"), g("disruption"), g("secondary"), g("repair")
     c_delay = c_loss + c_dis + c_sec
-    if f.kind == "sensor_fault":
-        # acting = recalibrate; not acting = expected false dispatches + blind spot risk
-        c_delay = A["false_dispatch"] / 4  # one false dispatch every 4 h on average
     repair_late = repair_now * late_mult
     losses_until_crew = c_delay * t_resp
     act_now = repair_now + losses_until_crew
@@ -217,74 +321,98 @@ def _summary(f: IncidentFacts, A: Assumptions) -> dict:
                 losses_until_crew=losses_until_crew, act_now=act_now, cost_of_delay=cost_of_delay, saving=cost_of_delay - act_now)
 
 
+def assumption_keys(f: IncidentFacts, A: Assumptions) -> list[str]:
+    keys = [i.key for t in build_terms(f, A) for i in t.inputs if i.key]
+    kind = policy_kind(f)
+    return list(dict.fromkeys(keys + [f"delay_hours_{kind}", "response_hours", f"late_multiplier_{kind}"]))
+
+
 def monte_carlo(f: IncidentFacts, A: Assumptions, incident_id: str) -> SavingRange:
-    """P10/P50/P90 of the saving when every assumption varies +-20% and the leak estimate +-15%. Seeded per incident."""
+    """Seeded scenario percentiles from registered ranges and ±15% measured leak error."""
     rng = np.random.default_rng(zlib.crc32(incident_id.encode()))
     out = []
+    keys = assumption_keys(f, A)
     for _ in range(MC_RUNS):
         ff = dataclasses.replace(f, leak_m3h=f.leak_m3h * rng.uniform(1 - MC_LEAK_ERR, 1 + MC_LEAK_ERR))
-        out.append(_summary(ff, A.sampled(rng, MC_SPREAD))["saving"])
-    p10, p50, p90 = (round(float(x)) for x in np.percentile(out, [10, 50, 90]))
+        out.append(_summary(ff, A.sampled(rng, keys=keys))["saving"])
+    p10, p50, p90 = (round(float(x), 2) for x in np.percentile(out, [10, 50, 90]))
     return SavingRange(p10=p10, p50=p50, p90=p90, runs=MC_RUNS)
 
 
 def compute(f: IncidentFacts, A: Assumptions, incident_id: str, calc_id: str | None = None) -> CalculationRecord:
     record = _compute(f, A, incident_id, calc_id or f"calc-{next(_calc_ids):04d}")
-    main = MAIN_ASSUMPTION[f.kind]
-    sens = []
-    for key in dict.fromkeys([main, "delay_hours", "response_hours"]):
+    kind = policy_kind(f)
+    keys = assumption_keys(f, A)
+    main = next((k for k in keys if k.startswith("voll_")), MAIN_ASSUMPTION[kind])
+    for key in dict.fromkeys([main, f"delay_hours_{kind}", "response_hours"]):
         for pct in (-20, 20):
-            alt = _compute(f, A.with_override(key, A[key] * (1 + pct / 100)), incident_id, record.id)
-            sens.append(Sensitivity(input=key, change_percent=pct, new_saving=alt.cost.expected_saving))
-    record.explanation.sensitivity = sens
+            saving = _summary(f, A.with_override(key, A[key] * (1 + pct / 100)))["saving"]
+            record.explanation.sensitivity.append(Sensitivity(input=key, change_percent=pct, new_saving=round(saving, 2)))
+    for key in keys:
+        d = DEFAULTS[key]
+        lo = _summary(f, A.with_override(key, d["low"]))["saving"]
+        hi = _summary(f, A.with_override(key, d["high"]))["saving"]
+        if not math.isclose(lo, hi, rel_tol=0.0, abs_tol=1e-9):
+            record.explanation.tornado.append(Tornado(input=key, name=d["name"], low=d["low"], high=d["high"],
+                                                     saving_at_low=round(lo, 2), saving_at_high=round(hi, 2)))
+    record.explanation.tornado.sort(key=lambda t: (-abs(t.saving_at_high - t.saving_at_low), t.input))
     rng_ = monte_carlo(f, A, incident_id)
     record.cost.saving_range = rng_
     record.explanation.calculations.append(Calculation(
         name=f"Saving range ({rng_.runs} simulated runs)",
-        formula=f"P10, P50, P90 of Saving with every assumption varied ±{MC_SPREAD:.0%} and the leak estimate ±{MC_LEAK_ERR:.0%}",
-        inputs=[_a("P10", rng_.p10, "EGP", "rule"), _a("P90", rng_.p90, "EGP", "rule")], result=rng_.p50))
+        formula="P10, P50, P90 of Saving; independent uniform assumption draws in registered [low, high], leak estimate ±15%",
+        inputs=[_a("runs", rng_.runs, "runs", "rule", "Fixed reproducible scenario sample count, seeded by incident id."),
+                _a("leak_error", MC_LEAK_ERR, "fraction", "assumed", "Planning ±15% flow-difference error; verify against paired meter calibration certificates.")], result=rng_.p50))
     record.cost.explanation = record.explanation
     return record
 
 
 def _compute(f: IncidentFacts, A: Assumptions, incident_id: str, calc_id: str) -> CalculationRecord:
     n = _summary(f, A)
-    terms, c_loss, c_dis, c_sec, c_delay = n["terms"], n["c_loss"], n["c_dis"], n["c_sec"], n["c_delay"]
-    repair_now, repair_late, losses, act_now, cost_of_delay, saving = (n[k] for k in ("repair_now", "repair_late", "losses_until_crew", "act_now", "cost_of_delay", "saving"))
-    t_delay, late_mult, t_resp = A["delay_hours"], A["late_multiplier"], A["response_hours"]
-
-    R = lambda x: round(x, 0)  # noqa: E731
-    calcs = [Calculation(name=t.label, formula=t.formula, inputs=t.inputs, result=R(t.value),
-                         unit="EGP/h" if t.group != "repair" else "EGP") for t in terms]
+    kind = policy_kind(f)
+    delay_key, late_key = f"delay_hours_{kind}", f"late_multiplier_{kind}"
+    t_delay, late_mult, t_resp = A[delay_key], A[late_key], A["response_hours"]
+    calcs = [Calculation(name=t.label, formula=t.formula, inputs=t.inputs, result=round(t.value, 2),
+                         unit="EGP" if t.category == "repair" else "EGP/h") for t in n["terms"]]
     calcs += [
         Calculation(name="Cost of delay per hour", formula="C_loss + C_disruption + C_secondary",
-                    inputs=[_a("C_loss", R(c_loss), "EGP/h", "rule"), _a("C_disruption", R(c_dis), "EGP/h", "rule"),
-                            _a("C_secondary", R(c_sec), "EGP/h", "rule")], result=R(c_delay), unit="EGP/h"),
-        Calculation(name="Repair now", formula="crew_callout + parts", inputs=[_a(t.label, t.value, "EGP") for t in terms if t.group == "repair"],
-                    result=R(repair_now)),
-        Calculation(name="Losses until the crew arrives", formula="C_delay × t_response",
-                    inputs=[_a("C_delay", R(c_delay), "EGP/h", "rule"), _a("t_response", t_resp, "h")], result=R(losses)),
-        Calculation(name="Cost of acting now", formula="C_repair_now + C_delay × t_response",
-                    inputs=[_a("C_repair_now", R(repair_now), "EGP", "rule"), _a("Losses until the crew arrives", R(losses), "EGP", "rule")], result=R(act_now)),
-        Calculation(name="Repair later", formula="C_repair_now × late_multiplier",
-                    inputs=[_a("C_repair_now", R(repair_now), "EGP", "rule"), _a("late_multiplier", late_mult, "×")], result=R(repair_late)),
-        Calculation(name="Cost of delay", formula="C_delay × t_delay + C_repair_late",
-                    inputs=[_a("C_delay", R(c_delay), "EGP/h", "rule"), _a("t_delay", t_delay, "h"),
-                            _a("C_repair_late", R(repair_late), "EGP", "rule")], result=R(cost_of_delay)),
-        Calculation(name="Saving from acting now", formula="(C_delay × t_delay + C_repair_late) − (C_repair_now + C_delay × t_response)",
-                    inputs=[_a("Cost of delay", R(cost_of_delay), "EGP", "rule"), _a("Cost of acting now", R(act_now), "EGP", "rule")],
-                    result=R(saving)),
+                    inputs=[_a(k, n[v], "EGP/h", "rule") for k, v in [("C_loss", "c_loss"), ("C_disruption", "c_dis"), ("C_secondary", "c_sec")]], result=round(n["c_delay"], 2), unit="EGP/h"),
+        Calculation(name="Losses until the crew arrives", formula="C_delay × response_hours",
+                    inputs=[_a("C_delay", n["c_delay"], "EGP/h", "rule"), _ai(A, "response_hours")], result=round(n["losses_until_crew"], 2)),
+        Calculation(name="Cost of acting now", formula="C_repair_now + C_delay × response_hours",
+                    inputs=[_a("C_repair_now", n["repair_now"], "EGP", "rule"), _a("C_delay", n["c_delay"], "EGP/h", "rule"), _ai(A, "response_hours")], result=round(n["act_now"], 2)),
+        Calculation(name="Repair later", formula=f"C_repair_now × {late_key}",
+                    inputs=[_a("C_repair_now", n["repair_now"], "EGP", "rule"), _ai(A, late_key)], result=round(n["repair_late"], 2)),
+        Calculation(name="Cost of delay", formula=f"C_delay × {delay_key} + C_repair_late",
+                    inputs=[_a("C_delay", n["c_delay"], "EGP/h", "rule"), _ai(A, delay_key), _a("C_repair_late", n["repair_late"], "EGP", "rule")], result=round(n["cost_of_delay"], 2)),
+        Calculation(name="Saving from acting now", formula="CostOfDelay − ActNow",
+                    inputs=[_a("CostOfDelay", n["cost_of_delay"], "EGP", "rule"), _a("ActNow", n["act_now"], "EGP", "rule")], result=round(n["saving"], 2)),
     ]
-    keys = [INPUT_KEY.get(i.name, i.name) for t in terms for i in t.inputs]
-    keys += ["delay_hours", "response_hours", "late_multiplier"] + (["false_dispatch"] if f.kind == "sensor_fault" else [])
-    keys = [k for k in dict.fromkeys(keys) if k in DEFAULTS]
+    breakdown = []
+    for t in n["terms"]:
+        repair = t.category == "repair"
+        inputs = t.inputs + [_ai(A, late_key)] if repair else t.inputs + [_ai(A, delay_key, "duration_hours")]
+        formula = f"({t.formula}) × {late_key}" if repair else f"({t.formula}) × duration_hours"
+        value = t.value * (late_mult if repair else t_delay)
+        calcs.append(Calculation(name=f"Delayed cost: {t.label}", formula=formula, inputs=inputs, result=round(value, 2)))
+        breakdown.append(CostItem(label=t.label, group=t.group, amount=round(value, 2), cause=t.cause))
+    # Sum the displayed rows so attribution always reconciles exactly, including fractional-cent inputs.
+    cost_of_delay = sum(t.amount for t in breakdown)
+    act_now = round(n["act_now"], 2)
+    saving = round(cost_of_delay - act_now, 2)
+    for c in calcs:
+        if c.name == "Cost of delay":
+            c.result = cost_of_delay
+        elif c.name == "Saving from acting now":
+            c.result = saving
+    min_key, max_key = f"saving_min_{kind}", f"saving_max_{kind}"
+    low, high = A[min_key], A[max_key]
+    review = not low <= n["saving"] <= high
+    reason = f"{kind} saving {n['saving']:,.2f} EGP is outside the planning range [{low:g}, {high:g}] EGP; verify inputs and incident scope." if review else None
+    keys = assumption_keys(f, A) + [min_key, max_key]
     explanation = Explanation(reasons=f.reasons, calculations=calcs, assumptions=[A.item(k) for k in keys],
                               sensitivity=[], confidence=f.confidence, calculation_id=calc_id)
-    breakdown = [CostItem(label=t.label, amount=R(t.value * (1 if t.group == "repair" else t_delay)),
-                          cause=t.cause if t.group == "repair" else f"{t.cause} × {t_delay:g} h") for t in terms]
-    breakdown.append(CostItem(label="Late repair premium", amount=R(repair_late - repair_now),
-                              cause=f"repair grows ×{late_mult:g} if delayed"))
-    cost = Cost(act_now=R(act_now), delay_per_hour=R(c_delay), expected_saving=R(saving), delay_hours=t_delay,
-                cost_of_delay=R(cost_of_delay), response_hours=t_resp, act_now_losses=R(losses), breakdown=breakdown)
-    return CalculationRecord(id=calc_id, incident_id=incident_id, created_at=datetime.now(timezone.utc),
-                             cost=cost, explanation=explanation)
+    cost = Cost(act_now=act_now, delay_per_hour=round(n["c_delay"], 2), expected_saving=saving, delay_hours=t_delay,
+                cost_of_delay=cost_of_delay, response_hours=t_resp, act_now_losses=round(n["losses_until_crew"], 2),
+                breakdown=breakdown, review=review, review_reason=reason)
+    return CalculationRecord(id=calc_id, incident_id=incident_id, created_at=datetime.now(timezone.utc), cost=cost, explanation=explanation)

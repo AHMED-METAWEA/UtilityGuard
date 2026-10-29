@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
+import { CircleAlert, SlidersHorizontal } from 'lucide-react';
 import type { Calculation, Cost, EvidenceType, Explanation } from '../api/types';
 import { substitutedFormula } from '../lib/present';
 import { compact, fmt } from '../lib/format';
 import { useUi } from '../store/ui';
+import { Basis, StatusTag, Tornado } from './Provenance';
 
 const TAG: Record<EvidenceType, { cls: string; label: string }> = {
   measured: { cls: 'accent', label: 'measured' }, forecast: { cls: 'ok', label: 'forecast' }, rule: { cls: '', label: 'rule' }, assumed: { cls: 'warn', label: 'assumed' },
@@ -56,6 +57,11 @@ export function CalcView({ cost, explanation, heading }: { cost: Cost; explanati
           </div>
         ))}
       </div>
+      {cost.review && (
+        <div className="row" style={{ gap: 8, alignItems: 'flex-start', background: 'var(--warn-soft)', color: 'var(--warn-text)', borderRadius: 9, padding: '8px 10px', fontSize: 13 }}>
+          <CircleAlert size={16} style={{ flexShrink: 0, marginTop: 2 }} /><span><b>Needs review.</b> {cost.reviewReason ?? 'This saving is outside the range expected for this kind of incident.'}</span>
+        </div>
+      )}
       {cost.savingRange && <RangeBar {...cost.savingRange} />}
       <div>
         <div className="card-title" style={{ marginBottom: 8 }}>How each number was reached</div>
@@ -64,12 +70,29 @@ export function CalcView({ cost, explanation, heading }: { cost: Cost; explanati
             <div key={i} style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 9, padding: '8px 10px' }}>
               <div className="row spread" style={{ gap: 12 }}><span style={{ fontWeight: 500 }}>{c.name}</span><b className="num" style={{ whiteSpace: 'nowrap' }}>{fmt(c.result)} {unitOf(c)}</b></div>
               <div className="num muted" style={{ fontSize: 12, marginTop: 2, overflowWrap: 'anywhere' }}>{c.formula}</div>
-              <div className="num" style={{ fontSize: 12, color: 'var(--text-2)', overflowWrap: 'anywhere' }}>{substitutedFormula(c)}</div>
+              {substitutedFormula(c) !== c.formula && <div className="num" style={{ fontSize: 12, color: 'var(--text-2)', overflowWrap: 'anywhere' }}>{substitutedFormula(c)}</div>}
+              {c.inputs.length > 0 && (
+                <details style={{ marginTop: 6 }}>
+                  <summary style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer' }}>Where the inputs come from</summary>
+                  <table className="table" style={{ marginTop: 6 }}><tbody>
+                    {c.inputs.map((x) => (
+                      <tr key={x.name}><td style={{ verticalAlign: 'top' }}><span className="num">{x.name}</span><div className="num muted" style={{ fontSize: 12 }}>{fmt(x.value, x.value % 1 ? 2 : 0)} {x.unit}</div></td>
+                        <td style={{ fontSize: 12, lineHeight: 1.45 }}>{x.status ? <StatusTag s={x.status} /> : <EvidenceChip t={x.source} />}{x.basis && <div style={{ color: 'var(--text-2)', marginTop: 3 }}>{x.basis}</div>}</td></tr>
+                    ))}
+                  </tbody></table>
+                </details>
+              )}
             </div>
           ))}
         </div>
       </div>
-      {explanation.sensitivity.length > 0 && (
+      {explanation.tornado && explanation.tornado.length > 0 && (
+        <div>
+          <div className="card-title" style={{ marginBottom: 8 }}>What moves the saving most</div>
+          <Tornado rows={explanation.tornado} base={cost.expectedSaving} />
+        </div>
+      )}
+      {!explanation.tornado?.length && explanation.sensitivity.length > 0 && (
         <div>
           <div className="card-title" style={{ marginBottom: 6 }}>If an assumption changes by 20%</div>
           <div className="stack" style={{ gap: 4 }}>
@@ -85,8 +108,10 @@ export function CalcView({ cost, explanation, heading }: { cost: Cost; explanati
         <div className="row spread" style={{ marginBottom: 8 }}><div className="card-title">Assumptions used</div>
           <button className="btn sm" onClick={() => set({ assumptionsOpen: true })}><SlidersHorizontal size={14} />Edit assumptions</button></div>
         <table className="table"><tbody>
-          {explanation.assumptions.map((a) => (
-            <tr key={a.key}><td>{a.name}{a.userChanged && <span className="chip warn" style={{ marginInlineStart: 8 }}>changed</span>}</td><td className="r num">{fmt(a.value, a.value % 1 ? 2 : 0)} <span className="muted">{a.unit}</span></td></tr>
+          {explanation.assumptions.filter((a) => !/^saving_(min|max)_/.test(a.key)).map((a) => (
+            <tr key={a.key}><td style={{ verticalAlign: 'top' }}>
+              <details><summary style={{ cursor: 'pointer' }}>{a.name}{a.userChanged && <span className="chip warn" style={{ marginInlineStart: 8 }}>changed</span>}</summary><div style={{ margin: '6px 0 4px' }}><Basis a={a} /></div></details>
+            </td><td className="r num" style={{ verticalAlign: 'top' }}>{fmt(a.value, a.value % 1 ? 2 : 0)} <span className="muted">{a.unit}</span></td></tr>
           ))}
         </tbody></table>
       </div>

@@ -5,6 +5,7 @@ import type { Asset, Assumption, CalculationRecord, Sensor } from '../api/types'
 import { useStore } from '../store';
 import { useUi } from '../store/ui';
 import { Drawer, Empty, Meter, NetIcon, Skeleton, StatusChip } from '../ui';
+import { Basis } from '../ui/Provenance';
 import { CalcView } from '../ui/Calc';
 import { TimeChart } from '../charts/TimeChart';
 import { ago, fmt, sensorLabel } from '../lib/format';
@@ -56,9 +57,10 @@ export function AssetDrawer() {
 
 const GROUPS: [string, (k: string) => boolean][] = [
   ['Prices', (k) => ['water_price', 'elec_tariff', 'cooling_price'].includes(k)],
-  ['Disruption penalties', (k) => k.startsWith('penalty_')],
-  ['Repairs and response', (k) => ['crew_callout', 'delay_hours', 'response_hours', 'late_multiplier', 'false_dispatch', 'planned_factor'].includes(k) || k.startsWith('parts_')],
-  ['Savings levers', () => true],
+  ['Customers and outage value', (k) => k.startsWith('customers_zone_') || k.startsWith('customer_hour_') || k.startsWith('voll_')],
+  ['Repairs and response', (k) => ['crew_callout', 'response_hours', 'false_dispatch', 'false_dispatch_interval', 'planned_factor'].includes(k) || k.startsWith('parts_') || k.startsWith('delay_hours_') || k.startsWith('late_multiplier_')],
+  ['Review thresholds', (k) => k.startsWith('saving_min_') || k.startsWith('saving_max_')],
+  ['Savings levers and finance', () => true],
 ];
 
 export function AssumptionsDrawer() {
@@ -81,14 +83,15 @@ export function AssumptionsDrawer() {
   return (
     <Drawer title="Assumptions" onClose={() => set({ assumptionsOpen: false })}
       foot={<><span className="sub" style={{ marginInlineEnd: 'auto', alignSelf: 'center' }}>{changed.length ? `${changed.length} change${changed.length > 1 ? 's' : ''}` : 'Edit a value to recompute'}</span><button className="btn primary" disabled={!changed.length || saving} onClick={save}>Save and recompute</button></>}>
-      <p className="sub" style={{ margin: 0 }}>Every cost and saving reads these values. Defaults are assumptions until real figures replace them.</p>
+      <p className="sub" style={{ margin: 0 }}>Every cost and saving reads these values. Open a value to see where it comes from. Planning figures are illustrative until you replace them with your own.</p>
       {loading && !data ? [0, 1, 2, 3].map((i) => <Skeleton key={i} h={44} />) : GROUPS.map(([g]) => grouped[g] && (
         <section key={g}>
           <div className="card-title" style={{ marginBottom: 8 }}>{g}</div>
           <div className="stack" style={{ gap: 8 }}>
             {grouped[g].map((a) => (
               <label key={a.key} className="row spread" style={{ gap: 12 }}>
-                <span style={{ minWidth: 0 }}>{a.name}{a.userChanged && <span className="chip warn" style={{ marginInlineStart: 8 }}>changed</span>}<span className="muted" style={{ display: 'block', fontSize: 12 }}>{a.source}</span></span>
+                <span style={{ minWidth: 0, flex: 1 }}>{a.name}{a.userChanged && <span className="chip warn" style={{ marginInlineStart: 8 }}>changed</span>}<span className="muted" style={{ display: 'block', fontSize: 12 }}>{a.source}</span>
+                  <details style={{ marginTop: 2 }} onClick={(e) => e.stopPropagation()}><summary style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer' }}>Where this comes from</summary><div style={{ marginTop: 6 }}><Basis a={a} /></div></details></span>
                 <span className="row" style={{ gap: 6, flex: 'none' }}><input className="field num" style={{ width: 110, textAlign: 'end' }} type="number" step="any" value={edits[a.key] ?? String(a.value)} onChange={(e) => setEdits((o) => ({ ...o, [a.key]: e.target.value }))} /><span className="muted" style={{ width: 70, fontSize: 12 }}>{a.unit}</span></span>
               </label>
             ))}

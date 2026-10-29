@@ -196,6 +196,13 @@ def forecast(network: str = "water", zoneId: str = "zone-gov", horizonHours: int
         raise ApiError(404, "no_forecast", f"No forecast for {network} in {zoneId}.") from e
 
 
+@api.get("/forecast/evidence")
+def forecast_evidence(network: str = "water") -> dict:
+    if network not in ("water", "electricity", "cooling"):
+        raise ApiError(404, "no_forecast", f"No forecast evidence for {network}.")
+    return out(ml_service.evidence(network))
+
+
 @api.get("/metrics")
 def metrics() -> dict:
     return out(ml_service.metrics())

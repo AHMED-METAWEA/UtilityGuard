@@ -11,9 +11,8 @@ from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING
 
-from app import ml
 from app.cost import TONS_PER_MW
-from app.schemas import DailySeries, DailyValue, DemandSeries, ForecastMetrics, ForecastPoint, Kpi, NamedSeries, SeriesPoint, SubstationSeries
+from app.schemas import DailySeries, DailyValue, DemandSeries, Kpi, NamedSeries, SeriesPoint, SubstationSeries
 from app.sim.engine import CAIRO, Engine
 from app.sim.topology import SUBSTATION_BACKUP
 
@@ -111,10 +110,6 @@ def build_kpis(rt: "Runtime", hist: History, savings_total: float | None) -> lis
     return out
 
 
-def _slot(now: datetime) -> datetime:
-    return now.replace(minute=0 if now.minute < 30 else 30, second=0, microsecond=0) + timedelta(minutes=30)
-
-
 def demand_series(rt: "Runtime", hist: History, mls: "MLService", network: str, zone_id: str, hours: int = 24) -> DemandSeries:
     g = rt.engine.g
     zones = [z.id for z in g.topology.zones if (network, z.id) in mls.models.series] if zone_id == "all" else [zone_id]
@@ -126,14 +121,8 @@ def demand_series(rt: "Runtime", hist: History, mls: "MLService", network: str, 
     if all(z in rt.engine.zone_demand for z in zones):  # not before the first tick after a reset
         actual.append(SeriesPoint(t=rt.now, v=round(sum(rt.engine.zone_demand[z][idx] for z in zones), 2)))
 
-    start = _slot(rt.now)
-    fcs = [ml.forecast(mls.models, network, z, start, hours) for z in zones]
-    pts = [ForecastPoint(timestamp=fcs[0].points[i].timestamp, predicted=round(sum(f.points[i].predicted for f in fcs), 2),
-                         lower=round(sum(f.points[i].lower for f in fcs), 2), upper=round(sum(f.points[i].upper for f in fcs), 2))
-           for i in range(len(fcs[0].points))]
-    mae, rmse, mape = mls.models.metrics[network]
-    return DemandSeries(network=network, zone_id=zone_id, unit=UNITS[network], now=rt.now, actual=actual, forecast=pts,
-                        metrics=ForecastMetrics(mae=round(mae, 2), rmse=round(rmse, 2), mape=round(mape, 2)))
+    view = mls.demand_view(network, zone_id, hours, [t for t, _ in rows], [p.v for p in actual[:len(rows)]])
+    return DemandSeries(network=network, zone_id=zone_id, unit=UNITS[network], now=rt.now, actual=actual, **view)
 
 
 def substation_series(rt: "Runtime", hist: History, hours: int = 24) -> SubstationSeries:

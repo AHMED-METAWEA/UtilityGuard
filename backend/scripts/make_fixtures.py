@@ -7,16 +7,21 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from tempfile import TemporaryDirectory
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.schemas import (
-    AgentFinding, Alert, Assumption, AssetStatus, CalcInput, Calculation, CalculationRecord, ChatAccepted,
-    ChatChunk, ChatDone, ChatRoute, Compare, CompareSide, Cost, CostItem, DriftIndicator, Explanation, FeatureImportance,
+    AgentFinding, Alert, AssetStatus, CalculationRecord, ChatAccepted,
+    ChatChunk, ChatDone, ChatRoute, Compare, CompareSide, DriftIndicator, FeatureImportance,
     Forecast, ForecastMetrics, ForecastPoint, Health, Incident, LatLng, ModelMetrics, NetworkMetrics,
     PlacementSuggestion, PredictedImpact, Reading, ReadingBatch, Reason, RecommendedAction, RouteStep, Scenario,
-    SavingRange, ScenarioParam, ScenarioRunResponse, ScenarioState, Sensitivity, Snapshot, envelope,
+    ScenarioParam, ScenarioRunResponse, ScenarioState, Snapshot, envelope,
 )
+from app.cost import Assumptions, IncidentFacts, compute
 from app.sim.engine import Engine
 from app.sim.topology import build
 
@@ -54,53 +59,18 @@ def batch(tick: int, overrides: dict[str, float] | None = None) -> ReadingBatch:
 PIPE, PUMP, ZONE = g.zone_pipe["zone-gov"], g.zone_pump["zone-gov"], "zone-gov"
 
 # ---------- explanation and cost (pipe burst in zone-gov) ----------
-assumptions = [
-    Assumption(name="Water production cost", key="water_price", value=8, unit="EGP/m3", source="default assumption"),
-    Assumption(name="Electricity tariff", key="elec_tariff", value=1.6, unit="EGP/kWh", source="default assumption"),
-    Assumption(name="Cooling energy cost", key="cooling_price", value=1.5, unit="EGP/ton-h", source="default assumption"),
-    Assumption(name="Crew call-out cost", key="crew_callout", value=3400, unit="EGP/dispatch", source="default assumption"),
-    Assumption(name="Pipe repair parts", key="parts_pipe", value=15000, unit="EGP/repair", source="default assumption"),
-    Assumption(name="Disruption penalty, government zone", key="penalty_government", value=2500, unit="EGP/h", source="default assumption"),
-    Assumption(name="Hours until repair if delayed", key="delay_hours", value=6, unit="h", source="default assumption"),
-]
-calcs = [
-    Calculation(name="Water loss per hour", formula="Q_leak × P_water",
-                inputs=[CalcInput(name="Q_leak", value=140, unit="m3/h", source="measured"),
-                        CalcInput(name="P_water", value=8, unit="EGP/m3", source="assumed")], result=1120),
-    Calculation(name="Cost of delay per hour", formula="C_loss + C_disruption + C_secondary",
-                inputs=[CalcInput(name="C_loss", value=1120, unit="EGP/h", source="rule"),
-                        CalcInput(name="C_disruption", value=2500, unit="EGP/h", source="assumed"),
-                        CalcInput(name="C_secondary", value=200, unit="EGP/h", source="rule")], result=3820),
-    Calculation(name="Repair now", formula="crew_callout + parts + equipment",
-                inputs=[CalcInput(name="crew_callout", value=3400, unit="EGP", source="assumed"),
-                        CalcInput(name="parts", value=15000, unit="EGP", source="assumed")], result=18400),
-    Calculation(name="Saving from acting now", formula="(C_delay × t_delay + C_repair_late) − (C_repair_now + C_delay × t_response)",
-                inputs=[CalcInput(name="C_delay", value=3820, unit="EGP/h", source="rule"),
-                        CalcInput(name="t_delay", value=6, unit="h", source="assumed"),
-                        CalcInput(name="C_repair_late", value=31280, unit="EGP", source="rule"),
-                        CalcInput(name="C_repair_now", value=18400, unit="EGP", source="rule"),
-                        CalcInput(name="t_response", value=1, unit="h", source="assumed")], result=31980),
-]
 reasons = [
     Reason(text="Pressure fell from 3.8 to 2.1 bar in 4 minutes", evidence_type="measured", evidence_ref=f"{PIPE}-pressure"),
     Reason(text="Inflow is 140 m3/h higher than outflow", evidence_type="measured", evidence_ref=f"{PIPE}-flow-in"),
     Reason(text="Neighbouring sensors read normal, so this is not a sensor fault", evidence_type="rule", evidence_ref="rule:neighbour-consistency"),
     Reason(text="Pump P-04 draw is up 12% as it compensates", evidence_type="measured", evidence_ref=f"{PUMP}-flow"),
 ]
-explain = Explanation(
-    reasons=reasons, calculations=calcs, assumptions=assumptions,
-    sensitivity=[Sensitivity(input="water_price", change_percent=-20, new_saving=30636),
-                 Sensitivity(input="water_price", change_percent=20, new_saving=33324)],
-    confidence=0.92, calculation_id="calc-0001")
-cost = Cost(act_now=22220, delay_per_hour=3820, expected_saving=31980, delay_hours=6, cost_of_delay=54200,
-            response_hours=1, act_now_losses=3820, saving_range=SavingRange(p10=25343, p50=31811, p90=38747, runs=800),
-            breakdown=[CostItem(label="Crew call-out", amount=3400, cause="assumed crew cost"),
-                       CostItem(label="Pipe repair parts", amount=15000, cause="assumed parts cost"),
-                       CostItem(label="Water loss", amount=6720, cause="140 m3/h × 8 EGP/m3 × 6 h"),
-                       CostItem(label="Service disruption, zone-gov", amount=15000, cause="2,500 EGP/h for a government zone × 6 h"),
-                       CostItem(label="Knock-on overdraw in another network", amount=1200, cause="0.13 MW extra draw × 1.6 EGP/kWh × 6 h"),
-                       CostItem(label="Late repair premium", amount=12880, cause="repair grows ×1.7 if delayed")],
-            explanation=explain)
+with TemporaryDirectory() as tmp:
+    A = Assumptions(Path(tmp) / "assumptions.json")
+    assumptions = A.all()
+    record = compute(IncidentFacts(kind="leak", zone_types={ZONE: "government"}, leak_m3h=140,
+                                  secondary_mw=0.125, reasons=reasons, confidence=0.92), A, "inc-0001", "calc-0001")
+explain, cost = record.explanation, record.cost
 
 alert = Alert(id="alert-0001", incident_id="inc-0001", network="water", zone_id=ZONE, asset_ids=[PIPE, PUMP],
               severity="critical", title="Pipe burst suspected",
@@ -175,11 +145,11 @@ write("rest/calculation.json", record.dump())
 write("rest/chat_accepted.json", ChatAccepted(message_id="msg-0001").dump())
 write("rest/compare.json", Compare(
     scenario_id="scn-pipe-burst",
-    without_intervention=CompareSide(label="No action for 6 h", total_cost=54200, water_lost_m3=840, outage_hours=6,
+    without_intervention=CompareSide(label="No action for 6 h", total_cost=cost.cost_of_delay, water_lost_m3=840, outage_hours=6,
                                      series=[ForecastPoint(timestamp=T0 + timedelta(hours=h), predicted=3.8 - 0.25 * h, lower=3.7 - 0.25 * h, upper=3.9 - 0.25 * h) for h in range(7)]),
-    with_intervention=CompareSide(label="Repair crew sent now", total_cost=22220, water_lost_m3=140, outage_hours=1,
+    with_intervention=CompareSide(label="Repair crew sent now", total_cost=cost.act_now, water_lost_m3=140, outage_hours=1,
                                   series=[ForecastPoint(timestamp=T0 + timedelta(hours=h), predicted=2.1 if h == 0 else 3.7, lower=2.0 if h == 0 else 3.6, upper=2.2 if h == 0 else 3.8) for h in range(7)]),
-    saving=31980).dump())
+    saving=cost.expected_saving, explanation=explain).dump())
 write("rest/sensor_placement.json", [PlacementSuggestion(
     position=LatLng(lat=30.0285, lng=31.7285), near_asset_id=g.zone_pipe["zone-cbd"], network="water", kind="pressure",
     detection_improvement=0.14, reason="Longest unmonitored segment between two pressure sensors").dump()])
@@ -224,16 +194,15 @@ seq = [
 write("sequence/burst.json", [{"delayMs": d, "message": m} for d, m in seq])
 # ---------- dashboard fixtures, produced by the real functions on a fixed clock ----------
 import asyncio
-from types import SimpleNamespace
 
-from app import dashboard, ml
+from app import dashboard
+from app.detection import Detector
+from app.ml.service import MLService
 from app.runtime import Runtime
 from app.savings import build_savings
-from app.cost import Assumptions
-from tempfile import mkdtemp
 
 rt = Runtime(42)
-models = ml.load_or_train(rt.engine)
+mls = MLService(rt, Detector(rt))
 
 
 async def _warm():
@@ -243,15 +212,17 @@ async def _warm():
 
 asyncio.run(_warm())
 hist = dashboard.History(42)
-A = Assumptions(Path(mkdtemp()) / "a.json")
-report = build_savings(rt, hist, A)
+with TemporaryDirectory() as tmp:
+    A = Assumptions(Path(tmp) / "a.json")
+    report = build_savings(rt, hist, A)
 write("rest/savings.json", report.dump())
 write("rest/kpis.json", [k.dump() for k in dashboard.build_kpis(rt, hist, report.total_monthly)])
 _sid = f"{g.zone_pipe['zone-gov']}-pressure"
 _h, _e = rt.history[_sid], rt.expected_history[_sid]
 write("rest/sensor_history.json", {"sensorId": _sid, "unit": "bar", "normalRange": g.sensor_index[_sid].normal_range.dump(),
       "points": [{"t": (rt.now - timedelta(seconds=2 * (len(_h) - 1 - k))).isoformat().replace("+00:00", "Z"), "v": round(_h[k], 3), "expected": round(_e[k] if _e[k] is not None else _h[k], 3)} for k in range(len(_h))]})
-write("rest/series_demand.json", dashboard.demand_series(rt, hist, SimpleNamespace(models=models), "water", "all").dump())
+write("rest/series_demand.json", dashboard.demand_series(rt, hist, mls, "water", "all").dump())
+write("rest/forecast_evidence.json", mls.evidence("water").dump())
 write("rest/series_substations.json", dashboard.substation_series(rt, hist).dump())
 write("rest/series_cooling_efficiency.json", dashboard.cooling_efficiency_daily(rt, hist).dump())
 print(f"fixtures written to {ROOT}")

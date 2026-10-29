@@ -111,11 +111,11 @@ async def compare(rt: "Runtime", svc: "AgentService", scenario_id: str) -> Compa
     from app.cost import compute
     facts = found[0] if found else None
     rec = compute(facts, svc.A, "compare") if facts else None
-    t_delay = svc.A["delay_hours"]
-    respond = 1.0  # hours for the crew to arrive and isolate when sent now
+    t_delay = rec.cost.delay_hours if rec else 0.0
+    respond = svc.A["response_hours"]
     leak = facts.leak_m3h if facts else 0.0
     cost_without = rec.cost.cost_of_delay if rec else 0.0
-    cost_with = (rec.cost.act_now + rec.cost.delay_per_hour * respond) if rec else 0.0
+    cost_with = rec.cost.act_now if rec else 0.0
     # 60 ticks of simulated response are shown on a compressed clock: 1 tick = t_delay / 60 hours
     step_h = t_delay / 60
 
@@ -124,11 +124,11 @@ async def compare(rt: "Runtime", svc: "AgentService", scenario_id: str) -> Compa
                 for i, v in enumerate(series)]
 
     return Compare(scenario_id=scenario_id,
-                   without_intervention=CompareSide(label=f"No action for {t_delay:g} h", total_cost=round(cost_without),
+                   without_intervention=CompareSide(label=f"No action for {t_delay:g} h", total_cost=cost_without,
                                                     water_lost_m3=round(leak * t_delay), outage_hours=t_delay, series=pts(s_without)),
-                   with_intervention=CompareSide(label="Crew sent now", total_cost=round(cost_with), water_lost_m3=round(leak * respond),
+                   with_intervention=CompareSide(label="Crew sent now", total_cost=cost_with, water_lost_m3=round(leak * respond),
                                                  outage_hours=respond, series=pts(s_with)),
-                   saving=round(cost_without - cost_with))
+                   saving=round(cost_without - cost_with, 2), explanation=rec.explanation if rec else None)
 
 
 # ---------- sensor placement ----------

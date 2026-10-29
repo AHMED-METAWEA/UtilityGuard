@@ -108,296 +108,403 @@
   "forecast": [
     {
       "timestamp": "2026-10-28T12:00:00Z",
-      "predicted": 4110.04,
-      "lower": 3982.1,
-      "upper": 4202.04
+      "predicted": 4220.36,
+      "lower": 3953.44,
+      "upper": 4496.15
     },
     {
       "timestamp": "2026-10-28T12:30:00Z",
-      "predicted": 3936.74,
-      "lower": 3795.18,
-      "upper": 4026.87
+      "predicted": 4073.22,
+      "lower": 3815.6,
+      "upper": 4339.39
     },
     {
       "timestamp": "2026-10-28T13:00:00Z",
-      "predicted": 3810.44,
-      "lower": 3695.2,
-      "upper": 3877.25
+      "predicted": 3962.5,
+      "lower": 3711.89,
+      "upper": 4221.44
     },
     {
       "timestamp": "2026-10-28T13:30:00Z",
-      "predicted": 3746.44,
-      "lower": 3647.34,
-      "upper": 3812.66
+      "predicted": 3855.23,
+      "lower": 3611.4,
+      "upper": 4107.16
     },
     {
       "timestamp": "2026-10-28T14:00:00Z",
-      "predicted": 3725.33,
-      "lower": 3619.74,
-      "upper": 3807.02
+      "predicted": 3875.1,
+      "lower": 3630.02,
+      "upper": 4128.32
     },
     {
       "timestamp": "2026-10-28T14:30:00Z",
-      "predicted": 3788.45,
-      "lower": 3681.8,
-      "upper": 3873.02
+      "predicted": 3886.11,
+      "lower": 3640.33,
+      "upper": 4140.05
     },
     {
       "timestamp": "2026-10-28T15:00:00Z",
-      "predicted": 3890.64,
-      "lower": 3783.78,
-      "upper": 3983.11
+      "predicted": 4024.42,
+      "lower": 3769.89,
+      "upper": 4287.4
     },
     {
       "timestamp": "2026-10-28T15:30:00Z",
-      "predicted": 4023.76,
-      "lower": 3906.77,
-      "upper": 4154.61
+      "predicted": 4107.55,
+      "lower": 3847.76,
+      "upper": 4375.96
     },
     {
       "timestamp": "2026-10-28T16:00:00Z",
-      "predicted": 4146.82,
-      "lower": 4059.19,
-      "upper": 4303.18
+      "predicted": 4234.23,
+      "lower": 3966.43,
+      "upper": 4510.92
     },
     {
       "timestamp": "2026-10-28T16:30:00Z",
-      "predicted": 4251.86,
-      "lower": 4118.61,
-      "upper": 4391.82
+      "predicted": 4407.6,
+      "lower": 4128.84,
+      "upper": 4695.62
     },
     {
       "timestamp": "2026-10-28T17:00:00Z",
-      "predicted": 4284.89,
-      "lower": 4164.78,
-      "upper": 4434.77
+      "predicted": 4397.85,
+      "lower": 4119.7,
+      "upper": 4685.23
     },
     {
       "timestamp": "2026-10-28T17:30:00Z",
-      "predicted": 4234.93,
-      "lower": 4149.72,
-      "upper": 4394.24
+      "predicted": 4377.26,
+      "lower": 4100.42,
+      "upper": 4663.3
     },
     {
       "timestamp": "2026-10-28T18:00:00Z",
-      "predicted": 4155.9,
-      "lower": 4046.56,
-      "upper": 4319.42
+      "predicted": 4313.89,
+      "lower": 4041.05,
+      "upper": 4595.79
     },
     {
       "timestamp": "2026-10-28T18:30:00Z",
-      "predicted": 3987.63,
-      "lower": 3873.62,
-      "upper": 4119.41
+      "predicted": 4091.7,
+      "lower": 3832.92,
+      "upper": 4359.08
     },
     {
       "timestamp": "2026-10-28T19:00:00Z",
-      "predicted": 3771.75,
-      "lower": 3664.59,
-      "upper": 3835.72
+      "predicted": 3837.95,
+      "lower": 3595.21,
+      "upper": 4088.75
     },
     {
       "timestamp": "2026-10-28T19:30:00Z",
-      "predicted": 3497.53,
-      "lower": 3416.92,
-      "upper": 3560.09
+      "predicted": 3604.73,
+      "lower": 3376.74,
+      "upper": 3840.29
     },
     {
       "timestamp": "2026-10-28T20:00:00Z",
-      "predicted": 3239.42,
-      "lower": 3164.05,
-      "upper": 3265.18
+      "predicted": 3315.91,
+      "lower": 3106.19,
+      "upper": 3532.59
     },
     {
       "timestamp": "2026-10-28T20:30:00Z",
-      "predicted": 2997.23,
-      "lower": 2910.81,
-      "upper": 3035.77
+      "predicted": 3076.35,
+      "lower": 2881.78,
+      "upper": 3277.38
     },
     {
       "timestamp": "2026-10-28T21:00:00Z",
-      "predicted": 2308.13,
-      "lower": 2232.17,
-      "upper": 2367.22
+      "predicted": 2391.31,
+      "lower": 2240.07,
+      "upper": 2547.57
     },
     {
       "timestamp": "2026-10-28T21:30:00Z",
-      "predicted": 2311.2,
-      "lower": 2223.97,
-      "upper": 2376.8
+      "predicted": 2389.56,
+      "lower": 2238.43,
+      "upper": 2545.71
     },
     {
       "timestamp": "2026-10-28T22:00:00Z",
-      "predicted": 2300.27,
-      "lower": 2195.9,
-      "upper": 2355.77
+      "predicted": 2389.69,
+      "lower": 2238.55,
+      "upper": 2545.85
     },
     {
       "timestamp": "2026-10-28T22:30:00Z",
-      "predicted": 2317.47,
-      "lower": 2226.85,
-      "upper": 2371.86
+      "predicted": 2385.55,
+      "lower": 2234.67,
+      "upper": 2541.44
     },
     {
       "timestamp": "2026-10-28T23:00:00Z",
-      "predicted": 2320.09,
-      "lower": 2222.47,
-      "upper": 2375.21
+      "predicted": 2383.09,
+      "lower": 2232.37,
+      "upper": 2538.82
     },
     {
       "timestamp": "2026-10-28T23:30:00Z",
-      "predicted": 2322.35,
-      "lower": 2231.49,
-      "upper": 2376.93
+      "predicted": 2396.55,
+      "lower": 2244.98,
+      "upper": 2553.16
     },
     {
       "timestamp": "2026-10-29T00:00:00Z",
-      "predicted": 2344.24,
-      "lower": 2266.15,
-      "upper": 2405.59
+      "predicted": 2402.52,
+      "lower": 2250.57,
+      "upper": 2559.52
     },
     {
       "timestamp": "2026-10-29T00:30:00Z",
-      "predicted": 2415.59,
-      "lower": 2316.28,
-      "upper": 2494.41
+      "predicted": 2445.8,
+      "lower": 2291.11,
+      "upper": 2605.62
     },
     {
       "timestamp": "2026-10-29T01:00:00Z",
-      "predicted": 2497.99,
-      "lower": 2400.14,
-      "upper": 2552.69
+      "predicted": 2535.6,
+      "lower": 2375.23,
+      "upper": 2701.29
     },
     {
       "timestamp": "2026-10-29T01:30:00Z",
-      "predicted": 2642.94,
-      "lower": 2532.03,
-      "upper": 2703.91
+      "predicted": 2707.95,
+      "lower": 2536.68,
+      "upper": 2884.9
     },
     {
       "timestamp": "2026-10-29T02:00:00Z",
-      "predicted": 2884.46,
-      "lower": 2764.56,
-      "upper": 2970.96
+      "predicted": 2948.42,
+      "lower": 2761.94,
+      "upper": 3141.09
     },
     {
       "timestamp": "2026-10-29T02:30:00Z",
-      "predicted": 3175.13,
-      "lower": 3052.54,
-      "upper": 3249.1
+      "predicted": 3243.83,
+      "lower": 3038.67,
+      "upper": 3455.8
     },
     {
       "timestamp": "2026-10-29T03:00:00Z",
-      "predicted": 3527.43,
-      "lower": 3392.78,
-      "upper": 3637.1
+      "predicted": 3652.22,
+      "lower": 3421.23,
+      "upper": 3890.88
     },
     {
       "timestamp": "2026-10-29T03:30:00Z",
-      "predicted": 3929.5,
-      "lower": 3778.05,
-      "upper": 4065.06
+      "predicted": 4007.61,
+      "lower": 3754.14,
+      "upper": 4269.49
     },
     {
       "timestamp": "2026-10-29T04:00:00Z",
-      "predicted": 4246.91,
-      "lower": 4115.18,
-      "upper": 4475.02
+      "predicted": 4415.27,
+      "lower": 4136.02,
+      "upper": 4703.79
     },
     {
       "timestamp": "2026-10-29T04:30:00Z",
-      "predicted": 4543.24,
-      "lower": 4378.13,
-      "upper": 4761.94
+      "predicted": 4732.85,
+      "lower": 4433.52,
+      "upper": 5042.12
     },
     {
       "timestamp": "2026-10-29T05:00:00Z",
-      "predicted": 4786.65,
-      "lower": 4574.23,
-      "upper": 4964.36
+      "predicted": 4903.18,
+      "lower": 4593.07,
+      "upper": 5223.59
     },
     {
       "timestamp": "2026-10-29T05:30:00Z",
-      "predicted": 4844.0,
-      "lower": 4664.69,
-      "upper": 5162.81
+      "predicted": 4976.65,
+      "lower": 4661.9,
+      "upper": 5301.86
     },
     {
       "timestamp": "2026-10-29T06:00:00Z",
-      "predicted": 4961.21,
-      "lower": 4689.03,
-      "upper": 5229.47
+      "predicted": 4955.92,
+      "lower": 4642.48,
+      "upper": 5279.77
     },
     {
       "timestamp": "2026-10-29T06:30:00Z",
-      "predicted": 4925.13,
-      "lower": 4690.13,
-      "upper": 5188.58
+      "predicted": 4975.71,
+      "lower": 4661.02,
+      "upper": 5300.85
     },
     {
       "timestamp": "2026-10-29T07:00:00Z",
-      "predicted": 5003.29,
-      "lower": 4760.4,
-      "upper": 5246.4
+      "predicted": 4998.62,
+      "lower": 4682.48,
+      "upper": 5325.26
     },
     {
       "timestamp": "2026-10-29T07:30:00Z",
-      "predicted": 5022.65,
-      "lower": 4763.79,
-      "upper": 5277.62
+      "predicted": 5102.81,
+      "lower": 4780.08,
+      "upper": 5436.26
     },
     {
       "timestamp": "2026-10-29T08:00:00Z",
-      "predicted": 5110.52,
-      "lower": 4833.79,
-      "upper": 5333.52
+      "predicted": 5173.51,
+      "lower": 4846.31,
+      "upper": 5511.58
     },
     {
       "timestamp": "2026-10-29T08:30:00Z",
-      "predicted": 5128.78,
-      "lower": 4822.35,
-      "upper": 5332.31
+      "predicted": 5149.28,
+      "lower": 4823.61,
+      "upper": 5485.77
     },
     {
       "timestamp": "2026-10-29T09:00:00Z",
-      "predicted": 5135.36,
-      "lower": 4863.69,
-      "upper": 5355.87
+      "predicted": 5219.22,
+      "lower": 4889.12,
+      "upper": 5560.28
     },
     {
       "timestamp": "2026-10-29T09:30:00Z",
-      "predicted": 5069.64,
-      "lower": 4766.31,
-      "upper": 5277.94
+      "predicted": 5186.14,
+      "lower": 4858.14,
+      "upper": 5525.04
     },
     {
       "timestamp": "2026-10-29T10:00:00Z",
-      "predicted": 4937.3,
-      "lower": 4645.45,
-      "upper": 5173.63
+      "predicted": 5119.0,
+      "lower": 4795.24,
+      "upper": 5453.51
     },
     {
       "timestamp": "2026-10-29T10:30:00Z",
-      "predicted": 4792.76,
-      "lower": 4559.39,
-      "upper": 5052.59
+      "predicted": 4832.26,
+      "lower": 4526.64,
+      "upper": 5148.03
     },
     {
       "timestamp": "2026-10-29T11:00:00Z",
-      "predicted": 4566.14,
-      "lower": 4353.5,
-      "upper": 4854.19
+      "predicted": 4653.97,
+      "lower": 4359.62,
+      "upper": 4958.09
     },
     {
       "timestamp": "2026-10-29T11:30:00Z",
-      "predicted": 4386.83,
-      "lower": 4145.37,
-      "upper": 4588.96
+      "predicted": 4478.66,
+      "lower": 4195.4,
+      "upper": 4771.32
     }
   ],
   "metrics": {
-    "mae": 14.09,
-    "rmse": 18.28,
-    "mape": 3.54
+    "mae": 103.3,
+    "rmse": 134.49,
+    "mape": 2.66
+  },
+  "hindcast": [
+    {
+      "t": "2026-10-27T11:00:00Z",
+      "v": 4390.08
+    },
+    {
+      "t": "2026-10-27T12:00:00Z",
+      "v": 4037.66
+    },
+    {
+      "t": "2026-10-27T13:00:00Z",
+      "v": 3761.83
+    },
+    {
+      "t": "2026-10-27T14:00:00Z",
+      "v": 3688.72
+    },
+    {
+      "t": "2026-10-27T15:00:00Z",
+      "v": 3830.06
+    },
+    {
+      "t": "2026-10-27T16:00:00Z",
+      "v": 4121.51
+    },
+    {
+      "t": "2026-10-27T17:00:00Z",
+      "v": 4325.37
+    },
+    {
+      "t": "2026-10-27T18:00:00Z",
+      "v": 4243.88
+    },
+    {
+      "t": "2026-10-27T19:00:00Z",
+      "v": 3797.08
+    },
+    {
+      "t": "2026-10-27T20:00:00Z",
+      "v": 3239.39
+    },
+    {
+      "t": "2026-10-27T21:00:00Z",
+      "v": 2406.04
+    },
+    {
+      "t": "2026-10-27T22:00:00Z",
+      "v": 2368.06
+    },
+    {
+      "t": "2026-10-27T23:00:00Z",
+      "v": 2378.79
+    },
+    {
+      "t": "2026-10-28T00:00:00Z",
+      "v": 2409.91
+    },
+    {
+      "t": "2026-10-28T01:00:00Z",
+      "v": 2567.78
+    },
+    {
+      "t": "2026-10-28T02:00:00Z",
+      "v": 2928.24
+    },
+    {
+      "t": "2026-10-28T03:00:00Z",
+      "v": 3617.92
+    },
+    {
+      "t": "2026-10-28T04:00:00Z",
+      "v": 4449.87
+    },
+    {
+      "t": "2026-10-28T05:00:00Z",
+      "v": 4885.78
+    },
+    {
+      "t": "2026-10-28T06:00:00Z",
+      "v": 5018.77
+    },
+    {
+      "t": "2026-10-28T07:00:00Z",
+      "v": 5080.31
+    },
+    {
+      "t": "2026-10-28T08:00:00Z",
+      "v": 5184.62
+    },
+    {
+      "t": "2026-10-28T09:00:00Z",
+      "v": 5180.58
+    },
+    {
+      "t": "2026-10-28T10:00:00Z",
+      "v": 5121.14
+    }
+  ],
+  "hindcastMape": 1.17,
+  "drivers": {
+    "temperatureNow": 33.5,
+    "temperaturePeak": 33.5,
+    "liveCorrection": 1.0,
+    "correctionHours": 16.0,
+    "weatherErrorC": 1.0,
+    "trainedThrough": "2026-10-28T21:00:00Z"
   }
 }

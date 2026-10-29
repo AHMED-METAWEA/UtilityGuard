@@ -34,6 +34,12 @@ ZONE_BASE = {
     "zone-res-n": (500, 20, 0), "zone-res-ne": (460, 17, 0), "zone-res-far": (430, 16, 0),
 }
 
+# Planning service-account counts; verify against the district connection register.
+ZONE_CUSTOMERS = {
+    "zone-gov": 500, "zone-cult": 300, "zone-cbd": 1200, "zone-res-2": 8000,
+    "zone-just": 250, "zone-pres": 200, "zone-res-n": 7000, "zone-res-ne": 6000, "zone-res-far": 5500,
+}
+
 # Which substation powers each zone
 ZONE_SUBSTATION = {
     "zone-res-2": "elec-sub-01", "zone-cbd": "elec-sub-01",

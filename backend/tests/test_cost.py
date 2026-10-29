@@ -33,7 +33,7 @@ def test_water_leak_matches_spec_formula(A):
     names = {x.name for x in rec.explanation.calculations}
     assert {"Water loss", "Cost of delay per hour", "Saving from acting now"} <= names
     keys = {a.key for a in rec.explanation.assumptions}
-    assert {"water_price", "penalty_government", "crew_callout", "parts_pipe", "delay_hours"} <= keys
+    assert {"water_price", "customer_hour_government", "customers_zone_gov", "crew_callout", "parts_pipe", "delay_hours_pipe_burst"} <= keys
 
 
 def test_saving_is_difference_of_both_sides(A):
@@ -48,7 +48,7 @@ def test_sensitivity_plus_minus_20(A):
     water_part = 140 * 8 * (6 - 1)  # water loss over the delay, minus the hour that is lost either way
     assert s[("water_price", -20)] == pytest.approx(base - 0.2 * water_part, abs=1)
     assert s[("water_price", 20)] == pytest.approx(base + 0.2 * water_part, abs=1)
-    assert s[("delay_hours", 20)] > base > s[("delay_hours", -20)]
+    assert s[("delay_hours_pipe_burst", 20)] > base > s[("delay_hours_pipe_burst", -20)]
 
 
 def test_changing_assumption_recomputes_and_is_flagged(A):

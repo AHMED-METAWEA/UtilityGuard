@@ -125,8 +125,9 @@ test('formula view substitutes supplied inputs without calculating or inventing 
   const { keyCalculations, substitutedFormula } = await import('../src/lib/present');
   const record = JSON.parse(await readFile(new URL('../../fixtures/rest/calculation.json', import.meta.url), 'utf8'));
   const calculations = record.explanation.calculations;
-  assert.deepEqual(keyCalculations(calculations).map((c) => c.name), ['Water loss per hour', 'Cost of delay per hour', 'Saving from acting now']);
+  assert.deepEqual(keyCalculations(calculations).map((c) => c.name), ['Water loss', 'Cost of delay per hour', 'Saving from acting now']);
   assert.equal(substitutedFormula(calculations[0]), '140 m3/h × 8 EGP/m3');
-  assert.equal(substitutedFormula(calculations[2]), '3,400 EGP + 15,000 EGP + equipment');
+  assert.equal(substitutedFormula(calculations.find((c: { name: string }) => c.name === 'Repair now')), '3,400 EGP/dispatch + 15,000 EGP/repair');
+  assert.equal(substitutedFormula(calculations[2]), 'ΔE_secondary × 1.6 EGP/kWh');
   assert.equal(calculations[0].result, 1120);
 });

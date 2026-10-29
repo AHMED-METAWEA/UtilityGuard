@@ -12,41 +12,35 @@
     "responseHours": 1.0,
     "actNowLosses": 3820.0,
     "savingRange": {
-      "p10": 25343.0,
-      "p50": 31811.0,
-      "p90": 38747.0,
+      "p10": 24113.44,
+      "p50": 31525.6,
+      "p90": 40208.56,
       "runs": 800
     },
     "breakdown": [
       {
-        "label": "Crew call-out",
-        "amount": 3400.0,
-        "cause": "assumed crew cost"
-      },
-      {
-        "label": "Pipe repair parts",
-        "amount": 15000.0,
-        "cause": "assumed parts cost"
-      },
-      {
         "label": "Water loss",
         "amount": 6720.0,
-        "cause": "140 m3/h × 8 EGP/m3 × 6 h"
+        "cause": "Physical leaked water production cost",
+        "group": "loss:water"
       },
       {
         "label": "Service disruption, zone-gov",
         "amount": 15000.0,
-        "cause": "2,500 EGP/h for a government zone × 6 h"
+        "cause": "Utility notification and customer-support administration in zone-gov",
+        "group": "disruption:zone-gov"
       },
       {
         "label": "Knock-on overdraw in another network",
         "amount": 1200.0,
-        "cause": "0.13 MW extra draw × 1.6 EGP/kWh × 6 h"
+        "cause": "Incremental dependent-network purchased electricity",
+        "group": "secondary:electricity"
       },
       {
-        "label": "Late repair premium",
-        "amount": 12880.0,
-        "cause": "repair grows ×1.7 if delayed"
+        "label": "Repair now",
+        "amount": 31280.0,
+        "cause": "Restoration crew and parts",
+        "group": "repair"
       }
     ],
     "explanation": {
@@ -74,23 +68,110 @@
       ],
       "calculations": [
         {
-          "name": "Water loss per hour",
+          "name": "Water loss",
           "formula": "Q_leak × P_water",
           "inputs": [
             {
               "name": "Q_leak",
               "value": 140.0,
               "unit": "m3/h",
-              "source": "measured"
+              "source": "measured",
+              "basis": "Synthetic twin measurement or baseline history; verify against calibrated SCADA/meter records before operational use."
             },
             {
               "name": "P_water",
               "value": 8.0,
               "unit": "EGP/m3",
-              "source": "assumed"
+              "source": "assumed",
+              "key": "water_price",
+              "basis": "Illustrative marginal treatment and delivery cost, not a verified Egyptian tariff. Verify against the utility's water production cost ledger and supply contract.",
+              "status": "planning"
             }
           ],
           "result": 1120.0,
+          "unit": "EGP/h"
+        },
+        {
+          "name": "Service disruption, zone-gov",
+          "formula": "customers_affected × customer_hour_rate × outage_hours",
+          "inputs": [
+            {
+              "name": "customers_affected",
+              "value": 500.0,
+              "unit": "customers",
+              "source": "assumed",
+              "key": "customers_zone_gov",
+              "basis": "Planning service-account count scaled to the district demand in ZONE_BASE; residential accounts are households, institutional accounts are service connections, not people. Verify against the district occupancy and utility connection registers.",
+              "status": "planning"
+            },
+            {
+              "name": "customer_hour_rate",
+              "value": 5.0,
+              "unit": "EGP/customer-h",
+              "source": "assumed",
+              "key": "customer_hour_government",
+              "basis": "Illustrative government account-hour budget for notification and utility customer support only; excludes customer economic harm covered by VoLL. Verify against the utility support cost ledger and outage notification work orders.",
+              "status": "planning"
+            },
+            {
+              "name": "outage_hours",
+              "value": 1.0,
+              "unit": "h",
+              "source": "rule",
+              "basis": "One outage hour establishes the hourly rate; the delay/response calculations apply the respective total hours once."
+            }
+          ],
+          "result": 2500.0,
+          "unit": "EGP/h"
+        },
+        {
+          "name": "Knock-on overdraw in another network",
+          "formula": "ΔE_secondary × P_kWh",
+          "inputs": [
+            {
+              "name": "ΔE_secondary",
+              "value": 125.0,
+              "unit": "kWh/h",
+              "source": "measured",
+              "basis": "Synthetic extra purchased electricity in a dependent network; excludes unserved energy and primary-network excess consumption."
+            },
+            {
+              "name": "P_kWh",
+              "value": 1.6,
+              "unit": "EGP/kWh",
+              "source": "assumed",
+              "key": "elec_tariff",
+              "basis": "Illustrative purchased-energy rate; Egyptian tariffs cannot be verified offline. Verify against the current electricity supply contract and invoices.",
+              "status": "planning"
+            }
+          ],
+          "result": 200.0,
+          "unit": "EGP/h"
+        },
+        {
+          "name": "Repair now",
+          "formula": "crew_callout + parts_pipe",
+          "inputs": [
+            {
+              "name": "crew_callout",
+              "value": 3400.0,
+              "unit": "EGP/dispatch",
+              "source": "assumed",
+              "key": "crew_callout",
+              "basis": "Budget allowance for transport and emergency labour per dispatch. Verify against crew timesheets and the maintenance contractor rate card.",
+              "status": "planning"
+            },
+            {
+              "name": "parts_pipe",
+              "value": 15000.0,
+              "unit": "EGP/repair",
+              "source": "assumed",
+              "key": "parts_pipe",
+              "basis": "Budget for one district-main joint/section repair. Verify against the pipe bill of quantities and recent supplier quotations.",
+              "status": "planning"
+            }
+          ],
+          "result": 18400.0,
           "unit": "EGP"
         },
         {
@@ -101,80 +182,323 @@
               "name": "C_loss",
               "value": 1120.0,
               "unit": "EGP/h",
-              "source": "rule"
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
             },
             {
               "name": "C_disruption",
               "value": 2500.0,
               "unit": "EGP/h",
-              "source": "assumed"
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
             },
             {
               "name": "C_secondary",
               "value": 200.0,
               "unit": "EGP/h",
-              "source": "rule"
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+            }
+          ],
+          "result": 3820.0,
+          "unit": "EGP/h"
+        },
+        {
+          "name": "Losses until the crew arrives",
+          "formula": "C_delay × response_hours",
+          "inputs": [
+            {
+              "name": "C_delay",
+              "value": 3820.0,
+              "unit": "EGP/h",
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+            },
+            {
+              "name": "response_hours",
+              "value": 1.0,
+              "unit": "h",
+              "source": "assumed",
+              "key": "response_hours",
+              "basis": "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA.",
+              "status": "planning"
             }
           ],
           "result": 3820.0,
           "unit": "EGP"
         },
         {
-          "name": "Repair now",
-          "formula": "crew_callout + parts + equipment",
+          "name": "Cost of acting now",
+          "formula": "C_repair_now + C_delay × response_hours",
           "inputs": [
             {
-              "name": "crew_callout",
-              "value": 3400.0,
+              "name": "C_repair_now",
+              "value": 18400.0,
               "unit": "EGP",
-              "source": "assumed"
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
             },
             {
-              "name": "parts",
-              "value": 15000.0,
-              "unit": "EGP",
-              "source": "assumed"
+              "name": "C_delay",
+              "value": 3820.0,
+              "unit": "EGP/h",
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+            },
+            {
+              "name": "response_hours",
+              "value": 1.0,
+              "unit": "h",
+              "source": "assumed",
+              "key": "response_hours",
+              "basis": "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA.",
+              "status": "planning"
             }
           ],
-          "result": 18400.0,
+          "result": 22220.0,
           "unit": "EGP"
         },
         {
-          "name": "Saving from acting now",
-          "formula": "(C_delay × t_delay + C_repair_late) − (C_repair_now + C_delay × t_response)",
+          "name": "Repair later",
+          "formula": "C_repair_now × late_multiplier_pipe_burst",
+          "inputs": [
+            {
+              "name": "C_repair_now",
+              "value": 18400.0,
+              "unit": "EGP",
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+            },
+            {
+              "name": "late_multiplier_pipe_burst",
+              "value": 1.7,
+              "unit": "×",
+              "source": "assumed",
+              "key": "late_multiplier_pipe_burst",
+              "basis": "Continuing erosion can enlarge excavation and pipe damage; the multiplier is a planning allowance, not an estimated growth law. Verify against matched early and deferred repair work orders.",
+              "status": "planning"
+            }
+          ],
+          "result": 31280.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Cost of delay",
+          "formula": "C_delay × delay_hours_pipe_burst + C_repair_late",
           "inputs": [
             {
               "name": "C_delay",
               "value": 3820.0,
               "unit": "EGP/h",
-              "source": "rule"
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
             },
             {
-              "name": "t_delay",
+              "name": "delay_hours_pipe_burst",
               "value": 6.0,
               "unit": "h",
-              "source": "assumed"
+              "source": "assumed",
+              "key": "delay_hours_pipe_burst",
+              "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+              "status": "planning"
             },
             {
               "name": "C_repair_late",
               "value": 31280.0,
               "unit": "EGP",
-              "source": "rule"
-            },
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+            }
+          ],
+          "result": 54200.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Saving from acting now",
+          "formula": "CostOfDelay − ActNow",
+          "inputs": [
             {
-              "name": "C_repair_now",
-              "value": 18400.0,
+              "name": "CostOfDelay",
+              "value": 54200.0,
               "unit": "EGP",
-              "source": "rule"
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
             },
             {
-              "name": "t_response",
-              "value": 1.0,
-              "unit": "h",
-              "source": "assumed"
+              "name": "ActNow",
+              "value": 22220.0,
+              "unit": "EGP",
+              "source": "rule",
+              "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
             }
           ],
           "result": 31980.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Delayed cost: Water loss",
+          "formula": "(Q_leak × P_water) × duration_hours",
+          "inputs": [
+            {
+              "name": "Q_leak",
+              "value": 140.0,
+              "unit": "m3/h",
+              "source": "measured",
+              "basis": "Synthetic twin measurement or baseline history; verify against calibrated SCADA/meter records before operational use."
+            },
+            {
+              "name": "P_water",
+              "value": 8.0,
+              "unit": "EGP/m3",
+              "source": "assumed",
+              "key": "water_price",
+              "basis": "Illustrative marginal treatment and delivery cost, not a verified Egyptian tariff. Verify against the utility's water production cost ledger and supply contract.",
+              "status": "planning"
+            },
+            {
+              "name": "duration_hours",
+              "value": 6.0,
+              "unit": "h",
+              "source": "assumed",
+              "key": "delay_hours_pipe_burst",
+              "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+              "status": "planning"
+            }
+          ],
+          "result": 6720.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Delayed cost: Service disruption, zone-gov",
+          "formula": "(customers_affected × customer_hour_rate × outage_hours) × duration_hours",
+          "inputs": [
+            {
+              "name": "customers_affected",
+              "value": 500.0,
+              "unit": "customers",
+              "source": "assumed",
+              "key": "customers_zone_gov",
+              "basis": "Planning service-account count scaled to the district demand in ZONE_BASE; residential accounts are households, institutional accounts are service connections, not people. Verify against the district occupancy and utility connection registers.",
+              "status": "planning"
+            },
+            {
+              "name": "customer_hour_rate",
+              "value": 5.0,
+              "unit": "EGP/customer-h",
+              "source": "assumed",
+              "key": "customer_hour_government",
+              "basis": "Illustrative government account-hour budget for notification and utility customer support only; excludes customer economic harm covered by VoLL. Verify against the utility support cost ledger and outage notification work orders.",
+              "status": "planning"
+            },
+            {
+              "name": "outage_hours",
+              "value": 1.0,
+              "unit": "h",
+              "source": "rule",
+              "basis": "One outage hour establishes the hourly rate; the delay/response calculations apply the respective total hours once."
+            },
+            {
+              "name": "duration_hours",
+              "value": 6.0,
+              "unit": "h",
+              "source": "assumed",
+              "key": "delay_hours_pipe_burst",
+              "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+              "status": "planning"
+            }
+          ],
+          "result": 15000.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Delayed cost: Knock-on overdraw in another network",
+          "formula": "(ΔE_secondary × P_kWh) × duration_hours",
+          "inputs": [
+            {
+              "name": "ΔE_secondary",
+              "value": 125.0,
+              "unit": "kWh/h",
+              "source": "measured",
+              "basis": "Synthetic extra purchased electricity in a dependent network; excludes unserved energy and primary-network excess consumption."
+            },
+            {
+              "name": "P_kWh",
+              "value": 1.6,
+              "unit": "EGP/kWh",
+              "source": "assumed",
+              "key": "elec_tariff",
+              "basis": "Illustrative purchased-energy rate; Egyptian tariffs cannot be verified offline. Verify against the current electricity supply contract and invoices.",
+              "status": "planning"
+            },
+            {
+              "name": "duration_hours",
+              "value": 6.0,
+              "unit": "h",
+              "source": "assumed",
+              "key": "delay_hours_pipe_burst",
+              "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+              "status": "planning"
+            }
+          ],
+          "result": 1200.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Delayed cost: Repair now",
+          "formula": "(crew_callout + parts_pipe) × late_multiplier_pipe_burst",
+          "inputs": [
+            {
+              "name": "crew_callout",
+              "value": 3400.0,
+              "unit": "EGP/dispatch",
+              "source": "assumed",
+              "key": "crew_callout",
+              "basis": "Budget allowance for transport and emergency labour per dispatch. Verify against crew timesheets and the maintenance contractor rate card.",
+              "status": "planning"
+            },
+            {
+              "name": "parts_pipe",
+              "value": 15000.0,
+              "unit": "EGP/repair",
+              "source": "assumed",
+              "key": "parts_pipe",
+              "basis": "Budget for one district-main joint/section repair. Verify against the pipe bill of quantities and recent supplier quotations.",
+              "status": "planning"
+            },
+            {
+              "name": "late_multiplier_pipe_burst",
+              "value": 1.7,
+              "unit": "×",
+              "source": "assumed",
+              "key": "late_multiplier_pipe_burst",
+              "basis": "Continuing erosion can enlarge excavation and pipe damage; the multiplier is a planning allowance, not an estimated growth law. Verify against matched early and deferred repair work orders.",
+              "status": "planning"
+            }
+          ],
+          "result": 31280.0,
+          "unit": "EGP"
+        },
+        {
+          "name": "Saving range (800 simulated runs)",
+          "formula": "P10, P50, P90 of Saving; independent uniform assumption draws in registered [low, high], leak estimate ±15%",
+          "inputs": [
+            {
+              "name": "runs",
+              "value": 800.0,
+              "unit": "runs",
+              "source": "rule",
+              "basis": "Fixed reproducible scenario sample count, seeded by incident id."
+            },
+            {
+              "name": "leak_error",
+              "value": 0.15,
+              "unit": "fraction",
+              "source": "assumed",
+              "basis": "Planning ±15% flow-difference error; verify against paired meter calibration certificates.",
+              "status": "planning"
+            }
+          ],
+          "result": 31525.6,
           "unit": "EGP"
         }
       ],
@@ -185,7 +509,38 @@
           "value": 8.0,
           "unit": "EGP/m3",
           "source": "default assumption",
-          "userChanged": false
+          "userChanged": false,
+          "basis": "Illustrative marginal treatment and delivery cost, not a verified Egyptian tariff. Verify against the utility's water production cost ledger and supply contract.",
+          "status": "planning",
+          "low": 6.0,
+          "high": 10.0,
+          "reviewed": "2026-10-29"
+        },
+        {
+          "name": "Service accounts, zone-gov",
+          "key": "customers_zone_gov",
+          "value": 500.0,
+          "unit": "customers",
+          "source": "default assumption",
+          "userChanged": false,
+          "basis": "Planning service-account count scaled to the district demand in ZONE_BASE; residential accounts are households, institutional accounts are service connections, not people. Verify against the district occupancy and utility connection registers.",
+          "status": "planning",
+          "low": 375.0,
+          "high": 625.0,
+          "reviewed": "2026-10-29"
+        },
+        {
+          "name": "Utility outage administration, government",
+          "key": "customer_hour_government",
+          "value": 5.0,
+          "unit": "EGP/customer-h",
+          "source": "default assumption",
+          "userChanged": false,
+          "basis": "Illustrative government account-hour budget for notification and utility customer support only; excludes customer economic harm covered by VoLL. Verify against the utility support cost ledger and outage notification work orders.",
+          "status": "planning",
+          "low": 2.5,
+          "high": 7.5,
+          "reviewed": "2026-10-29"
         },
         {
           "name": "Electricity tariff",
@@ -193,15 +548,12 @@
           "value": 1.6,
           "unit": "EGP/kWh",
           "source": "default assumption",
-          "userChanged": false
-        },
-        {
-          "name": "Cooling energy cost",
-          "key": "cooling_price",
-          "value": 1.5,
-          "unit": "EGP/ton-h",
-          "source": "default assumption",
-          "userChanged": false
+          "userChanged": false,
+          "basis": "Illustrative purchased-energy rate; Egyptian tariffs cannot be verified offline. Verify against the current electricity supply contract and invoices.",
+          "status": "planning",
+          "low": 1.2,
+          "high": 2.0,
+          "reviewed": "2026-10-29"
         },
         {
           "name": "Crew call-out cost",
@@ -209,7 +561,12 @@
           "value": 3400.0,
           "unit": "EGP/dispatch",
           "source": "default assumption",
-          "userChanged": false
+          "userChanged": false,
+          "basis": "Budget allowance for transport and emergency labour per dispatch. Verify against crew timesheets and the maintenance contractor rate card.",
+          "status": "planning",
+          "low": 2500.0,
+          "high": 4300.0,
+          "reviewed": "2026-10-29"
         },
         {
           "name": "Pipe repair parts",
@@ -217,40 +574,189 @@
           "value": 15000.0,
           "unit": "EGP/repair",
           "source": "default assumption",
-          "userChanged": false
+          "userChanged": false,
+          "basis": "Budget for one district-main joint/section repair. Verify against the pipe bill of quantities and recent supplier quotations.",
+          "status": "planning",
+          "low": 10000.0,
+          "high": 20000.0,
+          "reviewed": "2026-10-29"
         },
         {
-          "name": "Disruption penalty, government zone",
-          "key": "penalty_government",
-          "value": 2500.0,
-          "unit": "EGP/h",
-          "source": "default assumption",
-          "userChanged": false
-        },
-        {
-          "name": "Hours until repair if delayed",
-          "key": "delay_hours",
+          "name": "Deferred response horizon, pipe_burst",
+          "key": "delay_hours_pipe_burst",
           "value": 6.0,
           "unit": "h",
           "source": "default assumption",
-          "userChanged": false
+          "userChanged": false,
+          "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+          "status": "planning",
+          "low": 4.5,
+          "high": 7.5,
+          "reviewed": "2026-10-29"
+        },
+        {
+          "name": "Crew response time when sent now",
+          "key": "response_hours",
+          "value": 1.0,
+          "unit": "h",
+          "source": "default assumption",
+          "userChanged": false,
+          "basis": "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA.",
+          "status": "planning",
+          "low": 0.5,
+          "high": 1.5,
+          "reviewed": "2026-10-29"
+        },
+        {
+          "name": "Late repair multiplier, pipe_burst",
+          "key": "late_multiplier_pipe_burst",
+          "value": 1.7,
+          "unit": "×",
+          "source": "default assumption",
+          "userChanged": false,
+          "basis": "Continuing erosion can enlarge excavation and pipe damage; the multiplier is a planning allowance, not an estimated growth law. Verify against matched early and deferred repair work orders.",
+          "status": "planning",
+          "low": 1.5,
+          "high": 1.9,
+          "reviewed": "2026-10-29"
+        },
+        {
+          "name": "Plausible saving min, pipe_burst",
+          "key": "saving_min_pipe_burst",
+          "value": 0.0,
+          "unit": "EGP",
+          "source": "default assumption",
+          "userChanged": false,
+          "basis": "Planning review threshold for a single district incident, not a cap on the computed value. Verify against the asset replacement budget and historical incident-loss register.",
+          "status": "planning",
+          "low": 0.0,
+          "high": 0.0,
+          "reviewed": "2026-10-29"
+        },
+        {
+          "name": "Plausible saving max, pipe_burst",
+          "key": "saving_max_pipe_burst",
+          "value": 2000000.0,
+          "unit": "EGP",
+          "source": "default assumption",
+          "userChanged": false,
+          "basis": "Planning review threshold for a single district incident, not a cap on the computed value. Verify against the asset replacement budget and historical incident-loss register.",
+          "status": "planning",
+          "low": 2000000.0,
+          "high": 2000000.0,
+          "reviewed": "2026-10-29"
         }
       ],
       "sensitivity": [
         {
           "input": "water_price",
           "changePercent": -20.0,
-          "newSaving": 30636.0
+          "newSaving": 30860.0
         },
         {
           "input": "water_price",
           "changePercent": 20.0,
-          "newSaving": 33324.0
+          "newSaving": 33100.0
+        },
+        {
+          "input": "delay_hours_pipe_burst",
+          "changePercent": -20.0,
+          "newSaving": 27396.0
+        },
+        {
+          "input": "delay_hours_pipe_burst",
+          "changePercent": 20.0,
+          "newSaving": 36564.0
+        },
+        {
+          "input": "response_hours",
+          "changePercent": -20.0,
+          "newSaving": 32744.0
+        },
+        {
+          "input": "response_hours",
+          "changePercent": 20.0,
+          "newSaving": 31216.0
+        }
+      ],
+      "tornado": [
+        {
+          "input": "customer_hour_government",
+          "name": "Utility outage administration, government",
+          "low": 2.5,
+          "high": 7.5,
+          "savingAtLow": 25730.0,
+          "savingAtHigh": 38230.0
+        },
+        {
+          "input": "delay_hours_pipe_burst",
+          "name": "Deferred response horizon, pipe_burst",
+          "low": 4.5,
+          "high": 7.5,
+          "savingAtLow": 26250.0,
+          "savingAtHigh": 37710.0
+        },
+        {
+          "input": "late_multiplier_pipe_burst",
+          "name": "Late repair multiplier, pipe_burst",
+          "low": 1.5,
+          "high": 1.9,
+          "savingAtLow": 28300.0,
+          "savingAtHigh": 35660.0
+        },
+        {
+          "input": "parts_pipe",
+          "name": "Pipe repair parts",
+          "low": 10000.0,
+          "high": 20000.0,
+          "savingAtLow": 28480.0,
+          "savingAtHigh": 35480.0
+        },
+        {
+          "input": "customers_zone_gov",
+          "name": "Service accounts, zone-gov",
+          "low": 375.0,
+          "high": 625.0,
+          "savingAtLow": 28855.0,
+          "savingAtHigh": 35105.0
+        },
+        {
+          "input": "response_hours",
+          "name": "Crew response time when sent now",
+          "low": 0.5,
+          "high": 1.5,
+          "savingAtLow": 33890.0,
+          "savingAtHigh": 30070.0
+        },
+        {
+          "input": "water_price",
+          "name": "Water production cost",
+          "low": 6.0,
+          "high": 10.0,
+          "savingAtLow": 30580.0,
+          "savingAtHigh": 33380.0
+        },
+        {
+          "input": "crew_callout",
+          "name": "Crew call-out cost",
+          "low": 2500.0,
+          "high": 4300.0,
+          "savingAtLow": 31350.0,
+          "savingAtHigh": 32610.0
+        },
+        {
+          "input": "elec_tariff",
+          "name": "Electricity tariff",
+          "low": 1.2,
+          "high": 2.0,
+          "savingAtLow": 31730.0,
+          "savingAtHigh": 32230.0
         }
       ],
       "confidence": 0.92,
       "calculationId": "calc-0001"
-    }
+    },
+    "review": false
   },
   "explanation": {
     "reasons": [
@@ -277,23 +783,110 @@
     ],
     "calculations": [
       {
-        "name": "Water loss per hour",
+        "name": "Water loss",
         "formula": "Q_leak × P_water",
         "inputs": [
           {
             "name": "Q_leak",
             "value": 140.0,
             "unit": "m3/h",
-            "source": "measured"
+            "source": "measured",
+            "basis": "Synthetic twin measurement or baseline history; verify against calibrated SCADA/meter records before operational use."
           },
           {
             "name": "P_water",
             "value": 8.0,
             "unit": "EGP/m3",
-            "source": "assumed"
+            "source": "assumed",
+            "key": "water_price",
+            "basis": "Illustrative marginal treatment and delivery cost, not a verified Egyptian tariff. Verify against the utility's water production cost ledger and supply contract.",
+            "status": "planning"
           }
         ],
         "result": 1120.0,
+        "unit": "EGP/h"
+      },
+      {
+        "name": "Service disruption, zone-gov",
+        "formula": "customers_affected × customer_hour_rate × outage_hours",
+        "inputs": [
+          {
+            "name": "customers_affected",
+            "value": 500.0,
+            "unit": "customers",
+            "source": "assumed",
+            "key": "customers_zone_gov",
+            "basis": "Planning service-account count scaled to the district demand in ZONE_BASE; residential accounts are households, institutional accounts are service connections, not people. Verify against the district occupancy and utility connection registers.",
+            "status": "planning"
+          },
+          {
+            "name": "customer_hour_rate",
+            "value": 5.0,
+            "unit": "EGP/customer-h",
+            "source": "assumed",
+            "key": "customer_hour_government",
+            "basis": "Illustrative government account-hour budget for notification and utility customer support only; excludes customer economic harm covered by VoLL. Verify against the utility support cost ledger and outage notification work orders.",
+            "status": "planning"
+          },
+          {
+            "name": "outage_hours",
+            "value": 1.0,
+            "unit": "h",
+            "source": "rule",
+            "basis": "One outage hour establishes the hourly rate; the delay/response calculations apply the respective total hours once."
+          }
+        ],
+        "result": 2500.0,
+        "unit": "EGP/h"
+      },
+      {
+        "name": "Knock-on overdraw in another network",
+        "formula": "ΔE_secondary × P_kWh",
+        "inputs": [
+          {
+            "name": "ΔE_secondary",
+            "value": 125.0,
+            "unit": "kWh/h",
+            "source": "measured",
+            "basis": "Synthetic extra purchased electricity in a dependent network; excludes unserved energy and primary-network excess consumption."
+          },
+          {
+            "name": "P_kWh",
+            "value": 1.6,
+            "unit": "EGP/kWh",
+            "source": "assumed",
+            "key": "elec_tariff",
+            "basis": "Illustrative purchased-energy rate; Egyptian tariffs cannot be verified offline. Verify against the current electricity supply contract and invoices.",
+            "status": "planning"
+          }
+        ],
+        "result": 200.0,
+        "unit": "EGP/h"
+      },
+      {
+        "name": "Repair now",
+        "formula": "crew_callout + parts_pipe",
+        "inputs": [
+          {
+            "name": "crew_callout",
+            "value": 3400.0,
+            "unit": "EGP/dispatch",
+            "source": "assumed",
+            "key": "crew_callout",
+            "basis": "Budget allowance for transport and emergency labour per dispatch. Verify against crew timesheets and the maintenance contractor rate card.",
+            "status": "planning"
+          },
+          {
+            "name": "parts_pipe",
+            "value": 15000.0,
+            "unit": "EGP/repair",
+            "source": "assumed",
+            "key": "parts_pipe",
+            "basis": "Budget for one district-main joint/section repair. Verify against the pipe bill of quantities and recent supplier quotations.",
+            "status": "planning"
+          }
+        ],
+        "result": 18400.0,
         "unit": "EGP"
       },
       {
@@ -304,80 +897,323 @@
             "name": "C_loss",
             "value": 1120.0,
             "unit": "EGP/h",
-            "source": "rule"
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
           },
           {
             "name": "C_disruption",
             "value": 2500.0,
             "unit": "EGP/h",
-            "source": "assumed"
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
           },
           {
             "name": "C_secondary",
             "value": 200.0,
             "unit": "EGP/h",
-            "source": "rule"
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+          }
+        ],
+        "result": 3820.0,
+        "unit": "EGP/h"
+      },
+      {
+        "name": "Losses until the crew arrives",
+        "formula": "C_delay × response_hours",
+        "inputs": [
+          {
+            "name": "C_delay",
+            "value": 3820.0,
+            "unit": "EGP/h",
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+          },
+          {
+            "name": "response_hours",
+            "value": 1.0,
+            "unit": "h",
+            "source": "assumed",
+            "key": "response_hours",
+            "basis": "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA.",
+            "status": "planning"
           }
         ],
         "result": 3820.0,
         "unit": "EGP"
       },
       {
-        "name": "Repair now",
-        "formula": "crew_callout + parts + equipment",
+        "name": "Cost of acting now",
+        "formula": "C_repair_now + C_delay × response_hours",
         "inputs": [
           {
-            "name": "crew_callout",
-            "value": 3400.0,
+            "name": "C_repair_now",
+            "value": 18400.0,
             "unit": "EGP",
-            "source": "assumed"
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
           },
           {
-            "name": "parts",
-            "value": 15000.0,
-            "unit": "EGP",
-            "source": "assumed"
+            "name": "C_delay",
+            "value": 3820.0,
+            "unit": "EGP/h",
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+          },
+          {
+            "name": "response_hours",
+            "value": 1.0,
+            "unit": "h",
+            "source": "assumed",
+            "key": "response_hours",
+            "basis": "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA.",
+            "status": "planning"
           }
         ],
-        "result": 18400.0,
+        "result": 22220.0,
         "unit": "EGP"
       },
       {
-        "name": "Saving from acting now",
-        "formula": "(C_delay × t_delay + C_repair_late) − (C_repair_now + C_delay × t_response)",
+        "name": "Repair later",
+        "formula": "C_repair_now × late_multiplier_pipe_burst",
+        "inputs": [
+          {
+            "name": "C_repair_now",
+            "value": 18400.0,
+            "unit": "EGP",
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+          },
+          {
+            "name": "late_multiplier_pipe_burst",
+            "value": 1.7,
+            "unit": "×",
+            "source": "assumed",
+            "key": "late_multiplier_pipe_burst",
+            "basis": "Continuing erosion can enlarge excavation and pipe damage; the multiplier is a planning allowance, not an estimated growth law. Verify against matched early and deferred repair work orders.",
+            "status": "planning"
+          }
+        ],
+        "result": 31280.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Cost of delay",
+        "formula": "C_delay × delay_hours_pipe_burst + C_repair_late",
         "inputs": [
           {
             "name": "C_delay",
             "value": 3820.0,
             "unit": "EGP/h",
-            "source": "rule"
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
           },
           {
-            "name": "t_delay",
+            "name": "delay_hours_pipe_burst",
             "value": 6.0,
             "unit": "h",
-            "source": "assumed"
+            "source": "assumed",
+            "key": "delay_hours_pipe_burst",
+            "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+            "status": "planning"
           },
           {
             "name": "C_repair_late",
             "value": 31280.0,
             "unit": "EGP",
-            "source": "rule"
-          },
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
+          }
+        ],
+        "result": 54200.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Saving from acting now",
+        "formula": "CostOfDelay − ActNow",
+        "inputs": [
           {
-            "name": "C_repair_now",
-            "value": 18400.0,
+            "name": "CostOfDelay",
+            "value": 54200.0,
             "unit": "EGP",
-            "source": "rule"
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
           },
           {
-            "name": "t_response",
-            "value": 1.0,
-            "unit": "h",
-            "source": "assumed"
+            "name": "ActNow",
+            "value": 22220.0,
+            "unit": "EGP",
+            "source": "rule",
+            "basis": "Derived by the named calculation in this record; see docs/cost-model.md for its equation and units."
           }
         ],
         "result": 31980.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Delayed cost: Water loss",
+        "formula": "(Q_leak × P_water) × duration_hours",
+        "inputs": [
+          {
+            "name": "Q_leak",
+            "value": 140.0,
+            "unit": "m3/h",
+            "source": "measured",
+            "basis": "Synthetic twin measurement or baseline history; verify against calibrated SCADA/meter records before operational use."
+          },
+          {
+            "name": "P_water",
+            "value": 8.0,
+            "unit": "EGP/m3",
+            "source": "assumed",
+            "key": "water_price",
+            "basis": "Illustrative marginal treatment and delivery cost, not a verified Egyptian tariff. Verify against the utility's water production cost ledger and supply contract.",
+            "status": "planning"
+          },
+          {
+            "name": "duration_hours",
+            "value": 6.0,
+            "unit": "h",
+            "source": "assumed",
+            "key": "delay_hours_pipe_burst",
+            "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+            "status": "planning"
+          }
+        ],
+        "result": 6720.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Delayed cost: Service disruption, zone-gov",
+        "formula": "(customers_affected × customer_hour_rate × outage_hours) × duration_hours",
+        "inputs": [
+          {
+            "name": "customers_affected",
+            "value": 500.0,
+            "unit": "customers",
+            "source": "assumed",
+            "key": "customers_zone_gov",
+            "basis": "Planning service-account count scaled to the district demand in ZONE_BASE; residential accounts are households, institutional accounts are service connections, not people. Verify against the district occupancy and utility connection registers.",
+            "status": "planning"
+          },
+          {
+            "name": "customer_hour_rate",
+            "value": 5.0,
+            "unit": "EGP/customer-h",
+            "source": "assumed",
+            "key": "customer_hour_government",
+            "basis": "Illustrative government account-hour budget for notification and utility customer support only; excludes customer economic harm covered by VoLL. Verify against the utility support cost ledger and outage notification work orders.",
+            "status": "planning"
+          },
+          {
+            "name": "outage_hours",
+            "value": 1.0,
+            "unit": "h",
+            "source": "rule",
+            "basis": "One outage hour establishes the hourly rate; the delay/response calculations apply the respective total hours once."
+          },
+          {
+            "name": "duration_hours",
+            "value": 6.0,
+            "unit": "h",
+            "source": "assumed",
+            "key": "delay_hours_pipe_burst",
+            "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+            "status": "planning"
+          }
+        ],
+        "result": 15000.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Delayed cost: Knock-on overdraw in another network",
+        "formula": "(ΔE_secondary × P_kWh) × duration_hours",
+        "inputs": [
+          {
+            "name": "ΔE_secondary",
+            "value": 125.0,
+            "unit": "kWh/h",
+            "source": "measured",
+            "basis": "Synthetic extra purchased electricity in a dependent network; excludes unserved energy and primary-network excess consumption."
+          },
+          {
+            "name": "P_kWh",
+            "value": 1.6,
+            "unit": "EGP/kWh",
+            "source": "assumed",
+            "key": "elec_tariff",
+            "basis": "Illustrative purchased-energy rate; Egyptian tariffs cannot be verified offline. Verify against the current electricity supply contract and invoices.",
+            "status": "planning"
+          },
+          {
+            "name": "duration_hours",
+            "value": 6.0,
+            "unit": "h",
+            "source": "assumed",
+            "key": "delay_hours_pipe_burst",
+            "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+            "status": "planning"
+          }
+        ],
+        "result": 1200.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Delayed cost: Repair now",
+        "formula": "(crew_callout + parts_pipe) × late_multiplier_pipe_burst",
+        "inputs": [
+          {
+            "name": "crew_callout",
+            "value": 3400.0,
+            "unit": "EGP/dispatch",
+            "source": "assumed",
+            "key": "crew_callout",
+            "basis": "Budget allowance for transport and emergency labour per dispatch. Verify against crew timesheets and the maintenance contractor rate card.",
+            "status": "planning"
+          },
+          {
+            "name": "parts_pipe",
+            "value": 15000.0,
+            "unit": "EGP/repair",
+            "source": "assumed",
+            "key": "parts_pipe",
+            "basis": "Budget for one district-main joint/section repair. Verify against the pipe bill of quantities and recent supplier quotations.",
+            "status": "planning"
+          },
+          {
+            "name": "late_multiplier_pipe_burst",
+            "value": 1.7,
+            "unit": "×",
+            "source": "assumed",
+            "key": "late_multiplier_pipe_burst",
+            "basis": "Continuing erosion can enlarge excavation and pipe damage; the multiplier is a planning allowance, not an estimated growth law. Verify against matched early and deferred repair work orders.",
+            "status": "planning"
+          }
+        ],
+        "result": 31280.0,
+        "unit": "EGP"
+      },
+      {
+        "name": "Saving range (800 simulated runs)",
+        "formula": "P10, P50, P90 of Saving; independent uniform assumption draws in registered [low, high], leak estimate ±15%",
+        "inputs": [
+          {
+            "name": "runs",
+            "value": 800.0,
+            "unit": "runs",
+            "source": "rule",
+            "basis": "Fixed reproducible scenario sample count, seeded by incident id."
+          },
+          {
+            "name": "leak_error",
+            "value": 0.15,
+            "unit": "fraction",
+            "source": "assumed",
+            "basis": "Planning ±15% flow-difference error; verify against paired meter calibration certificates.",
+            "status": "planning"
+          }
+        ],
+        "result": 31525.6,
         "unit": "EGP"
       }
     ],
@@ -388,7 +1224,38 @@
         "value": 8.0,
         "unit": "EGP/m3",
         "source": "default assumption",
-        "userChanged": false
+        "userChanged": false,
+        "basis": "Illustrative marginal treatment and delivery cost, not a verified Egyptian tariff. Verify against the utility's water production cost ledger and supply contract.",
+        "status": "planning",
+        "low": 6.0,
+        "high": 10.0,
+        "reviewed": "2026-10-29"
+      },
+      {
+        "name": "Service accounts, zone-gov",
+        "key": "customers_zone_gov",
+        "value": 500.0,
+        "unit": "customers",
+        "source": "default assumption",
+        "userChanged": false,
+        "basis": "Planning service-account count scaled to the district demand in ZONE_BASE; residential accounts are households, institutional accounts are service connections, not people. Verify against the district occupancy and utility connection registers.",
+        "status": "planning",
+        "low": 375.0,
+        "high": 625.0,
+        "reviewed": "2026-10-29"
+      },
+      {
+        "name": "Utility outage administration, government",
+        "key": "customer_hour_government",
+        "value": 5.0,
+        "unit": "EGP/customer-h",
+        "source": "default assumption",
+        "userChanged": false,
+        "basis": "Illustrative government account-hour budget for notification and utility customer support only; excludes customer economic harm covered by VoLL. Verify against the utility support cost ledger and outage notification work orders.",
+        "status": "planning",
+        "low": 2.5,
+        "high": 7.5,
+        "reviewed": "2026-10-29"
       },
       {
         "name": "Electricity tariff",
@@ -396,15 +1263,12 @@
         "value": 1.6,
         "unit": "EGP/kWh",
         "source": "default assumption",
-        "userChanged": false
-      },
-      {
-        "name": "Cooling energy cost",
-        "key": "cooling_price",
-        "value": 1.5,
-        "unit": "EGP/ton-h",
-        "source": "default assumption",
-        "userChanged": false
+        "userChanged": false,
+        "basis": "Illustrative purchased-energy rate; Egyptian tariffs cannot be verified offline. Verify against the current electricity supply contract and invoices.",
+        "status": "planning",
+        "low": 1.2,
+        "high": 2.0,
+        "reviewed": "2026-10-29"
       },
       {
         "name": "Crew call-out cost",
@@ -412,7 +1276,12 @@
         "value": 3400.0,
         "unit": "EGP/dispatch",
         "source": "default assumption",
-        "userChanged": false
+        "userChanged": false,
+        "basis": "Budget allowance for transport and emergency labour per dispatch. Verify against crew timesheets and the maintenance contractor rate card.",
+        "status": "planning",
+        "low": 2500.0,
+        "high": 4300.0,
+        "reviewed": "2026-10-29"
       },
       {
         "name": "Pipe repair parts",
@@ -420,35 +1289,183 @@
         "value": 15000.0,
         "unit": "EGP/repair",
         "source": "default assumption",
-        "userChanged": false
+        "userChanged": false,
+        "basis": "Budget for one district-main joint/section repair. Verify against the pipe bill of quantities and recent supplier quotations.",
+        "status": "planning",
+        "low": 10000.0,
+        "high": 20000.0,
+        "reviewed": "2026-10-29"
       },
       {
-        "name": "Disruption penalty, government zone",
-        "key": "penalty_government",
-        "value": 2500.0,
-        "unit": "EGP/h",
-        "source": "default assumption",
-        "userChanged": false
-      },
-      {
-        "name": "Hours until repair if delayed",
-        "key": "delay_hours",
+        "name": "Deferred response horizon, pipe_burst",
+        "key": "delay_hours_pipe_burst",
         "value": 6.0,
         "unit": "h",
         "source": "default assumption",
-        "userChanged": false
+        "userChanged": false,
+        "basis": "Continuing erosion can enlarge excavation and pipe damage; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+        "status": "planning",
+        "low": 4.5,
+        "high": 7.5,
+        "reviewed": "2026-10-29"
+      },
+      {
+        "name": "Crew response time when sent now",
+        "key": "response_hours",
+        "value": 1.0,
+        "unit": "h",
+        "source": "default assumption",
+        "userChanged": false,
+        "basis": "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA.",
+        "status": "planning",
+        "low": 0.5,
+        "high": 1.5,
+        "reviewed": "2026-10-29"
+      },
+      {
+        "name": "Late repair multiplier, pipe_burst",
+        "key": "late_multiplier_pipe_burst",
+        "value": 1.7,
+        "unit": "×",
+        "source": "default assumption",
+        "userChanged": false,
+        "basis": "Continuing erosion can enlarge excavation and pipe damage; the multiplier is a planning allowance, not an estimated growth law. Verify against matched early and deferred repair work orders.",
+        "status": "planning",
+        "low": 1.5,
+        "high": 1.9,
+        "reviewed": "2026-10-29"
+      },
+      {
+        "name": "Plausible saving min, pipe_burst",
+        "key": "saving_min_pipe_burst",
+        "value": 0.0,
+        "unit": "EGP",
+        "source": "default assumption",
+        "userChanged": false,
+        "basis": "Planning review threshold for a single district incident, not a cap on the computed value. Verify against the asset replacement budget and historical incident-loss register.",
+        "status": "planning",
+        "low": 0.0,
+        "high": 0.0,
+        "reviewed": "2026-10-29"
+      },
+      {
+        "name": "Plausible saving max, pipe_burst",
+        "key": "saving_max_pipe_burst",
+        "value": 2000000.0,
+        "unit": "EGP",
+        "source": "default assumption",
+        "userChanged": false,
+        "basis": "Planning review threshold for a single district incident, not a cap on the computed value. Verify against the asset replacement budget and historical incident-loss register.",
+        "status": "planning",
+        "low": 2000000.0,
+        "high": 2000000.0,
+        "reviewed": "2026-10-29"
       }
     ],
     "sensitivity": [
       {
         "input": "water_price",
         "changePercent": -20.0,
-        "newSaving": 30636.0
+        "newSaving": 30860.0
       },
       {
         "input": "water_price",
         "changePercent": 20.0,
-        "newSaving": 33324.0
+        "newSaving": 33100.0
+      },
+      {
+        "input": "delay_hours_pipe_burst",
+        "changePercent": -20.0,
+        "newSaving": 27396.0
+      },
+      {
+        "input": "delay_hours_pipe_burst",
+        "changePercent": 20.0,
+        "newSaving": 36564.0
+      },
+      {
+        "input": "response_hours",
+        "changePercent": -20.0,
+        "newSaving": 32744.0
+      },
+      {
+        "input": "response_hours",
+        "changePercent": 20.0,
+        "newSaving": 31216.0
+      }
+    ],
+    "tornado": [
+      {
+        "input": "customer_hour_government",
+        "name": "Utility outage administration, government",
+        "low": 2.5,
+        "high": 7.5,
+        "savingAtLow": 25730.0,
+        "savingAtHigh": 38230.0
+      },
+      {
+        "input": "delay_hours_pipe_burst",
+        "name": "Deferred response horizon, pipe_burst",
+        "low": 4.5,
+        "high": 7.5,
+        "savingAtLow": 26250.0,
+        "savingAtHigh": 37710.0
+      },
+      {
+        "input": "late_multiplier_pipe_burst",
+        "name": "Late repair multiplier, pipe_burst",
+        "low": 1.5,
+        "high": 1.9,
+        "savingAtLow": 28300.0,
+        "savingAtHigh": 35660.0
+      },
+      {
+        "input": "parts_pipe",
+        "name": "Pipe repair parts",
+        "low": 10000.0,
+        "high": 20000.0,
+        "savingAtLow": 28480.0,
+        "savingAtHigh": 35480.0
+      },
+      {
+        "input": "customers_zone_gov",
+        "name": "Service accounts, zone-gov",
+        "low": 375.0,
+        "high": 625.0,
+        "savingAtLow": 28855.0,
+        "savingAtHigh": 35105.0
+      },
+      {
+        "input": "response_hours",
+        "name": "Crew response time when sent now",
+        "low": 0.5,
+        "high": 1.5,
+        "savingAtLow": 33890.0,
+        "savingAtHigh": 30070.0
+      },
+      {
+        "input": "water_price",
+        "name": "Water production cost",
+        "low": 6.0,
+        "high": 10.0,
+        "savingAtLow": 30580.0,
+        "savingAtHigh": 33380.0
+      },
+      {
+        "input": "crew_callout",
+        "name": "Crew call-out cost",
+        "low": 2500.0,
+        "high": 4300.0,
+        "savingAtLow": 31350.0,
+        "savingAtHigh": 32610.0
+      },
+      {
+        "input": "elec_tariff",
+        "name": "Electricity tariff",
+        "low": 1.2,
+        "high": 2.0,
+        "savingAtLow": 31730.0,
+        "savingAtHigh": 32230.0
       }
     ],
     "confidence": 0.92,

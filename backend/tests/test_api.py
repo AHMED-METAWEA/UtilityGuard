@@ -121,6 +121,10 @@ def test_extras_validate():
             S.DriftIndicator.model_validate(d)
         cmp = S.Compare.model_validate(c.get("/api/v1/compare?scenarioId=scn-pipe-burst").json())
         assert cmp.saving > 0 and cmp.with_intervention.total_cost < cmp.without_intervention.total_cost
+        calculations = {x.name: x.result for x in cmp.explanation.calculations}
+        assert cmp.with_intervention.total_cost == calculations["Cost of acting now"]
+        assert cmp.without_intervention.total_cost == calculations["Cost of delay"]
+        assert cmp.saving == calculations["Saving from acting now"]
         assert c.get("/api/v1/incidents/inc-9999/report").status_code == 404
 
 

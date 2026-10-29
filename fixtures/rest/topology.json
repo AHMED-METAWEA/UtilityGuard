@@ -1790,8 +1790,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.42,
-        "max": 4.97
+        "min": 4.47,
+        "max": 4.92
       },
       "position": {
         "lat": 30.018,
@@ -1865,8 +1865,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.49,
-        "max": 5.09
+        "min": 4.48,
+        "max": 4.92
       },
       "position": {
         "lat": 30.015,
@@ -1925,8 +1925,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.01,
-        "max": 4.56
+        "min": 4.07,
+        "max": 4.5
       },
       "position": {
         "lat": 30.018,
@@ -1941,7 +1941,7 @@
       "unit": "bar",
       "normalRange": {
         "min": 4.47,
-        "max": 4.94
+        "max": 4.92
       },
       "position": {
         "lat": 30.01525,
@@ -2000,8 +2000,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 3.99,
-        "max": 4.41
+        "min": 4.09,
+        "max": 4.52
       },
       "position": {
         "lat": 30.015,
@@ -2015,8 +2015,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.5,
-        "max": 4.96
+        "min": 4.47,
+        "max": 4.92
       },
       "position": {
         "lat": 30.0235,
@@ -2075,8 +2075,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.02,
-        "max": 4.44
+        "min": 4.12,
+        "max": 4.54
       },
       "position": {
         "lat": 30.01525,
@@ -2090,8 +2090,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.55,
-        "max": 5.12
+        "min": 4.47,
+        "max": 4.92
       },
       "position": {
         "lat": 30.0105,
@@ -2150,8 +2150,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.07,
-        "max": 4.6
+        "min": 4.13,
+        "max": 4.55
       },
       "position": {
         "lat": 30.0105,
@@ -2165,8 +2165,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.49,
-        "max": 5.08
+        "min": 4.48,
+        "max": 4.92
       },
       "position": {
         "lat": 30.03425,
@@ -2225,8 +2225,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.01,
-        "max": 4.57
+        "min": 4.06,
+        "max": 4.52
       },
       "position": {
         "lat": 30.03425,
@@ -2240,8 +2240,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.51,
-        "max": 4.96
+        "min": 4.48,
+        "max": 4.93
       },
       "position": {
         "lat": 30.04,
@@ -2300,8 +2300,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.03,
-        "max": 4.44
+        "min": 4.12,
+        "max": 4.54
       },
       "position": {
         "lat": 30.04,
@@ -2316,7 +2316,7 @@
       "unit": "bar",
       "normalRange": {
         "min": 4.47,
-        "max": 4.95
+        "max": 4.93
       },
       "position": {
         "lat": 30.04,
@@ -2375,8 +2375,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.01,
-        "max": 4.43
+        "min": 4.1,
+        "max": 4.53
       },
       "position": {
         "lat": 30.04,
@@ -2390,8 +2390,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.51,
-        "max": 4.97
+        "min": 4.47,
+        "max": 4.93
       },
       "position": {
         "lat": 30.057,
@@ -2450,8 +2450,8 @@
       "kind": "pressure",
       "unit": "bar",
       "normalRange": {
-        "min": 4.03,
-        "max": 4.44
+        "min": 4.12,
+        "max": 4.55
       },
       "position": {
         "lat": 30.057,

@@ -1,0 +1,234 @@
+{
+  "network": "water",
+  "unit": "m3/h",
+  "trainDays": 65,
+  "testDays": 10,
+  "points": 480,
+  "trainedThrough": "2026-10-28T21:00:00Z",
+  "weatherErrorC": 1.0,
+  "model": {
+    "mae": 103.299,
+    "rmse": 134.487,
+    "mape": 2.657,
+    "bias": -1.238
+  },
+  "baselines": [
+    {
+      "name": "Same hour yesterday",
+      "mae": 348.699,
+      "mape": 9.165
+    },
+    {
+      "name": "Same hour last week",
+      "mae": 207.263,
+      "mape": 5.627
+    },
+    {
+      "name": "Average of both",
+      "mae": 266.852,
+      "mape": 7.073
+    }
+  ],
+  "skill": 0.502,
+  "coverage": 0.975,
+  "nominal": 0.8,
+  "byHour": [
+    {
+      "hour": 0,
+      "mape": 2.26
+    },
+    {
+      "hour": 1,
+      "mape": 2.12
+    },
+    {
+      "hour": 2,
+      "mape": 2.11
+    },
+    {
+      "hour": 3,
+      "mape": 2.44
+    },
+    {
+      "hour": 4,
+      "mape": 2.45
+    },
+    {
+      "hour": 5,
+      "mape": 3.28
+    },
+    {
+      "hour": 6,
+      "mape": 2.64
+    },
+    {
+      "hour": 7,
+      "mape": 2.72
+    },
+    {
+      "hour": 8,
+      "mape": 2.43
+    },
+    {
+      "hour": 9,
+      "mape": 2.67
+    },
+    {
+      "hour": 10,
+      "mape": 2.77
+    },
+    {
+      "hour": 11,
+      "mape": 2.62
+    },
+    {
+      "hour": 12,
+      "mape": 2.38
+    },
+    {
+      "hour": 13,
+      "mape": 2.93
+    },
+    {
+      "hour": 14,
+      "mape": 3.19
+    },
+    {
+      "hour": 15,
+      "mape": 2.84
+    },
+    {
+      "hour": 16,
+      "mape": 2.81
+    },
+    {
+      "hour": 17,
+      "mape": 2.55
+    },
+    {
+      "hour": 18,
+      "mape": 2.89
+    },
+    {
+      "hour": 19,
+      "mape": 2.14
+    },
+    {
+      "hour": 20,
+      "mape": 2.36
+    },
+    {
+      "hour": 21,
+      "mape": 2.08
+    },
+    {
+      "hour": 22,
+      "mape": 3.66
+    },
+    {
+      "hour": 23,
+      "mape": 3.44
+    }
+  ],
+  "scenario": {
+    "days": 4,
+    "mape": 4.03,
+    "mapeBlind": 11.94
+  },
+  "liveCorrection": {
+    "tauHours": 16.0,
+    "maeWithout": 111.47,
+    "maeWith": 87.978
+  },
+  "zones": [
+    {
+      "zoneId": "zone-cbd",
+      "name": "Central Business District",
+      "mae": 19.881,
+      "rmse": 28.61,
+      "mape": 3.79
+    },
+    {
+      "zoneId": "zone-cult",
+      "name": "Arts and Culture City",
+      "mae": 11.929,
+      "rmse": 15.344,
+      "mape": 2.78
+    },
+    {
+      "zoneId": "zone-gov",
+      "name": "Government District",
+      "mae": 15.539,
+      "rmse": 21.883,
+      "mape": 3.43
+    },
+    {
+      "zoneId": "zone-just",
+      "name": "Justice City",
+      "mae": 9.289,
+      "rmse": 13.229,
+      "mape": 3.44
+    },
+    {
+      "zoneId": "zone-pres",
+      "name": "Presidential District",
+      "mae": 9.296,
+      "rmse": 13.484,
+      "mape": 3.52
+    },
+    {
+      "zoneId": "zone-res-2",
+      "name": "Residential R2",
+      "mae": 18.741,
+      "rmse": 25.623,
+      "mape": 3.42
+    },
+    {
+      "zoneId": "zone-res-far",
+      "name": "Residential Far North-East",
+      "mae": 14.262,
+      "rmse": 19.618,
+      "mape": 3.39
+    },
+    {
+      "zoneId": "zone-res-n",
+      "name": "Residential North",
+      "mae": 16.398,
+      "rmse": 23.037,
+      "mape": 3.36
+    },
+    {
+      "zoneId": "zone-res-ne",
+      "name": "Residential North-East",
+      "mae": 14.938,
+      "rmse": 20.363,
+      "mape": 3.34
+    }
+  ],
+  "importances": [
+    {
+      "feature": "same_hour_last_week",
+      "importance": 0.689
+    },
+    {
+      "feature": "holiday",
+      "importance": 0.125
+    },
+    {
+      "feature": "zone_type",
+      "importance": 0.096
+    },
+    {
+      "feature": "hour_of_day",
+      "importance": 0.034
+    },
+    {
+      "feature": "zone_size",
+      "importance": 0.026
+    },
+    {
+      "feature": "same_hour_yesterday",
+      "importance": 0.024
+    }
+  ]
+}
