@@ -24,11 +24,19 @@
     },
     "cost": {
       "currency": "EGP",
-      "actNow": 18400.0,
+      "actNow": 22220.0,
       "delayPerHour": 3820.0,
-      "expectedSaving": 36020.0,
+      "expectedSaving": 31980.0,
       "delayHours": 6.0,
-      "costOfDelay": 54420.0,
+      "costOfDelay": 54200.0,
+      "responseHours": 1.0,
+      "actNowLosses": 3820.0,
+      "savingRange": {
+        "p10": 25343.0,
+        "p50": 31811.0,
+        "p90": 38747.0,
+        "runs": 800
+      },
       "breakdown": [
         {
           "label": "Crew call-out",
@@ -43,22 +51,22 @@
         {
           "label": "Water loss",
           "amount": 6720.0,
-          "cause": "140 m3/h × 6 h × 8 EGP"
+          "cause": "140 m3/h × 8 EGP/m3 × 6 h"
         },
         {
-          "label": "Service disruption",
+          "label": "Service disruption, zone-gov",
           "amount": 15000.0,
-          "cause": "2,500 EGP/h × 6 h"
+          "cause": "2,500 EGP/h for a government zone × 6 h"
         },
         {
-          "label": "Secondary effects",
+          "label": "Knock-on overdraw in another network",
           "amount": 1200.0,
-          "cause": "pump overdraw 200 EGP/h × 6 h"
+          "cause": "0.13 MW extra draw × 1.6 EGP/kWh × 6 h"
         },
         {
-          "label": "Late repair",
-          "amount": 31500.0,
-          "cause": "grown burst repair cost"
+          "label": "Late repair premium",
+          "amount": 12880.0,
+          "cause": "repair grows ×1.7 if delayed"
         }
       ],
       "explanation": {
@@ -153,7 +161,7 @@
           },
           {
             "name": "Saving from acting now",
-            "formula": "(C_delay × t_delay + C_repair_late) − C_repair_now",
+            "formula": "(C_delay × t_delay + C_repair_late) − (C_repair_now + C_delay × t_response)",
             "inputs": [
               {
                 "name": "C_delay",
@@ -169,7 +177,7 @@
               },
               {
                 "name": "C_repair_late",
-                "value": 31500.0,
+                "value": 31280.0,
                 "unit": "EGP",
                 "source": "rule"
               },
@@ -178,9 +186,15 @@
                 "value": 18400.0,
                 "unit": "EGP",
                 "source": "rule"
+              },
+              {
+                "name": "t_response",
+                "value": 1.0,
+                "unit": "h",
+                "source": "assumed"
               }
             ],
-            "result": 36020.0,
+            "result": 31980.0,
             "unit": "EGP"
           }
         ],
@@ -204,7 +218,7 @@
           {
             "name": "Cooling energy cost",
             "key": "cooling_price",
-            "value": 2.2,
+            "value": 1.5,
             "unit": "EGP/ton-h",
             "source": "default assumption",
             "userChanged": false
@@ -246,12 +260,12 @@
           {
             "input": "water_price",
             "changePercent": -20.0,
-            "newSaving": 34676.0
+            "newSaving": 30636.0
           },
           {
             "input": "water_price",
             "changePercent": 20.0,
-            "newSaving": 37364.0
+            "newSaving": 33324.0
           }
         ],
         "confidence": 0.92,
@@ -357,7 +371,7 @@
         },
         {
           "name": "Saving from acting now",
-          "formula": "(C_delay × t_delay + C_repair_late) − C_repair_now",
+          "formula": "(C_delay × t_delay + C_repair_late) − (C_repair_now + C_delay × t_response)",
           "inputs": [
             {
               "name": "C_delay",
@@ -373,7 +387,7 @@
             },
             {
               "name": "C_repair_late",
-              "value": 31500.0,
+              "value": 31280.0,
               "unit": "EGP",
               "source": "rule"
             },
@@ -382,9 +396,15 @@
               "value": 18400.0,
               "unit": "EGP",
               "source": "rule"
+            },
+            {
+              "name": "t_response",
+              "value": 1.0,
+              "unit": "h",
+              "source": "assumed"
             }
           ],
-          "result": 36020.0,
+          "result": 31980.0,
           "unit": "EGP"
         }
       ],
@@ -408,7 +428,7 @@
         {
           "name": "Cooling energy cost",
           "key": "cooling_price",
-          "value": 2.2,
+          "value": 1.5,
           "unit": "EGP/ton-h",
           "source": "default assumption",
           "userChanged": false
@@ -450,12 +470,12 @@
         {
           "input": "water_price",
           "changePercent": -20.0,
-          "newSaving": 34676.0
+          "newSaving": 30636.0
         },
         {
           "input": "water_price",
           "changePercent": 20.0,
-          "newSaving": 37364.0
+          "newSaving": 33324.0
         }
       ],
       "confidence": 0.92,

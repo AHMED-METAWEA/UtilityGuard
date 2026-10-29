@@ -98,6 +98,18 @@ The fixtures folder is the exact reference for these shapes, and the backend Pyd
 - GET /api/v1/findings lists agent findings. PUT /api/v1/assumptions takes a `{key: value}` map and returns `{assumptions, recomputed}`; recomputed findings are re-sent over the WS with the same id.
 - The demo sequence is in fixtures/sequence/burst.json, as an array of `{delayMs, message}`.
 
+### 4.10 Dashboard and savings endpoints (added in the redesign)
+
+All numbers are computed by the backend. Fixtures: fixtures/rest/{kpis,savings,series_demand,series_substations,series_cooling_efficiency}.json.
+
+- GET /api/v1/kpis returns a list of `{id, label, value, unit, digits, target, better (lower|higher), delta, series [{t, v}], note, formula, network}`. `delta` is the change versus the same hour yesterday. KPI ids: nrw, water_production, electric_load, cooling_efficiency, districts_served, savings_available.
+- GET /api/v1/series/demand?network=water&zoneId=all&hours=24 returns `{network, zoneId, unit, now, actual [{t, v}], forecast [{timestamp, predicted, lower, upper}], metrics {mae, rmse, mape}}`. `zoneId=all` sums the zones.
+- GET /api/v1/series/substations returns `{unit, capacity, lines [{id, name, points [{t, v}]}]}`, 24 h of load per substation.
+- GET /api/v1/series/cooling-efficiency?days=30 returns `{unit, target, days [{date, value, ambientMax}]}`, kW per ton of cooling per day.
+- GET /api/v1/savings returns `{generatedAt, totalMonthly, totalInvestment, totalRange {p10, p50, p90, runs}, opportunities [...]}`. An opportunity is `{id, title, network, where, summary, monthlySaving, savingRange, investment, paybackDays, formula (values filled in), inputs, reasons, assumptions, confidence, status}`. It is recomputed when PUT /assumptions changes a price.
+- Cost object changes: `actNow` is now the repair cost plus the losses until the crew arrives (`actNowLosses`, `responseHours`), so `expectedSaving = costOfDelay − actNow`. New field `savingRange {p10, p50, p90, runs}` comes from a seeded Monte Carlo over the assumptions (each ±20%) and the leak estimate (±15%).
+- Assumptions added: response_hours, setback_reduction, setback_invest, pm_target_pressure, pm_n1, pm_invest, reset_delta_c, reset_pct_per_c, reset_invest, clean_invest, planned_factor.
+
 ## 5. Scenario Control
 
 - GET /api/v1/scenarios lists available scenarios with id, name, description, network, and parameters (for example severity and target asset).

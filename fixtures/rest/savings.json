@@ -1,0 +1,325 @@
+{
+  "generatedAt": "2026-10-29T10:39:34.093447Z",
+  "totalMonthly": 2079324.0,
+  "totalInvestment": 425000.0,
+  "totalRange": {
+    "p10": 1764332.0,
+    "p50": 2065382.0,
+    "p90": 2418543.0,
+    "runs": 600
+  },
+  "opportunities": [
+    {
+      "id": "opp-setback",
+      "title": "After-hours cooling setback, government buildings",
+      "network": "cooling",
+      "where": "Government, Presidential and Justice districts",
+      "summary": "Ministries run at office hours only, but cooling is delivered at the daytime setpoint all night and on Friday and Saturday. Raising the setpoint while the buildings are empty cuts that cooling.",
+      "monthlySaving": 1344819.0,
+      "savingRange": {
+        "p10": 1052423.0,
+        "p50": 1322793.0,
+        "p90": 1643792.0,
+        "runs": 600
+      },
+      "investment": 25000.0,
+      "paybackDays": 0.6,
+      "formula": "2,561,560 ton-h × 35% × 1.5 EGP/ton-h = 1,344,819 EGP/month",
+      "inputs": [
+        {
+          "name": "E_offhours",
+          "value": 2561559.8755,
+          "unit": "ton-h/month",
+          "source": "measured"
+        }
+      ],
+      "reasons": [
+        {
+          "text": "2,561,560 ton-h of cooling a month is delivered outside office hours to the government zones (63% of their cooling).",
+          "evidenceType": "measured",
+          "evidenceRef": "twin:demand:cooling"
+        },
+        {
+          "text": "Government buildings are used Sunday to Thursday, 08:00 to 16:00. Friday, Saturday and nights are off-hours.",
+          "evidenceType": "rule",
+          "evidenceRef": "rule:office-hours"
+        },
+        {
+          "text": "A setback cuts the off-hours cooling by 35%. This is an assumption you can change.",
+          "evidenceType": "assumed",
+          "evidenceRef": "assumption:setback_reduction"
+        }
+      ],
+      "assumptions": [
+        {
+          "name": "Off-hours cooling cut by a setback",
+          "key": "setback_reduction",
+          "value": 0.35,
+          "unit": "fraction",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Cooling energy cost",
+          "key": "cooling_price",
+          "value": 1.5,
+          "unit": "EGP/ton-h",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Setback commissioning in the building systems",
+          "key": "setback_invest",
+          "value": 25000.0,
+          "unit": "EGP",
+          "source": "default assumption",
+          "userChanged": false
+        }
+      ],
+      "confidence": 0.82,
+      "status": "recommended"
+    },
+    {
+      "id": "opp-clean-cool-plant-01",
+      "title": "Condenser cleaning at DCP-01",
+      "network": "cooling",
+      "where": "DCP-01",
+      "summary": "DCP-01 uses more electricity per ton of cooling than the other plant. Fouled condensers are the usual cause, and cleaning restores the efficiency.",
+      "monthlySaving": 397678.0,
+      "savingRange": {
+        "p10": 333094.0,
+        "p50": 395775.0,
+        "p90": 458492.0,
+        "runs": 600
+      },
+      "investment": 250000.0,
+      "paybackDays": 18.9,
+      "formula": "(0.819 − 0.757) kW/TR × 4,060,902 TR-h × 1.6 EGP/kWh = 397,678 EGP/month",
+      "inputs": [
+        {
+          "name": "kW_per_TR_worst",
+          "value": 0.8185,
+          "unit": "kW/TR",
+          "source": "measured"
+        },
+        {
+          "name": "kW_per_TR_best",
+          "value": 0.7573,
+          "unit": "kW/TR",
+          "source": "measured"
+        },
+        {
+          "name": "TR_hours",
+          "value": 4060901.7875,
+          "unit": "TR-h/month",
+          "source": "measured"
+        }
+      ],
+      "reasons": [
+        {
+          "text": "DCP-01 runs at 0.819 kW/TR against 0.757 at the better plant.",
+          "evidenceType": "measured",
+          "evidenceRef": "twin:plant-efficiency"
+        },
+        {
+          "text": "It delivers 4,060,902 TR-h a month, so the gap costs real energy.",
+          "evidenceType": "measured",
+          "evidenceRef": "twin:plant-delivered"
+        },
+        {
+          "text": "The better plant is the clean reference. Load mix differences are not corrected for.",
+          "evidenceType": "rule",
+          "evidenceRef": "rule:reference-plant"
+        }
+      ],
+      "assumptions": [
+        {
+          "name": "Electricity tariff",
+          "key": "elec_tariff",
+          "value": 1.6,
+          "unit": "EGP/kWh",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Condenser cleaning, per plant",
+          "key": "clean_invest",
+          "value": 250000.0,
+          "unit": "EGP",
+          "source": "default assumption",
+          "userChanged": false
+        }
+      ],
+      "confidence": 0.75,
+      "status": "recommended"
+    },
+    {
+      "id": "opp-supply-reset",
+      "title": "Raise chilled-water supply temperature on mild days",
+      "network": "cooling",
+      "where": "DCP-01, DCP-02",
+      "summary": "When the weather is mild the plants cool more than needed. A warmer supply setpoint lets the chillers work less.",
+      "monthlySaving": 229320.0,
+      "savingRange": {
+        "p10": 170225.0,
+        "p50": 223471.0,
+        "p90": 286194.0,
+        "runs": 600
+      },
+      "investment": 10000.0,
+      "paybackDays": 1.3,
+      "formula": "6,070,223 kWh × 94% mild hours × 2.5% per °C × 1 °C × 1.6 EGP/kWh = 229,320 EGP/month",
+      "inputs": [
+        {
+          "name": "E_chillers",
+          "value": 6070222.5938,
+          "unit": "kWh/month",
+          "source": "measured"
+        },
+        {
+          "name": "mild_share",
+          "value": 0.9444,
+          "unit": "fraction",
+          "source": "measured"
+        }
+      ],
+      "reasons": [
+        {
+          "text": "The chillers use 6,070,223 kWh a month.",
+          "evidenceType": "measured",
+          "evidenceRef": "twin:chiller-power"
+        },
+        {
+          "text": "94% of hours are below 35 °C, when a warmer supply setpoint is safe.",
+          "evidenceType": "measured",
+          "evidenceRef": "twin:ambient"
+        },
+        {
+          "text": "Each °C of raise saves 2.5% of chiller energy. This is an assumption you can change.",
+          "evidenceType": "assumed",
+          "evidenceRef": "assumption:reset_pct_per_c"
+        }
+      ],
+      "assumptions": [
+        {
+          "name": "Chiller energy saved per °C of raise",
+          "key": "reset_pct_per_c",
+          "value": 0.025,
+          "unit": "fraction",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Supply water temperature raise on mild days",
+          "key": "reset_delta_c",
+          "value": 1.0,
+          "unit": "°C",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Electricity tariff",
+          "key": "elec_tariff",
+          "value": 1.6,
+          "unit": "EGP/kWh",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Controls change for temperature reset",
+          "key": "reset_invest",
+          "value": 10000.0,
+          "unit": "EGP",
+          "source": "default assumption",
+          "userChanged": false
+        }
+      ],
+      "confidence": 0.7,
+      "status": "recommended"
+    },
+    {
+      "id": "opp-night-pressure",
+      "title": "Night pressure management",
+      "network": "water",
+      "where": "All districts",
+      "summary": "Leakage grows with pressure. At night demand is low and pressure is high, so background leakage is at its worst. Reducing night pressure cuts it.",
+      "monthlySaving": 107507.0,
+      "savingRange": {
+        "p10": 63884.0,
+        "p50": 106671.0,
+        "p90": 157429.0,
+        "runs": 600
+      },
+      "investment": 140000.0,
+      "paybackDays": 39.1,
+      "formula": "258 m3/h × (1 − (3.4 ÷ 4.78)^1) × 6 h × 30 days × 8 EGP/m3 = 107,507 EGP/month",
+      "inputs": [
+        {
+          "name": "L0",
+          "value": 258.4102,
+          "unit": "m3/h",
+          "source": "measured"
+        },
+        {
+          "name": "P0",
+          "value": 4.7814,
+          "unit": "bar",
+          "source": "measured"
+        }
+      ],
+      "reasons": [
+        {
+          "text": "Background leakage between 00:00 and 06:00 is about 258 m3/h (water produced minus water billed).",
+          "evidenceType": "measured",
+          "evidenceRef": "twin:production-billed"
+        },
+        {
+          "text": "Pump outlets hold 4.78 bar at night.",
+          "evidenceType": "measured",
+          "evidenceRef": "twin:pump-pressure"
+        },
+        {
+          "text": "Leakage scales with pressure as L1 = L0 × (P1 ÷ P0)^N1 (FAVAD). N1 and the target pressure are assumptions you can change.",
+          "evidenceType": "rule",
+          "evidenceRef": "rule:favad"
+        }
+      ],
+      "assumptions": [
+        {
+          "name": "Night pressure target after pressure management",
+          "key": "pm_target_pressure",
+          "value": 3.4,
+          "unit": "bar",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Leakage-pressure exponent N1 (FAVAD)",
+          "key": "pm_n1",
+          "value": 1.0,
+          "unit": "×",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Water production cost",
+          "key": "water_price",
+          "value": 8.0,
+          "unit": "EGP/m3",
+          "source": "default assumption",
+          "userChanged": false
+        },
+        {
+          "name": "Pressure-reducing valves and controllers",
+          "key": "pm_invest",
+          "value": 140000.0,
+          "unit": "EGP",
+          "source": "default assumption",
+          "userChanged": false
+        }
+      ],
+      "confidence": 0.7,
+      "status": "recommended"
+    }
+  ]
+}

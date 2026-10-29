@@ -1,6 +1,8 @@
 """Real backend outputs must match the contract schemas (same models the fixtures use)."""
 
 import asyncio
+
+import pytest
 from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
@@ -149,3 +151,41 @@ def test_incident_report_pdf():
     inc = next(iter(rt.incidents))
     pdf = incident_pdf(rt, inc)
     assert pdf[:4] == b"%PDF" and len(pdf) > 3000
+
+
+def test_dashboard_endpoints_validate():
+    with TestClient(app) as c:
+        import time
+        time.sleep(2.5)
+        kpis = [S.Kpi.model_validate(k) for k in c.get("/api/v1/kpis").json()]
+        ids = {k.id for k in kpis}
+        assert {"nrw", "water_production", "electric_load", "cooling_efficiency", "districts_served", "savings_available"} <= ids
+        nrw = next(k for k in kpis if k.id == "nrw")
+        assert 5 < nrw.value < 20 and len(nrw.series) >= 24
+        d = S.DemandSeries.model_validate(c.get("/api/v1/series/demand?network=water&zoneId=all").json())
+        assert len(d.forecast) == 48 and d.actual[-1].t >= d.actual[0].t and d.metrics.mape < 15
+        S.DemandSeries.model_validate(c.get("/api/v1/series/demand?network=cooling&zoneId=all").json())
+        assert c.get("/api/v1/series/demand?network=cooling&zoneId=zone-res-2").status_code == 404
+        sub = S.SubstationSeries.model_validate(c.get("/api/v1/series/substations").json())
+        assert len(sub.lines) == 4 and sub.capacity > 0
+        cool = S.DailySeries.model_validate(c.get("/api/v1/series/cooling-efficiency").json())
+        assert len(cool.days) >= 25 and all(0.5 < x.value < 1.3 for x in cool.days)
+
+
+def test_savings_report_is_consistent():
+    with TestClient(app) as c:
+        import time
+        time.sleep(2.5)
+        rep = S.SavingsReport.model_validate(c.get("/api/v1/savings").json())
+        assert rep.opportunities and rep.total_monthly == pytest.approx(sum(o.monthly_saving for o in rep.opportunities), abs=1)
+        assert rep.total_range.p10 <= rep.total_range.p50 <= rep.total_range.p90
+        for o in rep.opportunities:
+            assert o.saving_range.p10 <= o.monthly_saving * 1.2 and o.saving_range.p90 >= o.monthly_saving * 0.8
+            assert o.reasons and o.assumptions and o.formula.endswith("EGP/month") and o.inputs
+            assert o.monthly_saving >= 0
+        # changing a price must change the opportunity that depends on it
+        before = next(o for o in rep.opportunities if o.id == "opp-setback").monthly_saving
+        c.put("/api/v1/assumptions", json={"cooling_price": 3.0})
+        after = next(o for o in S.SavingsReport.model_validate(c.get("/api/v1/savings").json()).opportunities if o.id == "opp-setback").monthly_saving
+        assert after == pytest.approx(before * 2, rel=0.02)
+        c.post("/api/v1/scenarios/reset")

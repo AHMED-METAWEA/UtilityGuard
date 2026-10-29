@@ -15,7 +15,7 @@ from app.schemas import (
     ChatChunk, ChatDone, ChatRoute, Compare, CompareSide, Cost, CostItem, DriftIndicator, Explanation, FeatureImportance,
     Forecast, ForecastMetrics, ForecastPoint, Health, Incident, LatLng, ModelMetrics, NetworkMetrics,
     PlacementSuggestion, PredictedImpact, Reading, ReadingBatch, Reason, RecommendedAction, RouteStep, Scenario,
-    ScenarioParam, ScenarioRunResponse, ScenarioState, Sensitivity, Snapshot, envelope,
+    SavingRange, ScenarioParam, ScenarioRunResponse, ScenarioState, Sensitivity, Snapshot, envelope,
 )
 from app.sim.engine import Engine
 from app.sim.topology import build
@@ -57,7 +57,7 @@ PIPE, PUMP, ZONE = g.zone_pipe["zone-gov"], g.zone_pump["zone-gov"], "zone-gov"
 assumptions = [
     Assumption(name="Water production cost", key="water_price", value=8, unit="EGP/m3", source="default assumption"),
     Assumption(name="Electricity tariff", key="elec_tariff", value=1.6, unit="EGP/kWh", source="default assumption"),
-    Assumption(name="Cooling energy cost", key="cooling_price", value=2.2, unit="EGP/ton-h", source="default assumption"),
+    Assumption(name="Cooling energy cost", key="cooling_price", value=1.5, unit="EGP/ton-h", source="default assumption"),
     Assumption(name="Crew call-out cost", key="crew_callout", value=3400, unit="EGP/dispatch", source="default assumption"),
     Assumption(name="Pipe repair parts", key="parts_pipe", value=15000, unit="EGP/repair", source="default assumption"),
     Assumption(name="Disruption penalty, government zone", key="penalty_government", value=2500, unit="EGP/h", source="default assumption"),
@@ -74,11 +74,12 @@ calcs = [
     Calculation(name="Repair now", formula="crew_callout + parts + equipment",
                 inputs=[CalcInput(name="crew_callout", value=3400, unit="EGP", source="assumed"),
                         CalcInput(name="parts", value=15000, unit="EGP", source="assumed")], result=18400),
-    Calculation(name="Saving from acting now", formula="(C_delay × t_delay + C_repair_late) − C_repair_now",
+    Calculation(name="Saving from acting now", formula="(C_delay × t_delay + C_repair_late) − (C_repair_now + C_delay × t_response)",
                 inputs=[CalcInput(name="C_delay", value=3820, unit="EGP/h", source="rule"),
                         CalcInput(name="t_delay", value=6, unit="h", source="assumed"),
-                        CalcInput(name="C_repair_late", value=31500, unit="EGP", source="rule"),
-                        CalcInput(name="C_repair_now", value=18400, unit="EGP", source="rule")], result=36020),
+                        CalcInput(name="C_repair_late", value=31280, unit="EGP", source="rule"),
+                        CalcInput(name="C_repair_now", value=18400, unit="EGP", source="rule"),
+                        CalcInput(name="t_response", value=1, unit="h", source="assumed")], result=31980),
 ]
 reasons = [
     Reason(text="Pressure fell from 3.8 to 2.1 bar in 4 minutes", evidence_type="measured", evidence_ref=f"{PIPE}-pressure"),
@@ -88,16 +89,17 @@ reasons = [
 ]
 explain = Explanation(
     reasons=reasons, calculations=calcs, assumptions=assumptions,
-    sensitivity=[Sensitivity(input="water_price", change_percent=-20, new_saving=34676),
-                 Sensitivity(input="water_price", change_percent=20, new_saving=37364)],
+    sensitivity=[Sensitivity(input="water_price", change_percent=-20, new_saving=30636),
+                 Sensitivity(input="water_price", change_percent=20, new_saving=33324)],
     confidence=0.92, calculation_id="calc-0001")
-cost = Cost(act_now=18400, delay_per_hour=3820, expected_saving=36020, delay_hours=6, cost_of_delay=54420,
+cost = Cost(act_now=22220, delay_per_hour=3820, expected_saving=31980, delay_hours=6, cost_of_delay=54200,
+            response_hours=1, act_now_losses=3820, saving_range=SavingRange(p10=25343, p50=31811, p90=38747, runs=800),
             breakdown=[CostItem(label="Crew call-out", amount=3400, cause="assumed crew cost"),
                        CostItem(label="Pipe repair parts", amount=15000, cause="assumed parts cost"),
-                       CostItem(label="Water loss", amount=6720, cause="140 m3/h × 6 h × 8 EGP"),
-                       CostItem(label="Service disruption", amount=15000, cause="2,500 EGP/h × 6 h"),
-                       CostItem(label="Secondary effects", amount=1200, cause="pump overdraw 200 EGP/h × 6 h"),
-                       CostItem(label="Late repair", amount=31500, cause="grown burst repair cost")],
+                       CostItem(label="Water loss", amount=6720, cause="140 m3/h × 8 EGP/m3 × 6 h"),
+                       CostItem(label="Service disruption, zone-gov", amount=15000, cause="2,500 EGP/h for a government zone × 6 h"),
+                       CostItem(label="Knock-on overdraw in another network", amount=1200, cause="0.13 MW extra draw × 1.6 EGP/kWh × 6 h"),
+                       CostItem(label="Late repair premium", amount=12880, cause="repair grows ×1.7 if delayed")],
             explanation=explain)
 
 alert = Alert(id="alert-0001", incident_id="inc-0001", network="water", zone_id=ZONE, asset_ids=[PIPE, PUMP],
@@ -173,11 +175,11 @@ write("rest/calculation.json", record.dump())
 write("rest/chat_accepted.json", ChatAccepted(message_id="msg-0001").dump())
 write("rest/compare.json", Compare(
     scenario_id="scn-pipe-burst",
-    without_intervention=CompareSide(label="No action for 6 h", total_cost=54420, water_lost_m3=840, outage_hours=6,
+    without_intervention=CompareSide(label="No action for 6 h", total_cost=54200, water_lost_m3=840, outage_hours=6,
                                      series=[ForecastPoint(timestamp=T0 + timedelta(hours=h), predicted=3.8 - 0.25 * h, lower=3.7 - 0.25 * h, upper=3.9 - 0.25 * h) for h in range(7)]),
-    with_intervention=CompareSide(label="Repair crew sent now", total_cost=18400, water_lost_m3=140, outage_hours=1,
+    with_intervention=CompareSide(label="Repair crew sent now", total_cost=22220, water_lost_m3=140, outage_hours=1,
                                   series=[ForecastPoint(timestamp=T0 + timedelta(hours=h), predicted=2.1 if h == 0 else 3.7, lower=2.0 if h == 0 else 3.6, upper=2.2 if h == 0 else 3.8) for h in range(7)]),
-    saving=36020).dump())
+    saving=31980).dump())
 write("rest/sensor_placement.json", [PlacementSuggestion(
     position=LatLng(lat=30.0285, lng=31.7285), near_asset_id=g.zone_pipe["zone-cbd"], network="water", kind="pressure",
     detection_improvement=0.14, reason="Longest unmonitored segment between two pressure sensors").dump()])
@@ -218,4 +220,32 @@ seq = [
     (0, envelope("scenario_state", run_state.model_copy(update={"state": "stopped"}))),
 ]
 write("sequence/burst.json", [{"delayMs": d, "message": m} for d, m in seq])
+# ---------- dashboard fixtures, produced by the real functions on a fixed clock ----------
+import asyncio
+from types import SimpleNamespace
+
+from app import dashboard, ml
+from app.runtime import Runtime
+from app.savings import build_savings
+from app.cost import Assumptions
+from tempfile import mkdtemp
+
+rt = Runtime(42)
+models = ml.load_or_train(rt.engine)
+
+
+async def _warm():
+    for i in range(6):
+        await rt.tick_once(T0 + timedelta(seconds=2 * i))
+
+
+asyncio.run(_warm())
+hist = dashboard.History(42)
+A = Assumptions(Path(mkdtemp()) / "a.json")
+report = build_savings(rt, hist, A)
+write("rest/savings.json", report.dump())
+write("rest/kpis.json", [k.dump() for k in dashboard.build_kpis(rt, hist, report.total_monthly)])
+write("rest/series_demand.json", dashboard.demand_series(rt, hist, SimpleNamespace(models=models), "water", "all").dump())
+write("rest/series_substations.json", dashboard.substation_series(rt, hist).dump())
+write("rest/series_cooling_efficiency.json", dashboard.cooling_efficiency_daily(rt, hist).dump())
 print(f"fixtures written to {ROOT}")

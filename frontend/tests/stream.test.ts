@@ -97,7 +97,7 @@ test('chat_route creates the reply before chunks, tracks the active specialist a
 
 test('burst fixture sequence updates the open counter, statuses, findings and resolution over three rehearsals', async () => {
   const { dispatchMessage } = await import('../src/api/ws');
-  const { isOpenAlert } = await import('../src/presentation');
+  const { isOpenAlert } = await import('../src/lib/present');
   const baseline = parseEnvelope(await readFile(new URL('../../fixtures/ws/snapshot.json', import.meta.url), 'utf8'))!;
   const sequence = JSON.parse(await readFile(new URL('../../fixtures/sequence/burst.json', import.meta.url), 'utf8'));
   for (let rehearsal = 0; rehearsal < 3; rehearsal++) {
@@ -122,7 +122,7 @@ test('burst fixture sequence updates the open counter, statuses, findings and re
 });
 
 test('formula view substitutes supplied inputs without calculating or inventing missing inputs', async () => {
-  const { keyCalculations, substitutedFormula } = await import('../src/presentation');
+  const { keyCalculations, substitutedFormula } = await import('../src/lib/present');
   const record = JSON.parse(await readFile(new URL('../../fixtures/rest/calculation.json', import.meta.url), 'utf8'));
   const calculations = record.explanation.calculations;
   assert.deepEqual(keyCalculations(calculations).map((c) => c.name), ['Water loss per hour', 'Cost of delay per hour', 'Saving from acting now']);

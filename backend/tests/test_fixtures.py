@@ -16,6 +16,8 @@ REST = {
     "metrics": S.ModelMetrics, "assumptions": list[S.Assumption], "calculation": S.CalculationRecord,
     "chat_accepted": S.ChatAccepted, "compare": S.Compare, "sensor_placement": list[S.PlacementSuggestion],
     "drift": list[S.DriftIndicator], "error": S.ErrorResponse,
+    "kpis": list[S.Kpi], "savings": S.SavingsReport, "series_demand": S.DemandSeries,
+    "series_substations": S.SubstationSeries, "series_cooling_efficiency": S.DailySeries,
 }
 
 

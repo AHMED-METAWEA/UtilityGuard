@@ -7,9 +7,9 @@
       {
         "sensorId": "elec-sub-01-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 66.76,
+        "value": 65.76,
         "quality": "ok",
-        "forecast": 66.5
+        "forecast": 65.5
       },
       {
         "sensorId": "elec-sub-01-voltage",
@@ -35,9 +35,9 @@
       {
         "sensorId": "elec-sub-03-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 32.56,
+        "value": 32.7,
         "quality": "ok",
-        "forecast": 33.14
+        "forecast": 33.28
       },
       {
         "sensorId": "elec-sub-03-voltage",
@@ -63,9 +63,9 @@
       {
         "sensorId": "elec-feeder-01-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 22.49,
+        "value": 22.53,
         "quality": "ok",
-        "forecast": 22.07
+        "forecast": 22.11
       },
       {
         "sensorId": "elec-tx-01-temperature",
@@ -77,16 +77,16 @@
       {
         "sensorId": "elec-feeder-02-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 48.31,
+        "value": 47.82,
         "quality": "ok",
-        "forecast": 49.0
+        "forecast": 48.5
       },
       {
         "sensorId": "elec-tx-02-temperature",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 67.16,
+        "value": 66.67,
         "quality": "ok",
-        "forecast": 68.5
+        "forecast": 68.0
       },
       {
         "sensorId": "elec-feeder-03-load",
@@ -105,9 +105,9 @@
       {
         "sensorId": "elec-feeder-04-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 18.75,
+        "value": 18.85,
         "quality": "ok",
-        "forecast": 18.38
+        "forecast": 18.48
       },
       {
         "sensorId": "elec-tx-04-temperature",
@@ -119,9 +119,9 @@
       {
         "sensorId": "elec-feeder-05-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 16.2,
+        "value": 16.27,
         "quality": "ok",
-        "forecast": 16.35
+        "forecast": 16.43
       },
       {
         "sensorId": "elec-tx-05-temperature",
@@ -133,9 +133,9 @@
       {
         "sensorId": "elec-feeder-06-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 19.84,
+        "value": 19.87,
         "quality": "ok",
-        "forecast": 20.08
+        "forecast": 20.11
       },
       {
         "sensorId": "elec-tx-06-temperature",
@@ -147,9 +147,9 @@
       {
         "sensorId": "elec-feeder-07-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 16.23,
+        "value": 16.26,
         "quality": "ok",
-        "forecast": 15.92
+        "forecast": 15.95
       },
       {
         "sensorId": "elec-tx-07-temperature",
@@ -161,9 +161,9 @@
       {
         "sensorId": "elec-feeder-08-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 17.25,
+        "value": 17.3,
         "quality": "ok",
-        "forecast": 17.32
+        "forecast": 17.37
       },
       {
         "sensorId": "elec-tx-08-temperature",
@@ -175,9 +175,9 @@
       {
         "sensorId": "elec-feeder-09-load",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 15.81,
+        "value": 15.83,
         "quality": "ok",
-        "forecast": 16.07
+        "forecast": 16.09
       },
       {
         "sensorId": "elec-tx-09-temperature",
@@ -189,86 +189,86 @@
       {
         "sensorId": "water-res-01-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.58,
+        "value": 4.54,
         "quality": "ok",
-        "forecast": 4.5
+        "forecast": 4.46
       },
       {
         "sensorId": "water-res-01-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 3516.27,
+        "value": 3920.76,
         "quality": "ok",
-        "forecast": 3455.5
+        "forecast": 3853.0
       },
       {
         "sensorId": "water-pump-01-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.72,
+        "value": 4.71,
         "quality": "ok",
-        "forecast": 4.71
+        "forecast": 4.7
       },
       {
         "sensorId": "water-pump-01-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 3400.28,
+        "value": 3791.43,
         "quality": "ok",
-        "forecast": 3455.5
+        "forecast": 3853.0
       },
       {
         "sensorId": "water-pipe-01-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 3384.81,
+        "value": 3774.36,
         "quality": "ok",
-        "forecast": 3449.5
+        "forecast": 3846.5
       },
       {
         "sensorId": "water-pipe-01-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 3444.18,
+        "value": 3840.47,
         "quality": "ok",
-        "forecast": 3459.0
+        "forecast": 3857.0
       },
       {
         "sensorId": "water-pipe-01-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.27,
+        "value": 4.26,
         "quality": "ok",
-        "forecast": 4.21
+        "forecast": 4.2
       },
       {
         "sensorId": "water-pump-02-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.9,
+        "value": 4.88,
         "quality": "ok",
-        "forecast": 4.81
+        "forecast": 4.79
       },
       {
         "sensorId": "water-pump-02-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 1389.66,
+        "value": 1549.77,
         "quality": "ok",
-        "forecast": 1380.0
+        "forecast": 1539.0
       },
       {
         "sensorId": "water-pipe-02-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 1363.46,
+        "value": 1520.56,
         "quality": "ok",
-        "forecast": 1380.0
+        "forecast": 1539.0
       },
       {
         "sensorId": "water-pipe-02-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 1352.96,
+        "value": 1508.79,
         "quality": "ok",
-        "forecast": 1380.5
+        "forecast": 1539.5
       },
       {
         "sensorId": "water-pipe-02-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.26,
+        "value": 4.25,
         "quality": "ok",
-        "forecast": 4.3
+        "forecast": 4.29
       },
       {
         "sensorId": "water-pump-03-pressure",
@@ -280,30 +280,30 @@
       {
         "sensorId": "water-pump-03-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 1007.71,
+        "value": 1123.48,
         "quality": "ok",
-        "forecast": 988.0
+        "forecast": 1101.5
       },
       {
         "sensorId": "water-pipe-03-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 996.78,
+        "value": 1111.63,
         "quality": "ok",
-        "forecast": 985.0
+        "forecast": 1098.5
       },
       {
         "sensorId": "water-pipe-03-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 978.57,
+        "value": 1091.27,
         "quality": "ok",
-        "forecast": 985.5
+        "forecast": 1099.0
       },
       {
         "sensorId": "water-pipe-03-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.13,
+        "value": 4.12,
         "quality": "ok",
-        "forecast": 4.21
+        "forecast": 4.2
       },
       {
         "sensorId": "water-pump-04-pressure",
@@ -315,23 +315,23 @@
       {
         "sensorId": "water-pump-04-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 549.36,
+        "value": 612.64,
         "quality": "ok",
-        "forecast": 547.0
+        "forecast": 610.0
       },
       {
         "sensorId": "water-pipe-04-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 556.25,
+        "value": 620.43,
         "quality": "ok",
-        "forecast": 546.0
+        "forecast": 609.0
       },
       {
         "sensorId": "water-pipe-04-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 557.25,
+        "value": 621.26,
         "quality": "ok",
-        "forecast": 548.5
+        "forecast": 611.5
       },
       {
         "sensorId": "water-pipe-04-pressure",
@@ -343,72 +343,72 @@
       {
         "sensorId": "water-pump-05-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.76,
+        "value": 4.74,
         "quality": "ok",
-        "forecast": 4.85
+        "forecast": 4.83
       },
       {
         "sensorId": "water-pump-05-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 358.61,
+        "value": 399.88,
         "quality": "ok",
-        "forecast": 365.0
+        "forecast": 407.0
       },
       {
         "sensorId": "water-pipe-05-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 364.52,
+        "value": 405.97,
         "quality": "ok",
-        "forecast": 365.0
+        "forecast": 406.5
       },
       {
         "sensorId": "water-pipe-05-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 370.87,
+        "value": 413.04,
         "quality": "ok",
-        "forecast": 365.0
+        "forecast": 406.5
       },
       {
         "sensorId": "water-pipe-05-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.43,
+        "value": 4.41,
         "quality": "ok",
-        "forecast": 4.35
+        "forecast": 4.33
       },
       {
         "sensorId": "water-pump-06-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.83,
+        "value": 4.81,
         "quality": "ok",
-        "forecast": 4.81
+        "forecast": 4.79
       },
       {
         "sensorId": "water-pump-06-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 1513.62,
+        "value": 1687.61,
         "quality": "ok",
-        "forecast": 1535.5
+        "forecast": 1712.0
       },
       {
         "sensorId": "water-pipe-06-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 1504.56,
+        "value": 1677.62,
         "quality": "ok",
-        "forecast": 1534.5
+        "forecast": 1711.0
       },
       {
         "sensorId": "water-pipe-06-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 1527.49,
+        "value": 1702.78,
         "quality": "ok",
-        "forecast": 1538.0
+        "forecast": 1714.5
       },
       {
         "sensorId": "water-pipe-06-pressure",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 4.36,
+        "value": 4.34,
         "quality": "ok",
-        "forecast": 4.31
+        "forecast": 4.29
       },
       {
         "sensorId": "water-pump-07-pressure",
@@ -420,23 +420,23 @@
       {
         "sensorId": "water-pump-07-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 493.6,
+        "value": 550.13,
         "quality": "ok",
-        "forecast": 489.0
+        "forecast": 545.0
       },
       {
         "sensorId": "water-pipe-07-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 482.74,
+        "value": 538.69,
         "quality": "ok",
-        "forecast": 487.5
+        "forecast": 544.0
       },
       {
         "sensorId": "water-pipe-07-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 478.26,
+        "value": 533.14,
         "quality": "ok",
-        "forecast": 488.0
+        "forecast": 544.0
       },
       {
         "sensorId": "water-pipe-07-pressure",
@@ -455,23 +455,23 @@
       {
         "sensorId": "water-pump-08-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 885.0,
+        "value": 987.47,
         "quality": "ok",
-        "forecast": 868.0
+        "forecast": 968.5
       },
       {
         "sensorId": "water-pipe-08-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 884.69,
+        "value": 986.59,
         "quality": "ok",
-        "forecast": 872.5
+        "forecast": 973.0
       },
       {
         "sensorId": "water-pipe-08-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 864.6,
+        "value": 964.65,
         "quality": "ok",
-        "forecast": 868.5
+        "forecast": 969.0
       },
       {
         "sensorId": "water-pipe-08-pressure",
@@ -490,23 +490,23 @@
       {
         "sensorId": "water-pump-09-flow",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 420.71,
+        "value": 469.3,
         "quality": "ok",
-        "forecast": 420.0
+        "forecast": 468.5
       },
       {
         "sensorId": "water-pipe-09-flow-in",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 427.94,
+        "value": 477.29,
         "quality": "ok",
-        "forecast": 420.5
+        "forecast": 469.0
       },
       {
         "sensorId": "water-pipe-09-flow-out",
         "timestamp": "2026-10-28T11:30:02Z",
-        "value": 428.33,
+        "value": 477.68,
         "quality": "ok",
-        "forecast": 421.0
+        "forecast": 469.5
       },
       {
         "sensorId": "water-pipe-09-pressure",

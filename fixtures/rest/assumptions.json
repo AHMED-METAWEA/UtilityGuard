@@ -18,7 +18,7 @@
   {
     "name": "Cooling energy cost",
     "key": "cooling_price",
-    "value": 2.2,
+    "value": 1.5,
     "unit": "EGP/ton-h",
     "source": "default assumption",
     "userChanged": false

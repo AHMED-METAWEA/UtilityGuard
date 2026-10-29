@@ -18,6 +18,10 @@ from app.sim.topology import COOLING_PLANTS, SPINE, TRUNK_ORDER, ZONE_BASE, ZONE
 
 CAIRO = timezone(timedelta(hours=3))
 TICK_SECONDS = 2.0
+BG_LOSS = 0.115  # background (non-revenue) water loss as a fraction of billed demand
+CHILLER_BASE = 0.22  # MW electric per MW thermal at 30 C with clean condensers (about 0.77 kW/TR)
+FOULING = {"cool-plant-01": 1.08}  # DCP-01 condensers are 8% fouled; the rest are clean
+TR_PER_MW = 284.3
 
 
 def demand_profile(zone_type: str, hour: float, weekday: int, holiday: bool = False) -> float:
@@ -69,6 +73,9 @@ class Engine:
         self.pump_on: dict[str, bool] = {}
         self.sub_on: dict[str, bool] = {}
         self.zone_demand: dict[str, tuple[float, float, float]] = {}
+        self.water_billed: dict[str, float] = {}
+        self._plant_delivered: dict[str, float] = {}
+        self.metrics: dict[str, float] = {}
         self.ambient = 30.0
 
     # ---------- events ----------
@@ -111,7 +118,9 @@ class Engine:
             if holiday and z.type == "residential":
                 p *= hol_factor
             p *= day_demand
-            self.zone_demand[z.id] = (w * p * (0.6 + 0.4 * temp_f),
+            billed = w * p * (0.6 + 0.4 * temp_f)
+            self.water_billed[z.id] = billed
+            self.zone_demand[z.id] = (billed * (1 + BG_LOSS),
                                       e * (0.55 + 0.45 * p) * (0.8 + 0.2 * temp_f),
                                       c * (0.4 + 0.6 * p) * temp_f ** 3)
 
@@ -172,6 +181,7 @@ class Engine:
 
         # ---------- cooling ----------
         plant_elec: dict[str, float] = {}
+        cool_delivered = 0.0
         for pid, (_, home, served) in COOLING_PLANTS.items():
             on = self.sub_on[ZONE_SUBSTATION[home]]
             fault = next((e for e in self._active("cooling_fault") if e.target == pid), None)
@@ -184,7 +194,10 @@ class Engine:
             t[f"{pid}-supply-temp"] = supply
             t[f"{pid}-flow"] = 120 * delivered if on else 0.0
             t[f"{pid}-load"] = delivered
-            plant_elec[pid] = delivered * 0.28  # chiller electrical draw, MW_e per MW_th (COP ~3.6)
+            eff = CHILLER_BASE * (1 + 0.018 * (self.ambient - 30)) * FOULING.get(pid, 1.0)
+            plant_elec[pid] = delivered * eff  # chiller electrical draw, MW_e (efficiency worsens with heat and fouling)
+            cool_delivered += delivered
+            self._plant_delivered[pid] = delivered
             for z in served:
                 lid = g.zone_loop[z]
                 share = self.zone_demand[z][2] / max(load, 1e-6)
@@ -213,6 +226,12 @@ class Engine:
         for s, load in sub_load.items():
             t[f"{s}-load"] = load if self.sub_on[s] else 0.0
             t[f"{s}-voltage"] = (22.4 - 0.012 * load) if self.sub_on[s] else 0.0
+        self.metrics = {
+            "water_production": total_w, "water_billed": sum(self.water_billed.values()), "water_leak_burst": sum(self.leak_m3h.values()),
+            "cooling_delivered_mw": cool_delivered, "cooling_elec_mw": sum(plant_elec.values()),
+            "elec_total_mw": sum(sub_load.values()), "ambient": self.ambient,
+            **{f"plant_elec:{k}": v for k, v in plant_elec.items()}, **{f"plant_delivered:{k}": v for k, v in self._plant_delivered.items()},
+        }
         return t
 
     def step(self, ts: datetime | None = None) -> tuple[datetime, dict[str, float], dict[str, float | None]]:
@@ -244,6 +263,7 @@ class Engine:
             _, _, r = self.step(ts)
             row = dict(r)
             row["weather:ambient"] = self.ambient
+            row.update({f"kpi:{k}": v for k, v in self.metrics.items()})
             for z, (w, e, c) in self.zone_demand.items():
                 noise = self.rng.normal(1.0, 0.012, 3)
                 row[f"demand:water:{z}"], row[f"demand:electricity:{z}"], row[f"demand:cooling:{z}"] = w * noise[0], e * noise[1], c * noise[2]

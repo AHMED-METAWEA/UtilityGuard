@@ -2,7 +2,7 @@
   "scenarioId": "scn-pipe-burst",
   "withoutIntervention": {
     "label": "No action for 6 h",
-    "totalCost": 54420.0,
+    "totalCost": 54200.0,
     "waterLostM3": 840.0,
     "outageHours": 6.0,
     "series": [
@@ -52,7 +52,7 @@
   },
   "withIntervention": {
     "label": "Repair crew sent now",
-    "totalCost": 18400.0,
+    "totalCost": 22220.0,
     "waterLostM3": 140.0,
     "outageHours": 1.0,
     "series": [
@@ -100,5 +100,5 @@
       }
     ]
   },
-  "saving": 36020.0
+  "saving": 31980.0
 }

@@ -190,13 +190,23 @@ class CostItem(Model):
     cause: str
 
 
+class SavingRange(Model):
+    p10: float
+    p50: float
+    p90: float
+    runs: int
+
+
 class Cost(Model):
     currency: Literal["EGP"] = "EGP"
-    act_now: float
+    act_now: float  # repair now + losses until the crew arrives
     delay_per_hour: float
     expected_saving: float
     delay_hours: float | None = None
     cost_of_delay: float | None = None
+    response_hours: float | None = None
+    act_now_losses: float | None = None
+    saving_range: SavingRange | None = None
     breakdown: list[CostItem]
     explanation: Explanation | None = None
 
@@ -405,6 +415,88 @@ class DriftIndicator(Model):
 class ErrorResponse(Model):
     code: str
     message: str
+
+
+# ---------- dashboard: KPIs, series, savings ----------
+
+class SeriesPoint(Model):
+    t: datetime
+    v: float
+
+
+class Kpi(Model):
+    id: str
+    label: str
+    value: float
+    unit: str
+    digits: int = 0
+    target: float | None = None
+    better: Literal["lower", "higher"] | None = None
+    delta: float | None = None  # change versus the same hour yesterday, in the KPI unit
+    series: list[SeriesPoint] = []
+    note: str = ""
+    formula: str = ""
+    network: Network | None = None
+
+
+class DemandSeries(Model):
+    network: Network
+    zone_id: str
+    unit: str
+    now: datetime
+    actual: list[SeriesPoint]
+    forecast: list[ForecastPoint]
+    metrics: ForecastMetrics
+
+
+class NamedSeries(Model):
+    id: str
+    name: str
+    points: list[SeriesPoint]
+
+
+class SubstationSeries(Model):
+    unit: str = "MW"
+    capacity: float
+    lines: list[NamedSeries]
+
+
+class DailyValue(Model):
+    date: str
+    value: float
+    ambient_max: float
+
+
+class DailySeries(Model):
+    unit: str
+    target: float
+    days: list[DailyValue]
+
+
+class Opportunity(Model):
+    id: str
+    title: str
+    network: Network
+    where: str
+    summary: str
+    monthly_saving: float
+    saving_range: SavingRange
+    investment: float
+    payback_days: float | None
+    formula: str
+    inputs: list[CalcInput]
+    reasons: list[Reason]
+    assumptions: list[Assumption]
+    confidence: float = Field(ge=0, le=1)
+    status: Literal["recommended", "approved"] = "recommended"
+
+
+class SavingsReport(Model):
+    generated_at: datetime
+    total_monthly: float
+    total_investment: float
+    total_range: SavingRange
+    opportunities: list[Opportunity]
 
 
 # ---------- WS envelope ----------

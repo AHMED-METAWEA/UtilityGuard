@@ -1,0 +1,156 @@
+{
+  "unit": "kW/TR",
+  "target": 0.8,
+  "days": [
+    {
+      "date": "2026-09-29",
+      "value": 0.852,
+      "ambientMax": 37.9
+    },
+    {
+      "date": "2026-09-30",
+      "value": 0.866,
+      "ambientMax": 38.9
+    },
+    {
+      "date": "2026-10-01",
+      "value": 0.78,
+      "ambientMax": 33.0
+    },
+    {
+      "date": "2026-10-02",
+      "value": 0.804,
+      "ambientMax": 35.1
+    },
+    {
+      "date": "2026-10-03",
+      "value": 0.792,
+      "ambientMax": 34.4
+    },
+    {
+      "date": "2026-10-04",
+      "value": 0.801,
+      "ambientMax": 34.4
+    },
+    {
+      "date": "2026-10-05",
+      "value": 0.804,
+      "ambientMax": 34.6
+    },
+    {
+      "date": "2026-10-06",
+      "value": 0.823,
+      "ambientMax": 35.9
+    },
+    {
+      "date": "2026-10-07",
+      "value": 0.837,
+      "ambientMax": 36.9
+    },
+    {
+      "date": "2026-10-08",
+      "value": 0.842,
+      "ambientMax": 37.3
+    },
+    {
+      "date": "2026-10-09",
+      "value": 0.792,
+      "ambientMax": 34.3
+    },
+    {
+      "date": "2026-10-10",
+      "value": 0.783,
+      "ambientMax": 33.7
+    },
+    {
+      "date": "2026-10-11",
+      "value": 0.734,
+      "ambientMax": 29.8
+    },
+    {
+      "date": "2026-10-12",
+      "value": 0.788,
+      "ambientMax": 33.5
+    },
+    {
+      "date": "2026-10-13",
+      "value": 0.753,
+      "ambientMax": 31.1
+    },
+    {
+      "date": "2026-10-14",
+      "value": 0.722,
+      "ambientMax": 28.9
+    },
+    {
+      "date": "2026-10-15",
+      "value": 0.724,
+      "ambientMax": 29.1
+    },
+    {
+      "date": "2026-10-16",
+      "value": 0.746,
+      "ambientMax": 31.2
+    },
+    {
+      "date": "2026-10-17",
+      "value": 0.75,
+      "ambientMax": 31.4
+    },
+    {
+      "date": "2026-10-18",
+      "value": 0.777,
+      "ambientMax": 32.7
+    },
+    {
+      "date": "2026-10-19",
+      "value": 0.777,
+      "ambientMax": 32.7
+    },
+    {
+      "date": "2026-10-20",
+      "value": 0.736,
+      "ambientMax": 29.9
+    },
+    {
+      "date": "2026-10-21",
+      "value": 0.804,
+      "ambientMax": 34.6
+    },
+    {
+      "date": "2026-10-22",
+      "value": 0.789,
+      "ambientMax": 33.6
+    },
+    {
+      "date": "2026-10-23",
+      "value": 0.778,
+      "ambientMax": 33.4
+    },
+    {
+      "date": "2026-10-24",
+      "value": 0.782,
+      "ambientMax": 33.7
+    },
+    {
+      "date": "2026-10-25",
+      "value": 0.72,
+      "ambientMax": 28.8
+    },
+    {
+      "date": "2026-10-26",
+      "value": 0.793,
+      "ambientMax": 33.8
+    },
+    {
+      "date": "2026-10-27",
+      "value": 0.809,
+      "ambientMax": 35.0
+    },
+    {
+      "date": "2026-10-28",
+      "value": 0.765,
+      "ambientMax": 32.7
+    }
+  ]
+}

@@ -13,7 +13,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException
 
-from app import extras, scenarios
+import time
+
+from app import dashboard, extras, savings as savings_mod, scenarios
 from app.agents.service import AgentService
 from app.ml.service import MLService
 from app.runtime import runtime
@@ -40,6 +42,18 @@ api = APIRouter(prefix="/api/v1")
 _run_ids = itertools.count(1)
 service = AgentService(runtime)
 ml_service = MLService(runtime, service.detector)
+history = dashboard.History(runtime.seed)
+_savings_cache: dict = {}
+
+
+def get_savings():
+    key = tuple(sorted(service.A.values.items()))
+    hit = _savings_cache.get('v')
+    if hit and hit[0] == key and time.time() - hit[1] < 20:
+        return hit[2]
+    rep = savings_mod.build_savings(runtime, history, service.A)
+    _savings_cache['v'] = (key, time.time(), rep)
+    return rep
 
 
 @app.exception_handler(ApiError)
@@ -204,6 +218,34 @@ def sensor_placement() -> list:
 @api.get("/drift")
 def drift() -> list:
     return out(extras.drift(runtime))
+
+
+@api.get("/kpis")
+def kpis() -> list:
+    return out(dashboard.build_kpis(runtime, history, get_savings().total_monthly))
+
+
+@api.get("/series/demand")
+def series_demand(network: str = "water", zoneId: str = "all", hours: int = 24) -> dict:  # noqa: N803
+    try:
+        return out(dashboard.demand_series(runtime, history, ml_service, network, zoneId, max(6, min(hours, 48))))
+    except KeyError as e:
+        raise ApiError(404, "no_series", f"No demand series for {network} in {zoneId}.") from e
+
+
+@api.get("/series/substations")
+def series_substations() -> dict:
+    return out(dashboard.substation_series(runtime, history))
+
+
+@api.get("/series/cooling-efficiency")
+def series_cooling_efficiency(days: int = 30) -> dict:
+    return out(dashboard.cooling_efficiency_daily(runtime, history, max(7, min(days, 60))))
+
+
+@api.get("/savings")
+def savings() -> dict:
+    return out(get_savings())
 
 
 @api.get("/findings")
