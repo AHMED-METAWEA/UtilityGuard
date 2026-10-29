@@ -56,6 +56,10 @@ DEFAULTS = {
         "Budget for a field sensor replacement or calibration. Verify against the instrument register and calibration contractor rate card."),
     "response_hours": _default("Crew response time when sent now", 1.0, "h", 0.5, 1.5,
         "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA."),
+    "isolate_loss_reduction": _default("Ongoing loss cut after pipe isolation", 0.85, "fraction", 0.7, 0.95,
+        "Planning allowance: isolation cuts lost-water cost only by 85% after crew arrival until the existing deferred horizon; disruption and secondary purchases continue unchanged. Repair uses planned_factor without damage escalation, plus one extra isolation call-out. Verify against valve isolation plans, post-isolation flows and planned work orders."),
+    "late_multiplier_cap": _default("Maximum deferred repair multiplier", 3.0, "×", 2.0, 4.0,
+        "Linear escalation m(w) = min(cap, 1 + (late_multiplier_kind - 1) * w / delay_hours_kind) is a planning choice, with a default cap of three times repair cost. Waiting includes losses to w with no additional response hours. This is not a fitted damage-growth law; verify against matched early and deferred repair work orders."),
     "false_dispatch": _default("Cost of a crew sent on a false alarm", 3400.0, "EGP/dispatch", 2500, 4300,
         "One unnecessary visit uses the same budget as an emergency crew dispatch. Verify against false-alarm work orders and contractor invoices."),
     "false_dispatch_interval": _default("Interval between false dispatches", 4.0, "h/dispatch", 2, 6,
@@ -339,6 +343,18 @@ def monte_carlo(f: IncidentFacts, A: Assumptions, incident_id: str) -> SavingRan
     return SavingRange(p10=p10, p50=p50, p90=p90, runs=MC_RUNS)
 
 
+def tornado(A: Assumptions, keys, evaluate) -> list[Tornado]:
+    rows = []
+    for key in keys:
+        d = A.item(key)
+        lo, hi = evaluate(key, d.low), evaluate(key, d.high)
+        if not math.isclose(lo, hi, rel_tol=0.0, abs_tol=1e-9):
+            rows.append(Tornado(input=key, name=d.name, low=d.low, high=d.high,
+                                saving_at_low=round(lo, 2), saving_at_high=round(hi, 2)))
+    rows.sort(key=lambda t: (-abs(t.saving_at_high - t.saving_at_low), t.input))
+    return rows
+
+
 def compute(f: IncidentFacts, A: Assumptions, incident_id: str, calc_id: str | None = None) -> CalculationRecord:
     record = _compute(f, A, incident_id, calc_id or f"calc-{next(_calc_ids):04d}")
     kind = policy_kind(f)
@@ -348,14 +364,7 @@ def compute(f: IncidentFacts, A: Assumptions, incident_id: str, calc_id: str | N
         for pct in (-20, 20):
             saving = _summary(f, A.with_override(key, A[key] * (1 + pct / 100)))["saving"]
             record.explanation.sensitivity.append(Sensitivity(input=key, change_percent=pct, new_saving=round(saving, 2)))
-    for key in keys:
-        d = DEFAULTS[key]
-        lo = _summary(f, A.with_override(key, d["low"]))["saving"]
-        hi = _summary(f, A.with_override(key, d["high"]))["saving"]
-        if not math.isclose(lo, hi, rel_tol=0.0, abs_tol=1e-9):
-            record.explanation.tornado.append(Tornado(input=key, name=d["name"], low=d["low"], high=d["high"],
-                                                     saving_at_low=round(lo, 2), saving_at_high=round(hi, 2)))
-    record.explanation.tornado.sort(key=lambda t: (-abs(t.saving_at_high - t.saving_at_low), t.input))
+    record.explanation.tornado = tornado(A, keys, lambda k, v: _summary(f, A.with_override(k, v))["saving"])
     rng_ = monte_carlo(f, A, incident_id)
     record.cost.saving_range = rng_
     record.explanation.calculations.append(Calculation(

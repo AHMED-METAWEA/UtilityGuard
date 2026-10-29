@@ -46,7 +46,7 @@ def ambient_temp(hour: float, day_of_year: int) -> float:
 
 @dataclass
 class Event:
-    kind: str  # pipe_burst, stuck_sensor, substation_trip, pump_failure, cooling_fault, heat_wave, holiday
+    kind: str  # pipe_burst, stuck_sensor, sensor_drift, sensor_dropout, substation_trip, pump_failure, cooling_fault, heat_wave, holiday
     target: str | None
     severity: float = 1.0
     started_tick: int = 0
@@ -79,6 +79,7 @@ class Engine:
         self._plant_delivered: dict[str, float] = {}
         self.metrics: dict[str, float] = {}
         self.ambient = 30.0
+        self.demand_scale = 1.0  # >1 or <1 makes this a twin whose demand forecast is off, used for the expectation in detector benchmarks
 
     # ---------- events ----------
     def add_event(self, ev: Event) -> None:
@@ -127,7 +128,7 @@ class Engine:
             p = demand_profile(z.type, hour, local.weekday(), bool(holiday))
             if holiday and z.type == "residential":
                 p *= hol_factor
-            p *= day_demand
+            p *= day_demand * self.demand_scale
             billed = w * p * (0.6 + 0.4 * temp_f)
             self.water_billed[z.id] = billed
             self.zone_demand[z.id] = (billed * (1 + BG_LOSS),
@@ -262,6 +263,11 @@ class Engine:
             readings[s.id] = noisy
         for ev in self._active("stuck_sensor"):
             readings[ev.target] = self.stuck.setdefault(ev.target, readings[ev.target])
+        for ev in self._active("sensor_drift"):  # telemetry only: the truth is untouched
+            rng_ = self.g.sensor_index[ev.target].normal_range
+            readings[ev.target] += ev.severity * 0.01 * (rng_.max - rng_.min) * (self.tick - ev.started_tick)
+        for ev in self._active("sensor_dropout"):
+            readings[ev.target] = None
         self.tick += 1
         return ts, self.truth, readings
 

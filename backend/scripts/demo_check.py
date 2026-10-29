@@ -19,6 +19,8 @@ import httpx
 import websockets
 
 from app import schemas as S
+from app.schemas import decision as SD
+from app.schemas import lab as SL
 
 TIMEOUT = 90
 
@@ -101,6 +103,16 @@ async def one_run(base: str, n: int) -> None:
             ok(pdf.status_code == 200 and pdf.content[:4] == b"%PDF", "PDF report failed")
             h = await get(f"/sensors/{finding['explain']['reasons'][0]['evidenceRef']}/history?minutes=5")
             ok(len(h["points"]) > 3, "no sensor history for the key sensor")
+
+            print(f"  [{n}] AI lab: localization, decision, benchmark")
+            loc = SL.Localization.model_validate(await get(f"/incidents/{finding['incidentId']}/localization"))
+            ok(loc.candidates[0].asset_id == "water-pipe-01" and loc.candidates[0].score > 0.5, f"leak localized to {loc.candidates[0].asset_id}")
+            dec = SD.DecisionReport.model_validate(await get(f"/incidents/{finding['incidentId']}/decision"))
+            ok({o.id for o in dec.options} >= {"fix_now", "isolate_fix", "wait_6h", "wait_24h", "wait_72h"} and dec.recommended_option_id == "fix_now", "decision options")
+            bench = SL.LabBenchmark.model_validate(await get("/lab/benchmark"))
+            best = next(d for d in bench.detectors if d.id == bench.best_detector_id)
+            ok(best.detection_rate >= 0.9 and best.false_alarms_per_100h <= 5, "benchmark best detector is not good enough")
+            SL.QualityNow.model_validate(await get("/quality"))
 
             print(f"  [{n}] price change recomputes")
             mark = len(st.msgs)

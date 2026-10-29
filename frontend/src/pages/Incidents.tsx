@@ -9,6 +9,7 @@ import { TimeChart } from '../charts/TimeChart';
 import { Card, Empty, NetIcon, SeverityChip, Skeleton, StatusChip } from '../ui';
 import { CalcView, RangeBar, Reasons } from '../ui/Calc';
 import { CostTiles } from '../ui/parts';
+import { DecisionStudio, WhereCard } from '../ui/Decision';
 import { go, href } from '../lib/route';
 import { assetBounds, money, useSensorSeries } from '../lib/useSensorSeries';
 import { ago, clock, fmt, sensorLabel } from '../lib/format';
@@ -135,6 +136,8 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
               {finding.cost.savingRange && <div style={{ marginTop: 14 }}><RangeBar {...finding.cost.savingRange} /></div>}
               <details style={{ marginTop: 12 }}><summary className="sub" style={{ cursor: 'pointer' }}>How the numbers are calculated</summary><div style={{ marginTop: 12 }}><CalcView cost={finding.cost} explanation={finding.explain} /></div></details>
             </Step>
+            {incident.title.toLowerCase().includes('burst') && <WhereCard incidentId={incident.id} />}
+            <DecisionStudio incidentId={incident.id} />
             <Step n={4} title="What to do" right={<span className={`chip ${finding.recommendedAction.urgency === 'immediate' ? 'crit' : 'warn'}`}>{finding.recommendedAction.urgency.replace('_', ' ')}</span>}>
               <p style={{ margin: '0 0 10px', lineHeight: 1.5 }}>{money(finding.recommendedAction.text)}</p>
               <div className="row wrap" style={{ gap: 8 }}><span className="chip">Crew: {finding.recommendedAction.crewType}</span>{finding.predictedImpact.zoneIds.length > 0 && <span className="chip">Affects {finding.predictedImpact.zoneIds.length} district{finding.predictedImpact.zoneIds.length > 1 ? 's' : ''}</span>}</div>

@@ -50,3 +50,13 @@ export function Tornado({ rows, base }: { rows: TornadoRow[]; base: number }) {
     </div>
   );
 }
+
+export type Evidence = 'measured' | 'model' | 'assumed' | 'calculated';
+const EVID: Record<Evidence, { label: string; hint: string }> = {
+  measured: { label: 'Measured', hint: 'Read straight from the twin\'s sensors' },
+  model: { label: 'Model', hint: 'The output of a trained model, scored on held-out data' },
+  assumed: { label: 'Assumed', hint: 'Depends on an assumption you can edit; the basis is one click away' },
+  calculated: { label: 'Calculated', hint: 'Computed by a named formula from measured figures and assumptions' },
+};
+/** Where a number comes from. Small, quiet, always the same four words. */
+export const EvidenceTag = ({ e }: { e: Evidence }) => <span className={`tag ${e}`} title={EVID[e].hint}>{EVID[e].label}</span>;

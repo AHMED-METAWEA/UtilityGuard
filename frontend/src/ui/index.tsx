@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Droplets, Snowflake, TriangleAlert, CircleCheck, CircleX, Zap, X, TrendingDown, TrendingUp, Minus, type LucideIcon } from 'lucide-react';
 import type { AssetStatus, Network } from '../api/types';
 import { Sparkline } from '../charts/Sparkline';
+import { EvidenceTag, type Evidence } from './Provenance';
 
 export const NET: Record<Network, { icon: LucideIcon; color: string; soft: string; label: string }> = {
   water: { icon: Droplets, color: 'var(--water)', soft: 'var(--water-soft)', label: 'Water' },
@@ -54,16 +55,16 @@ export function Drawer({ title, onClose, children, foot, width }: { title: React
 
 export interface KpiProps {
   label: string; value: string; unit?: string; color: string; spark?: number[]; target?: number; foot?: string;
-  delta?: { text: string; good: boolean | null; dir: 'up' | 'down' | 'flat' }; onClick?: () => void; loading?: boolean; icon?: ReactNode; viz?: ReactNode;
+  delta?: { text: string; good: boolean | null; dir: 'up' | 'down' | 'flat' }; onClick?: () => void; loading?: boolean; icon?: ReactNode; viz?: ReactNode; evidence?: Evidence;
 }
-export function Kpi({ label, value, unit, color, spark, target, foot, delta, onClick, loading, icon, viz }: KpiProps) {
+export function Kpi({ label, value, unit, color, spark, target, foot, delta, onClick, loading, icon, viz, evidence }: KpiProps) {
   const body = <>
     <div className="kpi-label"><span className="row" style={{ gap: 6 }}>{icon}{label}</span>
       {delta && <span className={`delta ${delta.good === null ? 'flat' : delta.good ? 'good' : 'bad'}`}>{delta.dir === 'up' ? <TrendingUp size={13} aria-hidden /> : delta.dir === 'down' ? <TrendingDown size={13} aria-hidden /> : <Minus size={13} aria-hidden />}{delta.text}</span>}
     </div>
     {loading ? <Skeleton h={30} w={110} style={{ marginTop: 6 }} /> : <div className="kpi-value"><b>{value}</b>{unit && <span className="kpi-unit">{unit}</span>}</div>}
     <div style={{ margin: '6px 0 2px' }}>{loading ? <Skeleton h={34} /> : viz ? viz : spark ? <Sparkline values={spark} color={color} target={target} label={`${label} trend`} /> : <div style={{ height: 36 }} />}</div>
-    <div className="kpi-foot">{foot ?? ' '}</div>
+    <div className="kpi-foot row spread" style={{ gap: 8 }}><span>{foot ?? ' '}</span>{evidence && <EvidenceTag e={evidence} />}</div>
   </>;
   return onClick
     ? <button type="button" className="card kpi" onClick={onClick} style={{ cursor: 'pointer', font: 'inherit', color: 'inherit' }}>{body}</button>

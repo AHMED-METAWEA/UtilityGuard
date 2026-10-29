@@ -1,0 +1,69 @@
+{
+  "truthAssetId": "water-pipe-01",
+  "truthName": "Main WP-GOV-01",
+  "leakM3H": 90.0,
+  "windowMin": 120,
+  "hourlyCost": 2049.44,
+  "detectors": [
+    {
+      "detectorId": "d1",
+      "name": "Fixed threshold",
+      "detected": true,
+      "delayMin": 6.0
+    },
+    {
+      "detectorId": "d2",
+      "name": "Residual CUSUM",
+      "detected": true,
+      "delayMin": 14.0
+    },
+    {
+      "detectorId": "d3",
+      "name": "Isolation Forest",
+      "detected": true,
+      "delayMin": 5.0
+    },
+    {
+      "detectorId": "d4",
+      "name": "LightGBM classifier",
+      "detected": true,
+      "delayMin": 4.0
+    }
+  ],
+  "localization": {
+    "method": "Residual signatures: one leak on one pipe plus a demand-error term, ranked by the share of the residual explained",
+    "sensorsUsed": 89,
+    "sensorsTotal": 89,
+    "demandErrorPct": 0.2,
+    "candidates": [
+      {
+        "rank": 1,
+        "assetId": "water-pipe-01",
+        "name": "Main WP-GOV-01",
+        "zoneId": "zone-gov",
+        "score": 0.999,
+        "leakM3H": 167.4
+      },
+      {
+        "rank": 2,
+        "assetId": "water-pipe-09",
+        "name": "Main WP-RES-FAR-09",
+        "zoneId": "zone-res-far",
+        "score": 0.002,
+        "leakM3H": 2.7
+      },
+      {
+        "rank": 3,
+        "assetId": "water-pipe-02",
+        "name": "Main WP-CULT-02",
+        "zoneId": "zone-cult",
+        "score": 0.002,
+        "leakM3H": 2.7
+      }
+    ],
+    "ambiguous": false,
+    "incidentId": "inc-0001"
+  },
+  "hitRank": 1,
+  "disabledSensors": []
+}

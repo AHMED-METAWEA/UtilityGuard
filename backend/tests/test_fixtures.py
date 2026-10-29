@@ -7,6 +7,7 @@ import pytest
 from pydantic import TypeAdapter
 
 from app import schemas as S
+from app.schemas import lab as L
 
 FIX = Path(__file__).resolve().parents[2] / "fixtures"
 
@@ -15,9 +16,10 @@ REST = {
     "scenarios": list[S.Scenario], "scenario_run": S.ScenarioRunResponse, "forecast": S.Forecast,
     "metrics": S.ModelMetrics, "assumptions": list[S.Assumption], "calculation": S.CalculationRecord,
     "chat_accepted": S.ChatAccepted, "compare": S.Compare, "sensor_placement": list[S.PlacementSuggestion],
-    "drift": list[S.DriftIndicator], "error": S.ErrorResponse,
+    "drift": list[S.DriftIndicator], "error": S.ErrorResponse, "decision": S.DecisionReport,
     "sensor_history": S.SensorHistory, "kpis": list[S.Kpi], "savings": S.SavingsReport, "series_demand": S.DemandSeries,
-    "forecast_evidence": S.ForecastEvidence, "series_substations": S.SubstationSeries, "series_cooling_efficiency": S.DailySeries,
+    "forecast_evidence": S.ForecastEvidence, "lab_benchmark": L.LabBenchmark, "lab_sensors": L.SensorValue, "lab_localization": L.LabLocalization,
+    "lab_quality": L.LabQuality, "incident_localization": L.Localization, "lab_trial": L.TrialResult, "quality_now": L.QualityNow, "series_substations": S.SubstationSeries, "series_cooling_efficiency": S.DailySeries,
 }
 
 

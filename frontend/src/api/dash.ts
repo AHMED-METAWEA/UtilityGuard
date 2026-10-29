@@ -5,7 +5,7 @@ import type { Assumption, Calculation, CalcInputLike, ForecastMetrics, ForecastP
 export interface SeriesPoint { t: string; v: number }
 export interface Kpi {
   id: string; label: string; value: number; unit: string; digits: number; target?: number; better?: 'lower' | 'higher';
-  delta?: number; series: SeriesPoint[]; note: string; formula: string; network?: Network;
+  delta?: number; series: SeriesPoint[]; note: string; formula: string; network?: Network; evidence?: 'measured' | 'model' | 'assumed' | 'calculated';
 }
 export interface ForecastDrivers {
   temperatureNow: number; temperaturePeak: number; heatWave?: number | null; holiday?: number | null; liveCorrection: number; correctionHours: number;

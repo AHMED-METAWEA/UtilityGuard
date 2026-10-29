@@ -1,0 +1,10 @@
+{
+  "sensorsTotal": 89,
+  "flagged": [
+    {
+      "sensorId": "water-pipe-02-flow-in",
+      "status": "missing",
+      "detail": "No reading for the last 3 ticks"
+    }
+  ]
+}

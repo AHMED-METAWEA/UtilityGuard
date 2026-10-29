@@ -8,6 +8,7 @@ import { Live } from './pages/Live';
 import { Incidents } from './pages/Incidents';
 import { Savings } from './pages/Savings';
 import { Forecast } from './pages/Forecast';
+import { Lab } from './pages/Lab';
 import { Executive } from './pages/Executive';
 import { ScenarioLab } from './panels/ScenarioLab';
 import { ChatDock } from './panels/ChatDock';
@@ -68,6 +69,7 @@ export default function App() {
         {route.page === 'incidents' && <Incidents id={route.id} />}
         {route.page === 'savings' && <Savings id={route.id} />}
         {route.page === 'forecast' && <Forecast />}
+        {route.page === 'lab' && <Lab />}
         {route.page === 'executive' && <Executive />}
       </main>
       <ChatDock />

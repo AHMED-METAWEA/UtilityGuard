@@ -6,6 +6,7 @@ import { useStore } from '../store';
 import { TimeChart } from '../charts/TimeChart';
 import { Columns } from '../charts/Columns';
 import { Card, Empty, Meter, NET, NetIcon, Seg, Skeleton } from '../ui';
+import { EvidenceTag } from '../ui/Provenance';
 import { ago, fmt, hhmm } from '../lib/format';
 
 const FEATURE: Record<string, string> = {
@@ -185,7 +186,7 @@ export function Forecast() {
             <TimeChart label="Demand, measured and forecast" series={view.series} band={view.band} nowT={view.now} unit={d.unit} height={320} />
             <div className="row wrap spread" style={{ marginTop: 10, gap: 12 }}>
               <span className="muted" style={{ fontSize: 12 }}>
-                Peak expected at <b className="num" style={{ color: 'var(--text)' }}>{hhmm(view.peak.timestamp)}</b> · <b className="num" style={{ color: 'var(--text)' }}>{fmt(view.peak.predicted)} {d.unit}</b>
+                <EvidenceTag e="model" /> Peak expected at <b className="num" style={{ color: 'var(--text)' }}>{hhmm(view.peak.timestamp)}</b> · <b className="num" style={{ color: 'var(--text)' }}>{fmt(view.peak.predicted)} {d.unit}</b>
                 {lift !== null && <> · <b className="num" style={{ color: 'var(--warn-text)' }}>{lift > 0 ? '+' : ''}{fmt(lift)}%</b> against a normal day</>}
               </span>
               <span className="row" style={{ gap: 14 }}>
@@ -211,7 +212,7 @@ export function Forecast() {
             <div style={{ gridColumn: '1 / -1' }} className="muted"><span style={{ fontSize: 12 }}>Precision is the share of alarms that were real. Recall is the share of real faults found. Failure model AUC {fmt(det.failureAuc ?? 0, 2)}. Model run {metrics.data ? ago(metrics.data.lastRun) : ''} ago.</span></div>
           </div> : <Skeleton h={100} />}
         </Card>
-        <Card title="Assets most likely to fail" sub="Failure model, next 30 days">
+        <Card title="Assets most likely to fail" sub="Failure model, next 30 days" right={<EvidenceTag e="model" />}>
           {risky.length ? <div className="stack" style={{ gap: 12 }}>{risky.map((a) => <div key={a.assetId}><div className="row spread" style={{ marginBottom: 4 }}><span>{name(a.assetId)}</span><b className="num">{fmt((a.failureProbability ?? 0) * 100)}%</b></div><Meter value={a.failureProbability ?? 0} color={(a.failureProbability ?? 0) > 0.3 ? 'var(--warn)' : 'var(--accent)'} label={name(a.assetId)} /></div>)}</div> : <Skeleton h={160} />}
           {failure.length > 0 && <div className="muted" style={{ fontSize: 12, marginTop: 12 }}>Main inputs: {failure.slice(0, 3).map((f) => FEATURE[f.feature] ?? f.feature).join(', ')}.</div>}
         </Card>

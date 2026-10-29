@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import itertools
 import logging
 from contextlib import asynccontextmanager
@@ -18,8 +19,12 @@ from starlette.exceptions import HTTPException
 import time
 from datetime import timedelta
 
-from app import dashboard, extras, savings as savings_mod, scenarios
+from app import dashboard, decision as decision_mod, extras, savings as savings_mod, scenarios
 from app.agents.service import AgentService
+from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
+from app.lab.live import live_localization
+from app.lab.quality import live_quality
+from app.schemas.lab import QualityFlagItem, QualityNow, TrialRequest
 from app.ml.service import MLService
 from app.runtime import runtime
 from app.schemas import SensorHistory, SensorHistoryPoint, ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
@@ -35,6 +40,7 @@ class ApiError(Exception):
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     runtime.start()
+    asyncio.get_running_loop().run_in_executor(None, lab_cache.warm)  # builds the detector benchmark once, off the event loop
     yield
     await runtime.stop()
 
@@ -46,6 +52,7 @@ _run_ids = itertools.count(1)
 service = AgentService(runtime)
 ml_service = MLService(runtime, service.detector)
 history = dashboard.History(runtime.seed)
+lab_cache = LabCache(runtime.seed)
 _savings_cache: dict = {}
 
 
@@ -99,6 +106,19 @@ def alerts() -> list:
 @api.get("/incidents")
 def incidents() -> list:
     return out(sorted(runtime.incidents.values(), key=lambda i: i.opened_at, reverse=True))
+
+
+@api.get("/incidents/{incident_id}/decision")
+def decision(incident_id: str) -> dict:
+    inc = runtime.incidents.get(incident_id)
+    if not inc:
+        raise ApiError(404, "not_found", f"Incident {incident_id} does not exist.")
+    finding = next((runtime.findings[id_] for id_ in reversed(inc.finding_ids)
+                    if id_ in runtime.findings and runtime.findings[id_].incident_id == incident_id
+                    and runtime.findings[id_].explain.calculation_id == inc.calculation_id), None)
+    if not finding:
+        raise ApiError(404, "not_found", f"Finding for incident {incident_id} does not exist.")
+    return out(decision_mod.from_finding(finding, service.A, runtime.seed))
 
 
 @api.post("/alerts/{alert_id}/acknowledge")
@@ -194,6 +214,53 @@ def forecast(network: str = "water", zoneId: str = "zone-gov", horizonHours: int
         return out(ml_service.forecast(network, zoneId, max(1, min(horizonHours, 72))))
     except KeyError as e:
         raise ApiError(404, "no_forecast", f"No forecast for {network} in {zoneId}.") from e
+
+
+@api.get("/lab/benchmark")
+async def lab_benchmark() -> dict:
+    data = await asyncio.to_thread(lab_cache.ensure)
+    return out(summarize_benchmark(data, service.A))
+
+
+@api.get("/lab/localization")
+async def lab_localization() -> dict:
+    data = await asyncio.to_thread(lab_cache.ensure)
+    return out(summarize_localization(data, len(runtime.engine.g.topology.sensors)))
+
+
+@api.get("/lab/quality")
+async def lab_quality() -> dict:
+    data = await asyncio.to_thread(lab_cache.ensure)
+    return out(summarize_quality(data))
+
+
+@api.get("/quality")
+async def quality_now() -> dict:
+    qm = await asyncio.to_thread(lab_cache.live_quality_model)
+    flags = live_quality(runtime, qm)
+    return out(QualityNow(sensors_total=len(qm.sensors), flagged=[QualityFlagItem(sensor_id=f.sensor_id, status=f.status, detail=f.detail) for f in flags]))
+
+
+@api.get("/lab/sensors")
+async def lab_sensors() -> dict:
+    data = await asyncio.to_thread(lab_cache.ensure)
+    return out(summarize_sensors(data, service.A))
+
+
+@api.post("/lab/trial")
+async def lab_trial(req: TrialRequest) -> dict:
+    return out(await asyncio.to_thread(lab_cache.trial, req, service.A))
+
+
+@api.get("/incidents/{incident_id}/localization")
+async def incident_localization(incident_id: str) -> dict:
+    inc = runtime.incidents.get(incident_id)
+    if not inc:
+        raise ApiError(404, "no_incident", f"No incident {incident_id}.")
+    if service.detector.state.incident_kind.get(incident_id) != "leak":
+        raise ApiError(404, "no_localization", "Localization applies to leak incidents.")
+    m = await asyncio.to_thread(lab_cache.models)
+    return out(live_localization(runtime, m.loc, incident_id))
 
 
 @api.get("/forecast/evidence")

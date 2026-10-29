@@ -1,0 +1,434 @@
+{
+  "generatedAt": "2026-10-29T13:39:22.786036Z",
+  "config": {
+    "tickMinutes": 1,
+    "windowMinutes": 120,
+    "expectationErrorPct": 3.3,
+    "trainRuns": 180,
+    "testRuns": 160,
+    "cleanHours": 250.0,
+    "holdoutZones": [
+      "zone-cult",
+      "zone-pres",
+      "zone-res-ne"
+    ],
+    "seed": 42
+  },
+  "detectors": [
+    {
+      "id": "d1",
+      "name": "Fixed threshold",
+      "kind": "baseline",
+      "note": "Alarm when a reading leaves its calibrated normal range. What a plain SCADA alarm does.",
+      "falseAlarmsPer100H": 6.0,
+      "detectionRate": 0.794,
+      "medianDelayMin": 5.0,
+      "p90DelayMin": 29.0,
+      "meanDelayCost": 2037.85,
+      "unseenDetectionRate": 0.75,
+      "unseenMedianDelayMin": 5.0,
+      "byFault": [
+        {
+          "kind": "pipe_burst",
+          "label": "Pipe burst",
+          "runs": 126,
+          "detected": 93,
+          "detectionRate": 0.738,
+          "medianDelayMin": 5.0,
+          "meanDelayCost": 1102.17
+        },
+        {
+          "kind": "pump_failure",
+          "label": "Pump failure",
+          "runs": 18,
+          "detected": 18,
+          "detectionRate": 1.0,
+          "medianDelayMin": 29.5,
+          "meanDelayCost": 758.15
+        },
+        {
+          "kind": "substation_trip",
+          "label": "Substation trip",
+          "runs": 8,
+          "detected": 8,
+          "detectionRate": 1.0,
+          "medianDelayMin": 2.0,
+          "meanDelayCost": 20871.81
+        },
+        {
+          "kind": "cooling_fault",
+          "label": "Cooling plant fault",
+          "runs": 8,
+          "detected": 8,
+          "detectionRate": 1.0,
+          "medianDelayMin": 8.0,
+          "meanDelayCost": 820.22
+        }
+      ]
+    },
+    {
+      "id": "d2",
+      "name": "Residual CUSUM",
+      "kind": "statistical",
+      "note": "Cumulative sum of each sensor's standardised difference from the twin's expectation (k = 0.5). The limit h is set on clean calibration runs, because a forecast error that lingers fools the textbook h = 8.",
+      "falseAlarmsPer100H": 1.2,
+      "detectionRate": 1.0,
+      "medianDelayMin": 14.0,
+      "p90DelayMin": 45.099999999999994,
+      "meanDelayCost": 2296.2,
+      "unseenDetectionRate": 1.0,
+      "unseenMedianDelayMin": 16.5,
+      "byFault": [
+        {
+          "kind": "pipe_burst",
+          "label": "Pipe burst",
+          "runs": 126,
+          "detected": 126,
+          "detectionRate": 1.0,
+          "medianDelayMin": 14.0,
+          "meanDelayCost": 705.11
+        },
+        {
+          "kind": "pump_failure",
+          "label": "Pump failure",
+          "runs": 18,
+          "detected": 18,
+          "detectionRate": 1.0,
+          "medianDelayMin": 33.0,
+          "meanDelayCost": 858.56
+        },
+        {
+          "kind": "substation_trip",
+          "label": "Substation trip",
+          "runs": 8,
+          "detected": 8,
+          "detectionRate": 1.0,
+          "medianDelayMin": 3.0,
+          "meanDelayCost": 31307.71
+        },
+        {
+          "kind": "cooling_fault",
+          "label": "Cooling plant fault",
+          "runs": 8,
+          "detected": 8,
+          "detectionRate": 1.0,
+          "medianDelayMin": 13.0,
+          "meanDelayCost": 1579.02
+        }
+      ]
+    },
+    {
+      "id": "d3",
+      "name": "Isolation Forest",
+      "kind": "unsupervised",
+      "note": "Scores how unusual a tick is compared with clean operation, on the pipes' mass balance and the largest residual. Never sees a fault in training.",
+      "falseAlarmsPer100H": 0.0,
+      "detectionRate": 0.819,
+      "medianDelayMin": 5.0,
+      "p90DelayMin": 16.0,
+      "meanDelayCost": 44670.33,
+      "unseenDetectionRate": 0.854,
+      "unseenMedianDelayMin": 5.0,
+      "byFault": [
+        {
+          "kind": "pipe_burst",
+          "label": "Pipe burst",
+          "runs": 126,
+          "detected": 122,
+          "detectionRate": 0.968,
+          "medianDelayMin": 5.0,
+          "meanDelayCost": 436.98
+        },
+        {
+          "kind": "pump_failure",
+          "label": "Pump failure",
+          "runs": 18,
+          "detected": 4,
+          "detectionRate": 0.222,
+          "medianDelayMin": 68.0,
+          "meanDelayCost": 2710.42
+        },
+        {
+          "kind": "substation_trip",
+          "label": "Substation trip",
+          "runs": 8,
+          "detected": 4,
+          "detectionRate": 0.5,
+          "medianDelayMin": 40.5,
+          "meanDelayCost": 866217.19
+        },
+        {
+          "kind": "cooling_fault",
+          "label": "Cooling plant fault",
+          "runs": 8,
+          "detected": 1,
+          "detectionRate": 0.125,
+          "medianDelayMin": 108.0,
+          "meanDelayCost": 14208.57
+        }
+      ]
+    },
+    {
+      "id": "d4",
+      "name": "LightGBM classifier",
+      "kind": "supervised",
+      "note": "Trained on injected faults of other sizes, start times and (partly) other locations than the test. Reads residuals and per-pipe mass balance.",
+      "falseAlarmsPer100H": 0.0,
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "p90DelayMin": 25.19999999999999,
+      "meanDelayCost": 1276.09,
+      "unseenDetectionRate": 1.0,
+      "unseenMedianDelayMin": 4.0,
+      "byFault": [
+        {
+          "kind": "pipe_burst",
+          "label": "Pipe burst",
+          "runs": 126,
+          "detected": 126,
+          "detectionRate": 1.0,
+          "medianDelayMin": 4.0,
+          "meanDelayCost": 164.68
+        },
+        {
+          "kind": "pump_failure",
+          "label": "Pump failure",
+          "runs": 18,
+          "detected": 18,
+          "detectionRate": 1.0,
+          "medianDelayMin": 27.5,
+          "meanDelayCost": 709.75
+        },
+        {
+          "kind": "substation_trip",
+          "label": "Substation trip",
+          "runs": 8,
+          "detected": 8,
+          "detectionRate": 1.0,
+          "medianDelayMin": 2.0,
+          "meanDelayCost": 20871.81
+        },
+        {
+          "kind": "cooling_fault",
+          "label": "Cooling plant fault",
+          "runs": 8,
+          "detected": 8,
+          "detectionRate": 1.0,
+          "medianDelayMin": 4.0,
+          "meanDelayCost": 459.31
+        }
+      ]
+    }
+  ],
+  "leakCurve": [
+    {
+      "leakM3H": 18.0,
+      "results": [
+        {
+          "detectorId": "d1",
+          "detectionRate": 0.056,
+          "medianDelayMin": 0.0
+        },
+        {
+          "detectorId": "d2",
+          "detectionRate": 1.0,
+          "medianDelayMin": 47.0
+        },
+        {
+          "detectorId": "d3",
+          "detectionRate": 0.889,
+          "medianDelayMin": 11.0
+        },
+        {
+          "detectorId": "d4",
+          "detectionRate": 1.0,
+          "medianDelayMin": 7.0
+        }
+      ]
+    },
+    {
+      "leakM3H": 30.0,
+      "results": [
+        {
+          "detectorId": "d1",
+          "detectionRate": 0.111,
+          "medianDelayMin": 37.0
+        },
+        {
+          "detectorId": "d2",
+          "detectionRate": 1.0,
+          "medianDelayMin": 30.0
+        },
+        {
+          "detectorId": "d3",
+          "detectionRate": 0.889,
+          "medianDelayMin": 7.0
+        },
+        {
+          "detectorId": "d4",
+          "detectionRate": 1.0,
+          "medianDelayMin": 5.0
+        }
+      ]
+    },
+    {
+      "leakM3H": 54.0,
+      "results": [
+        {
+          "detectorId": "d1",
+          "detectionRate": 1.0,
+          "medianDelayMin": 8.0
+        },
+        {
+          "detectorId": "d2",
+          "detectionRate": 1.0,
+          "medianDelayMin": 19.0
+        },
+        {
+          "detectorId": "d3",
+          "detectionRate": 1.0,
+          "medianDelayMin": 5.5
+        },
+        {
+          "detectorId": "d4",
+          "detectionRate": 1.0,
+          "medianDelayMin": 4.0
+        }
+      ]
+    },
+    {
+      "leakM3H": 90.0,
+      "results": [
+        {
+          "detectorId": "d1",
+          "detectionRate": 1.0,
+          "medianDelayMin": 6.0
+        },
+        {
+          "detectorId": "d2",
+          "detectionRate": 1.0,
+          "medianDelayMin": 14.0
+        },
+        {
+          "detectorId": "d3",
+          "detectionRate": 1.0,
+          "medianDelayMin": 5.0
+        },
+        {
+          "detectorId": "d4",
+          "detectionRate": 1.0,
+          "medianDelayMin": 4.0
+        }
+      ]
+    },
+    {
+      "leakM3H": 135.0,
+      "results": [
+        {
+          "detectorId": "d1",
+          "detectionRate": 1.0,
+          "medianDelayMin": 5.0
+        },
+        {
+          "detectorId": "d2",
+          "detectionRate": 1.0,
+          "medianDelayMin": 11.0
+        },
+        {
+          "detectorId": "d3",
+          "detectionRate": 1.0,
+          "medianDelayMin": 4.0
+        },
+        {
+          "detectorId": "d4",
+          "detectionRate": 1.0,
+          "medianDelayMin": 3.0
+        }
+      ]
+    },
+    {
+      "leakM3H": 195.0,
+      "results": [
+        {
+          "detectorId": "d1",
+          "detectionRate": 1.0,
+          "medianDelayMin": 4.0
+        },
+        {
+          "detectorId": "d2",
+          "detectionRate": 1.0,
+          "medianDelayMin": 10.0
+        },
+        {
+          "detectorId": "d3",
+          "detectionRate": 1.0,
+          "medianDelayMin": 4.0
+        },
+        {
+          "detectorId": "d4",
+          "detectionRate": 1.0,
+          "medianDelayMin": 3.0
+        }
+      ]
+    },
+    {
+      "leakM3H": 270.0,
+      "results": [
+        {
+          "detectorId": "d1",
+          "detectionRate": 1.0,
+          "medianDelayMin": 3.0
+        },
+        {
+          "detectorId": "d2",
+          "detectionRate": 1.0,
+          "medianDelayMin": 8.0
+        },
+        {
+          "detectorId": "d3",
+          "detectionRate": 1.0,
+          "medianDelayMin": 3.5
+        },
+        {
+          "detectorId": "d4",
+          "detectionRate": 1.0,
+          "medianDelayMin": 3.0
+        }
+      ]
+    }
+  ],
+  "faults": [
+    {
+      "kind": "pipe_burst",
+      "label": "Pipe burst",
+      "runs": 126,
+      "hourlyCost": 2474.59
+    },
+    {
+      "kind": "pump_failure",
+      "label": "Pump failure",
+      "runs": 18,
+      "hourlyCost": 1569.44
+    },
+    {
+      "kind": "substation_trip",
+      "label": "Substation trip",
+      "runs": 8,
+      "hourlyCost": 626154.16
+    },
+    {
+      "kind": "cooling_fault",
+      "label": "Cooling plant fault",
+      "runs": 8,
+      "hourlyCost": 7192.44
+    }
+  ],
+  "bestDetectorId": "d4",
+  "notes": [
+    "Results come from the twin engine with faults injected at a random time of a random day. The detectors see readings and the twin's expectation only.",
+    "The expectation's demand is off by about 3% (slowly varying), as a real demand forecast would be.",
+    "Test faults use leak sizes, start times and noise that training never saw. The supervised model also never saw some locations; its score there is shown separately.",
+    "Delay cost = the cost model's hourly cost of the fault (at the current prices) times the delay. A fault a detector missed counts as the whole window.",
+    "This is synthetic data. It shows how the methods compare here, not how they would score on the real network."
+  ]
+}

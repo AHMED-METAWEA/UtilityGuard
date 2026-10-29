@@ -12,6 +12,7 @@ _pumps = [a.id for a in _g.topology.assets if a.kind == "pump"]
 _subs = [a.id for a in _g.topology.assets if a.kind == "substation"]
 _plants = [a.id for a in _g.topology.assets if a.kind == "plant"]
 _sensors = [s.id for s in _g.topology.sensors if s.network == "water" and s.kind == "pressure"]
+_all_sensors = [s.id for s in _g.topology.sensors]
 
 CATALOG = [
     Scenario(id="scn-pipe-burst", name="Pipe burst", description="A water main bursts and loses water.", network="water",
@@ -19,6 +20,11 @@ CATALOG = [
                          ScenarioParam(name="severity", type="number", default=0.6, min=0.1, max=1)]),
     Scenario(id="scn-stuck-sensor", name="Stuck sensor", description="A pressure sensor freezes on one value.", network="water",
              parameters=[ScenarioParam(name="targetSensor", type="select", default=f"{_g.zone_pipe['zone-cbd']}-pressure", options=_sensors)]),
+    Scenario(id="scn-sensor-drift", name="Sensor drift", description="A sensor's readings slowly walk away from the truth. Shows up in data quality, not as a fault.", network="multi",
+             parameters=[ScenarioParam(name="targetSensor", type="select", default=f"{_g.zone_pipe['zone-cbd']}-pressure", options=_all_sensors),
+                         ScenarioParam(name="severity", type="number", default=0.5, min=0.1, max=1)]),
+    Scenario(id="scn-sensor-dropout", name="Sensor dropout", description="A sensor stops reporting. The twin keeps going on its model.", network="multi",
+             parameters=[ScenarioParam(name="targetSensor", type="select", default=f"{_g.zone_pipe['zone-gov']}-flow-in", options=_all_sensors)]),
     Scenario(id="scn-substation-trip", name="Substation trip", description="A substation trips. Pumps and cooling plants it powers stop.", network="multi",
              parameters=[ScenarioParam(name="targetAsset", type="asset", default="elec-sub-02", options=_subs)]),
     Scenario(id="scn-pump-failure", name="Pump failure", description="A pump degrades over a minute and stops.", network="water",
@@ -39,7 +45,7 @@ def events_for(scenario_id: str, params: dict, run_id: str) -> list[Event]:
     p = {x.name: params.get(x.name, x.default) for x in sc.parameters}
     kind = {"scn-pipe-burst": "pipe_burst", "scn-stuck-sensor": "stuck_sensor", "scn-substation-trip": "substation_trip",
             "scn-pump-failure": "pump_failure", "scn-cooling-fault": "cooling_fault", "scn-heat-wave": "heat_wave",
-            "scn-holiday": "holiday"}[scenario_id]
+            "scn-holiday": "holiday", "scn-sensor-drift": "sensor_drift", "scn-sensor-dropout": "sensor_dropout"}[scenario_id]
     target = p.get("targetAsset") or p.get("targetSensor")
     severity = float(p.get("severity") or p.get("temperature") or p.get("factor") or 1.0)
     return [Event(kind=kind, target=target, severity=severity, run_id=run_id, params=p)]

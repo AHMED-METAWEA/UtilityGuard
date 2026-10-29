@@ -518,6 +518,7 @@ class Kpi(Model):
     note: str = ""
     formula: str = ""
     network: Network | None = None
+    evidence: Literal["measured", "model", "assumed", "calculated"] = "calculated"  # where the number comes from
 
 
 class SensorHistoryPoint(Model):
@@ -648,3 +649,5 @@ def envelope(type_: str, payload: Model) -> dict[str, Any]:
 
 
 Forecast.model_rebuild()
+
+from app.schemas.decision import BreakEven, DecisionMap, DecisionOption, DecisionReport

@@ -13,6 +13,7 @@
   --text: #0f1b2d; --text-2: #46566f; --text-3: #66758e; --on-accent: #ffffff;
   --accent: #1b66d6; --accent-soft: #e4eefc; --accent-border: #b8d0f5;
   --water: #2a78d6; --elec: #eda100; --cool: #1baf7a;
+  --d1: #7f8ea8; --d2: #e0684b; --d3: #1f9e8a; --d4: #1b66d6;
   --water-soft: #e4eefc; --elec-soft: #fdf1d6; --cool-soft: #dff4ea;
   --ok: #0ca30c; --ok-text: #0a6a0a; --ok-soft: #e1f4e1;
   --warn: #fab219; --warn-text: #8a5a00; --warn-soft: #fdf0d2;
@@ -32,6 +33,7 @@
   --text: #e8eef8; --text-2: #a9b6cc; --text-3: #7f8ea8; --on-accent: #07101f;
   --accent: #4c9aff; --accent-soft: #112543; --accent-border: #24477a;
   --water: #3987e5; --elec: #c98500; --cool: #199e70;
+  --d1: #8d9bb4; --d2: #e0684b; --d3: #1f9e8a; --d4: #3987e5;
   --water-soft: #112543; --elec-soft: #2a2108; --cool-soft: #0c2a21;
   --ok: #0ca30c; --ok-text: #4cd04c; --ok-soft: #0f2a14;
   --warn: #fab219; --warn-text: #fab219; --warn-soft: #2d2208;
@@ -236,3 +238,9 @@ input[type='range'] { accent-color: var(--accent); width: 100%; }
 details > summary { list-style: none; } details > summary::-webkit-details-marker { display: none; }
 details > summary::before { content: '▸ '; color: var(--text-3); } details[open] > summary::before { content: '▾ '; }
 .page { padding-bottom: 96px; }
+
+/* evidence tags: where a number comes from */
+.tag { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 5px; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; border: 1px solid var(--border); color: var(--text-3); background: transparent; white-space: nowrap; }
+.tag.measured { color: var(--accent); border-color: var(--accent-border); background: var(--accent-soft); }
+.tag.model { color: var(--cool); border-color: color-mix(in srgb, var(--cool) 40%, transparent); background: var(--cool-soft); }
+.tag.assumed { color: var(--warn-text); border-color: color-mix(in srgb, var(--warn) 50%, transparent); background: var(--warn-soft); }

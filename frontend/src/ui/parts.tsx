@@ -6,6 +6,7 @@ import type { Kpi as KpiData } from '../api/dash';
 import { useStore } from '../store';
 import { href } from '../lib/route';
 import { ago, compact, egp, fmt } from '../lib/format';
+import { EvidenceTag } from './Provenance';
 import { Card, Kpi, Meter, NET, NetIcon, SeverityChip, type KpiProps } from '.';
 
 const NET_COLOR: Record<string, string> = { water: 'var(--water)', electricity: 'var(--elec)', cooling: 'var(--cool)' };
@@ -28,7 +29,7 @@ export function kpiProps(k: KpiData, onClick?: () => void): KpiProps {
   ) : undefined;
   return {
     viz, label: k.label, value, unit: k.unit, color, spark: k.series.length ? k.series.map((p) => p.v) : undefined, target: k.target,
-    foot: k.note, delta, onClick, icon: k.network ? <NetIcon n={k.network} size={14} /> : undefined,
+    foot: k.note, delta, onClick, evidence: k.evidence, icon: k.network ? <NetIcon n={k.network} size={14} /> : undefined,
   };
 }
 
@@ -70,6 +71,7 @@ export function CostTiles({ finding }: { finding: AgentFinding }) {
       {tile('Act now', c.actNow, c.actNowLosses ? `EGP · repair + ${fmt(c.responseHours ?? 1)} h of losses` : 'EGP')}
       {tile(`Wait ${fmt(c.delayHours)} h`, c.costOfDelay, 'EGP · losses + late repair')}
       {tile('Saving', c.expectedSaving, 'EGP if you act now', true)}
+      <div className="row" style={{ gridColumn: '1 / -1', gap: 6, fontSize: 11.5, color: 'var(--text-3)' }}><EvidenceTag e="calculated" />from the cost model's formulas<EvidenceTag e="assumed" />and the prices in the assumptions</div>
     </div>
   );
 }

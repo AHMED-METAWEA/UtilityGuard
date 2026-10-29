@@ -112,7 +112,8 @@
     ],
     "note": "Target 10%. Water produced but not billed.",
     "formula": "(production − billed) ÷ production",
-    "network": "water"
+    "network": "water",
+    "evidence": "calculated"
   },
   {
     "id": "water_production",
@@ -225,7 +226,8 @@
     ],
     "note": "Reservoir outflow into the district.",
     "formula": "reservoir flow sensor",
-    "network": "water"
+    "network": "water",
+    "evidence": "measured"
   },
   {
     "id": "electric_load",
@@ -338,7 +340,8 @@
     ],
     "note": "49% of 440 MW firm capacity.",
     "formula": "sum of substation loads",
-    "network": "electricity"
+    "network": "electricity",
+    "evidence": "measured"
   },
   {
     "id": "cooling_efficiency",
@@ -453,7 +456,8 @@
     ],
     "note": "Target 0.80. Electricity per ton of cooling.",
     "formula": "chiller electric power ÷ cooling delivered",
-    "network": "cooling"
+    "network": "cooling",
+    "evidence": "calculated"
   },
   {
     "id": "districts_served",
@@ -464,7 +468,8 @@
     "better": "higher",
     "series": [],
     "note": "Districts with no offline or faulted asset.",
-    "formula": "zones without offline or faulted assets"
+    "formula": "zones without offline or faulted assets",
+    "evidence": "calculated"
   },
   {
     "id": "savings_available",
@@ -475,6 +480,7 @@
     "better": "higher",
     "series": [],
     "note": "Not yet captured. Open the Savings advisor.",
-    "formula": "sum of recommended opportunities"
+    "formula": "sum of recommended opportunities",
+    "evidence": "assumed"
   }
 ]

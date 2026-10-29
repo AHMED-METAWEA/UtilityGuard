@@ -130,6 +130,32 @@
     "reviewed": "2026-10-29"
   },
   {
+    "name": "Ongoing loss cut after pipe isolation",
+    "key": "isolate_loss_reduction",
+    "value": 0.85,
+    "unit": "fraction",
+    "source": "default assumption",
+    "userChanged": false,
+    "basis": "Planning allowance: isolation cuts lost-water cost only by 85% after crew arrival until the existing deferred horizon; disruption and secondary purchases continue unchanged. Repair uses planned_factor without damage escalation, plus one extra isolation call-out. Verify against valve isolation plans, post-isolation flows and planned work orders.",
+    "status": "planning",
+    "low": 0.7,
+    "high": 0.95,
+    "reviewed": "2026-10-29"
+  },
+  {
+    "name": "Maximum deferred repair multiplier",
+    "key": "late_multiplier_cap",
+    "value": 3.0,
+    "unit": "×",
+    "source": "default assumption",
+    "userChanged": false,
+    "basis": "Linear escalation m(w) = min(cap, 1 + (late_multiplier_kind - 1) * w / delay_hours_kind) is a planning choice, with a default cap of three times repair cost. Waiting includes losses to w with no additional response hours. This is not a fitted damage-growth law; verify against matched early and deferred repair work orders.",
+    "status": "planning",
+    "low": 2.0,
+    "high": 4.0,
+    "reviewed": "2026-10-29"
+  },
+  {
     "name": "Cost of a crew sent on a false alarm",
     "key": "false_dispatch",
     "value": 3400.0,

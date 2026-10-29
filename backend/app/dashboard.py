@@ -89,13 +89,13 @@ def build_kpis(rt: "Runtime", hist: History, savings_total: float | None) -> lis
     out = [
         Kpi(id="nrw", label="Non-revenue water", value=round(nrw_now, 1), unit="%", digits=1, target=TARGET_NRW, better="lower",
             delta=round(nrw_now - nrw_before, 1), series=_pts(rows, nrw, now, nrw_now), network="water",
-            note=f"Target {TARGET_NRW:g}%. Water produced but not billed.", formula="(production − billed) ÷ production"),
+            note=f"Target {TARGET_NRW:g}%. Water produced but not billed.", formula="(production − billed) ÷ production", evidence="calculated"),
         Kpi(id="water_production", label="Water production", value=round(prod_now), unit="m3/h", better=None,
             delta=round(prod_now - first["kpi:water_production"]), series=_pts(rows, lambda r: r["kpi:water_production"], now, prod_now), network="water",
-            note="Reservoir outflow into the district.", formula="reservoir flow sensor"),
+            note="Reservoir outflow into the district.", formula="reservoir flow sensor", evidence="measured"),
         Kpi(id="electric_load", label="Electrical load", value=round(elec_now, 1), unit="MW", digits=1, better=None,
             delta=round(elec_now - first["kpi:elec_total_mw"], 1), series=_pts(rows, lambda r: r["kpi:elec_total_mw"], now, elec_now), network="electricity",
-            note=f"{elec_now / cap:.0%} of {cap:g} MW firm capacity.", formula="sum of substation loads"),
+            note=f"{elec_now / cap:.0%} of {cap:g} MW firm capacity.", formula="sum of substation loads", evidence="measured"),
     ]
     if kwtr_now is not None:
         out.append(Kpi(id="cooling_efficiency", label="Cooling efficiency", value=round(kwtr_now, 2), unit="kW/TR", digits=2, target=TARGET_KW_PER_TR, better="lower",
@@ -106,7 +106,7 @@ def build_kpis(rt: "Runtime", hist: History, savings_total: float | None) -> lis
                    note="Districts with no offline or faulted asset.", formula="zones without offline or faulted assets"))
     if savings_total is not None:
         out.append(Kpi(id="savings_available", label="Savings available", value=round(savings_total), unit="EGP / month", better="higher",
-                       note="Not yet captured. Open the Savings advisor.", formula="sum of recommended opportunities"))
+                       note="Not yet captured. Open the Savings advisor.", formula="sum of recommended opportunities", evidence="assumed"))
     return out
 
 

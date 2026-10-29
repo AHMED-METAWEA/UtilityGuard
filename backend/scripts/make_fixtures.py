@@ -22,6 +22,7 @@ from app.schemas import (
     ScenarioParam, ScenarioRunResponse, ScenarioState, Snapshot, envelope,
 )
 from app.cost import Assumptions, IncidentFacts, compute
+from app.decision import from_finding
 from app.sim.engine import Engine
 from app.sim.topology import build
 
@@ -142,6 +143,7 @@ write("rest/forecast.json", forecast.dump())
 write("rest/metrics.json", metrics.dump())
 write("rest/assumptions.json", [a.dump() for a in assumptions])
 write("rest/calculation.json", record.dump())
+write("rest/decision.json", from_finding(finding, A).dump())
 write("rest/chat_accepted.json", ChatAccepted(message_id="msg-0001").dump())
 write("rest/compare.json", Compare(
     scenario_id="scn-pipe-burst",
@@ -225,4 +227,28 @@ write("rest/series_demand.json", dashboard.demand_series(rt, hist, mls, "water",
 write("rest/forecast_evidence.json", mls.evidence("water").dump())
 write("rest/series_substations.json", dashboard.substation_series(rt, hist).dump())
 write("rest/series_cooling_efficiency.json", dashboard.cooling_efficiency_daily(rt, hist).dump())
+# ---------- AI lab (from the cached benchmark, so run the backend once first) ----------
+from app.lab import benchmark as lab  # noqa: E402
+from app.lab.quality import Flag  # noqa: E402
+from app.schemas.lab import Localization, LocalizationCandidate, QualityFlagItem, QualityNow, TrialDetector, TrialResult  # noqa: E402
+
+_lab = lab.LabCache(42)
+_data = _lab.ensure()
+with TemporaryDirectory() as tmp:
+    _A = Assumptions(Path(tmp) / "a.json")
+    write("rest/lab_benchmark.json", lab.summarize(_data, _A).dump())
+    write("rest/lab_sensors.json", lab.summarize_sensors(_data, _A).dump())
+write("rest/lab_localization.json", lab.summarize_localization(_data, len(topo.sensors)).dump())
+write("rest/lab_quality.json", lab.summarize_quality(_data).dump())
+_loc = Localization(method="Residual signatures: one leak on one pipe plus a demand-error term, ranked by the share of the residual explained", sensors_used=89, sensors_total=89,
+                    demand_error_pct=0.2, ambiguous=False, incident_id="inc-0001",
+                    candidates=[LocalizationCandidate(rank=1, asset_id="water-pipe-01", name="Main WP-GOV-01", zone_id="zone-gov", score=0.999, leak_m3h=167.4),
+                                LocalizationCandidate(rank=2, asset_id="water-pipe-09", name="Main WP-RES-FAR-09", zone_id="zone-res-far", score=0.002, leak_m3h=2.7),
+                                LocalizationCandidate(rank=3, asset_id="water-pipe-02", name="Main WP-CULT-02", zone_id="zone-cult", score=0.002, leak_m3h=2.7)])
+write("rest/incident_localization.json", _loc.dump())
+write("rest/lab_trial.json", TrialResult(truth_asset_id="water-pipe-01", truth_name="Main WP-GOV-01", leak_m3h=90.0, window_min=120, hourly_cost=2049.44,
+      detectors=[TrialDetector(detector_id="d1", name="Fixed threshold", detected=True, delay_min=6.0), TrialDetector(detector_id="d2", name="Residual CUSUM", detected=True, delay_min=14.0),
+                 TrialDetector(detector_id="d3", name="Isolation Forest", detected=True, delay_min=5.0), TrialDetector(detector_id="d4", name="LightGBM classifier", detected=True, delay_min=4.0)],
+      localization=_loc, hit_rank=1, disabled_sensors=[]).dump())
+write("rest/quality_now.json", QualityNow(sensors_total=89, flagged=[QualityFlagItem(sensor_id="water-pipe-02-flow-in", status="missing", detail="No reading for the last 3 ticks")]).dump())
 print(f"fixtures written to {ROOT}")
