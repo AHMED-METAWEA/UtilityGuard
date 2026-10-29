@@ -1,42 +1,59 @@
 # UtilityGuard frontend
 
-Run from `frontend/` with the installed dependencies:
+React 18 + TypeScript + Vite. State in Zustand, the map in MapLibre GL (no remote tiles: the buildings, roads, parks and the Green River are local GeoJSON in `public/geo`), charts are hand-written SVG, colours and spacing come from CSS variables in `src/design/theme.css` (light and dark).
 
 ```sh
-npm run mock
-# In another terminal:
-npm run dev
+npm install
+npm run build        # the backend serves dist/ at http://localhost:8000
+npm run dev          # port 5173, proxies /api and /ws to localhost:8000 (the backend must be running)
+npm run lint && npm run typecheck && npm test
 ```
 
-Vite proxies `/api` and `/ws` to port 8000, for either the real backend or the mock. No packages need adding. Fonts and the topology map style are local; the map uses no remote tiles or glyph services.
+## Pages (hash routes)
 
-The interface follows contract §4.9 and the regenerated fixtures. Costs, forecasts, explanations, sensitivities, and calculation results are rendered from backend data. Formula substitution is text-only; unknown inputs remain named instead of receiving invented values. Findings replace previous entries with the same ID. Open alerts include both `open` and `acknowledged` states.
+| Route | Page | What is on it |
+| --- | --- | --- |
+| `#/live` | Live twin | Map with network layers, KPIs, live charts, alerts, asset and sensor drawers, the Scenario Lab. |
+| `#/incidents/{id}` | Incidents | One incident: map with the suspected leak pipes, the finding (what happened, why we are sure, what it costs, what to do), Decision Studio, **the board of agents and the decision control**. |
+| `#/savings/{id}` | Savings | Savings opportunities with formula, range and payback; edit assumptions. |
+| `#/forecast` | Forecast and models | Demand forecast with band, backtest evidence against baselines, inputs, and the comparison of five models. |
+| `#/lab` | AI lab | Detector benchmark, localization, sensor value, data quality. |
+| `#/executive` | Executive | Scorecard against target, where money can be saved, what could fail next (risk ranking), district health. |
+| `#/audit/{sessionId?}` | Decision log | The hash-chained log: verification, filters by group and session, CSV export. |
 
-The decision card exposes evidence tags, the three main calculations, backend cost tiles, sensitivity, crew actions, staggered reasoning, verification/fallback badges, PDF download, and the full calculation drawer. Assumptions use stable keys in PUT requests; the backend re-sends updated findings. Scenario controls provide parameter sliders/dropdowns, run/stop, and a confirmed reset. Asset and sensor selection opens health, failure probability, all sensor charts, and recent alerts. Solid chart lines are measured; dashed lines use `reading.forecast`.
+Keyboard: `Cmd/Ctrl+K` command palette (includes assumptions), `S` Scenario Lab, `C` chat, `T` theme. Dialogs trap focus and close on Escape. Reduced motion is respected.
 
-Keyboard: `1/2/3` toggle networks, `S` (also `L`) opens Scenario Lab, `C` toggles charts, and `Cmd/Ctrl+K` opens commands, including assumptions. Dialogs trap focus and support Escape. Reduced motion is respected. English strings are in `src/i18n/en.json`; Arabic remains a partial stub with English fallback and RTL layout.
+## Layout of `src`
 
-## Mock behavior and limits
+| Folder | Contents |
+| --- | --- |
+| `api/` | `client.ts` (fetch with a typed error), `ws.ts` (WebSocket client with runtime validation of every message and reconnect), `types.ts` (hand-written mirror of the Pydantic schemas), `dash.ts`, `lab.ts`. |
+| `store/` | Zustand slices: readings and history, alerts, incidents, findings (stored newest-first, read with `latestFinding`), board sessions, the decision log, UI state. |
+| `ui/` | Shared components (`Card`, `Meter`, `StatusChip`…), `Decision.tsx` and `Provenance.tsx` (evidence tags, calculation view), `Board.tsx` (transcript, crew timeline, decision card) and `DecisionControl.tsx` (approve, change the order, reject, execution progress). |
+| `pages/`, `panels/` | The pages above and the drawers, palette, chat dock and Scenario Lab. |
+| `charts/` | `TimeChart`, `Columns`, `LeakCurve`, `Sparkline`, `ModelBars`, `gantt.ts` (crew timeline layout), `scale.ts`. |
+| `map/CityMap.tsx` | The map, asset markers, leak suspects layers. `window.__map` exists in dev builds only. |
+| `lib/` | Pure helpers: formatting, route parsing, `present.ts` (what to show for a finding), `decision.ts` (approval helpers and error texts), `audit.ts` (grouping and labels for the log). |
+| `i18n/` | English copy lives in the code as default values; `ar.json` is a partial Arabic stub (navigation and top bar only) with RTL layout. |
 
-The mock reads repository-root `fixtures/`, without writing them. `UTILITYGUARD_FIXTURES` and `PORT` permit isolated tests. Burst sequence delays are cumulative; readings advance monotonically. Snapshot reconnects retain the replay state. Chat emits `chat_route`, `chat_chunk`, then `chat_done`, using unique IDs for subsequent requests. Assumption saves return `{assumptions, recomputed}` and re-emit the recorded finding with its existing ID and updated assumption metadata.
+## Rules
 
-Only the pipe-burst simulation has a recorded sequence. Other scenario controls exercise run/stop state but cannot synthesize unprovided simulation results. Assumption changes in the mock retain recorded monetary results; real cost recomputation belongs to the backend. Report export returns a structured 404 because there is no PDF fixture. The UI displays that error; the real backend report endpoint is wired for PDF download.
+- **Never invent a number.** Costs, forecasts, figures in the board and the calculation view are rendered from the backend. Unknown inputs stay named.
+- **Contract first.** `src/api/types.ts` and the runtime validators in `ws.ts` follow `docs/contract.md` and the files in `../fixtures`. A message that fails validation is dropped, not guessed.
+- **No optimistic updates for decisions.** The approval status changes only when the server says so (the response or the `board_decision` message).
+- Evidence tags (Measured, Calculated, Assumed, Rule) appear next to numbers; hover or open the calculation to see the formula and the assumptions.
 
-## Contract questions for the backend owner
+## Tests
 
-- Scenario parameter fixtures have no `options`. The UI accepts provided options and otherwise derives asset choices of the default asset's kind, or sensor choices of the default sensor's kind, from topology. Should the backend supply explicit allowed options?
-- The recorded “Repair now” formula includes `equipment` without a matching input. The UI leaves that token visible; what input value should the backend include?
-- Hourly calculation records use `unit: "EGP"` although their names/inputs indicate EGP/h. The UI preserves the supplied result unit. Should these records use `EGP/h`?
+`npm test` runs Node's test runner over `tests/*.test.ts|mjs` (47 tests): fixture parsing, per-sensor ordering, reconnect hydration, alert counting, same-id finding replacement, burst sequence rehearsals, chat routing, assumptions serialization, lab keys, board state, approval and audit helpers, and the forecast comparison helpers. These are state-level tests; they do not measure frame rate or visual correctness. Visual checks are done in the browser at desktop width and at 390 px (no horizontal overflow).
 
-## Verification
+## Mock server
 
-```sh
-npm run typecheck
-npm run lint
-npm run build
-npm test
-```
+`npm run mock` replays `../fixtures` (a recorded pipe-burst sequence, chat and assumptions) without the backend. It predates the board, approval and decision log and does not serve those endpoints; use the real backend for them.
 
-Tests cover real fixture parsing, per-sensor ordering, reconnect hydration, alert counting including acknowledgement, same-ID finding replacement, three complete burst sequence rehearsals, live chat routing and completion, assumptions HTTP serialization/re-emission, and rendered decision-card evidence/totals. HTTP integration runs through Express with in-memory streams, without opening a port. These state-level rehearsals do not establish browser frame rate or visual correctness.
+## Known loose ends
 
-In this sandbox, `npm run mock` and `npm run dev` are blocked by `listen EPERM`. Browser visual review also requires an approved computer-use surface. Real-backend/browser integration and frame-rate review remain to be performed in a normal local session.
+- `echarts`, `echarts-for-react`, `deck.gl` and `framer-motion` are listed in `package.json` but no source file imports them. Removing them would shrink the install and the bundle.
+- The production bundle is one chunk of about 1.3 MB (the Vite warning limit is raised to 1200 kB). Route-level code splitting would fix it.
+- Two `react-hooks/exhaustive-deps` warnings remain in `map/CityMap.tsx` (ref values in effect cleanups).
+- Arabic is a stub.
