@@ -43,7 +43,7 @@ export function AssetDrawer() {
       <div className="row wrap" style={{ gap: 8 }}><StatusChip s={status} /><span className="chip">{asset.kind}</span><span className="chip">{zone?.name ?? asset.zoneId}</span></div>
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <div><div className="sub" style={{ fontSize: 12, marginBottom: 4 }}>Health score</div><div className="num" style={{ fontSize: 24, fontWeight: 650 }}>{state ? fmt(state.healthScore) : '–'}<span className="muted" style={{ fontSize: 13 }}> / 100</span></div><Meter value={(state?.healthScore ?? 0) / 100} color={NETVAR[asset.network]} label="Health score" /></div>
-        <div><div className="sub" style={{ fontSize: 12, marginBottom: 4 }}>Failure risk, 30 days</div><div className="num" style={{ fontSize: 24, fontWeight: 650 }}>{state?.failureProbability !== undefined ? `${fmt(state.failureProbability * 100)}%` : '–'}</div><div className="muted" style={{ fontSize: 12 }}>from the failure model</div></div>
+        <div><div className="sub" style={{ fontSize: 12, marginBottom: 4 }}>Risk score, 30 days</div><div className="num" style={{ fontSize: 24, fontWeight: 650 }}>{state?.failureProbability !== undefined ? `${fmt(state.failureProbability * 100)}%` : '–'}</div><div className="muted" style={{ fontSize: 12 }}>model score, not a calibrated chance</div></div>
       </div>
       {sensors.length === 0 && <Empty title="No sensors on this asset">It is monitored through its neighbours.</Empty>}
       {sensors.map((s) => <SensorCard key={s.id} s={s} asset={asset} />)}

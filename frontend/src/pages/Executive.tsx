@@ -53,7 +53,7 @@ export function Executive() {
           </> : <Skeleton h={200} />}
         </Card>
 
-        <Card title="What could fail next" sub="Highest failure risk over 30 days, from the failure model">
+        <Card title="What could fail next" sub="Highest risk score over 30 days. A model ranking from simulated wear, not a calibrated chance of failure.">
           {risky.length ? <div className="stack" style={{ gap: 12 }}>{risky.map((a) => <div key={a.assetId}><div className="row spread" style={{ marginBottom: 4 }}><span>{name(a.assetId)} <span className="muted" style={{ fontSize: 12 }}>health {fmt(a.healthScore)}</span></span><b className="num">{fmt((a.failureProbability ?? 0) * 100)}%</b></div><Meter value={a.failureProbability ?? 0} color={(a.failureProbability ?? 0) > 0.3 ? 'var(--warn)' : 'var(--accent)'} label={name(a.assetId)} /></div>)}</div> : <Skeleton h={180} />}
         </Card>
 

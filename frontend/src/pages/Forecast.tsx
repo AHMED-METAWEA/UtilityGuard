@@ -212,7 +212,7 @@ export function Forecast() {
             <div style={{ gridColumn: '1 / -1' }} className="muted"><span style={{ fontSize: 12 }}>Precision is the share of alarms that were real. Recall is the share of real faults found. Failure model AUC {fmt(det.failureAuc ?? 0, 2)}. Model run {metrics.data ? ago(metrics.data.lastRun) : ''} ago.</span></div>
           </div> : <Skeleton h={100} />}
         </Card>
-        <Card title="Assets most likely to fail" sub="Failure model, next 30 days" right={<EvidenceTag e="model" />}>
+        <Card title="Assets with the highest risk score" sub="A model score for the next 30 days, learned from simulated wear. It ranks assets; it is not a calibrated chance of failure." right={<EvidenceTag e="model" />}>
           {risky.length ? <div className="stack" style={{ gap: 12 }}>{risky.map((a) => <div key={a.assetId}><div className="row spread" style={{ marginBottom: 4 }}><span>{name(a.assetId)}</span><b className="num">{fmt((a.failureProbability ?? 0) * 100)}%</b></div><Meter value={a.failureProbability ?? 0} color={(a.failureProbability ?? 0) > 0.3 ? 'var(--warn)' : 'var(--accent)'} label={name(a.assetId)} /></div>)}</div> : <Skeleton h={160} />}
           {failure.length > 0 && <div className="muted" style={{ fontSize: 12, marginTop: 12 }}>Main inputs: {failure.slice(0, 3).map((f) => FEATURE[f.feature] ?? f.feature).join(', ')}.</div>}
         </Card>
