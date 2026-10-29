@@ -21,6 +21,12 @@ export interface Sensor {
 export interface Dependency { fromAsset: string; toAsset: string; relation: string }
 export interface Topology { zones: Zone[]; assets: Asset[]; sensors: Sensor[]; links: Dependency[] }
 export interface Reading { sensorId: string; timestamp: Timestamp; value: number; quality: Quality; forecast?: number }
+export interface ModelComparisonRow {
+  name: string; kind: 'gradient boosting' | 'linear' | 'random forest' | 'statistical' | 'ensemble';
+  mae: number; rmse: number; mape: number; bias: number; oofMae: number; skillVsBestBaseline: number; fitSeconds: number;
+  isLive: boolean; isSelected: boolean; params: string; pLgbmBetter: number; hourlyMape: number[];
+  weights: Record<string, number>; weightsSource: string;
+}
 export interface ReadingPayload { tick: number; timestamp: Timestamp; readings: Reading[] }
 export interface AssetStatusUpdate { assetId: string; status: AssetStatus; healthScore: number; failureProbability?: number }
 export interface Alert {
@@ -125,9 +131,27 @@ export interface BoardPlan {
   steps: BoardStep[]; expectedCost: number; p10: number; p50: number; p90: number; winShare: number;
   regretMean: number; regretP90: number; hourlyBleed: number; runs: number;
 }
+export type DecisionStatus = 'proposed' | 'executing' | 'completed' | 'rejected' | 'superseded' | 'stale';
+export interface Review {
+  outcome: 'approved' | 'rejected'; operator: string; at: Timestamp; note: string; override: boolean; order: string[];
+  expectedCost?: number | null; boardCost?: number | null; costDelta?: number | null; decisionHash: string; secondsPerHour?: number | null;
+}
+export interface ExecutionStep {
+  taskId: string; assetId: string; assetName: string; action: string; crewSlot: number;
+  planStartHour: number; planEndHour: number; state: 'waiting' | 'working' | 'done' | 'skipped'; note: string;
+  startedAt?: Timestamp | null; finishedAt?: Timestamp | null; confirmedAt?: Timestamp | null;
+}
+export interface AuditEntry {
+  seq: number; at: Timestamp; run: string; actor: string; action: string; sessionId?: string | null; subject?: string | null;
+  detail: string; data: Record<string, string | number | boolean>; prevHash: string; hash: string;
+}
+export interface AuditVerification { ok: boolean; entries: number; brokenAt?: number | null; head?: string | null }
+export interface OrderPreview { order: string[]; steps: BoardStep[]; expectedCost: number; boardCost: number; costDelta: number; override: boolean }
+export interface ReviewRequest { operator: string; note?: string; order?: string[] | null; secondsPerHour?: number | null }
 export interface BoardDecision {
   sessionId: string; incidentIds: string[]; createdAt: Timestamp; crews: number; tasks: BoardTask[]; plan: BoardPlan;
   alternatives: BoardAlternative[]; flips: BoardFlip[]; risks: BoardRisk[]; extraCrewSaving?: number | null;
+  status: DecisionStatus; review?: Review | null; execution: ExecutionStep[];
   conflict: boolean; summary: string; summarySource: BoardMessage['source']; calculationId?: string | null;
 }
 export interface BoardSession {
@@ -144,6 +168,6 @@ export interface WsPayloads {
   snapshot: SnapshotPayload; reading: ReadingPayload; asset_status: AssetStatusUpdate; alert: Alert;
   incident: Incident; agent_finding: AgentFinding; scenario_state: ScenarioState; forecast_update: Forecast;
   chat_route: ChatRoute; chat_chunk: ChatChunk; chat_done: ChatDone;
-  board_state: BoardState; board_message: BoardMessage; board_decision: BoardDecision;
+  board_state: BoardState; board_message: BoardMessage; board_decision: BoardDecision; audit_entry: AuditEntry;
 }
 export type WsEnvelope = { [T in keyof WsPayloads]: { type: T; payload: WsPayloads[T] } }[keyof WsPayloads];

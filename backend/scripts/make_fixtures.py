@@ -1,6 +1,7 @@
 """Generate /fixtures from the Pydantic schemas so every sample is valid by construction.
 
 Run: .venv/bin/python -m scripts.make_fixtures
+Use --forecast-evidence-only to refresh just the demand-model evidence fixture.
 """
 
 from __future__ import annotations
@@ -34,6 +35,10 @@ topo = g.topology
 
 
 def write(rel: str, data) -> None:
+    if "--forecast-evidence-only" in sys.argv and rel != "rest/forecast_evidence.json":
+        return
+    if "--approval-only" in sys.argv and rel not in ("rest/board_decision_executing.json", "rest/audit.json", "ws/audit_entry.json", "rest/board_session.json", "ws/board_decision.json"):
+        return
     p = ROOT / rel
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
@@ -225,6 +230,9 @@ write("rest/sensor_history.json", {"sensorId": _sid, "unit": "bar", "normalRange
       "points": [{"t": (rt.now - timedelta(seconds=2 * (len(_h) - 1 - k))).isoformat().replace("+00:00", "Z"), "v": round(_h[k], 3), "expected": round(_e[k] if _e[k] is not None else _h[k], 3)} for k in range(len(_h))]})
 write("rest/series_demand.json", dashboard.demand_series(rt, hist, mls, "water", "all").dump())
 write("rest/forecast_evidence.json", mls.evidence("water").dump())
+if "--forecast-evidence-only" in sys.argv:
+    print(f"forecast evidence fixture written to {ROOT}")
+    sys.exit(0)
 write("rest/series_substations.json", dashboard.substation_series(rt, hist).dump())
 write("rest/series_cooling_efficiency.json", dashboard.cooling_efficiency_daily(rt, hist).dump())
 # ---------- AI lab (from the cached benchmark, so run the backend once first) ----------
@@ -291,4 +299,38 @@ write("rest/board_session.json", _sess.dump())
 write("ws/board_state.json", envelope("board_state", BoardState(session_id="board-0001", incident_id=_sess.incident_id, state="running", started_at=T0)))
 write("ws/board_message.json", envelope("board_message", _msgs[1]))
 write("ws/board_decision.json", envelope("board_decision", _decision))
+# ---------- approval, execution and the decision log ----------
+import tempfile  # noqa: E402
+
+from app.board.audit import AuditLog, decision_hash  # noqa: E402
+from app.schemas.board import ExecutionStep, Review  # noqa: E402
+
+_taskmap = {t.id: t for t in _an.tasks}
+_log = AuditLog(Path(tempfile.mkdtemp()) / "audit.jsonl")
+_RUN = "run-20261028-080000"
+_add = lambda k, **kw: _log.append(run=_RUN, at=T0 + timedelta(seconds=k), **kw)  # noqa: E731
+_hash = decision_hash(_decision.dump())
+_add(1, actor="board", action="proposed", session_id="board-0001", subject=_rec.id, detail=f"The board proposes {len(_decision.plan.steps)} job(s) with {_decision.crews} crew(s), expected cost {_decision.plan.expected_cost:,.0f} EGP. Waiting for a person to decide.",
+     data={"expected_cost": _decision.plan.expected_cost, "p90": _decision.plan.p90, "tasks": len(_decision.tasks), "summary_source": "template", "decision_hash": _hash})
+_add(40, actor="Eng. Mona", action="approve", session_id="board-0001", subject=_rec.id, detail="Approved the board's plan as proposed.",
+     data={"expected_cost": _decision.plan.expected_cost, "board_cost": _decision.plan.expected_cost, "cost_delta": 0.0, "override": False, "decision_hash": _hash,
+           "tasks": len(_decision.plan.steps), "not_in_proposal": 0, "seconds_per_hour": 20.0, "order": " > ".join(x.task_id for x in _decision.plan.steps)})
+_exe = []
+for _k, _st in enumerate(_decision.plan.steps):
+    _state = "done" if _k == 0 else "working" if _k == 1 else "waiting"
+    _exe.append(ExecutionStep(task_id=_st.task_id, asset_id=_taskmap[_st.task_id].asset_id, asset_name=_st.asset_name, action=_st.action, crew_slot=_st.crew_slot,
+                              plan_start_hour=_st.start_hour, plan_end_hour=_st.end_hour, state=_state,
+                              started_at=T0 + timedelta(seconds=41) if _state != "waiting" else None, finished_at=T0 + timedelta(seconds=60) if _state == "done" else None))
+    if _state != "waiting":
+        _add(41 + _k, actor="dispatch", action="crew_dispatched", session_id="board-0001", subject=_st.task_id,
+             detail=f"Crew {_st.crew_slot} started on {_st.asset_name}: {_st.action}.", data={"crew": _st.crew_slot, "plan_hour": _st.start_hour})
+    if _state == "done":
+        _add(60, actor="dispatch", action="repair_done", session_id="board-0001", subject=_st.task_id,
+             detail=f"Crew {_st.crew_slot} finished {_st.asset_name}. The twin now shows the fault cleared.", data={"faults_cleared": 1, "plan_hour": _st.end_hour})
+_executing = _decision.model_copy(update={"status": "executing", "execution": _exe, "review": Review(
+    outcome="approved", operator="Eng. Mona", at=T0 + timedelta(seconds=40), note="", override=False, order=[x.task_id for x in _decision.plan.steps],
+    expected_cost=_decision.plan.expected_cost, board_cost=_decision.plan.expected_cost, cost_delta=0.0, decision_hash=_hash, seconds_per_hour=20.0)})
+write("rest/board_decision_executing.json", _executing.dump())
+write("rest/audit.json", {"entries": [e.dump() for e in _log.entries()], "verification": _log.verify().dump()})
+write("ws/audit_entry.json", envelope("audit_entry", _log.entries()[-1]))
 print(f"fixtures written to {ROOT}")

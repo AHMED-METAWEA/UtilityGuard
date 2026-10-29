@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Activity, Command, FlaskConical, Languages, Monitor, Moon, Sun } from 'lucide-react';
+import { Activity, ClipboardList, Command, FlaskConical, Languages, Monitor, Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
 import { useUi } from '../store/ui';
@@ -9,7 +9,7 @@ import { clock } from '../lib/format';
 
 const NAV: Record<Page, [string, string]> = {
   live: ['nav.live', 'Live twin'], incidents: ['nav.incidents', 'Incidents'], savings: ['nav.savings', 'Savings'],
-  forecast: ['nav.forecast', 'Forecast and models'], lab: ['nav.lab', 'AI lab'], executive: ['nav.executive', 'Executive'],
+  forecast: ['nav.forecast', 'Forecast and models'], lab: ['nav.lab', 'AI lab'], executive: ['nav.executive', 'Executive'], audit: ['nav.audit', 'Decision log'],
 };
 
 function Clock() {
@@ -39,6 +39,7 @@ export function TopBar() {
       <nav className="nav" aria-label="Sections">
         {PAGES.map((p) => (
           <a key={p} href={href(p)} aria-current={route.page === p ? 'page' : undefined}>
+            {p === 'audit' && <ClipboardList size={15} aria-hidden />}
             {t(NAV[p][0], NAV[p][1])}
             {p === 'incidents' && open > 0 && <span className="chip crit num" style={{ height: 18, padding: '0 6px' }}>{open}</span>}
           </a>

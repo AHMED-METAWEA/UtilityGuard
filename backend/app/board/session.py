@@ -17,6 +17,8 @@ from datetime import datetime, timezone
 
 from app.agents.llm import MODEL_FAST, MODEL_ORCH, llm
 from app.board.analysis import AGENTS, NAMES, Analysis, analyse, calculation_record, decision_object, hours, money
+from app.board.audit import AuditLog, decision_hash
+from app.board.dispatch import Dispatcher
 from app.board.plan import tasks_from_alerts
 from app.schemas import envelope
 from app.schemas.board import BoardFact, BoardMessage, BoardSession, BoardState
@@ -243,11 +245,32 @@ class Board:
         self._last_tasks: set[str] = set()
         self._timer: asyncio.Task | None = None
         self.quiet_seconds = 20.0
+        self.analyses: dict[str, Analysis] = {}
+        self.audit = AuditLog()
+        self.run = self._new_run()
+        self.dispatch = Dispatcher(self)
         rt.reset_hooks.append(self.reset)
 
+    @staticmethod
+    def _new_run() -> str:
+        return "run-" + datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+
+    def log(self, **kw):
+        """Write one line of the decision log and push it to the screens."""
+        entry = self.audit.append(run=self.run, **kw)
+        try:
+            asyncio.get_running_loop().create_task(self.rt.broadcast("audit_entry", entry))
+        except RuntimeError:  # no event loop (a test stepping the engine by hand)
+            pass
+        return entry
+
     def reset(self) -> None:
+        if self.sessions:
+            self.log(actor="system", action="simulation_reset", detail=f"The simulation was reset; {len(self.sessions)} board session(s) were closed.")
         self.sessions.clear()
+        self.analyses.clear()
         self._last_tasks.clear()
+        self.run = self._new_run()
 
     def latest(self, incident_id: str | None = None) -> BoardSession | None:
         for s in reversed(list(self.sessions.values())):
@@ -255,8 +278,14 @@ class Board:
                 return s
         return None
 
-    def open_tasks(self):
+    def raw_tasks(self):
+        """Every open problem, including ones crews are already working on."""
         return tasks_from_alerts(self.rt, self.service.detector, self.service.A)
+
+    def open_tasks(self):
+        """The problems still waiting for a decision: not the ones an approved plan has already sent crews to."""
+        claimed = self.dispatch.claimed()
+        return [t for t in self.raw_tasks() if (t.kind, t.asset_id) not in claimed]
 
     def convene(self, incident_id: str | None = None) -> BoardSession:
         if self._running and not self._running.done():
@@ -317,12 +346,33 @@ class Board:
             rt.calculations[rec.id] = rec
             s.decision = decision_object(a, text, source, rec.id)
             s.state = "done"
+            await self._propose(s, a)
             await rt.broadcast("board_decision", s.decision)
             await rt.broadcast("board_state", BoardState(session_id=s.id, incident_id=s.incident_id, state="done", started_at=s.started_at))
         except Exception:  # noqa: BLE001
             log.exception("board session %s failed", s.id)
             s.state = "done"
             await rt.broadcast("board_state", BoardState(session_id=s.id, incident_id=s.incident_id, state="done", started_at=s.started_at))
+
+    async def _propose(self, s: BoardSession, a: Analysis) -> None:
+        """A new proposal replaces any earlier one nobody has decided on, and goes to the log with a fingerprint of what it said."""
+        d = s.decision
+        self.analyses[s.id] = a
+        busy = self.dispatch.claimed() & {(t.kind, t.asset_id) for t in a.tasks}
+        if busy:  # the meeting ran while a plan covering these problems was being approved: nothing left to propose
+            d.status = "stale"
+            self.log(actor="system", action="proposal_stale", session_id=s.id, subject=d.calculation_id,
+                     detail=f"Dropped: crews were already sent to {len(busy)} of its problems by an approved plan.")
+            return
+        for other in self.sessions.values():
+            if other.id != s.id and other.decision and other.decision.status == "proposed":
+                other.decision.status = "superseded"
+                self.log(actor="system", action="superseded", session_id=other.id, subject=other.decision.calculation_id,
+                         detail=f"Replaced by the newer proposal from {s.id} before anyone decided on it.")
+                await self.rt.broadcast("board_decision", other.decision)
+        self.log(actor="board", action="proposed", session_id=s.id, subject=d.calculation_id,
+                 detail=f"The board proposes {len(d.plan.steps)} job(s) with {d.crews} crew(s), expected cost {d.plan.expected_cost:,.0f} EGP. Waiting for a person to decide.",
+                 data={"expected_cost": d.plan.expected_cost, "p90": d.plan.p90, "tasks": len(d.tasks), "summary_source": d.summary_source, "decision_hash": decision_hash(d.dump())})
 
     def _overloads(self) -> list[tuple[str, float]]:
         g, rt = self.rt.engine.g, self.rt

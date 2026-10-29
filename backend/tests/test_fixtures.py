@@ -19,7 +19,7 @@ REST = {
     "drift": list[S.DriftIndicator], "error": S.ErrorResponse, "decision": S.DecisionReport,
     "sensor_history": S.SensorHistory, "kpis": list[S.Kpi], "savings": S.SavingsReport, "series_demand": S.DemandSeries,
     "forecast_evidence": S.ForecastEvidence, "lab_benchmark": L.LabBenchmark, "lab_sensors": L.SensorValue, "lab_localization": L.LabLocalization,
-    "lab_quality": L.LabQuality, "incident_localization": L.Localization, "lab_trial": L.TrialResult, "quality_now": L.QualityNow, "board_session": S.BoardSession, "series_substations": S.SubstationSeries, "series_cooling_efficiency": S.DailySeries,
+    "lab_quality": L.LabQuality, "incident_localization": L.Localization, "lab_trial": L.TrialResult, "quality_now": L.QualityNow, "board_session": S.BoardSession, "board_decision_executing": S.BoardDecision, "series_substations": S.SubstationSeries, "series_cooling_efficiency": S.DailySeries,
 }
 
 
@@ -43,6 +43,19 @@ def test_ws_fixture(type_):
     msg = load(f"ws/{type_}.json")
     assert msg["type"] == type_
     roundtrip(S.WS_PAYLOADS[type_], msg["payload"])
+
+
+def test_audit_fixture_is_a_valid_chain():
+    from app.board.audit import GENESIS
+    from app.schemas.board import AuditVerification
+    data = load("rest/audit.json")
+    entries = [S.AuditEntry.model_validate(e) for e in data["entries"]]
+    AuditVerification.model_validate(data["verification"])
+    prev = GENESIS
+    for e in entries:
+        assert e.prev_hash == prev
+        prev = e.hash
+    assert data["verification"]["ok"] and data["verification"]["head"] == prev and data["verification"]["entries"] == len(entries)
 
 
 def test_burst_sequence():

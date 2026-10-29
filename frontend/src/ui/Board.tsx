@@ -1,9 +1,12 @@
 import { Fragment, useEffect, useId, useRef, useState } from 'react';
-import { Clock3, Scale, TriangleAlert, Zap } from 'lucide-react';
+import { Check, Clock3, Scale, TriangleAlert, Zap } from 'lucide-react';
 import { post, request, RequestError } from '../api/client';
 import type { BoardDecision, BoardMessage, BoardSession } from '../api/types';
 import { ganttLayout } from '../charts/gantt';
 import { useWidth } from '../charts/scale';
+import { cairoDateTime } from '../lib/audit';
+import { planHourNow, scheduledSteps } from '../lib/decision';
+import { DecisionControl } from './DecisionControl';
 import { compact, fmt } from '../lib/format';
 import { latestBoardFor, useStore } from '../store';
 import { useUi } from '../store/ui';
@@ -54,7 +57,18 @@ function Transcript({ session }: { session: BoardSession }) {
 }
 
 function CrewTimeline({ decision }: { decision: BoardDecision }) {
-  const layout = ganttLayout(decision.plan.steps, decision.crews);
+  const execution = decision.execution ?? [];
+  const steps = scheduledSteps(decision);
+  const layout = ganttLayout(steps, decision.crews);
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    if (decision.status !== 'executing') return;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [decision.status, decision.review?.at]);
+  const planLength = Math.max(0, ...steps.filter((step) => !step.dropped).map((step) => step.endHour));
+  const nowHour = planHourNow(decision.review, now, planLength);
   const [ref, width] = useWidth<HTMLDivElement>();
   const tipId = useId();
   const [hover, setHover] = useState<{ taskId: string; left: number } | null>(null);
@@ -69,7 +83,7 @@ function CrewTimeline({ decision }: { decision: BoardDecision }) {
   return (
     <div>
       <div className="card-title">Crew timeline</div>
-      <div className="muted" style={{ fontSize: 12, margin: '2px 0 8px' }}>Hours from now. Hover or focus a job for its costs.</div>
+      <div className="muted" style={{ fontSize: 12, margin: '2px 0 8px' }}>Planned hours. Hover or focus a job for its proposal figures.</div>
       <div className="chart board-timeline" ref={ref} onPointerLeave={() => setHover(null)}>
         <div className="board-gantt-scroll" role="region" aria-label="Scrollable crew timeline" tabIndex={0}>
           <svg width={W} height={H} role="group" aria-label="Jobs by crew, in hours from now">
@@ -79,7 +93,7 @@ function CrewTimeline({ decision }: { decision: BoardDecision }) {
               <text x={x(tick)} y={axisY + 18} textAnchor="middle" fontSize="11" fill="var(--text-3)">{fmt(tick)}</text>
             </g>)}
             <line x1={left} x2={W - right} y1={axisY} y2={axisY} stroke="var(--axis)" />
-            <text x={left + plotWidth / 2} y={H - 4} textAnchor="middle" fontSize="11" fill="var(--text-3)">Hours from now</text>
+            <text x={left + plotWidth / 2} y={H - 4} textAnchor="middle" fontSize="11" fill="var(--text-3)">Planned hours</text>
             {Array.from({ length: layout.laneCount }, (_, i) => <g key={i}>
               <text x={left - 10} y={top + i * laneHeight + 29} textAnchor="end" fontSize="12" fill="var(--text-2)">Crew {crewName(i + 1)}</text>
               <line x1={left} x2={W - right} y1={top + i * laneHeight + 44} y2={top + i * laneHeight + 44} stroke="var(--grid)" />
@@ -90,10 +104,11 @@ function CrewTimeline({ decision }: { decision: BoardDecision }) {
             </g>}
             {layout.bars.map(({ step, lane, start, width: fraction }) => {
               const bx = left + start * plotWidth, by = top + lane * laneHeight + 10, bw = fraction * plotWidth;
+              const state = execution.find((item) => item.taskId === step.taskId)?.state;
               const labelWidth = step.assetName.length * 6.6 + 12, inside = bw >= labelWidth + 8;
               const labelX = inside ? bx + bw / 2 : Math.min(W - right - labelWidth / 2, Math.max(left + labelWidth / 2, bx + bw / 2));
-              return <g key={step.taskId} className="board-gantt-bar" tabIndex={0} role="img"
-                aria-label={`${step.assetName} on crew ${crewName(step.crewSlot)} from hour ${fmt(step.startHour, 1)} to hour ${fmt(step.endHour, 1)}`}
+              return <g key={step.taskId} className={`board-gantt-bar ${state ? `execution-${state}` : ''}`} tabIndex={0} role="img"
+                aria-label={`${step.assetName} on crew ${crewName(step.crewSlot)} from hour ${fmt(step.startHour, 1)} to hour ${fmt(step.endHour, 1)}${state ? `, ${state}` : ''}`}
                 aria-describedby={hover?.taskId === step.taskId ? tipId : undefined}
                 onPointerEnter={(e) => showTip(step.taskId, e.currentTarget)} onFocus={(e) => showTip(step.taskId, e.currentTarget)}
                 onBlur={() => setHover(null)} onKeyDown={(e) => { if (e.key === 'Escape') setHover(null); }}>
@@ -102,12 +117,17 @@ function CrewTimeline({ decision }: { decision: BoardDecision }) {
                 <line x1={bx} x2={bx} y1={by + 32} y2={by + 36} stroke="var(--axis)" />
                 <line x1={bx + bw} x2={bx + bw} y1={by + 32} y2={by + 36} stroke="var(--axis)" />
                 {inside && <rect x={labelX - labelWidth / 2} y={by + 6} width={labelWidth} height={18} rx={3} fill="var(--surface)" />}
-                <text x={labelX} y={inside ? by + 19 : by - 5} textAnchor="middle" fontSize="11" fill="var(--text)">{step.assetName}</text>
+                <text x={labelX} y={inside ? by + 19 : by - 5} textAnchor="middle" fontSize="11" fill="var(--text)">{state === 'done' ? '✓ ' : ''}{step.assetName}</text>
               </g>;
             })}
+            {decision.status === 'executing' && nowHour !== null && <g className="board-now" aria-label={`Now: planned hour ${fmt(nowHour, 1)}`}>
+              <line x1={x(nowHour)} x2={x(nowHour)} y1={top - 12} y2={axisY} stroke="var(--accent)" strokeWidth={2} />
+              <text x={Math.min(W - right - 16, Math.max(left + 16, x(nowHour)))} y={top - 16} textAnchor="middle" fontSize="11" fill="var(--text)">now</text>
+            </g>}
           </svg>
         </div>
         {active && hover && <div id={tipId} role="tooltip" className="tooltip board-gantt-tip" style={{ left: hover.left, top: 26 }}>
+          {decision.review?.override && <div className="muted">Costs below are the board's proposal figures.</div>}
           <b>{active.assetName}</b><div style={{ margin: '2px 0 6px' }}>{active.action}</div>
           <div className="num">Crew {crewName(active.crewSlot)} · {fmt(active.startHour, 1)}–{fmt(active.endHour, 1)} h from now</div>
           <div>Hourly cost: <span className="num">{fmt(active.hourlyCost)} EGP/h</span></div>
@@ -116,12 +136,21 @@ function CrewTimeline({ decision }: { decision: BoardDecision }) {
         </div>}
       </div>
       <div className="legend">{Object.entries(NET).filter(([n]) => layout.bars.some(({ step }) => step.agent === n)).map(([n, net]) => <span key={n}><i className="swatch box" style={{ background: net.color }} />{net.label}</span>)}</div>
+      {decision.review?.secondsPerHour != null && <p className="sub" style={{ fontSize: 12 }}>On the demo clock, 1 planned hour plays as {fmt(decision.review.secondsPerHour)} seconds. Planned hours and costs stay the same.</p>}
+      {execution.length > 0 && <ul className="board-execution">{execution.map((step) => <li key={step.taskId} className={`execution-${step.state}`}>
+        <div className="row wrap spread" style={{ gap: 6 }}><b>{step.assetName}</b><span className={`chip ${step.state === 'done' ? 'ok' : step.state === 'working' ? 'warn' : ''}`}>{step.state === 'done' && <Check size={13} aria-hidden />}{step.state.charAt(0).toUpperCase() + step.state.slice(1)}</span></div>
+        <div>{step.crewSlot > 0 ? `Crew ${crewName(step.crewSlot)}` : 'No crew assigned'} · <span className="num">{fmt(step.planStartHour, 1)}–{fmt(step.planEndHour, 1)} h</span> planned</div>
+        <div className="sub">{step.action}</div>
+        {(step.startedAt || step.finishedAt) && <div className="muted">{step.startedAt && `Started ${cairoDateTime(step.startedAt)} Cairo`}{step.finishedAt && ` · Finished ${cairoDateTime(step.finishedAt)} Cairo`}</div>}
+        {step.note && <p style={{ margin: 0 }}>{step.note}</p>}
+        {step.confirmedAt ? <div className="row wrap" style={{ gap: 4, color: 'var(--ok-text)' }}><Check size={14} aria-hidden />Confirmed by the detector · {cairoDateTime(step.confirmedAt)} Cairo</div> : step.state === 'done' && <div className="muted">Waiting for the detector to confirm</div>}
+      </li>)}</ul>}
       {layout.dropped.map((step) => <p key={step.taskId} className="sub" style={{ fontSize: 12, margin: '8px 0 0' }}>No crew needed: {step.assetName} stops costing {step.reliefHour != null ? `at hour ${fmt(step.reliefHour, 1)}` : 'when the other repair finishes'} because another repair removes the cause.</p>)}
     </div>
   );
 }
 
-function BoardResult({ decision }: { decision: BoardDecision }) {
+function BoardResult({ decision, onLatest }: { decision: BoardDecision; onLatest: () => void }) {
   const set = useUi((s) => s.set);
   const plan = decision.plan;
   const order = [...plan.steps].sort((a, b) => a.order - b.order).map((step) => step.taskId);
@@ -136,6 +165,7 @@ function BoardResult({ decision }: { decision: BoardDecision }) {
   return (
     <section className="board-decision stack" aria-label="Board decision" style={{ gap: 18 }}>
       <div><h3 className="card-title" style={{ margin: '0 0 6px' }}>What to do</h3><p style={{ margin: '0 0 6px' }}>{decision.summary}</p><SourceTag source={decision.summarySource} /></div>
+      <DecisionControl decision={decision} onLatest={onLatest} />
       <CrewTimeline decision={decision} />
       <div className="board-kpis">
         {tile('Expected cost', plan.expectedCost, 'EGP')}
@@ -216,7 +246,14 @@ export function BoardPanel({ incidentId }: { incidentId: string }) {
       {!session && !loading && !error && <p className="muted" style={{ margin: 0, fontSize: 13 }}>Convene the board to agree the crew order for the open problems.</p>}
       {!session && error && <div className="row wrap" style={{ gap: 8 }}><span className="sub">{error}</span><button type="button" className="btn sm" onClick={() => setRetry((n) => n + 1)}>Retry</button></div>}
       {session && <Transcript session={session} />}
-      {session?.decision && <BoardResult key={session.id} decision={session.decision} />}
+      {session?.decision && <div id={`decision-${session.id}`}><BoardResult key={session.id} decision={session.decision} onLatest={() => {
+        const revision = useStore.getState().auditRevision;
+        void request<BoardSession>(`/board/latest?incidentId=${encodeURIComponent(incidentId)}`).then((latest) => {
+          if (useStore.getState().auditRevision !== revision) return;
+          useStore.getState().loadBoardSession(latest);
+          requestAnimationFrame(() => document.getElementById(`decision-${latest.id}`)?.scrollIntoView({ block: 'start' }));
+        }).catch((e: unknown) => notify(e instanceof Error ? e.message : 'Could not load the latest proposal.'));
+      }} /></div>}
     </Card>
   );
 }

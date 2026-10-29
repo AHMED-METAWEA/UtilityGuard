@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { request } from './client';
-import type { Assumption, Calculation, CalcInputLike, ForecastMetrics, ForecastPoint, Network, Reason } from './types';
+import type { Assumption, Calculation, CalcInputLike, ForecastMetrics, ForecastPoint, ModelComparisonRow, Network, Reason } from './types';
 
 export interface SeriesPoint { t: string; v: number }
 export interface Kpi {
@@ -16,6 +16,7 @@ export interface DemandSeries {
   baseline?: ForecastPoint[] | null; hindcast: SeriesPoint[]; hindcastMape?: number | null; drivers?: ForecastDrivers | null;
 }
 export interface ForecastEvidence {
+  comparison: ModelComparisonRow[]; selected: string; selectedMatchesLive: boolean; comparisonNote: string;
   network: Network; unit: string; trainDays: number; testDays: number; points: number; trainedThrough: string; weatherErrorC: number;
   model: { mae: number; rmse: number; mape: number; bias: number }; baselines: { name: string; mae: number; mape: number }[];
   skill: number; coverage: number; nominal: number; byHour: { hour: number; mape: number }[];

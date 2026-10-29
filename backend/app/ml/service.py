@@ -16,7 +16,7 @@ from app.ml.evaluate import evaluate
 from app.runtime import Runtime
 from app.schemas import (
     AssetStatus, BaselineScore, CorrectionScore, DemandSeries, FeatureImportance, Forecast, ForecastDrivers, ForecastEvidence,
-    ForecastMetrics, ForecastPoint, HourError, ModelMetrics, ModelScore, ScenarioScore, SeriesPoint, ZoneScore,
+    ForecastMetrics, ForecastPoint, HourError, ModelComparisonRow, ModelMetrics, ModelScore, ScenarioScore, SeriesPoint, ZoneScore,
 )
 from app.sim.engine import Engine
 
@@ -188,6 +188,10 @@ class MLService:
             network=network, unit=e["unit"], train_days=e["train_days"], test_days=e["test_days"], points=e["points"],
             trained_through=m.trained_through, weather_error_c=e["weather_error_c"],
             model=ModelScore(**{k: round(v, 3) for k, v in e["model"].items()}),
+            comparison=[ModelComparisonRow(**{k: round(v, 3) if k in ("mae", "rmse", "mape", "bias", "fit_seconds") else v for k, v in row.items()})
+                        for row in e.get("comparison", [])],
+            selected=e.get("selected", "lightgbm"), selected_matches_live=e.get("selected_matches_live", True),
+            comparison_note=e.get("comparison_note", ""),
             baselines=[BaselineScore(name=n, mae=round(b["mae"], 3), mape=round(b["mape"], 3)) for n, b in e["baselines"].items()],
             skill=round(e["skill"], 3), coverage=round(e["coverage"], 3), nominal=e["nominal"],
             by_hour=[HourError(hour=h["hour"], mape=round(h["mape"], 2)) for h in e["by_hour"]],

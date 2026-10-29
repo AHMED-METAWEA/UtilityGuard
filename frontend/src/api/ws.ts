@@ -23,6 +23,10 @@ const boardAlternative = (v: unknown) => record(v) && text(v.id) && text(v.name)
 const boardFlip = (v: unknown) => record(v) && text(v.taskId) && text(v.assetName) && number(v.current) && number(v.threshold) && ['below', 'above'].includes(String(v.direction));
 const boardRisk = (v: unknown) => record(v) && ['overload', 'queue', 'tail'].includes(String(v.kind)) && text(v.text);
 
+const boardReview = (v: unknown) => record(v) && ['approved', 'rejected'].includes(String(v.outcome)) && text(v.operator) && text(v.at) && text(v.note) && typeof v.override === 'boolean' && strings(v.order) && optionalNumber(v.expectedCost) && optionalNumber(v.boardCost) && optionalNumber(v.costDelta) && text(v.decisionHash) && optionalNumber(v.secondsPerHour);
+const executionStep = (v: unknown) => record(v) && ['taskId', 'assetId', 'assetName', 'action', 'note'].every((key) => text(v[key])) && ['crewSlot', 'planStartHour', 'planEndHour'].every((key) => number(v[key])) && ['waiting', 'working', 'done', 'skipped'].includes(String(v.state)) && optionalText(v.startedAt) && optionalText(v.finishedAt) && optionalText(v.confirmedAt);
+const auditEntry = (v: unknown) => record(v) && number(v.seq) && Number.isInteger(v.seq) && v.seq > 0 && ['at', 'run', 'actor', 'action', 'detail', 'prevHash', 'hash'].every((key) => text(v[key])) && optionalText(v.sessionId) && optionalText(v.subject) && record(v.data) && Object.values(v.data).every((value) => text(value) || number(value) || typeof value === 'boolean');
+
 /** Narrow known messages; additive fields never invalidate an otherwise known envelope. */
 export function parseEnvelope(raw: string): WsEnvelope | null {
   let message: unknown;
@@ -44,7 +48,10 @@ export function parseEnvelope(raw: string): WsEnvelope | null {
     case 'chat_done': valid = text(p.messageId) && list(p.agentsConsulted) && p.agentsConsulted.every(agent) && routing(p.routing); break;
     case 'board_state': valid = text(p.sessionId) && optionalText(p.incidentId) && ['running', 'done'].includes(String(p.state)) && text(p.startedAt); break;
     case 'board_message': valid = text(p.id) && text(p.sessionId) && number(p.round) && Number.isInteger(p.round) && p.round >= 0 && p.round <= 4 && agent(p.agent) && ['opening', 'position', 'dependent', 'challenge', 'decision', 'concession'].includes(String(p.kind)) && text(p.text) && list(p.facts) && p.facts.every(boardFact) && wording(p.source); break;
-    case 'board_decision': valid = text(p.sessionId) && strings(p.incidentIds) && text(p.createdAt) && number(p.crews) && list(p.tasks) && p.tasks.every(boardTask) && boardPlan(p.plan) && list(p.alternatives) && p.alternatives.every(boardAlternative) && list(p.flips) && p.flips.every(boardFlip) && list(p.risks) && p.risks.every(boardRisk) && optionalNumber(p.extraCrewSaving) && typeof p.conflict === 'boolean' && text(p.summary) && wording(p.summarySource) && optionalText(p.calculationId); break;
+    case 'audit_entry': valid = auditEntry(p); break;
+    case 'board_decision': valid = text(p.sessionId) && strings(p.incidentIds) && text(p.createdAt) && number(p.crews) && list(p.tasks) && p.tasks.every(boardTask) && boardPlan(p.plan) && list(p.alternatives) && p.alternatives.every(boardAlternative) && list(p.flips) && p.flips.every(boardFlip) && list(p.risks) && p.risks.every(boardRisk) && optionalNumber(p.extraCrewSaving) && typeof p.conflict === 'boolean' && text(p.summary) && wording(p.summarySource) && optionalText(p.calculationId) && (p.status === undefined || ['proposed', 'executing', 'completed', 'rejected', 'superseded', 'stale'].includes(String(p.status))) && (p.review == null || boardReview(p.review)) && (p.execution === undefined || (list(p.execution) && p.execution.every(executionStep)));
+      if (valid) { p.status ??= 'proposed'; p.execution ??= []; }
+      break;
     default: return null;
   }
   return valid ? message as unknown as WsEnvelope : null;
@@ -67,6 +74,7 @@ export function dispatchMessage(message: WsEnvelope) {
     case 'board_state': store.applyBoardState(message.payload); break;
     case 'board_message': store.appendBoardMessage(message.payload); break;
     case 'board_decision': store.setBoardDecision(message.payload); break;
+    case 'audit_entry': store.appendAuditEntry(message.payload); break;
   }
 }
 

@@ -158,6 +158,29 @@ async def one_run(base: str, n: int) -> None:
                 ok(numbers_ok(msg.text, msg.facts) and "[" not in msg.text, f"board message quotes a figure that is not in its facts: {msg.text[:80]}")
             ok({m.agent for m in sess.messages} >= {"orchestrator", "water", "electricity", "cooling"}, "not every board member spoke")
 
+            print(f"  [{n}] human approval, crews and the decision log")
+            sid = decision.session_id
+            bad = await c.post(f"/board/sessions/{sid}/reject", json={"operator": "Eng. Check", "note": " "})
+            ok(bad.status_code == 422 and bad.json()["code"] == "reason_required", "a rejection without a reason was accepted")
+            mark = len(st.msgs)
+            r = await c.post(f"/board/sessions/{sid}/approve", json={"operator": "Eng. Check", "note": "demo check", "secondsPerHour": 2})
+            ok(r.status_code == 200 and r.json()["status"] == "executing", f"approval failed: {r.text[:120]}")
+            again = await c.post(f"/board/sessions/{sid}/approve", json={"operator": "Eng. Check"})
+            ok(again.status_code == 409 and again.json()["code"] == "already_executing", "a second approval was accepted")
+            done_msg = (await st.wait(lambda m: m["type"] == "board_decision" and m["payload"]["sessionId"] == sid and m["payload"]["status"] == "completed", 180, since=mark))["payload"]
+            final = S.BoardDecision.model_validate(done_msg)
+            ok(all(x.state in ("done", "skipped") for x in final.execution), "not every step finished")
+            ok(final.review and final.review.decision_hash and not final.review.override, "the approval is not recorded as the board's plan")
+            clean = await st.wait(lambda m: m["type"] == "board_decision" and m["payload"]["sessionId"] == sid and all(x.get("confirmedAt") for x in m["payload"]["execution"]), 90, since=mark)
+            ok(clean is not None, "the detector did not confirm every repair")
+            log = await get(f"/audit?sessionId={sid}")
+            acts = [e["action"] for e in log["entries"]]
+            for want in ("proposed", "approve", "crew_dispatched", "repair_done", "alert_cleared", "plan_completed"):
+                ok(want in acts, f"decision log has no '{want}' line")
+            ok(log["verification"]["ok"], "decision log chain is broken")
+            ok((await get("/audit/verify"))["ok"], "audit verify failed")
+            ok((await c.get("/audit/export")).text.startswith("seq,at,run"), "audit export is not CSV")
+
             await c.post("/scenarios/reset")
             await asyncio.sleep(1)
             h = await get("/health", S.Health)

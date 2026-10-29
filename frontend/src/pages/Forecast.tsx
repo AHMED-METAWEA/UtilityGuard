@@ -5,6 +5,9 @@ import type { Forecast as ForecastT, ModelMetrics, Network } from '../api/types'
 import { useStore } from '../store';
 import { TimeChart } from '../charts/TimeChart';
 import { Columns } from '../charts/Columns';
+import { ModelBars } from '../charts/ModelBars';
+import { comparisonSummary, modelLabel } from './forecastComparison';
+import './forecast-comparison.css';
 import { Card, Empty, Meter, NET, NetIcon, Seg, Skeleton } from '../ui';
 import { EvidenceTag } from '../ui/Provenance';
 import { ago, fmt, hhmm } from '../lib/format';
@@ -45,8 +48,46 @@ function Inputs({ s }: { s: DemandSeries }) {
   );
 }
 
+function ModelComparison({ ev, color }: { ev: ForecastEvidence; color: string }) {
+  const rows = ev.comparison ?? [];
+  const { live, bestOther, betterModel, betterBaseline } = comparisonSummary(rows, ev.baselines);
+  const hourly = [live, bestOther].filter((row) => row && row.hourlyMape.length === 24).map((row) => ({
+    id: row!.name, label: `${modelLabel(row!.name)}${row!.isLive ? ' · production' : ' · best other on test'}`,
+    color: row!.isLive ? color : 'var(--text-2)', dash: !row!.isLive,
+    points: row!.hourlyMape.map((v, hour) => ({ t: Date.UTC(2026, 0, 1, hour), v })),
+  }));
+  return <Card title="Which model, and why" sub="Chosen on dev out-of-fold MAE; test MAE shows independent evidence" style={{ marginBottom: 16 }}>
+    {rows.length ? <div className="model-comparison">
+      <p style={{ marginTop: 0 }}><b>{modelLabel(ev.selected)}</b> has the lowest dev out-of-fold MAE.
+        {ev.selectedMatchesLive ? ' It is also the production model.' : ' The live forecast still uses LightGBM; the selected model is not deployed.'}</p>
+      {betterModel && live && <p>{modelLabel(betterModel.name)} also beats LightGBM on test MAE by {fmt(live.mae - betterModel.mae, 3)} {ev.unit} ({fmt((1 - betterModel.mae / live.mae) * 100, 1)}%).</p>}
+      {betterBaseline && live && <p>{betterBaseline.name} beats the production model on test MAE by {fmt(live.mae - betterBaseline.mae, 3)} {ev.unit}.</p>}
+      <div className="comparison-layout">
+        <div><p className="sub">Test MAE ({ev.unit}) · lower is better</p><ModelBars rows={rows.map((row) => ({ ...row, label: modelLabel(row.name) }))} color={color} unit={ev.unit} /></div>
+        <div><p className="sub">Test MAPE by Cairo hour · LightGBM and the best other model on test MAE</p>
+          {hourly.length === 2 ? <TimeChart label="Model test MAPE by Cairo hour" series={hourly} unit="%" digits={1} height={220} xTick={(t) => `${new Date(t).getUTCHours()}:00`} /> : <Empty title="Hourly comparison unavailable">Retrain to add the hourly scores.</Empty>}
+        </div>
+      </div>
+      <table className="comparison-table" aria-label="Model comparison scores">
+        <thead><tr><th>Model</th><th>Test MAE ({ev.unit})</th><th>Test MAPE</th><th>Out-of-fold MAE ({ev.unit})</th><th>LightGBM wins in X% of resamples</th></tr></thead>
+        <tbody>{rows.map((row) => <tr key={row.name} data-live={row.isLive}>
+          <td data-label="Model"><span><b>{modelLabel(row.name)}</b>{row.isLive && ' · production'}{row.isSelected && ' · selected'}</span></td>
+          <td data-label="Test MAE" className="num">{fmt(row.mae, 3)} {ev.unit}</td>
+          <td data-label="Test MAPE" className="num">{fmt(row.mape, 2)}%</td>
+          <td data-label="Out-of-fold MAE" className="num">{fmt(row.oofMae, 3)} {ev.unit}</td>
+          <td data-label="LightGBM wins" className="num">{row.isLive ? '— (self)' : `${fmt(row.pLgbmBetter * 100, 1)}%`}</td>
+        </tr>)}</tbody>
+      </table>
+      <details style={{ marginTop: 12 }}><summary>Method and model settings</summary>
+        <p className="sub">{ev.comparisonNote}</p>
+        {rows.map((row) => <p className="sub" key={row.name}><b>{modelLabel(row.name)}</b> · {row.params} · fits {fmt(row.fitSeconds, 2)} s</p>)}
+      </details>
+    </div> : <Empty title="Model comparison unavailable">The current evidence predates model comparison. Scores will appear after retraining.</Empty>}
+  </Card>;
+}
+
 function Evidence({ ev, color }: { ev: ForecastEvidence; color: string }) {
-  const best = ev.baselines.reduce((a, b) => (b.mae < a.mae ? b : a));
+  const best = ev.baselines.reduce<(typeof ev.baselines)[number] | undefined>((a, b) => (!a || b.mae < a.mae ? b : a), undefined);
   const rows = [{ name: 'This model', mae: ev.model.mae, mape: ev.model.mape, us: true }, ...ev.baselines.map((b) => ({ ...b, us: false }))];
   const maxMae = Math.max(...rows.map((r) => r.mae));
   const nsc = ev.scenario;
@@ -61,7 +102,8 @@ function Evidence({ ev, color }: { ev: ForecastEvidence; color: string }) {
           <p>Scored on the last {ev.testDays} days ({fmt(ev.points)} half-hour points) that nothing was fitted on, against simple methods anyone could use.</p>
         </div>
       </div>
-      <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))' }}>
+      <ModelComparison ev={ev} color={color} />
+      <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))' }}>
         <Card title="Against simple methods" sub="Average error over the test days, lower is better">
           <div className="stack" style={{ gap: 12 }}>
             {rows.map((r) => (
@@ -74,9 +116,9 @@ function Evidence({ ev, color }: { ev: ForecastEvidence; color: string }) {
               </div>
             ))}
           </div>
-          <div className="row" style={{ gap: 8, marginTop: 14 }}>
-            <span className={`chip ${ev.skill > 0.15 ? 'ok' : 'warn'}`}>{ev.skill > 0 ? <ShieldCheck size={13} /> : <CircleAlert size={13} />}{fmt(ev.skill * 100)}% less error than {best.name.toLowerCase()}</span>
-          </div>
+          {best && <div className="row" style={{ gap: 8, marginTop: 14 }}>
+            <span className={`chip ${ev.skill > 0.15 ? 'ok' : 'warn'}`}>{ev.skill > 0 ? <ShieldCheck size={13} /> : <CircleAlert size={13} />}{fmt(Math.abs(ev.skill) * 100)}% {ev.skill >= 0 ? 'less' : 'more'} error than {best.name.toLowerCase()}</span>
+          </div>}
         </Card>
 
         <Card title="Is the uncertainty band honest?" sub={`The band is built to contain ${fmt(ev.nominal * 100)}% of real values`}>
@@ -167,7 +209,7 @@ export function Forecast() {
   const lift = d && view?.basePeak ? (view.peak.predicted / view.basePeak.predicted - 1) * 100 : null;
 
   return (
-    <div className="page">
+    <div className="page forecast-page">
       <div className="page-head">
         <div><h1>Forecasts and model quality</h1><p>Every forecast shows what it was given, how it scored on days it had not seen, and how sure it is.</p></div>
         <div className="row wrap" style={{ gap: 10 }}>
@@ -179,7 +221,7 @@ export function Forecast() {
         </div>
       </div>
 
-      <div className="inc-grid" style={{ gridTemplateColumns: 'minmax(0, 1.6fr) minmax(320px, 1fr)' }}>
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))' }}>
         <Card title={<span className="row" style={{ gap: 8 }}><NetIcon n={net} />{NET[net].label} demand</span>} sub="Last 24 hours measured, next 24 hours forecast with its band">
           {d && view ? <>
             <Inputs s={d} />
@@ -203,9 +245,9 @@ export function Forecast() {
         </Card>
       </div>
 
-      {evidence.data ? <Evidence ev={evidence.data} color={color} /> : <Card title="Can you trust this forecast?"><Skeleton h={160} /></Card>}
+      {evidence.data ? <Evidence ev={evidence.data} color={color} /> : <Card title="Can you trust this forecast?">{evidence.error ? <Empty title="Evidence unavailable">The comparison could not be loaded. Try again when the data feed is available.</Empty> : <Skeleton h={160} />}</Card>}
 
-      <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', marginTop: 16 }}>
+      <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', marginTop: 16 }}>
         <Card title="Fault detection" sub="Measured over labelled scenario runs against normal operation">
           {det ? <div className="grid" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
             {[['Precision', det.precision], ['Recall', det.recall], ['F1', det.f1]].map(([l, v]) => <div key={l as string}><div className="sub" style={{ fontSize: 12 }}>{l}</div><div className="num" style={{ fontSize: 26, fontWeight: 650 }}>{fmt((v as number) * 100)}%</div></div>)}

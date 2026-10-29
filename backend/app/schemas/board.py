@@ -96,6 +96,82 @@ class BoardPlan(Model):
     runs: int
 
 
+DecisionStatus = Literal["proposed", "executing", "completed", "rejected", "superseded", "stale"]
+
+
+class Review(Model):
+    """What the human decided about the board's proposal. The board never executes anything without one."""
+    outcome: Literal["approved", "rejected"]
+    operator: str = Field(description="Who decided, as typed by the operator (the twin has no sign-in)")
+    at: datetime
+    note: str = ""
+    override: bool = Field(default=False, description="True when the operator approved a different order from the board's")
+    order: list[str] = Field(default=[], description="Task ids in the order the approved plan starts them")
+    expected_cost: float | None = Field(default=None, description="Expected cost of what was approved, EGP")
+    board_cost: float | None = Field(default=None, description="Expected cost of the board's own plan, EGP")
+    cost_delta: float | None = Field(default=None, description="expected_cost - board_cost; positive means the operator's order costs more")
+    decision_hash: str = Field(description="SHA-256 of the proposal exactly as the operator saw it")
+    seconds_per_hour: float | None = Field(default=None, description="Demo clock: seconds of real time per planned hour of crew work")
+
+
+class ExecutionStep(Model):
+    task_id: str
+    asset_id: str
+    asset_name: str
+    action: str
+    crew_slot: int
+    plan_start_hour: float
+    plan_end_hour: float
+    state: Literal["waiting", "working", "done", "skipped"]
+    note: str = ""
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    confirmed_at: datetime | None = Field(default=None, description="When the detector saw the alert clear, independently of the repair")
+
+
+class AuditEntry(Model):
+    """One line of the decision log. Each carries the hash of the line before it, so an edit anywhere breaks every hash after it."""
+    seq: int
+    at: datetime
+    run: str
+    actor: str
+    action: str
+    session_id: str | None = None
+    subject: str | None = None
+    detail: str
+    data: dict[str, str | float | bool] = {}
+    prev_hash: str
+    hash: str
+
+
+class AuditVerification(Model):
+    ok: bool
+    entries: int
+    broken_at: int | None = None
+    head: str | None = None
+
+
+class ReviewRequest(Model):
+    operator: str = Field(min_length=1, max_length=60)
+    note: str = Field(default="", max_length=500)
+    order: list[str] | None = Field(default=None, description="Approve a different order: every task id of the proposal, once, in start order")
+    seconds_per_hour: float | None = Field(default=None, ge=1, le=120)
+
+
+class PreviewRequest(Model):
+    order: list[str] = Field(description="Every task id of the proposal exactly once, in the order the person would start them")
+
+
+class OrderPreview(Model):
+    """What a different order would cost, before anyone commits to it. Nothing is changed."""
+    order: list[str]
+    steps: list[BoardStep]
+    expected_cost: float
+    board_cost: float
+    cost_delta: float = Field(description="expected_cost - board_cost in EGP; positive means this order costs more")
+    override: bool = Field(description="False when the schedule is the board's (same starts, same crews)")
+
+
 class BoardDecision(Model):
     session_id: str
     incident_ids: list[str]
@@ -111,6 +187,9 @@ class BoardDecision(Model):
     summary: str
     summary_source: Literal["llm", "template"]
     calculation_id: str | None = None
+    status: DecisionStatus = "proposed"
+    review: Review | None = None
+    execution: list[ExecutionStep] = []
 
 
 class BoardSession(Model):

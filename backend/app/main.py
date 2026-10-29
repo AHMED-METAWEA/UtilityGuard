@@ -24,7 +24,8 @@ from app.agents.service import AgentService
 from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
 from app.lab.live import live_localization
 from app.lab.quality import live_quality
-from app.schemas.board import ConveneRequest
+from app.board.dispatch import DecisionError
+from app.schemas.board import ConveneRequest, PreviewRequest, ReviewRequest
 from app.schemas.lab import QualityFlagItem, QualityNow, TrialRequest
 from app.ml.service import MLService
 from app.runtime import runtime
@@ -287,6 +288,46 @@ async def board_latest(incidentId: str | None = None) -> dict:
     if not s:
         raise ApiError(404, "no_session", "The board has not met yet.")
     return out(s)
+
+
+async def _review(fn, session_id: str, req: ReviewRequest) -> dict:
+    try:
+        return out(await fn(session_id, req))
+    except DecisionError as e:
+        raise ApiError(e.status, e.code, e.message) from e
+
+
+@api.post("/board/sessions/{session_id}/approve")
+async def board_approve(session_id: str, req: ReviewRequest) -> dict:
+    return await _review(service.board.dispatch.approve, session_id, req)
+
+
+@api.post("/board/sessions/{session_id}/reject")
+async def board_reject(session_id: str, req: ReviewRequest) -> dict:
+    return await _review(service.board.dispatch.reject, session_id, req)
+
+
+@api.post("/board/sessions/{session_id}/preview")
+async def board_preview(session_id: str, req: PreviewRequest) -> dict:
+    try:
+        return out(service.board.dispatch.preview(session_id, req))
+    except DecisionError as e:
+        raise ApiError(e.status, e.code, e.message) from e
+
+
+@api.get("/audit")
+def audit_list(sessionId: str | None = None, limit: int = 200) -> dict:  # noqa: N803
+    return {"entries": out(service.board.audit.entries(sessionId, max(1, min(limit, 1000)))), "verification": out(service.board.audit.verify())}
+
+
+@api.get("/audit/verify")
+def audit_verify() -> dict:
+    return out(service.board.audit.verify())
+
+
+@api.get("/audit/export")
+def audit_export() -> Response:
+    return Response(service.board.audit.csv(), media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="utilityguard-decision-log.csv"'})
 
 
 @api.get("/forecast/evidence")

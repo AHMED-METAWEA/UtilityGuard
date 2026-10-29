@@ -34,7 +34,7 @@ from app.sim.topology import ZONE_BASE
 
 log = logging.getLogger("utilityguard.ml")
 MODELS = Path(__file__).resolve().parents[2] / "data" / "models.pkl"
-MODEL_VERSION = 4
+MODEL_VERSION = 5
 HISTORY_DAYS = 75  # the window always ends at the start of today, so the model has seen the latest weather
 FOLDS = 5  # blocked cross-validation folds over the development window
 TEST_DAYS = 10
@@ -182,7 +182,9 @@ def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -
         data = pd.concat(parts)
         dev, te = data[data.ts < t_test], data[data.ts >= t_test]
         params = dict(n_estimators=300, learning_rate=0.05, num_leaves=31, min_child_samples=20, verbose=-1, random_state=engine.seed)
+        fit_start = time.perf_counter()
         med = lgb.LGBMRegressor(**params).fit(dev[FEATURES], dev.yn)
+        live_seconds = time.perf_counter() - fit_start
         m.demand[net] = med
 
         def score(model, part, temp_col="temp_fc", blind=False):
@@ -196,7 +198,9 @@ def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -
         block = np.minimum((dev.ts.rank(method="dense").values - 1) * FOLDS // dev.ts.nunique(), FOLDS - 1).astype(int)
         oof = np.zeros(len(dev))
         for k in range(FOLDS):
+            fit_start = time.perf_counter()
             fit = lgb.LGBMRegressor(**params).fit(dev[FEATURES][block != k], dev.yn[block != k])
+            live_seconds += time.perf_counter() - fit_start
             oof[block == k] = score(fit, dev[block == k], "temp_fc")
         ca, te = dev.assign(p=oof), te.assign(p=score(med, te), p_blind=score(med, te, "temp_blind", True))
         # band: relative error quantiles of those out-of-fold errors, per zone and for the network total, kept apart for
@@ -243,6 +247,8 @@ def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -
             "scenario": scenario, "anchor": {"tau_hours": tau, "mae_without": _stats(ya0, pa0)["mae"], "mae_with": _stats(ya, pa)["mae"]},
             "zones": zones,
         }
+        from app.ml.comparison import compare
+        m.evidence[net].update(compare(dev, te, block, oof, agg, best, live_seconds, engine.seed, per_day))
         m.metrics[net] = (model_stats["mae"], model_stats["rmse"], model_stats["mape"])
         imp: dict[str, float] = {}
         for fname, v in zip(FEATURES, med.booster_.feature_importance("gain")):

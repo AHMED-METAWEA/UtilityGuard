@@ -48,7 +48,7 @@ def ambient_temp(hour: float, day_of_year: int) -> float:
 @dataclass
 class Event:
     kind: str  # pipe_burst, stuck_sensor, sensor_drift, sensor_dropout, substation_trip, pump_failure, cooling_fault, heat_wave, holiday,
-    # iftar_surge, storm
+    # iftar_surge, storm, load_shed (made by a crew, see repair)
     target: str | None
     severity: float = 1.0
     started_tick: int = 0
@@ -102,6 +102,31 @@ class Engine:
         self.events = [e for e in self.events if run_id is not None and e.run_id != run_id]
         live_stuck = {e.target for e in self.events if e.kind == "stuck_sensor"}
         self.stuck = {k: v for k, v in self.stuck.items() if k in live_stuck}
+
+    REPAIRS = {"leak": ("pipe_burst",), "pump_failure": ("pump_failure",), "substation_trip": ("substation_trip",),
+               "cooling_fault": ("cooling_fault",), "sensor_fault": ("stuck_sensor",)}
+
+    def repair(self, kind: str, asset_id: str, run_id: str = "dispatch") -> int:
+        """A crew finishes the job: the faults of this kind on this asset end. Returns how many were removed.
+        An overload has no fault to remove; the crew sheds load until the substation is back under its normal maximum."""
+        if kind == "energy_waste":
+            load = self.truth.get(f"{asset_id}-load") or self.state.get(f"{asset_id}-load", 0.0)
+            mx = self.g.sensor_index[f"{asset_id}-load"].normal_range.max
+            frac = min(0.4, max(0.0, 1 - 0.95 * mx / load)) if load > 0 else 0.0
+            if frac > 0:
+                self.events.append(Event("load_shed", asset_id, frac, started_tick=self.tick, run_id=run_id))
+                return 1
+            return 0
+        kinds = self.REPAIRS.get(kind, ())
+        owner = lambda e: self.g.sensor_index[e.target].asset_id if e.kind == "stuck_sensor" and e.target in self.g.sensor_index else e.target  # noqa: E731
+        gone = [e for e in self.events if e.kind in kinds and owner(e) == asset_id]
+        self.events = [e for e in self.events if e not in gone]
+        if kind == "substation_trip":
+            self.overload_ticks[asset_id] = 0
+        if kind == "sensor_fault":
+            live = {e.target for e in self.events if e.kind == "stuck_sensor"}
+            self.stuck = {k: v for k, v in self.stuck.items() if k in live}
+        return len(gone)
 
     def _active(self, kind: str) -> list[Event]:
         return [e for e in self.events if e.kind == kind and e.live(self.tick)]
@@ -277,6 +302,9 @@ class Engine:
                 self.overload_ticks[s] = self.overload_ticks.get(s, 0) + 1 if over else 0
                 if self.overload_ticks[s] == int(ev.params.get("trip_after", 15)) and tripped_by_storm < int(ev.params.get("max_trips", 2)):
                     self.events.append(Event("substation_trip", s, 1.0, started_tick=self.tick, run_id=ev.run_id, params={"cause": "overload"}))
+        for ev in self._active("load_shed"):  # a crew has shed load on this substation
+            if ev.target in sub_load:
+                sub_load[ev.target] *= 1 - ev.severity
         for s, load in sub_load.items():
             t[f"{s}-load"] = load if self.sub_on[s] else 0.0
             t[f"{s}-voltage"] = (22.4 - 0.012 * load) if self.sub_on[s] else 0.0

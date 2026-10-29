@@ -9,6 +9,7 @@ import { Incidents } from './pages/Incidents';
 import { Savings } from './pages/Savings';
 import { Forecast } from './pages/Forecast';
 import { Lab } from './pages/Lab';
+import { Audit } from './pages/Audit';
 import { Executive } from './pages/Executive';
 import { ScenarioLab } from './panels/ScenarioLab';
 import { ChatDock } from './panels/ChatDock';
@@ -71,6 +72,7 @@ export default function App() {
         {route.page === 'forecast' && <Forecast />}
         {route.page === 'lab' && <Lab />}
         {route.page === 'executive' && <Executive />}
+        {route.page === 'audit' && <Audit id={route.id} />}
       </main>
       <ChatDock />
       <ScenarioLab />

@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import type { AgentFinding, Alert, AssetStatusUpdate, BoardDecision, BoardMessage, BoardSession, BoardState, ChatChunk, ChatDone, ChatMessage, ChatRoute, Incident, Forecast, Health, Reading, ReadingPayload, Scenario, ScenarioState, SnapshotPayload, Topology } from '../api/types';
+import type { AgentFinding, Alert, AssetStatusUpdate, AuditEntry, BoardDecision, BoardMessage, BoardSession, BoardState, ChatChunk, ChatDone, ChatMessage, ChatRoute, Incident, Forecast, Health, Reading, ReadingPayload, Scenario, ScenarioState, SnapshotPayload, Topology } from '../api/types';
 
 export type LoadState = 'loading' | 'ready' | 'error';
 export interface Resource<T> { data: T; status: LoadState; error?: string }
@@ -22,7 +22,8 @@ export interface BoardSlice {
   loadBoardSession: (session: BoardSession) => void;
   clearBoards: () => void;
 }
-export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & IncidentsSlice & BoardSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
+export interface AuditSlice { audit: AuditEntry[]; auditRevision: number; replaceAudit: (entries: AuditEntry[]) => void; appendAuditEntry: (entry: AuditEntry) => void; clearAudit: () => void }
+export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & IncidentsSlice & BoardSlice & AuditSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
 type Slice<T> = StateCreator<Store, [], [], T>;
 const upsert = <T extends { id: string }>(items: T[], item: T) => [item, ...items.filter((old) => old.id !== item.id)];
 export const connectionSlice: Slice<ConnectionSlice> = (set) => ({ connection: 'connecting', health: null, snapshotReady: false, setConnection: (connection) => set({ connection }), setHealth: (health) => set({ health }) });
@@ -103,6 +104,17 @@ export const boardSlice: Slice<BoardSlice> = (set) => ({
 });
 
 /** Stable selector result: newest meeting covering this incident, including shared decisions. */
+// a proposal dropped as stale never hides a plan that is being carried out or waiting for a decision
+const live = (b: BoardSession) => (b.decision?.status === 'stale' ? 0 : 1);
 export const latestBoardFor = (incidentId: string) => (s: Pick<Store, 'boards'>): BoardSession | undefined =>
   Object.values(s.boards).filter((b) => b.incidentId === incidentId || b.decision?.incidentIds.includes(incidentId))
-    .reduce<BoardSession | undefined>((latest, b) => !latest || (Date.parse(b.startedAt) || 0) > (Date.parse(latest.startedAt) || 0) ? b : latest, undefined);
+    .reduce<BoardSession | undefined>((latest, b) => !latest || live(b) > live(latest) || (live(b) === live(latest) && (Date.parse(b.startedAt) || 0) > (Date.parse(latest.startedAt) || 0)) ? b : latest, undefined);
+
+/** Sequence is authoritative even when timestamps arrive out of order. */
+export const auditEntries = (entries: AuditEntry[]) => [...new Map(entries.map((entry) => [entry.seq, entry])).values()].sort((a, b) => a.seq - b.seq).slice(-500);
+export const auditSlice: Slice<AuditSlice> = (set) => ({
+  audit: [], auditRevision: 0,
+  replaceAudit: (entries) => set({ audit: auditEntries(entries) }),
+  appendAuditEntry: (entry) => set((s) => ({ audit: auditEntries([...s.audit, entry]) })),
+  clearAudit: () => set((s) => ({ audit: [], auditRevision: s.auditRevision + 1 })),
+});

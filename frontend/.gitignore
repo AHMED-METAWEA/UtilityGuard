@@ -3,3 +3,6 @@ dist/
 .npm-cache/
 *.tsbuildinfo
 .DS_Store
+
+# the root .gitignore ignores Python's lib/ directories; the frontend's src/lib is source code
+!src/lib/

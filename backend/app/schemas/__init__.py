@@ -362,6 +362,21 @@ class ZoneScore(Model):
     mape: float
 
 
+class ModelComparisonRow(ModelScore):
+    name: str
+    kind: Literal["gradient boosting", "linear", "random forest", "statistical", "ensemble"]
+    oof_mae: float
+    skill_vs_best_baseline: float
+    fit_seconds: float
+    is_live: bool
+    is_selected: bool
+    params: str
+    p_lgbm_better: float = 0.0  # strict bootstrap win share; self-comparison is zero
+    hourly_mape: list[float] = Field(default_factory=list)
+    weights: dict[str, float] = Field(default_factory=dict)
+    weights_source: str = ""
+
+
 class ForecastEvidence(Model):
     """Everything behind the accuracy claim for one network: test window, scores against naive baselines, band coverage."""
     network: Network
@@ -381,6 +396,10 @@ class ForecastEvidence(Model):
     live_correction: CorrectionScore
     zones: list[ZoneScore]
     importances: list[FeatureImportance]
+    comparison: list[ModelComparisonRow] = Field(default_factory=list)
+    selected: str = "lightgbm"
+    selected_matches_live: bool = True
+    comparison_note: str = ""
 
 
 class ModelMetrics(Model):
@@ -667,6 +686,6 @@ def envelope(type_: str, payload: Model) -> dict[str, Any]:
 Forecast.model_rebuild()
 
 from app.schemas.decision import BreakEven, DecisionMap, DecisionOption, DecisionReport
-from app.schemas.board import BoardDecision, BoardMessage, BoardSession, BoardState
+from app.schemas.board import AuditEntry, BoardDecision, BoardMessage, BoardSession, BoardState
 
-WS_PAYLOADS.update({"board_state": BoardState, "board_message": BoardMessage, "board_decision": BoardDecision})
+WS_PAYLOADS.update({"board_state": BoardState, "board_message": BoardMessage, "board_decision": BoardDecision, "audit_entry": AuditEntry})

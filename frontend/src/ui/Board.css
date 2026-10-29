@@ -28,3 +28,31 @@
 .board-risks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .board-risks li { display: flex; align-items: flex-start; gap: 8px; }
 .board-risks svg { flex: none; margin-top: 2px; }
+.decision-control { border: 1px solid var(--border); border-radius: var(--r-ctl); padding: 12px; min-width: 0; }
+.decision-banner { display: flex; gap: 8px; padding: 10px; background: var(--surface-2); border-radius: var(--r-ctl); }
+.decision-banner > svg { flex: none; margin-top: 2px; }
+.decision-banner p { margin: 4px 0 0; }
+.decision-banner progress { width: min(100%, 280px); margin-top: 8px; accent-color: var(--accent); }
+.decision-completed { background: var(--ok-soft); color: var(--ok-text); }
+.decision-executing { background: var(--accent-soft); }
+.decision-rejected { background: var(--crit-soft); color: var(--crit-text); }
+.decision-control .field { width: 100%; min-width: 0; }
+.decision-control textarea { resize: vertical; }
+.decision-error { color: var(--crit-text); margin: 0; }
+.decision-order { padding: 10px; background: var(--surface-2); border-radius: var(--r-ctl); }
+.decision-order ol { margin: 0; padding-inline-start: 24px; }
+.decision-order ol li { padding: 5px 0; }
+.decision-order ol li > span { display: inline-block; max-width: calc(100% - 80px); vertical-align: middle; }
+.decision-order ol li > div { float: inline-end; }
+.decision-order ol li::after { content: ''; display: block; clear: both; }
+.board-execution { display: grid; gap: 8px; list-style: none; padding: 0; margin: 12px 0; }
+.board-execution li { display: flex; flex-direction: column; gap: 5px; border: 1px solid var(--border); padding: 10px; border-radius: var(--r-ctl); }
+.board-execution .execution-working { border-color: var(--accent-border); background: var(--accent-soft); }
+.board-execution .execution-skipped { border-style: dashed; }
+.board-gantt-bar.execution-waiting > rect:first-of-type { fill-opacity: .4; }
+.board-gantt-bar.execution-done > rect:first-of-type { fill-opacity: .6; }
+.board-gantt-bar.execution-skipped > rect:first-of-type { fill-opacity: .2; stroke: var(--text-2); stroke-dasharray: 4 3; }
+@keyframes crew-working { 50% { fill-opacity: .55; } }
+@media (prefers-reduced-motion: no-preference) {
+  .board-gantt-bar.execution-working > rect:first-of-type { animation: crew-working 2.4s ease-in-out infinite; }
+}

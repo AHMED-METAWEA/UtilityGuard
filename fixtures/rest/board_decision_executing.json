@@ -1,0 +1,260 @@
+{
+  "sessionId": "board-0001",
+  "incidentIds": [
+    "inc-0001",
+    "inc-0002",
+    "inc-0003"
+  ],
+  "createdAt": "2026-10-28T11:30:00Z",
+  "crews": 2,
+  "tasks": [
+    {
+      "id": "alert-0001",
+      "agent": "electricity",
+      "assetId": "elec-sub-04",
+      "assetName": "SS-04",
+      "kind": "substation_trip",
+      "action": "Inspect, re-close the breaker and re-energise the substation",
+      "crew": "electrical",
+      "hoursToFix": 1.5,
+      "hourlyCost": 411925.52,
+      "repairCost": 29400.0,
+      "returnPerCrewHour": 274617.02,
+      "relievedBy": []
+    },
+    {
+      "id": "alert-0002",
+      "agent": "water",
+      "assetId": "water-pipe-01",
+      "assetName": "Main WP-GOV-01",
+      "kind": "leak",
+      "action": "Isolate the damaged segment with the nearest valves and replace the section",
+      "crew": "pipe repair",
+      "hoursToFix": 3.0,
+      "hourlyCost": 4020.0,
+      "repairCost": 18400.0,
+      "returnPerCrewHour": 1340.0,
+      "relievedBy": []
+    },
+    {
+      "id": "alert-0003",
+      "agent": "cooling",
+      "assetId": "cool-plant-01",
+      "assetName": "DCP-01",
+      "kind": "cooling_fault",
+      "action": "Start the standby chiller and repair the faulty one",
+      "crew": "HVAC",
+      "hoursToFix": 5.0,
+      "hourlyCost": 9822.5,
+      "repairCost": 61400.0,
+      "returnPerCrewHour": 1964.5,
+      "relievedBy": []
+    }
+  ],
+  "plan": {
+    "steps": [
+      {
+        "order": 1,
+        "taskId": "alert-0001",
+        "agent": "electricity",
+        "assetName": "SS-04",
+        "action": "Inspect, re-close the breaker and re-energise the substation",
+        "crewSlot": 1,
+        "startHour": 1.0,
+        "endHour": 2.5,
+        "hourlyCost": 411925.52,
+        "lossUntilFixed": 1029813.81,
+        "repairCost": 29400.0,
+        "repairMultiplier": 1.0,
+        "dropped": false
+      },
+      {
+        "order": 2,
+        "taskId": "alert-0003",
+        "agent": "cooling",
+        "assetName": "DCP-01",
+        "action": "Start the standby chiller and repair the faulty one",
+        "crewSlot": 2,
+        "startHour": 1.0,
+        "endHour": 6.0,
+        "hourlyCost": 9822.5,
+        "lossUntilFixed": 58935.0,
+        "repairCost": 61400.0,
+        "repairMultiplier": 1.0,
+        "dropped": false
+      },
+      {
+        "order": 3,
+        "taskId": "alert-0002",
+        "agent": "water",
+        "assetName": "Main WP-GOV-01",
+        "action": "Isolate the damaged segment with the nearest valves and replace the section",
+        "crewSlot": 1,
+        "startHour": 3.0,
+        "endHour": 6.0,
+        "hourlyCost": 4020.0,
+        "lossUntilFixed": 24120.0,
+        "repairCost": 22693.33,
+        "repairMultiplier": 1.233,
+        "dropped": false
+      }
+    ],
+    "expectedCost": 1226362.14,
+    "p10": 798794.39,
+    "p50": 1173377.13,
+    "p90": 1674640.98,
+    "winShare": 1.0,
+    "regretMean": 0.0,
+    "regretP90": 0.0,
+    "hourlyBleed": 425768.02,
+    "runs": 300
+  },
+  "alternatives": [
+    {
+      "id": "alarm",
+      "name": "Work in the order the alarms arrived",
+      "order": [
+        "alert-0001",
+        "alert-0002",
+        "alert-0003"
+      ],
+      "expectedCost": 1239813.81,
+      "extraCost": 13451.67
+    },
+    {
+      "id": "water_first",
+      "name": "Water agent's work first",
+      "order": [
+        "alert-0002",
+        "alert-0001",
+        "alert-0003"
+      ],
+      "expectedCost": 1239813.81,
+      "extraCost": 13451.67
+    },
+    {
+      "id": "electricity_first",
+      "name": "Electricity agent's work first",
+      "order": [
+        "alert-0001",
+        "alert-0003",
+        "alert-0002"
+      ],
+      "expectedCost": 1226362.14,
+      "extraCost": 0.0
+    },
+    {
+      "id": "cooling_first",
+      "name": "Cooling agent's work first",
+      "order": [
+        "alert-0003",
+        "alert-0001",
+        "alert-0002"
+      ],
+      "expectedCost": 1226362.14,
+      "extraCost": 0.0
+    },
+    {
+      "id": "worst",
+      "name": "The most expensive order",
+      "order": [
+        "alert-0002",
+        "alert-0003",
+        "alert-0001"
+      ],
+      "expectedCost": 2662199.39,
+      "extraCost": 1435837.25
+    }
+  ],
+  "flips": [
+    {
+      "taskId": "alert-0003",
+      "assetName": "DCP-01",
+      "current": 9822.5,
+      "threshold": 2946.75,
+      "direction": "below"
+    },
+    {
+      "taskId": "alert-0002",
+      "assetName": "Main WP-GOV-01",
+      "current": 4020.0,
+      "threshold": 10854.0,
+      "direction": "above"
+    }
+  ],
+  "risks": [
+    {
+      "kind": "overload",
+      "text": "SS-02 is running at 118% of its normal maximum, so another trip is possible while crews are busy."
+    },
+    {
+      "kind": "queue",
+      "text": "Main WP-GOV-01 waits 3.0 h for a crew, which costs 12,333 EGP more than starting at once."
+    },
+    {
+      "kind": "tail",
+      "text": "In one price scenario in ten the plan costs 1,674,641 EGP or more."
+    }
+  ],
+  "extraCrewSaving": 12333.33,
+  "conflict": true,
+  "summary": "Do this. First: SS-04, inspect, re-close the breaker and re-energise the substation, crew A, from hour 1.0 to hour 2.5; Second: DCP-01, start the standby chiller and repair the faulty one, crew B, from hour 1.0 to hour 6.0; Third: Main WP-GOV-01, isolate the damaged segment with the nearest valves and replace the section, crew A, from hour 3.0 to hour 6.0. Why: SS-04 costs 411,926 EGP every hour it stays open. The plan is expected to cost 1,226,362 EGP. It saves 13,452 EGP against working in the order the alarms arrived. In a bad case it costs 1,674,641 EGP. The order would change if DCP-01 cost per hour were below 2,947 EGP. One more crew would save 12,333 EGP.",
+  "summarySource": "template",
+  "calculationId": "calc-board-0001",
+  "status": "executing",
+  "review": {
+    "outcome": "approved",
+    "operator": "Eng. Mona",
+    "at": "2026-10-28T11:30:40Z",
+    "note": "",
+    "override": false,
+    "order": [
+      "alert-0001",
+      "alert-0003",
+      "alert-0002"
+    ],
+    "expectedCost": 1226362.14,
+    "boardCost": 1226362.14,
+    "costDelta": 0.0,
+    "decisionHash": "0583dc8f2b88b155a278574612ac248af26c192850ce60e4f1c2dd08f9031ba3",
+    "secondsPerHour": 20.0
+  },
+  "execution": [
+    {
+      "taskId": "alert-0001",
+      "assetId": "elec-sub-04",
+      "assetName": "SS-04",
+      "action": "Inspect, re-close the breaker and re-energise the substation",
+      "crewSlot": 1,
+      "planStartHour": 1.0,
+      "planEndHour": 2.5,
+      "state": "done",
+      "note": "",
+      "startedAt": "2026-10-28T11:30:41Z",
+      "finishedAt": "2026-10-28T11:31:00Z"
+    },
+    {
+      "taskId": "alert-0003",
+      "assetId": "cool-plant-01",
+      "assetName": "DCP-01",
+      "action": "Start the standby chiller and repair the faulty one",
+      "crewSlot": 2,
+      "planStartHour": 1.0,
+      "planEndHour": 6.0,
+      "state": "working",
+      "note": "",
+      "startedAt": "2026-10-28T11:30:41Z"
+    },
+    {
+      "taskId": "alert-0002",
+      "assetId": "water-pipe-01",
+      "assetName": "Main WP-GOV-01",
+      "action": "Isolate the damaged segment with the nearest valves and replace the section",
+      "crewSlot": 1,
+      "planStartHour": 3.0,
+      "planEndHour": 6.0,
+      "state": "waiting",
+      "note": ""
+    }
+  ]
+}

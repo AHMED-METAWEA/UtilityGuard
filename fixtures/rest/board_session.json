@@ -544,6 +544,8 @@
     "conflict": true,
     "summary": "Do this. First: SS-04, inspect, re-close the breaker and re-energise the substation, crew A, from hour 1.0 to hour 2.5; Second: DCP-01, start the standby chiller and repair the faulty one, crew B, from hour 1.0 to hour 6.0; Third: Main WP-GOV-01, isolate the damaged segment with the nearest valves and replace the section, crew A, from hour 3.0 to hour 6.0. Why: SS-04 costs 411,926 EGP every hour it stays open. The plan is expected to cost 1,226,362 EGP. It saves 13,452 EGP against working in the order the alarms arrived. In a bad case it costs 1,674,641 EGP. The order would change if DCP-01 cost per hour were below 2,947 EGP. One more crew would save 12,333 EGP.",
     "summarySource": "template",
-    "calculationId": "calc-board-0001"
+    "calculationId": "calc-board-0001",
+    "status": "proposed",
+    "execution": []
   }
 }
