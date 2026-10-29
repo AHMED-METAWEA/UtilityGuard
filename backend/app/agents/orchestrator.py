@@ -143,8 +143,14 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
             }
             out, fb = await llm.json(llm.key("consult", a, s["question"].lower().strip()),
                                      CONSULT.format(agent=a, domain=DOMAIN[a]), json.dumps(data, default=str), model=MODEL_FAST)
-            views[a] = (out or {}).get("view") or _template_view(a, data)
-            s = {**s, "fallback": s.get("fallback") or fb}
+            rec = s.get("record")
+            known = [x[k] for net in (s["whatif"] or {}).get("changes", {}).values() for x in net for k in ("from", "to", "change")]
+            known += [v for f in rt.findings.values() for v in (f.cost.expected_saving, f.cost.act_now, f.cost.cost_of_delay or 0)]
+            raw = (out or {}).get("view")
+            view, removed = check(raw, allowed_numbers(rec, known)) if raw else ("", [])
+            # a specialist view with a figure we cannot trace to the data is replaced by the computed wording
+            views[a] = view if raw and not removed else _template_view(a, data)
+            s = {**s, "fallback": s.get("fallback") or fb or bool(removed)}
         return {"views": views, "fallback": s.get("fallback", False)}
 
     async def synthesize(s: OState) -> OState:
@@ -161,8 +167,11 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
         extra = [x[k] for net in (s["whatif"] or {}).get("changes", {}).values() for x in net for k in ("from", "to", "change")]
         extra += [f.cost.expected_saving for f in rt.findings.values()] + [f.cost.act_now for f in rt.findings.values()]
         extra += [float(n.replace(",", "")) for v in s["views"].values() for n in re.findall(r"\d[\d,]*\.?\d*", v)]
-        cleaned, removed = check(answer, allowed_numbers(rec, extra))
-        return {"answer": cleaned, "removed": removed, "fallback": s.get("fallback") or fb}
+        allowed = allowed_numbers(rec, extra)
+        cleaned, removed = check(answer, allowed)
+        if removed:  # the wording quoted a figure that is not in the data: use the computed wording
+            cleaned, _ = check(_template_answer(s, rec), allowed)
+        return {"answer": cleaned, "removed": removed, "fallback": s.get("fallback") or fb or bool(removed)}
 
     sg = StateGraph(OState)
     for name, fn in [("router", route), ("simulate", simulate), ("consult", consult), ("synthesize", synthesize)]:

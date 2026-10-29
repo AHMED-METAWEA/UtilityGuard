@@ -20,8 +20,14 @@ export function kpiProps(k: KpiData, onClick?: () => void): KpiProps {
     const good = dir === 'flat' || !k.better ? null : (k.better === 'lower') === (dir === 'down');
     delta = { text: `${k.delta > 0 ? '+' : ''}${fmt(k.delta, k.digits)}`, good, dir };
   }
+  const total = k.id === 'districts_served' ? Number(k.unit.replace(/\D/g, '')) : 0;
+  const viz = total ? (
+    <div role="img" aria-label={`${k.value} of ${total} districts fully served`} style={{ display: 'flex', gap: 4, height: 36, alignItems: 'center' }}>
+      {Array.from({ length: total }, (_, i) => <span key={i} style={{ flex: 1, height: 14, borderRadius: 4, background: i < k.value ? 'var(--ok)' : 'var(--crit)', opacity: i < k.value ? 0.75 : 1 }} />)}
+    </div>
+  ) : undefined;
   return {
-    label: k.label, value, unit: k.unit, color, spark: k.series.length ? k.series.map((p) => p.v) : undefined, target: k.target,
+    viz, label: k.label, value, unit: k.unit, color, spark: k.series.length ? k.series.map((p) => p.v) : undefined, target: k.target,
     foot: k.note, delta, onClick, icon: k.network ? <NetIcon n={k.network} size={14} /> : undefined,
   };
 }

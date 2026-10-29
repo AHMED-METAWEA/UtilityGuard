@@ -199,3 +199,31 @@ def test_sensor_history():
         h = S.SensorHistory.model_validate(c.get(f"/api/v1/sensors/{sid}/history?minutes=5").json())
         assert len(h.points) >= 2 and h.points[0].t < h.points[-1].t and h.unit == "bar"
         assert c.get("/api/v1/sensors/nope/history").status_code == 404
+
+
+def test_chat_accepts_and_streams_over_ws():
+    import os
+    os.environ["LLM_OFFLINE"] = "1"
+    with TestClient(app) as c, c.websocket_connect("/ws/stream") as ws:
+        assert ws.receive_json()["type"] == "snapshot"
+        r = c.post("/api/v1/chat", json={"message": "What happens if SS-02 trips?"})
+        assert r.status_code == 200
+        mid = S.ChatAccepted.model_validate(r.json()).message_id
+        seen = []
+        for _ in range(400):
+            m = ws.receive_json()
+            if m["type"] in ("chat_route", "chat_chunk", "chat_done"):
+                S.WS_PAYLOADS[m["type"]].model_validate(m["payload"])
+                assert m["payload"]["messageId"] == mid
+                seen.append(m["type"])
+                if m["type"] == "chat_done":
+                    break
+        assert seen[0] == "chat_route" and seen[-1] == "chat_done" and "chat_chunk" in seen
+        assert c.post("/api/v1/chat", json={"message": "  "}).status_code == 422
+
+
+def test_dashboard_endpoints_survive_a_reset():
+    with TestClient(app) as c:
+        c.post("/api/v1/scenarios/reset")
+        for path in ("/api/v1/kpis", "/api/v1/series/demand?network=water&zoneId=all", "/api/v1/series/substations", "/api/v1/savings"):
+            assert c.get(path).status_code == 200, path

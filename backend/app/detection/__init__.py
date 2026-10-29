@@ -92,6 +92,9 @@ class Detector:
         d.anomaly_scores = deque(maxlen=300)
         return d
 
+    def _networks(self, asset_ids: list[str]) -> list[str]:
+        return [self.g.asset_index[a].network for a in asset_ids if a in self.g.asset_index]
+
     # ---------- graph helpers ----------
     def _build_neighbours(self) -> dict[str, set[str]]:
         nb: dict[str, set[str]] = {}
@@ -303,7 +306,7 @@ class Detector:
             rt.alerts[alert.id] = alert
             if inc_id:
                 inc = rt.incidents[inc_id]
-                nets = list(dict.fromkeys([*inc.networks, d.network]))
+                nets = list(dict.fromkeys([*inc.networks, d.network, *self._networks(d.asset_ids)]))
                 inc = inc.model_copy(update={"alert_ids": [*inc.alert_ids, alert.id], "networks": nets,
                                              "zone_ids": list(dict.fromkeys([*inc.zone_ids, d.zone_id]))})
                 rt.incidents[inc_id] = inc
@@ -316,7 +319,7 @@ class Detector:
                 self.state.incident_roots[alert.incident_id] = radius
                 self.state.incident_kind[alert.incident_id] = d.kind
                 inc = Incident(id=alert.incident_id, title=f"{d.title}, {rt.engine.g.zone_index[d.zone_id].name}",
-                               networks=[d.network], zone_ids=list(d.facts.zone_types) or [d.zone_id], severity=d.severity,
+                               networks=list(dict.fromkeys([d.network, *self._networks(d.asset_ids)])), zone_ids=list(d.facts.zone_types) or [d.zone_id], severity=d.severity,
                                state="open", opened_at=now, alert_ids=[alert.id])
                 rt.incidents[inc.id] = inc
                 await rt.broadcast("alert", alert)

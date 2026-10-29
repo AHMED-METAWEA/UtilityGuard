@@ -102,19 +102,14 @@ def build_specialist(rt: "Runtime", A: Assumptions):
 
     def verify(s: SState) -> SState:
         allowed = allowed_numbers(s["record"], [x for sn in s["sensors"] for x in (sn["now"], sn["min30"] or 0, sn["max30"] or 0)])
-        cleaned, removed = {}, []
-        for k, v in s["text"].items():
-            if isinstance(v, str):
-                cleaned[k], r = check(v, allowed)
-                removed += r
-            elif isinstance(v, list):
-                cleaned[k] = []
-                for x in v:
-                    t, r = check(str(x), allowed)
-                    cleaned[k].append(t)
-                    removed += r
+        cleaned, removed = _clean(s["text"], allowed)
+        steps, fallback = s.get("steps", []), s.get("fallback", False)
+        if removed and fallback:
+            # a recorded answer quotes figures from an older state: use the computed wording instead of leaving holes
+            cleaned, removed = _clean(template(s), allowed)
+            steps = _step(s, "Recorded wording was out of date, so the computed wording is used")
         msg = "Number check passed: every figure matches the calculation" if not removed else f"Number check removed {len(removed)} unverified figure(s)"
-        return {"text": cleaned, "removed": removed, "steps": _step(s, msg)}
+        return {"text": cleaned, "removed": removed, "steps": _step({**s, "steps": steps}, msg)}
 
     def finalize(s: SState) -> SState:
         f, rec, t = s["facts"], s["record"], s["text"]
@@ -139,6 +134,24 @@ def build_specialist(rt: "Runtime", A: Assumptions):
         sg.add_edge(a, b)
     sg.add_edge("finalize", END)
     return sg.compile()
+
+
+def _clean(text: dict, allowed: set) -> tuple[dict, list]:
+    cleaned: dict[str, Any] = {}
+    removed: list[str] = []
+    for k, v in text.items():
+        if isinstance(v, str):
+            cleaned[k], r = check(v, allowed)
+            removed += r
+        elif isinstance(v, list):
+            cleaned[k] = []
+            for x in v:
+                t, r = check(str(x), allowed)
+                cleaned[k].append(t)
+                removed += r
+        else:
+            cleaned[k] = v
+    return cleaned, removed
 
 
 def template(s: SState) -> dict:

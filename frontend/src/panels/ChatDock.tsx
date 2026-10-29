@@ -5,6 +5,7 @@ import type { Agent, ChatAccepted, ChatMessage } from '../api/types';
 import { useStore } from '../store';
 import { useUi } from '../store/ui';
 import { NetIcon } from '../ui';
+import { money } from '../lib/useSensorSeries';
 
 const AGENT: Record<Agent, string> = { water: 'Water', electricity: 'Electricity', cooling: 'Cooling', orchestrator: 'Orchestrator' };
 const SUGGEST = ['What happens if SS-02 trips?', 'What is the best plan right now and what will it cost?', 'Why is pressure low in the Government District?'];
@@ -27,7 +28,7 @@ function Bubble({ m }: { m: ChatMessage }) {
         </div>
       )}
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', padding: '10px 12px', borderRadius: '12px 12px 12px 4px', whiteSpace: 'pre-wrap', minHeight: 40 }}>
-        {m.text || <span className="muted">The team is working on it...</span>}
+        {m.text ? money(m.text) : <span className="muted">The team is working on it...</span>}
         {!m.complete && m.text && <span className="muted"> ▍</span>}
       </div>
       {m.complete && (

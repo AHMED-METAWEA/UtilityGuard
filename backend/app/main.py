@@ -157,7 +157,7 @@ async def reset() -> dict:
 
 
 @api.post("/chat")
-def chat(req: ChatRequest) -> dict:
+async def chat(req: ChatRequest) -> dict:
     if not req.message.strip():
         raise ApiError(422, "empty_message", "Message must not be empty.")
     return out(ChatAccepted(message_id=service.chat(req.message, req.incident_id)))

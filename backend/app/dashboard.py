@@ -73,7 +73,7 @@ def _pts(rows, fn, now: datetime, live: float | None) -> list[SeriesPoint]:
 def build_kpis(rt: "Runtime", hist: History, savings_total: float | None) -> list[Kpi]:
     now = rt.now
     rows = hist.hourly(now, 24)
-    live = _live_row(rt)
+    live = _live_row(rt) or rows[-1][1]  # right after a reset the twin has not ticked yet
     first = rows[0][1]
     g = rt.engine.g
 
@@ -123,7 +123,8 @@ def demand_series(rt: "Runtime", hist: History, mls: "MLService", network: str, 
     idx = ("water", "electricity", "cooling").index(network)
     rows = hist.hourly(rt.now, hours)
     actual = [SeriesPoint(t=t, v=round(sum(r[f"demand:{network}:{z}"] for z in zones), 2)) for t, r in rows]
-    actual.append(SeriesPoint(t=rt.now, v=round(sum(rt.engine.zone_demand[z][idx] for z in zones), 2)))
+    if all(z in rt.engine.zone_demand for z in zones):  # not before the first tick after a reset
+        actual.append(SeriesPoint(t=rt.now, v=round(sum(rt.engine.zone_demand[z][idx] for z in zones), 2)))
 
     start = _slot(rt.now)
     fcs = [ml.forecast(mls.models, network, z, start, hours) for z in zones]

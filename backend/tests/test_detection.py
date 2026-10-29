@@ -59,7 +59,7 @@ def test_leak_estimate_close_to_truth():
 def test_trip_groups_cross_network_alerts():
     rt, det, found = run("scn-substation-trip", {"targetAsset": "elec-sub-02"})
     inc = rt.incidents[found[0][0].id]
-    assert "electricity" in inc.networks
+    assert {"electricity", "water", "cooling"} <= set(inc.networks)
     assets = {a for aid in inc.alert_ids for a in rt.alerts[aid].asset_ids}
     assert rt.engine.g.zone_pump["zone-gov"] in assets and "cool-plant-01" in assets
 

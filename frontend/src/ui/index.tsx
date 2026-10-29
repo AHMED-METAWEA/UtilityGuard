@@ -54,15 +54,15 @@ export function Drawer({ title, onClose, children, foot, width }: { title: React
 
 export interface KpiProps {
   label: string; value: string; unit?: string; color: string; spark?: number[]; target?: number; foot?: string;
-  delta?: { text: string; good: boolean | null; dir: 'up' | 'down' | 'flat' }; onClick?: () => void; loading?: boolean; icon?: ReactNode;
+  delta?: { text: string; good: boolean | null; dir: 'up' | 'down' | 'flat' }; onClick?: () => void; loading?: boolean; icon?: ReactNode; viz?: ReactNode;
 }
-export function Kpi({ label, value, unit, color, spark, target, foot, delta, onClick, loading, icon }: KpiProps) {
+export function Kpi({ label, value, unit, color, spark, target, foot, delta, onClick, loading, icon, viz }: KpiProps) {
   const body = <>
     <div className="kpi-label"><span className="row" style={{ gap: 6 }}>{icon}{label}</span>
       {delta && <span className={`delta ${delta.good === null ? 'flat' : delta.good ? 'good' : 'bad'}`}>{delta.dir === 'up' ? <TrendingUp size={13} aria-hidden /> : delta.dir === 'down' ? <TrendingDown size={13} aria-hidden /> : <Minus size={13} aria-hidden />}{delta.text}</span>}
     </div>
     {loading ? <Skeleton h={30} w={110} style={{ marginTop: 6 }} /> : <div className="kpi-value"><b>{value}</b>{unit && <span className="kpi-unit">{unit}</span>}</div>}
-    <div style={{ margin: '6px 0 2px' }}>{loading ? <Skeleton h={34} /> : spark ? <Sparkline values={spark} color={color} target={target} label={`${label} trend`} /> : <div style={{ height: 36 }} />}</div>
+    <div style={{ margin: '6px 0 2px' }}>{loading ? <Skeleton h={34} /> : viz ? viz : spark ? <Sparkline values={spark} color={color} target={target} label={`${label} trend`} /> : <div style={{ height: 36 }} />}</div>
     <div className="kpi-foot">{foot ?? ' '}</div>
   </>;
   return onClick

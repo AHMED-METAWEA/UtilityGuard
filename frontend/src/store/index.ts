@@ -24,3 +24,5 @@ export const useStore = create<Store>()((...args) => ({
     snapshot.scenarios?.forEach(store.updateScenario);
   },
 }));
+
+if (import.meta.env.DEV) (window as unknown as { __store: typeof useStore }).__store = useStore;
