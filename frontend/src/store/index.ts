@@ -25,4 +25,4 @@ export const useStore = create<Store>()((...args) => ({
   },
 }));
 
-if (import.meta.env.DEV) (window as unknown as { __store: typeof useStore }).__store = useStore;
+if (typeof window !== 'undefined' && import.meta.env?.DEV) (window as unknown as { __store: typeof useStore }).__store = useStore;

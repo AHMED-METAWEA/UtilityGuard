@@ -34,7 +34,7 @@ export function TopBar() {
     <header className="topbar">
       <a className="brand" href={href('live')} style={{ textDecoration: 'none', color: 'inherit' }}>
         <span className="brand-mark"><Activity size={18} strokeWidth={2.6} /></span>
-        <span><div className="brand-name">{t('app.name', 'UtilityGuard')}</div><div className="brand-sub">{t('app.sub', 'New Administrative Capital')}</div></span>
+        <span className="brand-text"><div className="brand-name">{t('app.name', 'UtilityGuard')}</div><div className="brand-sub">{t('app.sub', 'New Administrative Capital')}</div></span>
       </a>
       <nav className="nav" aria-label="Sections">
         {PAGES.map((p) => (

@@ -44,5 +44,5 @@ export async function loadResources(signal?: AbortSignal) {
   await Promise.allSettled(loads);
 }
 
-export const post = <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) });
-export const put = <T>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) });
+export function post<T>(path: string, body?: unknown) { return request<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) }); }
+export function put<T>(path: string, body: unknown) { return request<T>(path, { method: 'PUT', body: JSON.stringify(body) }); }

@@ -215,7 +215,14 @@ input[type='range'] { accent-color: var(--accent); width: 100%; }
 .layer-btn[aria-pressed='false'] svg { opacity: .5; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
-@media (max-width: 860px) { .topbar { gap: var(--s-3); padding: 0 var(--s-3); } .page { padding: var(--s-3); } .brand-sub, .hide-sm { display: none; } }
+@media (max-width: 860px) {
+  .topbar { height: auto; flex-wrap: wrap; gap: 4px var(--s-3); padding: 8px var(--s-3) 0; }
+  .topbar-right { margin-inline-start: auto; }
+  .nav { order: 3; flex: 1 0 100%; height: 42px; margin: 0 calc(-1 * var(--s-3)); padding: 0 var(--s-2); border-top: 1px solid var(--border); }
+  .nav a { padding: 0 12px; }
+  .page { padding: var(--s-3); padding-bottom: 96px; } .brand-sub, .hide-sm { display: none; }
+}
+@media (max-width: 560px) { .brand-text { display: none; } .page-head h1 { font-size: 19px; } }
 @media print { .topbar, .no-print { display: none !important; } body { background: #fff; } }
 
 /* ---------- layout helpers ---------- */

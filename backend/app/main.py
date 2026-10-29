@@ -11,6 +11,8 @@ from fastapi import APIRouter, FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from starlette.exceptions import HTTPException
 
 import time
@@ -287,3 +289,9 @@ async def stream(ws: WebSocket):
 
 
 app.include_router(api)
+
+
+# One command for the demo: the backend also serves the built web app (npm run build in frontend/).
+_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+if _DIST.exists():
+    app.mount("/", StaticFiles(directory=_DIST, html=True), name="web")
