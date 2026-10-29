@@ -31,9 +31,11 @@ export interface Focus { lng: number; lat: number; zoom?: number; bounds?: [numb
 interface Props {
   onSelectAsset?: (id: string) => void; selectedAsset?: string | null; focus?: Focus | null;
   height?: number | string; interactive?: boolean; showLegend?: boolean; compact?: boolean;
+  /** Pipes the localizer suspects, rank 1 first. Rank 1 pulses; the others get a quiet dashed outline. */
+  suspects?: { assetId: string; rank: number }[];
 }
 
-export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, interactive = true, showLegend = true, compact = false }: Props) {
+export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, interactive = true, showLegend = true, compact = false, suspects }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
@@ -98,6 +100,12 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
         add({ id: `net-${n}-case`, type: 'line', source: 'nets', filter: f, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#000', 'line-width': ['interpolate', ['linear'], ['zoom'], 11, 3, 16, 9], 'line-opacity': 0.9 } });
         add({ id: `net-${n}`, type: 'line', source: 'nets', filter: f, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': color, 'line-width': ['interpolate', ['linear'], ['zoom'], 11, 1.6, 16, 4.5] } });
         add({ id: `net-${n}-flow`, type: 'line', source: 'nets', filter: ['all', f, ['==', ['get', 'status'], 'normal']], layout: { 'line-cap': 'butt' }, paint: { 'line-color': '#ffffff', 'line-opacity': 0.75, 'line-width': ['interpolate', ['linear'], ['zoom'], 11, 1, 16, 2], 'line-dasharray': [0, 4, 3] } });
+        if (n === 'water') {
+          const none: maplibregl.FilterSpecification = ['==', ['get', 'assetId'], ''];
+          add({ id: 'suspect-alt', type: 'line', source: 'nets', filter: none, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#475569', 'line-width': ['interpolate', ['linear'], ['zoom'], 11, 4, 16, 11], 'line-opacity': 0.9, 'line-dasharray': [1.2, 1.2] } });
+          add({ id: 'suspect-halo', type: 'line', source: 'nets', filter: none, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#d03b3b', 'line-width': ['interpolate', ['linear'], ['zoom'], 11, 8, 16, 20], 'line-opacity': 0.35, 'line-blur': 3 } });
+          add({ id: 'suspect-top', type: 'line', source: 'nets', filter: none, layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#d03b3b', 'line-width': ['interpolate', ['linear'], ['zoom'], 11, 3, 16, 7] } });
+        }
         map.on('click', `net-${n}`, (e: MapLayerMouseEvent) => { const id = e.features?.[0]?.properties?.assetId; if (id) select.current?.(id); });
         map.on('mouseenter', `net-${n}`, () => { map.getCanvas().style.cursor = 'pointer'; });
         map.on('mouseleave', `net-${n}`, () => { map.getCanvas().style.cursor = ''; });
@@ -120,6 +128,9 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
     map.setPaintProperty('bldg', 'fill-color', ['match', ['get', 'k'], 'gov', css('--map-bldg-gov'), 'cbd', css('--map-bldg-cbd'), css('--map-bldg')]);
     map.setPaintProperty('zone-fill', 'fill-color', css('--zone-fill'));
     map.setPaintProperty('zone-line', 'line-color', css('--zone-line'));
+    map.setPaintProperty('suspect-alt', 'line-color', css('--text-2'));
+    map.setPaintProperty('suspect-halo', 'line-color', css('--crit'));
+    map.setPaintProperty('suspect-top', 'line-color', css('--crit'));
     for (const n of ['water', 'electricity', 'cooling'] as Network[]) {
       const c = css(`--${n === 'electricity' ? 'elec' : n === 'cooling' ? 'cool' : 'water'}`);
       map.setPaintProperty(`net-${n}-case`, 'line-color', css('--map-bg'));
@@ -148,11 +159,23 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, topology, assets]);
 
+  // ---- suspected pipes from the leak localizer ----
+  const topId = suspects?.find((x) => x.rank === 1)?.assetId ?? '';
+  const altIds = (suspects ?? []).filter((x) => x.rank !== 1).map((x) => x.assetId);
+  const altKey = altIds.join(',');
+  useEffect(() => {
+    const map = ready; if (!map) return;
+    const one: maplibregl.FilterSpecification = ['==', ['get', 'assetId'], topId];
+    map.setFilter('suspect-halo', one); map.setFilter('suspect-top', one);
+    map.setFilter('suspect-alt', ['in', ['get', 'assetId'], ['literal', altKey ? altKey.split(',') : ['']]]);
+  }, [ready, topId, altKey]);
+
   // ---- layer visibility ----
   useEffect(() => {
     const map = ready; if (!map) return;
     for (const n of ['water', 'electricity', 'cooling'] as Network[])
       for (const id of [`net-${n}-case`, `net-${n}`, `net-${n}-flow`]) map.setLayoutProperty(id, 'visibility', layers[n] ? 'visible' : 'none');
+    for (const id of ['suspect-alt', 'suspect-halo', 'suspect-top']) map.setLayoutProperty(id, 'visibility', layers.water ? 'visible' : 'none');
     markers.current.forEach(({ el, asset }) => { el.style.display = layers[asset.network] ? '' : 'none'; });
   }, [layers, ready]);
 
@@ -207,6 +230,8 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
       raf = requestAnimationFrame(tick);
       if (t - last < 70 || document.hidden) return;
       last = t; step = (step + 1) % seq.length;
+      const pulse = (Math.sin(t / 380) + 1) / 2;
+      map.setPaintProperty('suspect-halo', 'line-opacity', 0.15 + 0.4 * pulse);
       for (const n of ['water', 'electricity', 'cooling'] as Network[]) if (layers[n]) map.setPaintProperty(`net-${n}-flow`, 'line-dasharray', seq[step]);
     };
     raf = requestAnimationFrame(tick);

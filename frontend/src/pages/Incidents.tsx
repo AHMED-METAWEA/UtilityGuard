@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Bot, Download, FlaskConical, MessageCircle, ShieldCheck } from 'lucide-react';
 import { post } from '../api/client';
+import { useFetch } from '../api/dash';
+import type { Localization } from '../api/lab';
 import type { AgentFinding, Alert, Incident } from '../api/types';
 import { useStore } from '../store';
 import { useUi } from '../store/ui';
@@ -51,7 +53,13 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
   const [busy, setBusy] = useState(false);
   const zone = topology?.zones.find((z) => z.id === incident.zoneIds[0]);
   const bounds = assetBounds(topology, alerts.flatMap((a) => a.assetIds));
-  const focus: Focus | null = zone ? { lng: zone.center.lng, lat: zone.center.lat, zoom: 14, bounds: bounds ?? undefined, key: 1 } : null;
+  const [picked, setPicked] = useState<{ assetId: string; key: number } | null>(null);
+  const isBurst = incident.title.toLowerCase().includes('burst');
+  const loc = useFetch<Localization>(isBurst ? `/incidents/${incident.id}/localization` : null, 6000);
+  const suspects = loc.data?.candidates.map((c) => ({ assetId: c.assetId, rank: c.rank }));
+  const pickedBounds = picked ? assetBounds(topology, [picked.assetId]) : null;
+  const focus: Focus | null = pickedBounds ? { lng: 0, lat: 0, bounds: pickedBounds, key: 1000 + picked!.key }
+    : zone ? { lng: zone.center.lng, lat: zone.center.lat, zoom: 14, bounds: bounds ?? undefined, key: 1 } : null;
 
   // The sensor that triggered the finding: first measured evidence that is a real sensor.
   const sensorId = useMemo(() => {
@@ -96,7 +104,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
 
       <div className="inc-grid">
         <section className="stack" style={{ gap: 16, minWidth: 0 }}>
-          <CityMap height={400} focus={focus} showLegend={false} onSelectAsset={(id) => set({ selectedAsset: id })} />
+          <CityMap height={400} focus={focus} suspects={suspects} showLegend={false} onSelectAsset={(id) => set({ selectedAsset: id })} />
           <Card title={sensor ? `${sensorLabel(sensor.id.replace(sensor.assetId + '-', '')).replace(/^./, (c) => c.toUpperCase())} on ${topology?.assets.find((a) => a.id === sensor.assetId)?.name}` : 'Key sensor'}
             sub="Measured, against what the twin expects in normal operation">
             {sensor && series.measured.length > 3 ? (
@@ -136,7 +144,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
               {finding.cost.savingRange && <div style={{ marginTop: 14 }}><RangeBar {...finding.cost.savingRange} /></div>}
               <details style={{ marginTop: 12 }}><summary className="sub" style={{ cursor: 'pointer' }}>How the numbers are calculated</summary><div style={{ marginTop: 12 }}><CalcView cost={finding.cost} explanation={finding.explain} /></div></details>
             </Step>
-            {incident.title.toLowerCase().includes('burst') && <WhereCard incidentId={incident.id} />}
+            {isBurst && <WhereCard data={loc.data} onPick={(assetId) => setPicked({ assetId, key: Date.now() })} />}
             <DecisionStudio incidentId={incident.id} />
             <Step n={4} title="What to do" right={<span className={`chip ${finding.recommendedAction.urgency === 'immediate' ? 'crit' : 'warn'}`}>{finding.recommendedAction.urgency.replace('_', ' ')}</span>}>
               <p style={{ margin: '0 0 10px', lineHeight: 1.5 }}>{money(finding.recommendedAction.text)}</p>

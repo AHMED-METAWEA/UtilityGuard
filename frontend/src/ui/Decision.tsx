@@ -10,14 +10,13 @@ const OPT: Record<OptionId, { color: string; short: string }> = {
 };
 
 /** Where is the leak: the three likeliest pipes from the signature match. */
-export function WhereCard({ incidentId }: { incidentId: string }) {
-  const { data } = useFetch<Localization>(`/incidents/${incidentId}/localization`, 6000);
+export function WhereCard({ data, onPick }: { data: Localization | null; onPick?: (assetId: string) => void }) {
   if (!data) return null;
   return (
-    <Card title={<span className="row" style={{ gap: 8 }}><Radar size={16} />Where the leak is</span>} sub={`Matched against stored fingerprints of every pipe, ${data.sensorsUsed} of ${data.sensorsTotal} sensors used`}>
+    <Card title={<span className="row" style={{ gap: 8 }}><Radar size={16} />Where the leak is</span>} sub={`Matched against stored fingerprints of every pipe, ${data.sensorsUsed} of ${data.sensorsTotal} sensors used. Highlighted on the map.`}>
       <div className="stack" style={{ gap: 10 }}>
         {data.candidates.map((c) => (
-          <div key={c.assetId}>
+          <div key={c.assetId} onClick={() => onPick?.(c.assetId)} style={onPick ? { cursor: 'pointer' } : undefined} title={onPick ? 'Show this pipe on the map' : undefined}>
             <div className="row spread" style={{ marginBottom: 3 }}><span style={{ fontWeight: c.rank === 1 ? 650 : 400 }}>{c.rank}. {c.name}</span><span className="num"><b>{fmt(c.score * 100)}%</b> <span className="muted">match{c.rank === 1 ? ` · about ${fmt(c.leakM3H)} m3/h` : ''}</span></span></div>
             <Meter value={c.score} color={c.rank === 1 ? 'var(--crit)' : 'var(--text-3)'} label={`${c.name} match`} />
           </div>
