@@ -23,6 +23,7 @@ CHILLER_BASE = 0.22  # MW electric per MW thermal at 30 C with clean condensers 
 FOULING = {"cool-plant-01": 1.08}  # DCP-01 condensers are 8% fouled; the rest are clean
 TR_PER_MW = 284.3
 PUMP_SETPOINT = 4.7  # bar, discharge pressure a healthy pump holds
+STORM_HOUR = 12.0  # a storm is defined at the working-day midday peak, whatever the clock says
 PUMP_MAX_BOOST = 1.7  # bar a pump can add over its inlet pressure
 
 
@@ -46,15 +47,25 @@ def ambient_temp(hour: float, day_of_year: int) -> float:
 
 @dataclass
 class Event:
-    kind: str  # pipe_burst, stuck_sensor, sensor_drift, sensor_dropout, substation_trip, pump_failure, cooling_fault, heat_wave, holiday
+    kind: str  # pipe_burst, stuck_sensor, sensor_drift, sensor_dropout, substation_trip, pump_failure, cooling_fault, heat_wave, holiday,
+    # iftar_surge, storm
     target: str | None
     severity: float = 1.0
     started_tick: int = 0
     run_id: str = ""
     params: dict = field(default_factory=dict)
+    delay: int = 0  # ticks after it is added before it takes effect
+    duration: int | None = None  # ticks it stays in effect (None: until cleared)
+
+    @property
+    def begins(self) -> int:
+        return self.started_tick + self.delay
+
+    def live(self, tick: int) -> bool:
+        return tick >= self.begins and (self.duration is None or tick < self.begins + self.duration)
 
     def ramp(self, tick: int, ticks: int = 20) -> float:
-        return min(1.0, (tick - self.started_tick + 1) / ticks)
+        return max(0.0, min(1.0, (tick - self.begins + 1) / ticks))
 
 
 class Engine:
@@ -79,6 +90,7 @@ class Engine:
         self._plant_delivered: dict[str, float] = {}
         self.metrics: dict[str, float] = {}
         self.ambient = 30.0
+        self.overload_ticks: dict[str, int] = {}  # consecutive ticks a substation has run past its protection limit (storm only)
         self.demand_scale = 1.0  # >1 or <1 makes this a twin whose demand forecast is off, used for the expectation in detector benchmarks
 
     # ---------- events ----------
@@ -92,7 +104,7 @@ class Engine:
         self.stuck = {k: v for k, v in self.stuck.items() if k in live_stuck}
 
     def _active(self, kind: str) -> list[Event]:
-        return [e for e in self.events if e.kind == kind]
+        return [e for e in self.events if e.kind == kind and e.live(self.tick)]
 
     def ambient_at(self, ts: datetime, heat: float = 0.0) -> float:
         """Air temperature at a time, the same value the physics uses. Doubles as the weather feed the forecast reads."""
@@ -107,13 +119,24 @@ class Engine:
         g = self.g
         local = ts.astimezone(CAIRO)
         hour = local.hour + local.minute / 60 + local.second / 3600
-        heat = max([e.severity for e in self._active("heat_wave")], default=0.0)
+        heat_events = self._active("heat_wave")
+        heat = max([e.severity for e in heat_events], default=0.0)
+        # a real heat wave builds over hours; a ramp of one tick keeps the old instant behaviour
+        heat_k = max((e.ramp(self.tick, int(e.params.get("ramp_ticks", 1))) for e in heat_events if e.severity == heat), default=1.0)
         holiday = self._active("holiday")
+        surge = max((e.severity * e.ramp(self.tick, 20) for e in self._active("iftar_surge")), default=0.0)
+        storm = self._active("storm")
+        # air conditioning outside the district plants: people and buildings run every unit they have
+        ac = max((e.params.get("ac_uplift", 0.15) * heat_k for e in storm), default=0.0)
+        # the storm is defined at the working-day peak (the worst time for it), whatever the clock says
+        storm_k = max((e.ramp(self.tick, int(e.params.get("ramp_ticks", 40))) for e in storm), default=0.0)
         day_rng = np.random.default_rng([self.seed, local.toordinal()])
         day_temp, day_demand = day_rng.normal(0, 2.2), day_rng.normal(1.0, 0.035)
         self.ambient = ambient_temp(hour, local.timetuple().tm_yday) + day_temp
         if heat:
-            self.ambient = max(self.ambient, heat - 4 + 4 * math.sin((hour - 9) / 24 * 2 * math.pi))
+            hour_h = hour * (1 - storm_k) + STORM_HOUR * storm_k
+            hot = max(self.ambient, heat - 4 + 4 * math.sin((hour_h - 9) / 24 * 2 * math.pi))
+            self.ambient += (hot - self.ambient) * heat_k
         temp_f = 1 + 0.012 * (self.ambient - 30)
         hol_factor = holiday[0].severity if holiday else 1.0
 
@@ -128,17 +151,21 @@ class Engine:
             p = demand_profile(z.type, hour, local.weekday(), bool(holiday))
             if holiday and z.type == "residential":
                 p *= hol_factor
+            if surge and z.type == "residential":
+                p *= 1 + surge  # iftar: the whole evening peak arrives at once
+            if storm_k:
+                p = p * (1 - storm_k) + demand_profile(z.type, STORM_HOUR, 6, False) * storm_k
             p *= day_demand * self.demand_scale
             billed = w * p * (0.6 + 0.4 * temp_f)
             self.water_billed[z.id] = billed
             self.zone_demand[z.id] = (billed * (1 + BG_LOSS),
-                                      e * (0.55 + 0.45 * p) * (0.8 + 0.2 * temp_f),
+                                      e * (0.55 + 0.45 * p) * (0.8 + 0.2 * temp_f) * (1 + ac),
                                       c * (0.4 + 0.6 * p) * temp_f ** 3)
 
         # ---------- water ----------
         self.leak_m3h = {}
         for ev in self._active("pipe_burst"):
-            self.leak_m3h[ev.target] = 300 * ev.severity * ev.ramp(self.tick, 8)
+            self.leak_m3h[ev.target] = 300 * ev.severity * ev.ramp(self.tick, int(ev.params.get("ramp_ticks", 8)))
 
         for pump in g.zone_pump.values():
             zone = g.asset_index[pump].zone_id
@@ -203,8 +230,12 @@ class Engine:
             if fault:
                 capacity *= 1 - 0.7 * fault.severity * fault.ramp(self.tick, 25)
             load = sum(self.zone_demand[z][2] for z in served)
-            delivered = load * capacity
-            supply = 6.0 + (1 - capacity) * 7.5 + max(0, self.ambient - 40) * 0.05
+            if storm:  # in a storm the plant cannot deliver past its normal rating, so the shortfall is physical
+                load_rated = 0.9 * g.sensor_index[f"{pid}-load"].normal_range.max
+                delivered = min(load, load_rated) * capacity
+            else:
+                delivered = load * capacity
+            supply = 6.0 + (1 - capacity) * 7.5 + max(0, self.ambient - 40) * 0.05 + (max(0.0, (load - delivered) / max(load, 1e-6)) * 12.0 if storm and on else 0.0)
             t[f"{pid}-supply-temp"] = supply
             t[f"{pid}-flow"] = 120 * delivered if on else 0.0
             t[f"{pid}-load"] = delivered
@@ -237,6 +268,15 @@ class Engine:
             sub_load[feeding] += load
             t[f"{fid}-load"] = load
             t[f"{tid}-temperature"] = 38 + 0.6 * load + 0.4 * (self.ambient - 30)
+        for ev in storm:  # protection relays: the worst offender trips after sustained overload, which is how a storm cascades
+            ratio = {s: load / g.sensor_index[f"{s}-load"].normal_range.max for s, load in sub_load.items() if self.sub_on[s]}
+            worst = max(ratio, key=ratio.get) if ratio else None
+            tripped_by_storm = sum(1 for x in self.events if x.kind == "substation_trip" and x.run_id == ev.run_id)
+            for s in sub_load:
+                over = s == worst and ratio[s] > ev.params.get("trip_ratio", 1.05)
+                self.overload_ticks[s] = self.overload_ticks.get(s, 0) + 1 if over else 0
+                if self.overload_ticks[s] == int(ev.params.get("trip_after", 15)) and tripped_by_storm < int(ev.params.get("max_trips", 2)):
+                    self.events.append(Event("substation_trip", s, 1.0, started_tick=self.tick, run_id=ev.run_id, params={"cause": "overload"}))
         for s, load in sub_load.items():
             t[f"{s}-load"] = load if self.sub_on[s] else 0.0
             t[f"{s}-voltage"] = (22.4 - 0.012 * load) if self.sub_on[s] else 0.0

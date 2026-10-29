@@ -15,6 +15,7 @@ import { DecisionStudio, WhereCard } from '../ui/Decision';
 import { go, href } from '../lib/route';
 import { assetBounds, money, useSensorSeries } from '../lib/useSensorSeries';
 import { ago, clock, fmt, sensorLabel } from '../lib/format';
+import { latestFinding } from '../lib/present';
 
 /** Reveals the agent's real steps one by one when the finding is fresh; shows them all when it is old. */
 function Steps({ finding }: { finding: AgentFinding }) {
@@ -54,7 +55,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
   const zone = topology?.zones.find((z) => z.id === incident.zoneIds[0]);
   const bounds = assetBounds(topology, alerts.flatMap((a) => a.assetIds));
   const [picked, setPicked] = useState<{ assetId: string; key: number } | null>(null);
-  const isBurst = incident.title.toLowerCase().includes('burst');
+  const isBurst = /burst|leak/i.test(incident.title);
   const loc = useFetch<Localization>(isBurst ? `/incidents/${incident.id}/localization` : null, 6000);
   const suspects = loc.data?.candidates.map((c) => ({ assetId: c.assetId, rank: c.rank }));
   const pickedBounds = picked ? assetBounds(topology, [picked.assetId]) : null;
@@ -129,6 +130,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
         </section>
 
         <aside className="stack" style={{ gap: 16, minWidth: 0 }}>
+          {incident.reanalysing && finding && <Card><div className="row" style={{ gap: 8 }}><Bot size={18} /><span><b>The incident grew.</b> The agents are re-analysing it, so the steps below are from the earlier stage and will be replaced.</span></div></Card>}
           {!finding ? <Card><div className="stack"><div className="row" style={{ gap: 8 }}><Bot size={18} /><b>The agents are analysing this incident</b></div><Skeleton h={14} /><Skeleton h={14} w="80%" /><Skeleton h={90} /></div></Card> : <>
             <Step n={1} title="What happened" right={<span className="row" style={{ gap: 6 }}><span className="chip"><NetIcon n={finding.agent === 'orchestrator' ? 'water' : finding.agent} size={13} />{finding.agent} agent</span>{finding.fallback && <span className="chip warn">Recorded answer</span>}</span>}>
               <div style={{ fontWeight: 600, marginBottom: 4 }}>{finding.headline}</div>
@@ -181,7 +183,7 @@ export function Incidents({ id }: { id?: string }) {
           {sorted.map((i) => <a key={i.id} role="tab" aria-selected={i.id === current.id} href={href('incidents', i.id)} className={`chip ${i.id === current.id ? 'accent' : ''}`} style={{ height: 28, textDecoration: 'none' }} onClick={() => go('incidents', i.id)}>{i.id} · {i.title}</a>)}
         </div>
       )}
-      <IncidentView key={current.id} incident={current} finding={findings.find((f) => f.incidentId === current.id)} alerts={alerts.filter((a) => a.incidentId === current.id)} />
+      <IncidentView key={current.id} incident={current} finding={latestFinding(findings, current.id)} alerts={alerts.filter((a) => a.incidentId === current.id)} />
     </div>
   );
 }

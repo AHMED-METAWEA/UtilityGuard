@@ -1,4 +1,4 @@
-import type { Assumption, AssumptionStatus, TornadoRow } from '../api/types';
+import type { Assumption, AssumptionStatus, ReferenceEvidence, TornadoRow } from '../api/types';
 import { compact, fmt } from '../lib/format';
 
 const STATUS: Record<AssumptionStatus, { cls: string; label: string; hint: string }> = {
@@ -11,12 +11,42 @@ export const StatusTag = ({ s }: { s: AssumptionStatus }) => <span className={`c
 
 const num = (v: number) => fmt(v, Math.abs(v) < 10 && v % 1 ? 2 : Math.abs(v) < 1000 && v % 1 ? 1 : 0);
 
-/** Where an assumption comes from: its status, why the value was chosen, the range it is varied over and when it was last reviewed. */
-export function Basis({ a }: { a: Pick<Assumption, 'basis' | 'status' | 'low' | 'high' | 'unit' | 'reviewed'> }) {
+const REF: Record<ReferenceEvidence, { cls: string; label: string; hint: string }> = {
+  consistent: { cls: 'ok', label: 'Public figures agree', hint: 'Every public figure we found falls inside the range this input is varied over' },
+  partly: { cls: 'warn', label: 'Public figures partly agree', hint: 'Some public figures fall outside the range this input is varied over' },
+  differs: { cls: 'crit', label: 'Public figures differ', hint: 'The public figures we found fall outside the range this input is varied over' },
+  related: { cls: '', label: 'Related figures only', hint: 'Public figures exist, but they are context rather than a price to compare' },
+  none: { cls: '', label: 'No public source yet', hint: 'No public figure is attached to this input' },
+};
+export const ReferenceTag = ({ e }: { e: ReferenceEvidence }) => <span className={`chip ${REF[e].cls}`} title={REF[e].hint}>{REF[e].label}</span>;
+
+const KIND: Record<string, string> = { official: 'Official', reported: 'Press report', aggregator: 'Aggregator', benchmark: 'Published study', historical: 'Historical', related: 'Related' };
+
+/** Where an assumption comes from: its status, why the value was chosen, the range it is varied over, when it was last reviewed, and the public figures found for it. */
+export function Basis({ a, onUse }: { a: Pick<Assumption, 'basis' | 'status' | 'low' | 'high' | 'unit' | 'reviewed' | 'references' | 'evidence' | 'searchNote'>; onUse?: (v: number) => void }) {
+  const refs = a.references ?? [];
   return (
-    <div className="stack" style={{ gap: 4, fontSize: 12, lineHeight: 1.45 }}>
-      <div className="row wrap" style={{ gap: 8 }}><StatusTag s={a.status} /><span className="muted num">Varied between {num(a.low)} and {num(a.high)} {a.unit}</span><span className="muted">Reviewed {a.reviewed}</span></div>
+    <div className="stack" style={{ gap: 6, fontSize: 12, lineHeight: 1.45 }}>
+      <div className="row wrap" style={{ gap: 8 }}><StatusTag s={a.status} />{a.evidence && <ReferenceTag e={a.evidence} />}<span className="muted num">Varied between {num(a.low)} and {num(a.high)} {a.unit}</span><span className="muted">Reviewed {a.reviewed}</span></div>
       <div style={{ color: 'var(--text-2)' }}>{a.basis}</div>
+      {refs.length > 0 && (
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: 6 }} className="stack">
+          <div className="muted">Public figures found</div>
+          {refs.map((r, i) => (
+            <div key={i} style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '6px 8px' }}>
+              <div style={{ fontWeight: 550 }}>{r.label}</div>
+              <div className="row wrap" style={{ gap: 6, marginTop: 2 }}>
+                <span className="chip">{KIND[r.kind]}</span>
+                {r.low !== null && r.high !== null && <span className="num">{r.low === r.high ? num(r.low) : `${num(r.low)} to ${num(r.high)}`} <span className="muted">{r.unit}</span></span>}
+                <span className="muted">{r.asof}</span>
+                {onUse && r.low !== null && r.low === r.high && <button type="button" className="btn sm" onClick={() => onUse(r.low as number)}>Try {num(r.low)}</button>}
+              </div>
+              <div style={{ color: 'var(--text-2)', marginTop: 2 }}>{r.note} <a href={r.url} target="_blank" rel="noreferrer noopener">{r.publisher}</a></div>
+            </div>
+          ))}
+        </div>
+      )}
+      {a.searchNote && <div className="muted">{a.searchNote}</div>}
     </div>
   );
 }

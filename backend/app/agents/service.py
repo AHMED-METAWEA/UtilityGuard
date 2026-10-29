@@ -62,8 +62,10 @@ class AgentService:
         rt = self.rt
         rt.findings[finding.id] = finding
         cur = rt.incidents.get(inc.id, inc)
+        current = self.detector.state.incident_kind.get(inc.id) in (None, facts.kind)  # not superseded by a bigger root cause meanwhile
         rt.incidents[inc.id] = cur.model_copy(update={"finding_ids": [*cur.finding_ids, finding.id],
-                                                      "calculation_id": finding.explain.calculation_id})
+                                                      "calculation_id": finding.explain.calculation_id,
+                                                      "reanalysing": cur.reanalysing and not current})
         await rt.broadcast("agent_finding", finding)
         await rt.broadcast("incident", rt.incidents[inc.id])
 

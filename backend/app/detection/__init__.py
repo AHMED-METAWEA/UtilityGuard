@@ -26,9 +26,15 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("utilityguard.detection")
 
+HEAT_CAUSE_C = 38.0  # above this air temperature, overloads and cooling at capacity are one heat event
+SETTLE_AFTER_RESTORE = 15  # ticks after a substation returns during which pump and load readings are still recovering
 RESOLVE_AFTER = 6  # ticks without the condition before an alert resolves
 CONFIRM_TICKS = 3  # ticks a condition must persist before it becomes an alert
 SEVERITY_RANK = {"info": 0, "warning": 1, "critical": 2}
+# when alerts of several kinds land in one incident, the one whose loss is largest owns it (an overload that ends in a trip becomes a trip)
+KIND_PRIORITY = {"substation_trip": 3, "cooling_fault": 2, "pump_failure": 2, "leak": 2, "energy_waste": 1, "sensor_fault": 0}
+CREEP_MISMATCH = 16.0  # m3/h of flow in minus flow out, steady over 20 ticks; sensor noise on that difference is about 1 m3/h
+CREEP_DROP = 0.08  # bar the pipe pressure has fallen over the last 60 ticks, which tells a real leak from a drifting flow meter
 
 
 @dataclass
@@ -44,6 +50,7 @@ class Detection:
     confidence: float
     facts: IncidentFacts
     root: str
+    cause: str = ""  # shared external cause, e.g. "heat": alerts with the same cause belong to one incident even on different networks
 
 
 @dataclass
@@ -60,10 +67,13 @@ class DetectionState:
     open: dict[str, _Open] = field(default_factory=dict)
     incident_roots: dict[str, set[str]] = field(default_factory=dict)  # incident id -> assets in its blast radius
     incident_kind: dict[str, str] = field(default_factory=dict)
+    incident_cause: dict[str, str] = field(default_factory=dict)
     alert_ids: itertools.count = field(default_factory=lambda: itertools.count(1))
     inc_ids: itertools.count = field(default_factory=lambda: itertools.count(1))
     stuck_since: dict[str, int] = field(default_factory=dict)
     pending: dict[str, int] = field(default_factory=dict)
+    sub_was_on: dict[str, bool] = field(default_factory=dict)
+    restored_at: dict[str, int] = field(default_factory=dict)  # substation -> tick it came back; readings take a moment to settle
 
 
 def _mean(h: list[float], n: int) -> float:
@@ -137,6 +147,12 @@ class Detector:
         out: list[Detection] = []
         zt = lambda z: g.zone_index[z].type  # noqa: E731
         name = lambda a: g.asset_index[a].name  # noqa: E731
+        for sub in SUBSTATION_BACKUP:
+            on = eng.sub_on.get(sub, True)
+            if on and not self.state.sub_was_on.get(sub, True):
+                self.state.restored_at[sub] = eng.tick
+            self.state.sub_was_on[sub] = on
+        settling = lambda sub: eng.tick - self.state.restored_at.get(sub, -10**6) < SETTLE_AFTER_RESTORE  # noqa: E731
 
         # substation trip: voltage collapse
         for sub in SUBSTATION_BACKUP:
@@ -190,10 +206,33 @@ class Detector:
                 out.append(Detection(f"leak:{pipe}", "leak", "water", z, [pipe, pump], sev, "Pipe burst suspected",
                                      f"Pressure drop and a {mismatch:.0f} m3/h flow mismatch on {name(pipe)}.", conf, facts, pipe))
 
+        # creeping leak: too small for the burst rule, but steady. Real water leaves the pipe and pressure sags; a drifting meter changes no pressure.
+        burst_keys = {d.key for d in out}
+        for z, pipe in g.zone_pipe.items():
+            if f"leak:{pipe}" in burst_keys:
+                continue
+            fin, fout, p = H.get(f"{pipe}-flow-in", []), H.get(f"{pipe}-flow-out", []), H.get(f"{pipe}-pressure", [])
+            if len(fin) < 80 or len(p) < 80:
+                continue
+            mismatch = _mean(fin, 20) - _mean(fout, 20)
+            drop = float(np.nanmean(p[-80:-50])) - _mean(p, 10)
+            open_already = f"leak:{pipe}" in self.state.open
+            if mismatch >= CREEP_MISMATCH and (drop >= CREEP_DROP or open_already):
+                pump = g.zone_pump[z]
+                reasons = [
+                    Reason(text=f"Inflow is {mismatch:.0f} m3/h higher than outflow, steady for 40 seconds", evidence_type="measured", evidence_ref=f"{pipe}-flow-in"),
+                    Reason(text=f"Pressure on the pipe fell {max(drop, 0):.2f} bar over the last two minutes", evidence_type="measured", evidence_ref=f"{pipe}-pressure"),
+                    Reason(text="Pressure fell as well, so this is water leaving the pipe and not a drifting flow meter", evidence_type="rule", evidence_ref="rule:pressure-confirms-flow"),
+                ]
+                conf = round(min(0.9, 0.55 + mismatch / 400), 2)
+                facts = IncidentFacts(kind="leak", zone_types={z: zt(z)}, leak_m3h=round(mismatch, 0), reasons=reasons, confidence=conf)
+                out.append(Detection(f"leak:{pipe}", "leak", "water", z, [pipe, pump], "warning", "Slow leak suspected",
+                                     f"A steady {mismatch:.0f} m3/h flow mismatch with falling pressure on {name(pipe)}.", conf, facts, pipe))
+
         # pump failure: pump powered but pressure/flow collapsing
         for z, pump in g.zone_pump.items():
             sub = ZONE_SUBSTATION[z]
-            if not eng.sub_on.get(sub, True):
+            if not eng.sub_on.get(sub, True) or settling(sub):
                 continue
             p = H.get(f"{pump}-pressure", [])
             rng = g.sensor_index[f"{pump}-pressure"].normal_range
@@ -227,18 +266,24 @@ class Detector:
                     Reason(text=f"Plant delivers {delivered:.1f} MW against {need:.1f} MW demand", evidence_type="measured", evidence_ref=f"{a.id}-load"),
                     Reason(text=f"Its substation {name(sub)} is energised, so the chiller itself is at fault", evidence_type="rule", evidence_ref="rule:power-ok"),
                 ]
+                load_max = g.sensor_index[f"{a.id}-load"].normal_range.max
+                at_limit = delivered >= 0.85 * load_max and need > delivered * 1.03
+                if at_limit:  # delivering all it can while demand is higher: a capacity problem, not a broken chiller
+                    reasons[2] = Reason(text=f"{name(sub)} is energised and the plant is running at its limit, so demand is above capacity rather than a chiller failing",
+                                        evidence_type="rule", evidence_ref="rule:at-capacity")
                 facts = IncidentFacts(kind="cooling_fault", zone_types={z: zt(z) for z in served[:2]}, cooling_deficit_tons=round(deficit),
                                       reasons=reasons, confidence=0.88)
                 out.append(Detection(f"cool:{a.id}", "cooling_fault", "cooling", a.zone_id, [a.id, *[g.zone_loop[z] for z in served]],
-                                     "critical" if deficit > 1500 else "warning", f"{a.name} chiller fault",
-                                     f"{a.name} supply water is too warm; zones get less cooling.", 0.88, facts, a.id))
+                                     "critical" if deficit > 1500 else "warning", f"{a.name} cooling at capacity" if at_limit else f"{a.name} chiller fault",
+                                     f"{a.name} supply water is too warm; zones get less cooling.", 0.88, facts, a.id,
+                                     cause="heat" if at_limit and eng.ambient >= HEAT_CAUSE_C else ""))
 
         # overload / energy waste: substation load above its normal envelope (heat wave, holiday)
         for sub in SUBSTATION_BACKUP:
             ld = H.get(f"{sub}-load", [])
             rng = g.sensor_index[f"{sub}-load"].normal_range
-            covering = any(not eng.sub_on.get(o, True) and b == sub for o, b in SUBSTATION_BACKUP.items())
-            if eng.sub_on.get(sub, True) and not covering and len(ld) > 3 and _mean(ld, 3) > rng.max:
+            covering = any((not eng.sub_on.get(o, True) or settling(o)) and b == sub for o, b in SUBSTATION_BACKUP.items())
+            if eng.sub_on.get(sub, True) and not covering and not settling(sub) and len(ld) > 3 and _mean(ld, 3) > rng.max:
                 excess = _mean(ld, 3) - rng.max
                 zones = [z for z, s in ZONE_SUBSTATION.items() if s == sub]
                 reasons = [
@@ -247,7 +292,8 @@ class Detector:
                 ]
                 facts = IncidentFacts(kind="energy_waste", zone_types={z: zt(z) for z in zones}, excess_mw=round(excess, 2), reasons=reasons, confidence=0.8)
                 out.append(Detection(f"overload:{sub}", "energy_waste", "electricity", zones[0], [sub], "warning", f"{name(sub)} overloaded",
-                                     f"{name(sub)} is running {excess:.1f} MW above its normal envelope.", 0.8, facts, sub))
+                                     f"{name(sub)} is running {excess:.1f} MW above its normal envelope.", 0.8, facts, sub,
+                                     cause="heat" if eng.ambient >= HEAT_CAUSE_C else ""))
 
         # stuck sensor: flat value while its neighbours on the same network keep moving
         st = self.state.stuck_since
@@ -299,6 +345,8 @@ class Detector:
                 continue
             inc_id = next((i for i, radius in self.state.incident_roots.items()
                            if rt.incidents[i].state != "resolved" and (d.root in radius or set(d.asset_ids) & radius)), None)
+            if inc_id is None and d.cause:
+                inc_id = next((i for i, c in self.state.incident_cause.items() if c == d.cause and rt.incidents[i].state != "resolved"), None)
             alert = Alert(id=f"alert-{next(self.state.alert_ids):04d}", incident_id=inc_id or f"inc-{next(self.state.inc_ids):04d}",
                           network=d.network, zone_id=d.zone_id, asset_ids=d.asset_ids, severity=d.severity, title=d.title,
                           summary=d.summary, detected_at=now, confidence=d.confidence)
@@ -309,15 +357,28 @@ class Detector:
                 nets = list(dict.fromkeys([*inc.networks, d.network, *self._networks(d.asset_ids)]))
                 inc = inc.model_copy(update={"alert_ids": [*inc.alert_ids, alert.id], "networks": nets,
                                              "zone_ids": list(dict.fromkeys([*inc.zone_ids, d.zone_id]))})
+                if SEVERITY_RANK[d.severity] > SEVERITY_RANK[inc.severity]:
+                    inc = inc.model_copy(update={"severity": d.severity})
+                escalates = KIND_PRIORITY[d.kind] > KIND_PRIORITY.get(self.state.incident_kind.get(inc_id, ""), -1)
+                if escalates:  # the incident grew into something bigger: it now belongs to the larger root cause
+                    inc = inc.model_copy(update={"title": f"{d.title}, {rt.engine.g.zone_index[d.zone_id].name}", "reanalysing": True})
+                    self.state.incident_kind[inc_id] = d.kind
+                    log.info("incident %s escalated to %s root=%s", inc_id, d.kind, d.root)
                 rt.incidents[inc_id] = inc
+                self.state.incident_roots[inc_id] |= self.blast_radius(d.root) | set(d.asset_ids)  # a growing incident widens its reach
                 await rt.broadcast("alert", alert)
                 await rt.broadcast("incident", inc)
                 for cb in self.on_incident_update:
                     cb(inc)
+                if escalates:  # and it gets its own analysis
+                    for cb in self.on_incident:
+                        cb(inc, d.facts, d.root)
             else:
                 radius = self.blast_radius(d.root) | set(d.asset_ids)
                 self.state.incident_roots[alert.incident_id] = radius
                 self.state.incident_kind[alert.incident_id] = d.kind
+                if d.cause:
+                    self.state.incident_cause[alert.incident_id] = d.cause
                 inc = Incident(id=alert.incident_id, title=f"{d.title}, {rt.engine.g.zone_index[d.zone_id].name}",
                                networks=list(dict.fromkeys([d.network, *self._networks(d.asset_ids)])), zone_ids=list(d.facts.zone_types) or [d.zone_id], severity=d.severity,
                                state="open", opened_at=now, alert_ids=[alert.id])

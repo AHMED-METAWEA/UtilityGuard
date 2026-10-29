@@ -18,6 +18,7 @@
     "findingIds": [
       "find-0001"
     ],
-    "calculationId": "calc-0001"
+    "calculationId": "calc-0001",
+    "reanalysing": false
   }
 }

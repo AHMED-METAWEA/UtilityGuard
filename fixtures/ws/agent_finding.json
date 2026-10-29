@@ -534,7 +534,31 @@
             "status": "planning",
             "low": 6.0,
             "high": 10.0,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [
+              {
+                "label": "Production cost of one cubic metre, Holding Company for Water and Wastewater",
+                "low": 1.4,
+                "high": 1.4,
+                "unit": "EGP/m3",
+                "kind": "historical",
+                "publisher": "Ahram Online",
+                "url": "https://english.ahram.org.eg/News/100283.aspx",
+                "asof": "2014",
+                "note": "The latest production cost found. It is twelve years old and is shown for context, not compared."
+              },
+              {
+                "label": "Household tariff after the 2017 increase, 0.65 to 3.15 EGP/m3; commercial 3.6 EGP/m3",
+                "unit": "EGP/m3",
+                "kind": "historical",
+                "publisher": "Associated Press via Fox News",
+                "url": "https://www.foxnews.com/world/egypt-raises-water-sewage-bills-as-part-of-reform-program.amp",
+                "asof": "2017",
+                "note": "A tariff is what customers pay, not what production costs. No 2026 schedule was found."
+              }
+            ],
+            "evidence": "related",
+            "searchNote": "Searched on 2026-10-29: no 2026 production cost or tariff schedule. The newest public figures are from 2014 to 2017."
           },
           {
             "name": "Service accounts, zone-gov",
@@ -547,7 +571,9 @@
             "status": "planning",
             "low": 375.0,
             "high": 625.0,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [],
+            "evidence": "none"
           },
           {
             "name": "Utility outage administration, government",
@@ -560,7 +586,9 @@
             "status": "planning",
             "low": 2.5,
             "high": 7.5,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [],
+            "evidence": "none"
           },
           {
             "name": "Electricity tariff",
@@ -573,7 +601,87 @@
             "status": "planning",
             "low": 1.2,
             "high": 2.0,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [
+              {
+                "label": "Commercial tariff, up to 100 kWh a month",
+                "low": 1.62,
+                "high": 1.62,
+                "unit": "EGP/kWh",
+                "kind": "reported",
+                "publisher": "Egypt Independent",
+                "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+                "asof": "April 2026",
+                "note": "Reported by the press; the regulator's own schedule was not checked."
+              },
+              {
+                "label": "Commercial tariff, up to 250 kWh a month",
+                "low": 2.16,
+                "high": 2.16,
+                "unit": "EGP/kWh",
+                "kind": "reported",
+                "publisher": "Egypt Independent",
+                "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+                "asof": "April 2026",
+                "note": "Reported by the press; the regulator's own schedule was not checked."
+              },
+              {
+                "label": "Commercial tariff, up to 600 kWh a month",
+                "low": 2.64,
+                "high": 2.64,
+                "unit": "EGP/kWh",
+                "kind": "reported",
+                "publisher": "Egypt Independent",
+                "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+                "asof": "April 2026",
+                "note": "Reported by the press; the regulator's own schedule was not checked."
+              },
+              {
+                "label": "Commercial tariff, up to 1,000 kWh a month",
+                "low": 2.74,
+                "high": 2.74,
+                "unit": "EGP/kWh",
+                "kind": "reported",
+                "publisher": "Egypt Independent",
+                "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+                "asof": "April 2026",
+                "note": "Reported by the press; the regulator's own schedule was not checked."
+              },
+              {
+                "label": "Commercial tariff, above 1,000 kWh a month",
+                "low": 2.79,
+                "high": 2.79,
+                "unit": "EGP/kWh",
+                "kind": "reported",
+                "publisher": "Egypt Independent",
+                "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+                "asof": "April 2026",
+                "note": "Reported by the press; the regulator's own schedule was not checked."
+              },
+              {
+                "label": "Industrial flat rate",
+                "low": 2.33,
+                "high": 2.33,
+                "unit": "EGP/kWh",
+                "kind": "reported",
+                "publisher": "Reslink (solar industry blog)",
+                "url": "https://www.reslink.org/blogs/electricity-tariffs-just-rose-again-solar-payback-is-now-under-5-years/",
+                "asof": "August 2026",
+                "note": "A blog summary of the tariff table. Sources disagree on some residential tiers, so treat it as indicative."
+              },
+              {
+                "label": "Business electricity price",
+                "low": 1.94,
+                "high": 1.94,
+                "unit": "EGP/kWh",
+                "kind": "aggregator",
+                "publisher": "GlobalPetrolPrices",
+                "url": "https://www.globalpetrolprices.com/Egypt/electricity_prices/",
+                "asof": "June 2025 data",
+                "note": "An aggregator, and older than the April 2026 increase."
+              }
+            ],
+            "evidence": "partly"
           },
           {
             "name": "Crew call-out cost",
@@ -586,7 +694,28 @@
             "status": "planning",
             "low": 2500.0,
             "high": 4300.0,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [
+              {
+                "label": "National minimum wage 8,000 EGP a month from July 2026",
+                "unit": "EGP/month",
+                "kind": "related",
+                "publisher": "Egyptian Streets",
+                "url": "https://egyptianstreets.com/2026/04/02/egypt-raises-minimum-wage-to-8000-egp-from-july-2026/",
+                "asof": "April 2026",
+                "note": "Sources disagree whether it covers the private sector. At 26 days of 8 hours it is about 38 EGP an hour for labour alone (our arithmetic); a call-out also pays for the vehicle, tools and the contractor's margin."
+              },
+              {
+                "label": "Diesel about 20.5 EGP a litre",
+                "unit": "EGP/L",
+                "kind": "related",
+                "publisher": "GlobalPetrolPrices",
+                "url": "https://www.globalpetrolprices.com/Egypt/diesel_prices/",
+                "asof": "September 2026",
+                "note": "An aggregator. The official fuel-pricing committee decision was not found."
+              }
+            ],
+            "evidence": "related"
           },
           {
             "name": "Pipe repair parts",
@@ -599,7 +728,9 @@
             "status": "planning",
             "low": 10000.0,
             "high": 20000.0,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [],
+            "evidence": "none"
           },
           {
             "name": "Deferred response horizon, pipe_burst",
@@ -612,7 +743,9 @@
             "status": "planning",
             "low": 4.5,
             "high": 7.5,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [],
+            "evidence": "none"
           },
           {
             "name": "Crew response time when sent now",
@@ -625,7 +758,9 @@
             "status": "planning",
             "low": 0.5,
             "high": 1.5,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [],
+            "evidence": "none"
           },
           {
             "name": "Late repair multiplier, pipe_burst",
@@ -638,7 +773,9 @@
             "status": "planning",
             "low": 1.5,
             "high": 1.9,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [],
+            "evidence": "none"
           },
           {
             "name": "Plausible saving min, pipe_burst",
@@ -651,7 +788,9 @@
             "status": "planning",
             "low": 0.0,
             "high": 0.0,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [],
+            "evidence": "none"
           },
           {
             "name": "Plausible saving max, pipe_burst",
@@ -664,7 +803,9 @@
             "status": "planning",
             "low": 2000000.0,
             "high": 2000000.0,
-            "reviewed": "2026-10-29"
+            "reviewed": "2026-10-29",
+            "references": [],
+            "evidence": "none"
           }
         ],
         "sensitivity": [
@@ -1256,7 +1397,31 @@
           "status": "planning",
           "low": 6.0,
           "high": 10.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Production cost of one cubic metre, Holding Company for Water and Wastewater",
+              "low": 1.4,
+              "high": 1.4,
+              "unit": "EGP/m3",
+              "kind": "historical",
+              "publisher": "Ahram Online",
+              "url": "https://english.ahram.org.eg/News/100283.aspx",
+              "asof": "2014",
+              "note": "The latest production cost found. It is twelve years old and is shown for context, not compared."
+            },
+            {
+              "label": "Household tariff after the 2017 increase, 0.65 to 3.15 EGP/m3; commercial 3.6 EGP/m3",
+              "unit": "EGP/m3",
+              "kind": "historical",
+              "publisher": "Associated Press via Fox News",
+              "url": "https://www.foxnews.com/world/egypt-raises-water-sewage-bills-as-part-of-reform-program.amp",
+              "asof": "2017",
+              "note": "A tariff is what customers pay, not what production costs. No 2026 schedule was found."
+            }
+          ],
+          "evidence": "related",
+          "searchNote": "Searched on 2026-10-29: no 2026 production cost or tariff schedule. The newest public figures are from 2014 to 2017."
         },
         {
           "name": "Service accounts, zone-gov",
@@ -1269,7 +1434,9 @@
           "status": "planning",
           "low": 375.0,
           "high": 625.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Utility outage administration, government",
@@ -1282,7 +1449,9 @@
           "status": "planning",
           "low": 2.5,
           "high": 7.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Electricity tariff",
@@ -1295,7 +1464,87 @@
           "status": "planning",
           "low": 1.2,
           "high": 2.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Commercial tariff, up to 100 kWh a month",
+              "low": 1.62,
+              "high": 1.62,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 250 kWh a month",
+              "low": 2.16,
+              "high": 2.16,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 600 kWh a month",
+              "low": 2.64,
+              "high": 2.64,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 1,000 kWh a month",
+              "low": 2.74,
+              "high": 2.74,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, above 1,000 kWh a month",
+              "low": 2.79,
+              "high": 2.79,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Industrial flat rate",
+              "low": 2.33,
+              "high": 2.33,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Reslink (solar industry blog)",
+              "url": "https://www.reslink.org/blogs/electricity-tariffs-just-rose-again-solar-payback-is-now-under-5-years/",
+              "asof": "August 2026",
+              "note": "A blog summary of the tariff table. Sources disagree on some residential tiers, so treat it as indicative."
+            },
+            {
+              "label": "Business electricity price",
+              "low": 1.94,
+              "high": 1.94,
+              "unit": "EGP/kWh",
+              "kind": "aggregator",
+              "publisher": "GlobalPetrolPrices",
+              "url": "https://www.globalpetrolprices.com/Egypt/electricity_prices/",
+              "asof": "June 2025 data",
+              "note": "An aggregator, and older than the April 2026 increase."
+            }
+          ],
+          "evidence": "partly"
         },
         {
           "name": "Crew call-out cost",
@@ -1308,7 +1557,28 @@
           "status": "planning",
           "low": 2500.0,
           "high": 4300.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "National minimum wage 8,000 EGP a month from July 2026",
+              "unit": "EGP/month",
+              "kind": "related",
+              "publisher": "Egyptian Streets",
+              "url": "https://egyptianstreets.com/2026/04/02/egypt-raises-minimum-wage-to-8000-egp-from-july-2026/",
+              "asof": "April 2026",
+              "note": "Sources disagree whether it covers the private sector. At 26 days of 8 hours it is about 38 EGP an hour for labour alone (our arithmetic); a call-out also pays for the vehicle, tools and the contractor's margin."
+            },
+            {
+              "label": "Diesel about 20.5 EGP a litre",
+              "unit": "EGP/L",
+              "kind": "related",
+              "publisher": "GlobalPetrolPrices",
+              "url": "https://www.globalpetrolprices.com/Egypt/diesel_prices/",
+              "asof": "September 2026",
+              "note": "An aggregator. The official fuel-pricing committee decision was not found."
+            }
+          ],
+          "evidence": "related"
         },
         {
           "name": "Pipe repair parts",
@@ -1321,7 +1591,9 @@
           "status": "planning",
           "low": 10000.0,
           "high": 20000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Deferred response horizon, pipe_burst",
@@ -1334,7 +1606,9 @@
           "status": "planning",
           "low": 4.5,
           "high": 7.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Crew response time when sent now",
@@ -1347,7 +1621,9 @@
           "status": "planning",
           "low": 0.5,
           "high": 1.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Late repair multiplier, pipe_burst",
@@ -1360,7 +1636,9 @@
           "status": "planning",
           "low": 1.5,
           "high": 1.9,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Plausible saving min, pipe_burst",
@@ -1373,7 +1651,9 @@
           "status": "planning",
           "low": 0.0,
           "high": 0.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Plausible saving max, pipe_burst",
@@ -1386,7 +1666,9 @@
           "status": "planning",
           "low": 2000000.0,
           "high": 2000000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         }
       ],
       "sensitivity": [

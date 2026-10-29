@@ -31,6 +31,20 @@ All use one response hour and default registry values below. Unless specified, t
 
 The trip covers `zone-gov` and `zone-cult` (300 service accounts). Its 1,000-ton cooling deficit is deliberately excluded because the VoLL economic-harm owner already covers the electricity-caused downstream loss. Its 0.25 MW secondary input is separately purchased energy.
 
+## Public reference check
+
+Each input can carry public figures (publisher, link, date, note) and a verdict on how they sit against the registered range: `consistent`, `partly`, `differs`, `related` (context only) or `none`. The registered values are unchanged: a reference is evidence beside a value, and the assumptions panel offers a "Try" button for a single-figure reference so the effect can be seen before anyone adopts it. Searched on 2026-10-29; nothing was checked against an official gazette.
+
+| Input | What was found | Verdict |
+| --- | --- | --- |
+| `elec_tariff` 1.6 EGP/kWh | Commercial tiers 1.62 to 2.79 (April 2026, Egypt Independent), industrial about 2.33 (blog), business 1.94 (aggregator, June 2025). Most are above the registered range 1.2 to 2.0. | partly |
+| `discount_rate` 18% | Central Bank of Egypt deposit 19% and lending 20%. The registered rate is below the deposit rate, so finance should confirm it. | consistent with the range, with a warning in the note |
+| `pm_n1` 1.0 | Theory 0.5 to 1.5; 107 South African zones measured -0.34 to 2.20. | consistent |
+| `reset_pct_per_c` 2.5%/°C | Rule of thumb 1.8 to 3.6%/°C; DOE 0.9 to 1.35%/°C fixed-speed and 3.6 to 5.4%/°C variable-speed. | partly |
+| `water_price` 8 EGP/m3 | Latest public production cost is 1.4 EGP/m3 from 2014; tariffs from 2017. No 2026 figure. | related |
+| `cooling_price`, `voll_*` | No public price per ton-hour; no Egypt-specific value of lost load. | none, with a search note |
+| `crew_callout`, `false_dispatch` | Minimum wage 8,000 EGP/month from July 2026 (private-sector coverage disputed); diesel about 20.5 EGP/L. Context for the budget, not a price for it. | related |
+
 ## Savings advisor formulas
 
 The advisor uses hourly synthetic baseline history without injected incidents. Sum hourly power as energy (one-hour samples), then normalize to a 30-day month using `30 / (history_hours / 24)`. `1 MW = 1000 kW`; thermal demand uses `284.3 TR/MW`, an engineering unit conversion rounded from approximately 3.517 kW/TR.

@@ -82,3 +82,43 @@ def test_alert_resolves_after_stop():
 
     asyncio.run(go())
     assert rt.alerts and all(a.state == "resolved" for a in rt.alerts.values())
+
+
+def test_iftar_surge_raises_residential_demand():
+    base, _, _ = run(None, ticks=40)
+    rt, _, _ = run("scn-iftar-surge", {"uplift": 0.5}, ticks=40)
+    z = "zone-res-2"
+    assert rt.engine.zone_demand[z][0] > base.engine.zone_demand[z][0] * 1.4
+    assert rt.engine.zone_demand["zone-gov"][0] == pytest.approx(base.engine.zone_demand["zone-gov"][0])
+
+
+def test_hidden_leak_slips_past_the_burst_rule_and_is_found_by_the_flow_balance():
+    rt, det, found = run("scn-hidden-leak", {"severity": 0.2}, warm=100, ticks=300)
+    assert [f.kind for _, f, _ in found] == ["leak"], [i.title for i, _, _ in found]
+    inc = found[0][0]
+    assert inc.title.startswith("Slow leak suspected")
+    leak = det.facts_for(inc.id)[0].leak_m3h
+    assert 35 < leak < 70  # truth: 300 x 0.2 = 60 m3/h once fully grown
+
+
+def test_flow_meter_drift_is_not_mistaken_for_a_leak():
+    rt, det, found = run("scn-sensor-drift", {"targetSensor": "water-pipe-02-flow-in", "severity": 0.5}, warm=100, ticks=200)
+    assert not any(f.kind == "leak" for _, f, _ in found)
+
+
+def test_load_shedding_ends_on_its_own():
+    rt, det, found = run("scn-load-shedding", {"targetAsset": "elec-sub-04", "durationSeconds": 60}, warm=30, ticks=140)
+    assert [f.kind for _, f, _ in found] == ["substation_trip"]
+    assert rt.engine.sub_on["elec-sub-04"] is True
+    assert all(a.state == "resolved" for a in rt.alerts.values())
+
+
+def test_storm_cascades_into_one_escalating_incident():
+    rt, det, found = run("scn-storm", {"temperature": 47}, warm=30, ticks=220)
+    tripped = [k for k, v in rt.engine.sub_on.items() if not v]
+    assert len(tripped) == 2, tripped
+    assert len(rt.incidents) == 1, [i.title for i in rt.incidents.values()]
+    inc = next(iter(rt.incidents.values()))
+    assert {"electricity", "water", "cooling"} <= set(inc.networks)
+    assert det.state.incident_kind[inc.id] == "substation_trip"
+    assert [f.kind for _, f, _ in found][0] != "substation_trip" and found[-1][1].kind == "substation_trip"

@@ -33,9 +33,13 @@ export interface Reason { text: string; evidenceType: EvidenceType; evidenceRef:
 export type AssumptionStatus = 'official' | 'benchmark' | 'engineering' | 'planning';
 export interface CalculationInput { name: string; value: number; unit: string; source: EvidenceType; key?: string; basis?: string; status?: AssumptionStatus }
 export interface Calculation { name: string; formula: string; inputs: CalculationInput[]; result: number; unit: string }
+export type ReferenceKind = 'official' | 'reported' | 'aggregator' | 'benchmark' | 'historical' | 'related';
+export interface PriceReference { label: string; low: number | null; high: number | null; unit: string; kind: ReferenceKind; publisher: string; url: string; asof: string; note: string }
+export type ReferenceEvidence = 'consistent' | 'partly' | 'differs' | 'related' | 'none';
 export interface Assumption {
   name: string; key: string; value: number; unit: string; source: string; userChanged: boolean;
   basis: string; status: AssumptionStatus; low: number; high: number; reviewed: string;
+  references?: PriceReference[]; evidence?: ReferenceEvidence; searchNote?: string | null;
 }
 export interface TornadoRow { input: string; name: string; low: number; high: number; savingAtLow: number; savingAtHigh: number }
 export interface Sensitivity { input: string; changePercent: number; newSaving: number }
@@ -87,7 +91,7 @@ export interface ChatMessage {
   routing: RoutingStep[]; agentsConsulted: Agent[]; fallback: boolean; activeAgent?: Agent; calculationId?: string | null; findingIds?: string[];
 }
 export interface Health { status: string; llm: 'live' | 'fallback'; tick?: number; seed?: number; activeRuns?: string[] }
-export interface Incident { id: string; title: string; networks: Network[]; zoneIds: string[]; severity: Alert['severity']; alertIds: string[]; findingIds: string[]; calculationId: string | null; state: Alert['state']; openedAt: Timestamp }
+export interface Incident { id: string; title: string; networks: Network[]; zoneIds: string[]; severity: Alert['severity']; alertIds: string[]; findingIds: string[]; calculationId: string | null; state: Alert['state']; openedAt: Timestamp; reanalysing?: boolean }
 export interface AcknowledgeResponse { id: string; state: 'acknowledged' }
 export type IncidentReport = Blob;
 export interface ComparisonResult { label: string; totalCost: number; waterLostM3: number; outageHours: number; series: ForecastPoint[] }

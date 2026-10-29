@@ -101,7 +101,7 @@ def build_specialist(rt: "Runtime", A: Assumptions):
         return {"text": out, "fallback": fb, "steps": steps}
 
     def verify(s: SState) -> SState:
-        allowed = allowed_numbers(s["record"], [x for sn in s["sensors"] for x in (sn["now"], sn["min30"] or 0, sn["max30"] or 0)])
+        allowed = allowed_numbers(s["record"], [x for sn in s["sensors"] for x in (sn["now"], sn["min30"] or 0, sn["max30"] or 0, *sn["normal"])])
         cleaned, removed = _clean(s["text"], allowed)
         steps, fallback = s.get("steps", []), s.get("fallback", False)
         if removed and fallback:

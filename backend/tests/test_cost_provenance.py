@@ -146,3 +146,21 @@ def test_sampling_uses_absolute_registered_range_not_twenty_percent(A):
         assert sample["crew_callout"] == A["crew_callout"]
     draw = A.sampled(np.random.default_rng(42))
     assert all(d["low"] <= draw[k] <= d["high"] for k, d in DEFAULTS.items())
+
+
+def test_references_carry_a_link_a_date_and_an_honest_verdict():
+    from app.cost import Assumptions
+    from app.cost.references import REFERENCES, evidence
+
+    A = Assumptions(path=Path("/nonexistent/assumptions.json"))
+    items = {a.key: a for a in A.all()}
+    for key, refs in REFERENCES.items():
+        assert key in items, key
+        for r in refs:
+            assert r["url"].startswith("https://") and r["asof"] and r["publisher"], (key, r["label"])
+    # the public commercial tariffs mostly sit above the registered electricity range: the registry must say so
+    assert items["elec_tariff"].evidence == "partly"
+    assert items["discount_rate"].evidence == "consistent"
+    assert items["water_price"].evidence == "related" and "2014" in items["water_price"].search_note
+    assert items["voll_government"].evidence == "none" and items["voll_government"].search_note
+    assert evidence("elec_tariff", 3.0, 4.0) == "differs"  # a range with no public figure inside it

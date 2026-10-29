@@ -5,7 +5,7 @@ import type { Asset, Assumption, CalculationRecord, Sensor } from '../api/types'
 import { useStore } from '../store';
 import { useUi } from '../store/ui';
 import { Drawer, Empty, Meter, NetIcon, Skeleton, StatusChip } from '../ui';
-import { Basis } from '../ui/Provenance';
+import { Basis, ReferenceTag } from '../ui/Provenance';
 import { CalcView } from '../ui/Calc';
 import { TimeChart } from '../charts/TimeChart';
 import { ago, fmt, sensorLabel } from '../lib/format';
@@ -84,6 +84,8 @@ export function AssumptionsDrawer() {
     <Drawer title="Assumptions" onClose={() => set({ assumptionsOpen: false })}
       foot={<><span className="sub" style={{ marginInlineEnd: 'auto', alignSelf: 'center' }}>{changed.length ? `${changed.length} change${changed.length > 1 ? 's' : ''}` : 'Edit a value to recompute'}</span><button className="btn primary" disabled={!changed.length || saving} onClick={save}>Save and recompute</button></>}>
       <p className="sub" style={{ margin: 0 }}>Every cost and saving reads these values. Open a value to see where it comes from. Planning figures are illustrative until you replace them with your own.</p>
+      {data && <div className="row wrap muted" style={{ gap: 8, fontSize: 12 }}>Public figures found for {data.filter((a) => a.references?.length).length} of {data.length} inputs:
+        {(['consistent', 'partly', 'differs', 'related'] as const).map((k) => { const n = data.filter((a) => a.evidence === k).length; return n ? <span key={k} className="row" style={{ gap: 4 }}><ReferenceTag e={k} /><b className="num">{n}</b></span> : null; })}</div>}
       {loading && !data ? [0, 1, 2, 3].map((i) => <Skeleton key={i} h={44} />) : GROUPS.map(([g]) => grouped[g] && (
         <section key={g}>
           <div className="card-title" style={{ marginBottom: 8 }}>{g}</div>
@@ -91,7 +93,7 @@ export function AssumptionsDrawer() {
             {grouped[g].map((a) => (
               <label key={a.key} className="row spread" style={{ gap: 12 }}>
                 <span style={{ minWidth: 0, flex: 1 }}>{a.name}{a.userChanged && <span className="chip warn" style={{ marginInlineStart: 8 }}>changed</span>}<span className="muted" style={{ display: 'block', fontSize: 12 }}>{a.source}</span>
-                  <details style={{ marginTop: 2 }} onClick={(e) => e.stopPropagation()}><summary style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer' }}>Where this comes from</summary><div style={{ marginTop: 6 }}><Basis a={a} /></div></details></span>
+                  <details style={{ marginTop: 2 }} onClick={(e) => e.stopPropagation()}><summary style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer' }}>Where this comes from</summary><div style={{ marginTop: 6 }}><Basis a={a} onUse={(v) => setEdits((o) => ({ ...o, [a.key]: String(v) }))} /></div></details></span>
                 <span className="row" style={{ gap: 6, flex: 'none' }}><input className="field num" style={{ width: 110, textAlign: 'end' }} type="number" step="any" value={edits[a.key] ?? String(a.value)} onChange={(e) => setEdits((o) => ({ ...o, [a.key]: e.target.value }))} /><span className="muted" style={{ width: 70, fontSize: 12 }}>{a.unit}</span></span>
               </label>
             ))}

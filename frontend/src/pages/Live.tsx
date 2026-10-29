@@ -11,6 +11,7 @@ import { Card, Empty, NetIcon, Skeleton } from '../ui';
 import { CostTiles, HBars, IncidentCard, KpiStrip, Legend, NetworkHealth } from '../ui/parts';
 import { go, href } from '../lib/route';
 import { compact, fmt, hhmm } from '../lib/format';
+import { latestFinding } from '../lib/present';
 import { assetBounds } from '../lib/useSensorSeries';
 
 const ms = (iso: string) => Date.parse(iso);
@@ -98,15 +99,15 @@ export function Live() {
   const sel = useUi((s) => s.selectedAsset);
   const set = useUi((s) => s.set);
   const open = incidents.filter((i) => i.state !== 'resolved').sort((a, b) => b.openedAt.localeCompare(a.openedAt))[0];
-  const finding = open ? findings.find((f) => f.incidentId === open.id) : undefined;
+  const finding = open ? latestFinding(findings, open.id) : undefined; // an escalated incident is described by its latest, largest root cause
 
   // Fly to the incident when a new one opens.
   const focus: Focus | null = useMemo(() => {
     if (!open || !topology) return null;
     const z = topology.zones.find((x) => x.id === open.zoneIds[0]);
     const ids = alerts.filter((a) => a.incidentId === open.id).flatMap((a) => a.assetIds);
-    return z ? { lng: z.center.lng, lat: z.center.lat, zoom: 14, bounds: assetBounds(topology, ids) ?? undefined, key: open.id.length } : null;
-  }, [open?.id, topology]); // eslint-disable-line react-hooks/exhaustive-deps
+    return z ? { lng: z.center.lng, lat: z.center.lat, zoom: 14, bounds: assetBounds(topology, ids) ?? undefined, key: open.id.length * 100 + ids.length } : null;
+  }, [open?.id, topology, alerts.filter((a) => a.incidentId === open?.id).length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="page">

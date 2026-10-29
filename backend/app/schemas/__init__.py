@@ -133,6 +133,7 @@ class Incident(Model):
     alert_ids: list[str]
     finding_ids: list[str] = []
     calculation_id: str | None = None
+    reanalysing: bool = False  # the incident grew into a bigger root cause and its findings are from the earlier stage
 
 
 # ---------- 4.6A Explanation ----------
@@ -161,6 +162,18 @@ class Calculation(Model):
     unit: str = "EGP"
 
 
+class Reference(Model):
+    label: str
+    low: float | None = None
+    high: float | None = None
+    unit: str
+    kind: Literal["official", "reported", "aggregator", "benchmark", "historical", "related"]
+    publisher: str
+    url: str
+    asof: str
+    note: str = ""
+
+
 class Assumption(Model):
     name: str
     key: str
@@ -173,6 +186,9 @@ class Assumption(Model):
     low: float
     high: float
     reviewed: str
+    references: list[Reference] = []
+    evidence: Literal["consistent", "partly", "differs", "related", "none"] = "none"
+    search_note: str | None = None
 
 
 class Sensitivity(Model):

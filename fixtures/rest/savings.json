@@ -305,7 +305,9 @@
           "status": "planning",
           "low": 0.25,
           "high": 0.45,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Cooling energy cost",
@@ -318,7 +320,20 @@
           "status": "planning",
           "low": 1.1,
           "high": 1.9,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "First district cooling station in the capital (Gascool): first stage about 2.3 billion EGP",
+              "unit": "EGP",
+              "kind": "related",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/contract-signed-for-cooling-station-in-new-capital/",
+              "asof": "contract announcement",
+              "note": "A capital cost. No price per ton-hour has been published; ask the authority or the operator."
+            }
+          ],
+          "evidence": "related",
+          "searchNote": "Searched on 2026-10-29: no published price per ton-hour for the capital's district cooling."
         },
         {
           "name": "Setback commissioning in the building systems",
@@ -331,7 +346,9 @@
           "status": "planning",
           "low": 18000.0,
           "high": 32000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Effective annual discount rate",
@@ -344,7 +361,21 @@
           "status": "planning",
           "low": 0.12,
           "high": 0.24,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Central Bank of Egypt overnight deposit rate 19%, lending rate 20%",
+              "low": 0.19,
+              "high": 0.2,
+              "unit": "fraction/year",
+              "kind": "reported",
+              "publisher": "Central Banking",
+              "url": "https://www.centralbanking.com/central-banks/monetary-policy/monetary-policy-decisions/7975038/egypt-cuts-rates-by-100bp-and-lowers-reserve-requirements",
+              "asof": "February 2026 cut; press reports say it was held at the September 2026 meeting",
+              "note": "A project discount rate normally sits above the policy rate by a risk margin. The registered 18% is below the 19% deposit rate, so finance should confirm it."
+            }
+          ],
+          "evidence": "consistent"
         }
       ],
       "confidence": 0.82,
@@ -1360,7 +1391,9 @@
           "status": "planning",
           "low": 0.45,
           "high": 0.75,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Service accounts, zone-gov",
@@ -1373,7 +1406,9 @@
           "status": "planning",
           "low": 375.0,
           "high": 625.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Value of lost load, government",
@@ -1386,7 +1421,10 @@
           "status": "planning",
           "low": 22.5,
           "high": 67.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none",
+          "searchNote": "Searched on 2026-10-29: no Egypt-specific value of lost load study. The 2025 World Bank Enterprise Survey records firms' reported outage losses, which could be normalised to EGP per kWh."
         },
         {
           "name": "Service accounts, zone-cult",
@@ -1399,7 +1437,9 @@
           "status": "planning",
           "low": 225.0,
           "high": 375.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Value of lost load, services",
@@ -1412,7 +1452,10 @@
           "status": "planning",
           "low": 37.5,
           "high": 112.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none",
+          "searchNote": "Searched on 2026-10-29: no Egypt-specific value of lost load study. The 2025 World Bank Enterprise Survey records firms' reported outage losses, which could be normalised to EGP per kWh."
         },
         {
           "name": "Utility outage administration, government",
@@ -1425,7 +1468,9 @@
           "status": "planning",
           "low": 2.5,
           "high": 7.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Utility outage administration, services",
@@ -1438,7 +1483,9 @@
           "status": "planning",
           "low": 4.0,
           "high": 12.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Crew call-out cost",
@@ -1451,7 +1498,28 @@
           "status": "planning",
           "low": 2500.0,
           "high": 4300.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "National minimum wage 8,000 EGP a month from July 2026",
+              "unit": "EGP/month",
+              "kind": "related",
+              "publisher": "Egyptian Streets",
+              "url": "https://egyptianstreets.com/2026/04/02/egypt-raises-minimum-wage-to-8000-egp-from-july-2026/",
+              "asof": "April 2026",
+              "note": "Sources disagree whether it covers the private sector. At 26 days of 8 hours it is about 38 EGP an hour for labour alone (our arithmetic); a call-out also pays for the vehicle, tools and the contractor's margin."
+            },
+            {
+              "label": "Diesel about 20.5 EGP a litre",
+              "unit": "EGP/L",
+              "kind": "related",
+              "publisher": "GlobalPetrolPrices",
+              "url": "https://www.globalpetrolprices.com/Egypt/diesel_prices/",
+              "asof": "September 2026",
+              "note": "An aggregator. The official fuel-pricing committee decision was not found."
+            }
+          ],
+          "evidence": "related"
         },
         {
           "name": "Substation restore and inspection",
@@ -1464,7 +1532,9 @@
           "status": "planning",
           "low": 18000.0,
           "high": 34000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Deferred response horizon, substation_trip",
@@ -1477,7 +1547,9 @@
           "status": "planning",
           "low": 3.0,
           "high": 5.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Crew response time when sent now",
@@ -1490,7 +1562,9 @@
           "status": "planning",
           "low": 0.5,
           "high": 1.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Late repair multiplier, substation_trip",
@@ -1503,7 +1577,9 @@
           "status": "planning",
           "low": 1.05,
           "high": 1.45,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Maintenance trip unserved-load proxy",
@@ -1516,7 +1592,9 @@
           "status": "planning",
           "low": 0.3,
           "high": 0.6,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Effective annual discount rate",
@@ -1529,7 +1607,21 @@
           "status": "planning",
           "low": 0.12,
           "high": 0.24,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Central Bank of Egypt overnight deposit rate 19%, lending rate 20%",
+              "low": 0.19,
+              "high": 0.2,
+              "unit": "fraction/year",
+              "kind": "reported",
+              "publisher": "Central Banking",
+              "url": "https://www.centralbanking.com/central-banks/monetary-policy/monetary-policy-decisions/7975038/egypt-cuts-rates-by-100bp-and-lowers-reserve-requirements",
+              "asof": "February 2026 cut; press reports say it was held at the September 2026 meeting",
+              "note": "A project discount rate normally sits above the policy rate by a risk margin. The registered 18% is below the 19% deposit rate, so finance should confirm it."
+            }
+          ],
+          "evidence": "consistent"
         }
       ],
       "confidence": 0.6,
@@ -2729,7 +2821,9 @@
           "status": "planning",
           "low": 0.45,
           "high": 0.75,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Service accounts, zone-just",
@@ -2742,7 +2836,9 @@
           "status": "planning",
           "low": 187.5,
           "high": 312.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Value of lost load, government",
@@ -2755,7 +2851,10 @@
           "status": "planning",
           "low": 22.5,
           "high": 67.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none",
+          "searchNote": "Searched on 2026-10-29: no Egypt-specific value of lost load study. The 2025 World Bank Enterprise Survey records firms' reported outage losses, which could be normalised to EGP per kWh."
         },
         {
           "name": "Service accounts, zone-res-ne",
@@ -2768,7 +2867,9 @@
           "status": "planning",
           "low": 4500.0,
           "high": 7500.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Value of lost load, residential",
@@ -2781,7 +2882,10 @@
           "status": "planning",
           "low": 10.0,
           "high": 30.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none",
+          "searchNote": "Searched on 2026-10-29: no Egypt-specific value of lost load study. The 2025 World Bank Enterprise Survey records firms' reported outage losses, which could be normalised to EGP per kWh."
         },
         {
           "name": "Service accounts, zone-res-far",
@@ -2794,7 +2898,9 @@
           "status": "planning",
           "low": 4125.0,
           "high": 6875.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Utility outage administration, government",
@@ -2807,7 +2913,9 @@
           "status": "planning",
           "low": 2.5,
           "high": 7.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Utility outage administration, residential",
@@ -2820,7 +2928,9 @@
           "status": "planning",
           "low": 0.075,
           "high": 0.225,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Crew call-out cost",
@@ -2833,7 +2943,28 @@
           "status": "planning",
           "low": 2500.0,
           "high": 4300.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "National minimum wage 8,000 EGP a month from July 2026",
+              "unit": "EGP/month",
+              "kind": "related",
+              "publisher": "Egyptian Streets",
+              "url": "https://egyptianstreets.com/2026/04/02/egypt-raises-minimum-wage-to-8000-egp-from-july-2026/",
+              "asof": "April 2026",
+              "note": "Sources disagree whether it covers the private sector. At 26 days of 8 hours it is about 38 EGP an hour for labour alone (our arithmetic); a call-out also pays for the vehicle, tools and the contractor's margin."
+            },
+            {
+              "label": "Diesel about 20.5 EGP a litre",
+              "unit": "EGP/L",
+              "kind": "related",
+              "publisher": "GlobalPetrolPrices",
+              "url": "https://www.globalpetrolprices.com/Egypt/diesel_prices/",
+              "asof": "September 2026",
+              "note": "An aggregator. The official fuel-pricing committee decision was not found."
+            }
+          ],
+          "evidence": "related"
         },
         {
           "name": "Substation restore and inspection",
@@ -2846,7 +2977,9 @@
           "status": "planning",
           "low": 18000.0,
           "high": 34000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Deferred response horizon, substation_trip",
@@ -2859,7 +2992,9 @@
           "status": "planning",
           "low": 3.0,
           "high": 5.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Crew response time when sent now",
@@ -2872,7 +3007,9 @@
           "status": "planning",
           "low": 0.5,
           "high": 1.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Late repair multiplier, substation_trip",
@@ -2885,7 +3022,9 @@
           "status": "planning",
           "low": 1.05,
           "high": 1.45,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Maintenance trip unserved-load proxy",
@@ -2898,7 +3037,9 @@
           "status": "planning",
           "low": 0.3,
           "high": 0.6,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Effective annual discount rate",
@@ -2911,7 +3052,21 @@
           "status": "planning",
           "low": 0.12,
           "high": 0.24,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Central Bank of Egypt overnight deposit rate 19%, lending rate 20%",
+              "low": 0.19,
+              "high": 0.2,
+              "unit": "fraction/year",
+              "kind": "reported",
+              "publisher": "Central Banking",
+              "url": "https://www.centralbanking.com/central-banks/monetary-policy/monetary-policy-decisions/7975038/egypt-cuts-rates-by-100bp-and-lowers-reserve-requirements",
+              "asof": "February 2026 cut; press reports say it was held at the September 2026 meeting",
+              "note": "A project discount rate normally sits above the policy rate by a risk margin. The registered 18% is below the 19% deposit rate, so finance should confirm it."
+            }
+          ],
+          "evidence": "consistent"
         }
       ],
       "confidence": 0.6,
@@ -3927,7 +4082,9 @@
           "status": "planning",
           "low": 0.45,
           "high": 0.75,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Service accounts, zone-res-2",
@@ -3940,7 +4097,9 @@
           "status": "planning",
           "low": 6000.0,
           "high": 10000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Value of lost load, residential",
@@ -3953,7 +4112,10 @@
           "status": "planning",
           "low": 10.0,
           "high": 30.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none",
+          "searchNote": "Searched on 2026-10-29: no Egypt-specific value of lost load study. The 2025 World Bank Enterprise Survey records firms' reported outage losses, which could be normalised to EGP per kWh."
         },
         {
           "name": "Service accounts, zone-cbd",
@@ -3966,7 +4128,9 @@
           "status": "planning",
           "low": 900.0,
           "high": 1500.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Value of lost load, business",
@@ -3979,7 +4143,10 @@
           "status": "planning",
           "low": 30.0,
           "high": 90.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none",
+          "searchNote": "Searched on 2026-10-29: no Egypt-specific value of lost load study. The 2025 World Bank Enterprise Survey records firms' reported outage losses, which could be normalised to EGP per kWh."
         },
         {
           "name": "Utility outage administration, residential",
@@ -3992,7 +4159,9 @@
           "status": "planning",
           "low": 0.075,
           "high": 0.225,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Utility outage administration, business",
@@ -4005,7 +4174,9 @@
           "status": "planning",
           "low": 1.25,
           "high": 3.75,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Crew call-out cost",
@@ -4018,7 +4189,28 @@
           "status": "planning",
           "low": 2500.0,
           "high": 4300.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "National minimum wage 8,000 EGP a month from July 2026",
+              "unit": "EGP/month",
+              "kind": "related",
+              "publisher": "Egyptian Streets",
+              "url": "https://egyptianstreets.com/2026/04/02/egypt-raises-minimum-wage-to-8000-egp-from-july-2026/",
+              "asof": "April 2026",
+              "note": "Sources disagree whether it covers the private sector. At 26 days of 8 hours it is about 38 EGP an hour for labour alone (our arithmetic); a call-out also pays for the vehicle, tools and the contractor's margin."
+            },
+            {
+              "label": "Diesel about 20.5 EGP a litre",
+              "unit": "EGP/L",
+              "kind": "related",
+              "publisher": "GlobalPetrolPrices",
+              "url": "https://www.globalpetrolprices.com/Egypt/diesel_prices/",
+              "asof": "September 2026",
+              "note": "An aggregator. The official fuel-pricing committee decision was not found."
+            }
+          ],
+          "evidence": "related"
         },
         {
           "name": "Substation restore and inspection",
@@ -4031,7 +4223,9 @@
           "status": "planning",
           "low": 18000.0,
           "high": 34000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Deferred response horizon, substation_trip",
@@ -4044,7 +4238,9 @@
           "status": "planning",
           "low": 3.0,
           "high": 5.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Crew response time when sent now",
@@ -4057,7 +4253,9 @@
           "status": "planning",
           "low": 0.5,
           "high": 1.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Late repair multiplier, substation_trip",
@@ -4070,7 +4268,9 @@
           "status": "planning",
           "low": 1.05,
           "high": 1.45,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Maintenance trip unserved-load proxy",
@@ -4083,7 +4283,9 @@
           "status": "planning",
           "low": 0.3,
           "high": 0.6,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Effective annual discount rate",
@@ -4096,7 +4298,21 @@
           "status": "planning",
           "low": 0.12,
           "high": 0.24,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Central Bank of Egypt overnight deposit rate 19%, lending rate 20%",
+              "low": 0.19,
+              "high": 0.2,
+              "unit": "fraction/year",
+              "kind": "reported",
+              "publisher": "Central Banking",
+              "url": "https://www.centralbanking.com/central-banks/monetary-policy/monetary-policy-decisions/7975038/egypt-cuts-rates-by-100bp-and-lowers-reserve-requirements",
+              "asof": "February 2026 cut; press reports say it was held at the September 2026 meeting",
+              "note": "A project discount rate normally sits above the policy rate by a risk margin. The registered 18% is below the 19% deposit rate, so finance should confirm it."
+            }
+          ],
+          "evidence": "consistent"
         }
       ],
       "confidence": 0.6,
@@ -4362,7 +4578,87 @@
           "status": "planning",
           "low": 1.2,
           "high": 2.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Commercial tariff, up to 100 kWh a month",
+              "low": 1.62,
+              "high": 1.62,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 250 kWh a month",
+              "low": 2.16,
+              "high": 2.16,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 600 kWh a month",
+              "low": 2.64,
+              "high": 2.64,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 1,000 kWh a month",
+              "low": 2.74,
+              "high": 2.74,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, above 1,000 kWh a month",
+              "low": 2.79,
+              "high": 2.79,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Industrial flat rate",
+              "low": 2.33,
+              "high": 2.33,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Reslink (solar industry blog)",
+              "url": "https://www.reslink.org/blogs/electricity-tariffs-just-rose-again-solar-payback-is-now-under-5-years/",
+              "asof": "August 2026",
+              "note": "A blog summary of the tariff table. Sources disagree on some residential tiers, so treat it as indicative."
+            },
+            {
+              "label": "Business electricity price",
+              "low": 1.94,
+              "high": 1.94,
+              "unit": "EGP/kWh",
+              "kind": "aggregator",
+              "publisher": "GlobalPetrolPrices",
+              "url": "https://www.globalpetrolprices.com/Egypt/electricity_prices/",
+              "asof": "June 2025 data",
+              "note": "An aggregator, and older than the April 2026 increase."
+            }
+          ],
+          "evidence": "partly"
         },
         {
           "name": "Condenser cleaning, per plant",
@@ -4375,7 +4671,9 @@
           "status": "planning",
           "low": 180000.0,
           "high": 320000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Effective annual discount rate",
@@ -4388,7 +4686,21 @@
           "status": "planning",
           "low": 0.12,
           "high": 0.24,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Central Bank of Egypt overnight deposit rate 19%, lending rate 20%",
+              "low": 0.19,
+              "high": 0.2,
+              "unit": "fraction/year",
+              "kind": "reported",
+              "publisher": "Central Banking",
+              "url": "https://www.centralbanking.com/central-banks/monetary-policy/monetary-policy-decisions/7975038/egypt-cuts-rates-by-100bp-and-lowers-reserve-requirements",
+              "asof": "February 2026 cut; press reports say it was held at the September 2026 meeting",
+              "note": "A project discount rate normally sits above the policy rate by a risk margin. The registered 18% is below the 19% deposit rate, so finance should confirm it."
+            }
+          ],
+          "evidence": "consistent"
         }
       ],
       "confidence": 0.75,
@@ -4692,7 +5004,43 @@
           "status": "benchmark",
           "low": 0.02,
           "high": 0.03,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Rule of thumb: 1 to 2% per °F of chilled-water set-point raise (1.8 to 3.6% per °C)",
+              "low": 0.018,
+              "high": 0.036,
+              "unit": "fraction/°C",
+              "kind": "benchmark",
+              "publisher": "CSE Magazine and HVAC training guides",
+              "url": "https://www.csemag.com/hvac-energy-saving-strategies/",
+              "asof": "published article",
+              "note": "CSE quotes 2 to 2.5% per °F for compressor input."
+            },
+            {
+              "label": "US Department of Energy: 0.5 to 0.75% per °F for fixed-speed chillers (0.9 to 1.35% per °C)",
+              "low": 0.009,
+              "high": 0.0135,
+              "unit": "fraction/°C",
+              "kind": "benchmark",
+              "publisher": "US Department of Energy",
+              "url": "https://www1.eere.energy.gov/buildings/publications/pdfs/alliances/hea_chillers.fs.pdf",
+              "asof": "fact sheet",
+              "note": "Depends on the compressor drive. Check which kind the plants have."
+            },
+            {
+              "label": "US Department of Energy: 2 to 3% per °F for variable-speed chillers (3.6 to 5.4% per °C)",
+              "low": 0.036,
+              "high": 0.054,
+              "unit": "fraction/°C",
+              "kind": "benchmark",
+              "publisher": "US Department of Energy",
+              "url": "https://www1.eere.energy.gov/buildings/publications/pdfs/alliances/hea_chillers.fs.pdf",
+              "asof": "fact sheet",
+              "note": "Variable-speed machines save the most per degree."
+            }
+          ],
+          "evidence": "partly"
         },
         {
           "name": "Supply water temperature raise on mild days",
@@ -4705,7 +5053,9 @@
           "status": "planning",
           "low": 0.5,
           "high": 1.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Electricity tariff",
@@ -4718,7 +5068,87 @@
           "status": "planning",
           "low": 1.2,
           "high": 2.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Commercial tariff, up to 100 kWh a month",
+              "low": 1.62,
+              "high": 1.62,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 250 kWh a month",
+              "low": 2.16,
+              "high": 2.16,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 600 kWh a month",
+              "low": 2.64,
+              "high": 2.64,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, up to 1,000 kWh a month",
+              "low": 2.74,
+              "high": 2.74,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Commercial tariff, above 1,000 kWh a month",
+              "low": 2.79,
+              "high": 2.79,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Egypt Independent",
+              "url": "https://www.egyptindependent.com/egypts-2026-electricity-prices-the-full-list-of-household-and-commercial-rates-after-latest-updates/",
+              "asof": "April 2026",
+              "note": "Reported by the press; the regulator's own schedule was not checked."
+            },
+            {
+              "label": "Industrial flat rate",
+              "low": 2.33,
+              "high": 2.33,
+              "unit": "EGP/kWh",
+              "kind": "reported",
+              "publisher": "Reslink (solar industry blog)",
+              "url": "https://www.reslink.org/blogs/electricity-tariffs-just-rose-again-solar-payback-is-now-under-5-years/",
+              "asof": "August 2026",
+              "note": "A blog summary of the tariff table. Sources disagree on some residential tiers, so treat it as indicative."
+            },
+            {
+              "label": "Business electricity price",
+              "low": 1.94,
+              "high": 1.94,
+              "unit": "EGP/kWh",
+              "kind": "aggregator",
+              "publisher": "GlobalPetrolPrices",
+              "url": "https://www.globalpetrolprices.com/Egypt/electricity_prices/",
+              "asof": "June 2025 data",
+              "note": "An aggregator, and older than the April 2026 increase."
+            }
+          ],
+          "evidence": "partly"
         },
         {
           "name": "Controls change for temperature reset",
@@ -4731,7 +5161,9 @@
           "status": "planning",
           "low": 7000.0,
           "high": 13000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Effective annual discount rate",
@@ -4744,7 +5176,21 @@
           "status": "planning",
           "low": 0.12,
           "high": 0.24,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Central Bank of Egypt overnight deposit rate 19%, lending rate 20%",
+              "low": 0.19,
+              "high": 0.2,
+              "unit": "fraction/year",
+              "kind": "reported",
+              "publisher": "Central Banking",
+              "url": "https://www.centralbanking.com/central-banks/monetary-policy/monetary-policy-decisions/7975038/egypt-cuts-rates-by-100bp-and-lowers-reserve-requirements",
+              "asof": "February 2026 cut; press reports say it was held at the September 2026 meeting",
+              "note": "A project discount rate normally sits above the policy rate by a risk margin. The registered 18% is below the 19% deposit rate, so finance should confirm it."
+            }
+          ],
+          "evidence": "consistent"
         }
       ],
       "confidence": 0.7,
@@ -5092,7 +5538,9 @@
           "status": "planning",
           "low": 0.085,
           "high": 0.145,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Night pressure target after pressure management",
@@ -5105,7 +5553,9 @@
           "status": "planning",
           "low": 3.0,
           "high": 3.8,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Leakage-pressure exponent N1 (FAVAD)",
@@ -5118,7 +5568,32 @@
           "status": "benchmark",
           "low": 0.5,
           "high": 1.5,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Theory: N1 from 0.5 for fixed-area leaks to 1.5 for variable-area leaks",
+              "low": 0.5,
+              "high": 1.5,
+              "unit": "×",
+              "kind": "benchmark",
+              "publisher": "Journal of Environmental Studies, University of Tehran",
+              "url": "https://jes.ut.ac.ir/article_60064_en.html",
+              "asof": "published study",
+              "note": "The pressure-leakage power law."
+            },
+            {
+              "label": "Field: 107 pressure-management zones in South Africa, N1 from -0.34 to 2.20",
+              "low": -0.34,
+              "high": 2.2,
+              "unit": "×",
+              "kind": "benchmark",
+              "publisher": "University of Cape Town",
+              "url": "https://open.uct.ac.za/handle/11427/30949",
+              "asof": "published thesis",
+              "note": "The authors treat values outside 0.5 to 1.5 as signs of data or assumption errors."
+            }
+          ],
+          "evidence": "consistent"
         },
         {
           "name": "Water production cost",
@@ -5131,7 +5606,31 @@
           "status": "planning",
           "low": 6.0,
           "high": 10.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Production cost of one cubic metre, Holding Company for Water and Wastewater",
+              "low": 1.4,
+              "high": 1.4,
+              "unit": "EGP/m3",
+              "kind": "historical",
+              "publisher": "Ahram Online",
+              "url": "https://english.ahram.org.eg/News/100283.aspx",
+              "asof": "2014",
+              "note": "The latest production cost found. It is twelve years old and is shown for context, not compared."
+            },
+            {
+              "label": "Household tariff after the 2017 increase, 0.65 to 3.15 EGP/m3; commercial 3.6 EGP/m3",
+              "unit": "EGP/m3",
+              "kind": "historical",
+              "publisher": "Associated Press via Fox News",
+              "url": "https://www.foxnews.com/world/egypt-raises-water-sewage-bills-as-part-of-reform-program.amp",
+              "asof": "2017",
+              "note": "A tariff is what customers pay, not what production costs. No 2026 schedule was found."
+            }
+          ],
+          "evidence": "related",
+          "searchNote": "Searched on 2026-10-29: no 2026 production cost or tariff schedule. The newest public figures are from 2014 to 2017."
         },
         {
           "name": "Pressure-reducing valves and controllers",
@@ -5144,7 +5643,9 @@
           "status": "planning",
           "low": 100000.0,
           "high": 180000.0,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [],
+          "evidence": "none"
         },
         {
           "name": "Effective annual discount rate",
@@ -5157,7 +5658,21 @@
           "status": "planning",
           "low": 0.12,
           "high": 0.24,
-          "reviewed": "2026-10-29"
+          "reviewed": "2026-10-29",
+          "references": [
+            {
+              "label": "Central Bank of Egypt overnight deposit rate 19%, lending rate 20%",
+              "low": 0.19,
+              "high": 0.2,
+              "unit": "fraction/year",
+              "kind": "reported",
+              "publisher": "Central Banking",
+              "url": "https://www.centralbanking.com/central-banks/monetary-policy/monetary-policy-decisions/7975038/egypt-cuts-rates-by-100bp-and-lowers-reserve-requirements",
+              "asof": "February 2026 cut; press reports say it was held at the September 2026 meeting",
+              "note": "A project discount rate normally sits above the policy rate by a risk margin. The registered 18% is below the 19% deposit rate, so finance should confirm it."
+            }
+          ],
+          "evidence": "consistent"
         }
       ],
       "confidence": 0.7,

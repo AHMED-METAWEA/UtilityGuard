@@ -24,6 +24,7 @@ import numpy as np
 from app.schemas import (
     Assumption, CalcInput, Calculation, CalculationRecord, Cost, CostItem, Explanation, Reason, SavingRange, Sensitivity, Tornado,
 )
+from app.cost.references import NOT_FOUND, REFERENCES, evidence
 from app.sim.topology import ZONE_CUSTOMERS
 
 DATA = Path(__file__).resolve().parents[2] / "data"
@@ -166,8 +167,10 @@ class Assumptions:
             self.path.unlink()
 
     def item(self, k: str) -> Assumption:
-        return Assumption(**{**DEFAULTS[k], "value": self.values[k]}, key=k,
-                          source=self.changed.get(k, "default assumption"), user_changed=k in self.changed)
+        d = DEFAULTS[k]
+        return Assumption(**{**d, "value": self.values[k]}, key=k,
+                          source=self.changed.get(k, "default assumption"), user_changed=k in self.changed,
+                          references=REFERENCES.get(k, []), evidence=evidence(k, d["low"], d["high"]), search_note=NOT_FOUND.get(k))
 
     def all(self) -> list[Assumption]:
         return [self.item(k) for k in DEFAULTS]

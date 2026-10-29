@@ -99,8 +99,8 @@ export function IncidentCard({ incident, finding }: { incident?: Incident; findi
         {alert && <span className="muted" style={{ fontSize: 12 }}>{ago(alert.detectedAt)} ago</span>}
       </div>
       <div style={{ fontSize: 17, fontWeight: 650, letterSpacing: '-.01em' }}>{incident.title}</div>
-      <div className="sub" style={{ margin: '4px 0 12px' }}>{finding ? finding.headline : `${zones}. The agents are analysing.`}</div>
-      {finding ? <CostTiles finding={finding} /> : <div className="skeleton" style={{ height: 76 }} />}
+      <div className="sub" style={{ margin: '4px 0 12px' }}>{incident.reanalysing ? 'The incident grew. The agents are re-analysing it, and the figures below are from the earlier stage.' : finding ? finding.headline : `${zones}. The agents are analysing.`}</div>
+      {finding ? <div style={incident.reanalysing ? { opacity: 0.45 } : undefined}><CostTiles finding={finding} /></div> : <div className="skeleton" style={{ height: 76 }} />}
       <a className="row" href={href('incidents', incident.id)} style={{ gap: 6, marginTop: 12, fontWeight: 600 }}>{t('live.open', 'Open incident')}<ArrowRight size={15} /></a>
     </Card>
   );
