@@ -44,6 +44,8 @@ CATALOG = [
                          ScenarioParam(name="durationSeconds", type="number", default=90, min=30, max=240)]),
     Scenario(id="scn-storm", name="Cascade storm", description="A heat wave hits the working-day peak. Cooling reaches its limit, substations overload and trip one after another, and the pumps and plants they feed stop.", network="multi",
              parameters=[ScenarioParam(name="temperature", type="number", default=47, min=44, max=50)]),
+    Scenario(id="scn-compound", name="Three failures at once", description="A main bursts, a chiller fails and a substation trips within the same minute. There are fewer crews than problems, so the order of work matters.", network="multi",
+             parameters=[]),
     Scenario(id="scn-holiday", name="Holiday demand", description="Government zones go quiet and residential demand rises.", network="multi",
              parameters=[ScenarioParam(name="factor", type="number", default=1.3, min=1, max=1.8)]),
 ]
@@ -60,6 +62,10 @@ def events_for(scenario_id: str, params: dict, run_id: str) -> list[Event]:
     if scenario_id == "scn-load-shedding":
         return [Event(kind="substation_trip", target=p["targetAsset"], severity=1.0, run_id=run_id, params={**p, "cause": "load_shedding"},
                       duration=int(float(p["durationSeconds"]) / 2))]
+    if scenario_id == "scn-compound":  # three independent faults on three networks, so the board has a real choice to make
+        return [Event(kind="pipe_burst", target=_g.zone_pipe["zone-gov"], severity=0.6, run_id=run_id, params={}),
+                Event(kind="cooling_fault", target="cool-plant-01", severity=0.7, run_id=run_id, params={}),
+                Event(kind="substation_trip", target="elec-sub-04", severity=1.0, run_id=run_id, params={})]
     if scenario_id == "scn-storm":  # one run: a slow heat build plus the protection relays that make it cascade
         return [Event(kind="heat_wave", target=None, severity=float(p["temperature"]), run_id=run_id, params={**p, "ramp_ticks": 40}),
                 Event(kind="storm", target=None, severity=1.0, run_id=run_id, params=p)]

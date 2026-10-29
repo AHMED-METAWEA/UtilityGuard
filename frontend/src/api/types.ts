@@ -103,6 +103,38 @@ export type Drift = DriftIndicator[];
 export type AssumptionsConfiguration = Assumption[];
 export interface AssumptionsUpdate { assumptions: Assumption[]; recomputed: number }
 export interface ApiError { code: string; message: string }
+export interface BoardFact { label: string; value: number; unit: string; source: 'measured' | 'calculated' | 'assumed' }
+export interface BoardMessage {
+  id: string; sessionId: string; round: number; agent: Agent;
+  kind: 'opening' | 'position' | 'dependent' | 'challenge' | 'decision' | 'concession';
+  text: string; facts: BoardFact[]; source: 'llm' | 'template';
+}
+export interface BoardTask {
+  id: string; agent: Network; assetId: string; assetName: string; kind: string; action: string; crew: string;
+  hoursToFix: number; hourlyCost: number; repairCost: number; returnPerCrewHour: number; relievedBy: string[];
+}
+export interface BoardStep {
+  order: number; taskId: string; agent: Network; assetName: string; action: string; crewSlot: number;
+  startHour: number; endHour: number; hourlyCost: number; lossUntilFixed: number; repairCost: number;
+  repairMultiplier: number; dropped: boolean; reliefHour?: number | null;
+}
+export interface BoardAlternative { id: string; name: string; order: string[]; expectedCost: number; extraCost: number }
+export interface BoardFlip { taskId: string; assetName: string; current: number; threshold: number; direction: 'below' | 'above' }
+export interface BoardRisk { kind: 'overload' | 'queue' | 'tail'; text: string }
+export interface BoardPlan {
+  steps: BoardStep[]; expectedCost: number; p10: number; p50: number; p90: number; winShare: number;
+  regretMean: number; regretP90: number; hourlyBleed: number; runs: number;
+}
+export interface BoardDecision {
+  sessionId: string; incidentIds: string[]; createdAt: Timestamp; crews: number; tasks: BoardTask[]; plan: BoardPlan;
+  alternatives: BoardAlternative[]; flips: BoardFlip[]; risks: BoardRisk[]; extraCrewSaving?: number | null;
+  conflict: boolean; summary: string; summarySource: BoardMessage['source']; calculationId?: string | null;
+}
+export interface BoardSession {
+  id: string; incidentId?: string | null; state: 'running' | 'done'; startedAt: Timestamp;
+  messages: BoardMessage[]; decision?: BoardDecision | null;
+}
+export interface BoardState { sessionId: string; incidentId?: string | null; state: BoardSession['state']; startedAt: Timestamp }
 export interface SnapshotPayload {
   tick: number; timestamp: Timestamp; topology: Topology; latest: Reading[];
   assets: AssetStatusUpdate[]; alerts: Alert[]; incidents: Incident[]; findings: AgentFinding[];
@@ -112,5 +144,6 @@ export interface WsPayloads {
   snapshot: SnapshotPayload; reading: ReadingPayload; asset_status: AssetStatusUpdate; alert: Alert;
   incident: Incident; agent_finding: AgentFinding; scenario_state: ScenarioState; forecast_update: Forecast;
   chat_route: ChatRoute; chat_chunk: ChatChunk; chat_done: ChatDone;
+  board_state: BoardState; board_message: BoardMessage; board_decision: BoardDecision;
 }
 export type WsEnvelope = { [T in keyof WsPayloads]: { type: T; payload: WsPayloads[T] } }[keyof WsPayloads];

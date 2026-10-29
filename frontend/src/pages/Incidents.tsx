@@ -12,6 +12,7 @@ import { Card, Empty, NetIcon, SeverityChip, Skeleton, StatusChip } from '../ui'
 import { CalcView, RangeBar, Reasons } from '../ui/Calc';
 import { CostTiles } from '../ui/parts';
 import { DecisionStudio, WhereCard } from '../ui/Decision';
+import { BoardPanel } from '../ui/Board';
 import { go, href } from '../lib/route';
 import { assetBounds, money, useSensorSeries } from '../lib/useSensorSeries';
 import { ago, clock, fmt, sensorLabel } from '../lib/format';
@@ -106,6 +107,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
       <div className="inc-grid">
         <section className="stack" style={{ gap: 16, minWidth: 0 }}>
           <CityMap height={400} focus={focus} suspects={suspects} showLegend={false} onSelectAsset={(id) => set({ selectedAsset: id })} />
+          <BoardPanel key={incident.id} incidentId={incident.id} />
           <Card title={sensor ? `${sensorLabel(sensor.id.replace(sensor.assetId + '-', '')).replace(/^./, (c) => c.toUpperCase())} on ${topology?.assets.find((a) => a.id === sensor.assetId)?.name}` : 'Key sensor'}
             sub="Measured, against what the twin expects in normal operation">
             {sensor && series.measured.length > 3 ? (

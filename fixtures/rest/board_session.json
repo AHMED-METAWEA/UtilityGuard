@@ -1,0 +1,549 @@
+{
+  "id": "board-0001",
+  "incidentId": "inc-0001",
+  "state": "done",
+  "startedAt": "2026-10-28T11:30:00Z",
+  "messages": [
+    {
+      "id": "bmsg-0001",
+      "sessionId": "board-0001",
+      "round": 0,
+      "agent": "orchestrator",
+      "kind": "opening",
+      "text": "The board is in session. 3 problems are open across 3 networks, and 2 crews are available. Left open, they cost 425,768 EGP every hour. There are fewer crews than problems, so the order matters.",
+      "facts": [
+        {
+          "label": "Open problems",
+          "value": 3.0,
+          "unit": "problems",
+          "source": "calculated"
+        },
+        {
+          "label": "Networks involved",
+          "value": 3.0,
+          "unit": "networks",
+          "source": "calculated"
+        },
+        {
+          "label": "Crews available",
+          "value": 2.0,
+          "unit": "crews",
+          "source": "assumed"
+        },
+        {
+          "label": "Cost per hour while all stay open",
+          "value": 425768.02,
+          "unit": "EGP/h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0002",
+      "sessionId": "board-0001",
+      "round": 1,
+      "agent": "water",
+      "kind": "position",
+      "text": "Water agent. Main WP-GOV-01: isolate the damaged segment with the nearest valves and replace the section. Left open it costs 4,020 EGP every hour and needs 3.0 h of crew time, so each crew hour buys back 1,340 EGP an hour. If my work goes first it is done by hour 4.0. If I go first, the others together pay 25,785 EGP more.",
+      "facts": [
+        {
+          "label": "Main WP-GOV-01 cost per hour open",
+          "value": 4020.0,
+          "unit": "EGP/h",
+          "source": "calculated"
+        },
+        {
+          "label": "Crew time needed",
+          "value": 3.0,
+          "unit": "h",
+          "source": "assumed"
+        },
+        {
+          "label": "Return per crew hour",
+          "value": 1340.0,
+          "unit": "EGP/h",
+          "source": "calculated"
+        },
+        {
+          "label": "Done by hour if I go first",
+          "value": 4.0,
+          "unit": "h",
+          "source": "calculated"
+        },
+        {
+          "label": "Extra cost to the others if I go first",
+          "value": 25785.0,
+          "unit": "EGP",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0003",
+      "sessionId": "board-0001",
+      "round": 1,
+      "agent": "electricity",
+      "kind": "position",
+      "text": "Electricity agent. SS-04: inspect, re-close the breaker and re-energise the substation. Left open it costs 411,926 EGP every hour and needs 1.5 h of crew time, so each crew hour buys back 274,617 EGP an hour. If my work goes first it is done by hour 2.5.",
+      "facts": [
+        {
+          "label": "SS-04 cost per hour open",
+          "value": 411925.52,
+          "unit": "EGP/h",
+          "source": "calculated"
+        },
+        {
+          "label": "Crew time needed",
+          "value": 1.5,
+          "unit": "h",
+          "source": "assumed"
+        },
+        {
+          "label": "Return per crew hour",
+          "value": 274617.02,
+          "unit": "EGP/h",
+          "source": "calculated"
+        },
+        {
+          "label": "Done by hour if I go first",
+          "value": 2.5,
+          "unit": "h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0004",
+      "sessionId": "board-0001",
+      "round": 1,
+      "agent": "cooling",
+      "kind": "position",
+      "text": "Cooling agent. DCP-01: start the standby chiller and repair the faulty one. Left open it costs 9,822 EGP every hour and needs 5.0 h of crew time, so each crew hour buys back 1,964 EGP an hour. If my work goes first it is done by hour 6.0.",
+      "facts": [
+        {
+          "label": "DCP-01 cost per hour open",
+          "value": 9822.5,
+          "unit": "EGP/h",
+          "source": "calculated"
+        },
+        {
+          "label": "Crew time needed",
+          "value": 5.0,
+          "unit": "h",
+          "source": "assumed"
+        },
+        {
+          "label": "Return per crew hour",
+          "value": 1964.5,
+          "unit": "EGP/h",
+          "source": "calculated"
+        },
+        {
+          "label": "Done by hour if I go first",
+          "value": 6.0,
+          "unit": "h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0005",
+      "sessionId": "board-0001",
+      "round": 2,
+      "agent": "water",
+      "kind": "challenge",
+      "text": "Water agent. If I wait my turn, my work costs 12,333 EGP more than if I went first. It would start at hour 3.0.",
+      "facts": [
+        {
+          "label": "Extra cost to me if I wait my turn",
+          "value": 12333.33,
+          "unit": "EGP",
+          "source": "calculated"
+        },
+        {
+          "label": "Main WP-GOV-01 starts at hour",
+          "value": 3.0,
+          "unit": "h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0006",
+      "sessionId": "board-0001",
+      "round": 2,
+      "agent": "electricity",
+      "kind": "challenge",
+      "text": "Electricity agent. My work can start at hour 1.0, on a crew of its own, so the order costs me nothing.",
+      "facts": [
+        {
+          "label": "SS-04 starts at hour",
+          "value": 1.0,
+          "unit": "h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0007",
+      "sessionId": "board-0001",
+      "round": 2,
+      "agent": "cooling",
+      "kind": "challenge",
+      "text": "Cooling agent. My work can start at hour 1.0, on a crew of its own, so the order costs me nothing.",
+      "facts": [
+        {
+          "label": "DCP-01 starts at hour",
+          "value": 1.0,
+          "unit": "h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0008",
+      "sessionId": "board-0001",
+      "round": 3,
+      "agent": "orchestrator",
+      "kind": "decision",
+      "text": "Decision. First: SS-04 on crew A from hour 1.0 to hour 2.5; Second: DCP-01 on crew B from hour 1.0 to hour 6.0; Third: Main WP-GOV-01 on crew A from hour 3.0 to hour 6.0. Expected cost 1,226,362 EGP. That is 13,452 EGP less than working in the order the alarms arrived. I tried every order, and this one is the cheapest in 100% of 300 price scenarios.",
+      "facts": [
+        {
+          "label": "Cost of the chosen order",
+          "value": 1226362.14,
+          "unit": "EGP",
+          "source": "calculated"
+        },
+        {
+          "label": "Saved against working in alarm order",
+          "value": 13451.67,
+          "unit": "EGP",
+          "source": "calculated"
+        },
+        {
+          "label": "Cheapest in this share of price scenarios",
+          "value": 100.0,
+          "unit": "%",
+          "source": "calculated"
+        },
+        {
+          "label": "Price scenarios tried",
+          "value": 300.0,
+          "unit": "scenarios",
+          "source": "calculated"
+        },
+        {
+          "label": "Step 1 SS-04 starts",
+          "value": 1.0,
+          "unit": "h",
+          "source": "calculated"
+        },
+        {
+          "label": "Step 1 SS-04 ends",
+          "value": 2.5,
+          "unit": "h",
+          "source": "calculated"
+        },
+        {
+          "label": "Step 2 DCP-01 starts",
+          "value": 1.0,
+          "unit": "h",
+          "source": "calculated"
+        },
+        {
+          "label": "Step 2 DCP-01 ends",
+          "value": 6.0,
+          "unit": "h",
+          "source": "calculated"
+        },
+        {
+          "label": "Step 3 Main WP-GOV-01 starts",
+          "value": 3.0,
+          "unit": "h",
+          "source": "calculated"
+        },
+        {
+          "label": "Step 3 Main WP-GOV-01 ends",
+          "value": 6.0,
+          "unit": "h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0009",
+      "sessionId": "board-0001",
+      "round": 4,
+      "agent": "water",
+      "kind": "concession",
+      "text": "Water agent. Accepted. My work starts at hour 3.0. Call me back if my cost rises above 10,854 EGP an hour; it is 4,020 now.",
+      "facts": [
+        {
+          "label": "Main WP-GOV-01 starts at hour",
+          "value": 3.0,
+          "unit": "h",
+          "source": "calculated"
+        },
+        {
+          "label": "My cost per hour now",
+          "value": 4020.0,
+          "unit": "EGP/h",
+          "source": "calculated"
+        },
+        {
+          "label": "Cost per hour at which I should go first",
+          "value": 10854.0,
+          "unit": "EGP/h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0010",
+      "sessionId": "board-0001",
+      "round": 4,
+      "agent": "electricity",
+      "kind": "concession",
+      "text": "Electricity agent. Understood. My crew starts at once and I will hand it back at hour 2.5.",
+      "facts": [
+        {
+          "label": "SS-04 done at hour",
+          "value": 2.5,
+          "unit": "h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    },
+    {
+      "id": "bmsg-0011",
+      "sessionId": "board-0001",
+      "round": 4,
+      "agent": "cooling",
+      "kind": "concession",
+      "text": "Cooling agent. Understood. My crew starts at once and I will hand it back at hour 6.0.",
+      "facts": [
+        {
+          "label": "DCP-01 done at hour",
+          "value": 6.0,
+          "unit": "h",
+          "source": "calculated"
+        }
+      ],
+      "source": "template"
+    }
+  ],
+  "decision": {
+    "sessionId": "board-0001",
+    "incidentIds": [
+      "inc-0001",
+      "inc-0002",
+      "inc-0003"
+    ],
+    "createdAt": "2026-10-28T11:30:00Z",
+    "crews": 2,
+    "tasks": [
+      {
+        "id": "alert-0001",
+        "agent": "electricity",
+        "assetId": "elec-sub-04",
+        "assetName": "SS-04",
+        "kind": "substation_trip",
+        "action": "Inspect, re-close the breaker and re-energise the substation",
+        "crew": "electrical",
+        "hoursToFix": 1.5,
+        "hourlyCost": 411925.52,
+        "repairCost": 29400.0,
+        "returnPerCrewHour": 274617.02,
+        "relievedBy": []
+      },
+      {
+        "id": "alert-0002",
+        "agent": "water",
+        "assetId": "water-pipe-01",
+        "assetName": "Main WP-GOV-01",
+        "kind": "leak",
+        "action": "Isolate the damaged segment with the nearest valves and replace the section",
+        "crew": "pipe repair",
+        "hoursToFix": 3.0,
+        "hourlyCost": 4020.0,
+        "repairCost": 18400.0,
+        "returnPerCrewHour": 1340.0,
+        "relievedBy": []
+      },
+      {
+        "id": "alert-0003",
+        "agent": "cooling",
+        "assetId": "cool-plant-01",
+        "assetName": "DCP-01",
+        "kind": "cooling_fault",
+        "action": "Start the standby chiller and repair the faulty one",
+        "crew": "HVAC",
+        "hoursToFix": 5.0,
+        "hourlyCost": 9822.5,
+        "repairCost": 61400.0,
+        "returnPerCrewHour": 1964.5,
+        "relievedBy": []
+      }
+    ],
+    "plan": {
+      "steps": [
+        {
+          "order": 1,
+          "taskId": "alert-0001",
+          "agent": "electricity",
+          "assetName": "SS-04",
+          "action": "Inspect, re-close the breaker and re-energise the substation",
+          "crewSlot": 1,
+          "startHour": 1.0,
+          "endHour": 2.5,
+          "hourlyCost": 411925.52,
+          "lossUntilFixed": 1029813.81,
+          "repairCost": 29400.0,
+          "repairMultiplier": 1.0,
+          "dropped": false
+        },
+        {
+          "order": 2,
+          "taskId": "alert-0003",
+          "agent": "cooling",
+          "assetName": "DCP-01",
+          "action": "Start the standby chiller and repair the faulty one",
+          "crewSlot": 2,
+          "startHour": 1.0,
+          "endHour": 6.0,
+          "hourlyCost": 9822.5,
+          "lossUntilFixed": 58935.0,
+          "repairCost": 61400.0,
+          "repairMultiplier": 1.0,
+          "dropped": false
+        },
+        {
+          "order": 3,
+          "taskId": "alert-0002",
+          "agent": "water",
+          "assetName": "Main WP-GOV-01",
+          "action": "Isolate the damaged segment with the nearest valves and replace the section",
+          "crewSlot": 1,
+          "startHour": 3.0,
+          "endHour": 6.0,
+          "hourlyCost": 4020.0,
+          "lossUntilFixed": 24120.0,
+          "repairCost": 22693.33,
+          "repairMultiplier": 1.233,
+          "dropped": false
+        }
+      ],
+      "expectedCost": 1226362.14,
+      "p10": 798794.39,
+      "p50": 1173377.13,
+      "p90": 1674640.98,
+      "winShare": 1.0,
+      "regretMean": 0.0,
+      "regretP90": 0.0,
+      "hourlyBleed": 425768.02,
+      "runs": 300
+    },
+    "alternatives": [
+      {
+        "id": "alarm",
+        "name": "Work in the order the alarms arrived",
+        "order": [
+          "alert-0001",
+          "alert-0002",
+          "alert-0003"
+        ],
+        "expectedCost": 1239813.81,
+        "extraCost": 13451.67
+      },
+      {
+        "id": "water_first",
+        "name": "Water agent's work first",
+        "order": [
+          "alert-0002",
+          "alert-0001",
+          "alert-0003"
+        ],
+        "expectedCost": 1239813.81,
+        "extraCost": 13451.67
+      },
+      {
+        "id": "electricity_first",
+        "name": "Electricity agent's work first",
+        "order": [
+          "alert-0001",
+          "alert-0003",
+          "alert-0002"
+        ],
+        "expectedCost": 1226362.14,
+        "extraCost": 0.0
+      },
+      {
+        "id": "cooling_first",
+        "name": "Cooling agent's work first",
+        "order": [
+          "alert-0003",
+          "alert-0001",
+          "alert-0002"
+        ],
+        "expectedCost": 1226362.14,
+        "extraCost": 0.0
+      },
+      {
+        "id": "worst",
+        "name": "The most expensive order",
+        "order": [
+          "alert-0002",
+          "alert-0003",
+          "alert-0001"
+        ],
+        "expectedCost": 2662199.39,
+        "extraCost": 1435837.25
+      }
+    ],
+    "flips": [
+      {
+        "taskId": "alert-0003",
+        "assetName": "DCP-01",
+        "current": 9822.5,
+        "threshold": 2946.75,
+        "direction": "below"
+      },
+      {
+        "taskId": "alert-0002",
+        "assetName": "Main WP-GOV-01",
+        "current": 4020.0,
+        "threshold": 10854.0,
+        "direction": "above"
+      }
+    ],
+    "risks": [
+      {
+        "kind": "overload",
+        "text": "SS-02 is running at 118% of its normal maximum, so another trip is possible while crews are busy."
+      },
+      {
+        "kind": "queue",
+        "text": "Main WP-GOV-01 waits 3.0 h for a crew, which costs 12,333 EGP more than starting at once."
+      },
+      {
+        "kind": "tail",
+        "text": "In one price scenario in ten the plan costs 1,674,641 EGP or more."
+      }
+    ],
+    "extraCrewSaving": 12333.33,
+    "conflict": true,
+    "summary": "Do this. First: SS-04, inspect, re-close the breaker and re-energise the substation, crew A, from hour 1.0 to hour 2.5; Second: DCP-01, start the standby chiller and repair the faulty one, crew B, from hour 1.0 to hour 6.0; Third: Main WP-GOV-01, isolate the damaged segment with the nearest valves and replace the section, crew A, from hour 3.0 to hour 6.0. Why: SS-04 costs 411,926 EGP every hour it stays open. The plan is expected to cost 1,226,362 EGP. It saves 13,452 EGP against working in the order the alarms arrived. In a bad case it costs 1,674,641 EGP. The order would change if DCP-01 cost per hour were below 2,947 EGP. One more crew would save 12,333 EGP.",
+    "summarySource": "template",
+    "calculationId": "calc-board-0001"
+  }
+}

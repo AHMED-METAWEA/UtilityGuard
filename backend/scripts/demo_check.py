@@ -19,6 +19,7 @@ import httpx
 import websockets
 
 from app import schemas as S
+from app.board.session import numbers_ok
 from app.schemas import decision as SD
 from app.schemas import lab as SL
 
@@ -138,6 +139,24 @@ async def one_run(base: str, n: int) -> None:
             text = "".join(m["payload"]["text"] for m in st.msgs[mark:] if m["type"] == "chat_chunk" and m["payload"]["messageId"] == mid)
             ok(len(text) > 60, "chat answer too short")
             ok("[figure removed]" not in text, "the number checker removed figures from the demo answer")
+
+            print(f"  [{n}] board of agents")
+            await c.post("/scenarios/reset")
+            await asyncio.sleep(2)
+            mark = len(st.msgs)
+            await c.post("/scenarios/run", json={"scenarioId": "scn-compound", "parameters": {}})
+            dmsg = (await st.wait(lambda m: m["type"] == "board_decision" and len({t["agent"] for t in m["payload"]["tasks"]}) == 3, 240, since=mark))["payload"]
+            decision = S.BoardDecision.model_validate(dmsg)
+            ok({t.agent for t in decision.tasks} == {"water", "electricity", "cooling"} and decision.conflict, "the board should see three networks competing for two crews")
+            ok(all(a.extra_cost >= -0.01 for a in decision.alternatives), "an alternative order beats the chosen one")
+            first = sorted(decision.plan.steps, key=lambda x: x.order)[0]
+            ok(first.agent == "electricity" and first.start_hour == 1.0, f"the substation trip should be first, got {first.asset_name}")
+            rec = await get(f"/calculations/{decision.calculation_id}", S.CalculationRecord)
+            ok(abs(rec["cost"]["actNow"] - decision.plan.expected_cost) < 0.01, "board calculation record differs from the plan")
+            sess = S.BoardSession.model_validate(await get(f"/board/sessions/{decision.session_id}"))
+            for msg in sess.messages:
+                ok(numbers_ok(msg.text, msg.facts) and "[" not in msg.text, f"board message quotes a figure that is not in its facts: {msg.text[:80]}")
+            ok({m.agent for m in sess.messages} >= {"orchestrator", "water", "electricity", "cooling"}, "not every board member spoke")
 
             await c.post("/scenarios/reset")
             await asyncio.sleep(1)

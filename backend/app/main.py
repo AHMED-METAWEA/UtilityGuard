@@ -24,6 +24,7 @@ from app.agents.service import AgentService
 from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
 from app.lab.live import live_localization
 from app.lab.quality import live_quality
+from app.schemas.board import ConveneRequest
 from app.schemas.lab import QualityFlagItem, QualityNow, TrialRequest
 from app.ml.service import MLService
 from app.runtime import runtime
@@ -261,6 +262,31 @@ async def incident_localization(incident_id: str) -> dict:
         raise ApiError(404, "no_localization", "Localization applies to leak incidents.")
     m = await asyncio.to_thread(lab_cache.models)
     return out(live_localization(runtime, m.loc, incident_id))
+
+
+@api.post("/board/convene")
+async def board_convene(req: ConveneRequest) -> dict:
+    if req.incident_id and req.incident_id not in runtime.incidents:
+        raise ApiError(404, "no_incident", f"No incident {req.incident_id}.")
+    if not service.board.open_tasks():
+        raise ApiError(409, "nothing_to_decide", "There are no open problems for the board to decide on.")
+    return out(service.board.convene(req.incident_id))
+
+
+@api.get("/board/sessions/{session_id}")
+async def board_session(session_id: str) -> dict:
+    s = service.board.sessions.get(session_id)
+    if not s:
+        raise ApiError(404, "no_session", f"No board session {session_id}.")
+    return out(s)
+
+
+@api.get("/board/latest")
+async def board_latest(incidentId: str | None = None) -> dict:
+    s = service.board.latest(incidentId)
+    if not s:
+        raise ApiError(404, "no_session", "The board has not met yet.")
+    return out(s)
 
 
 @api.get("/forecast/evidence")

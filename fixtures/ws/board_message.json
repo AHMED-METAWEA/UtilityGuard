@@ -1,0 +1,44 @@
+{
+  "type": "board_message",
+  "payload": {
+    "id": "bmsg-0002",
+    "sessionId": "board-0001",
+    "round": 1,
+    "agent": "water",
+    "kind": "position",
+    "text": "Water agent. Main WP-GOV-01: isolate the damaged segment with the nearest valves and replace the section. Left open it costs 4,020 EGP every hour and needs 3.0 h of crew time, so each crew hour buys back 1,340 EGP an hour. If my work goes first it is done by hour 4.0. If I go first, the others together pay 25,785 EGP more.",
+    "facts": [
+      {
+        "label": "Main WP-GOV-01 cost per hour open",
+        "value": 4020.0,
+        "unit": "EGP/h",
+        "source": "calculated"
+      },
+      {
+        "label": "Crew time needed",
+        "value": 3.0,
+        "unit": "h",
+        "source": "assumed"
+      },
+      {
+        "label": "Return per crew hour",
+        "value": 1340.0,
+        "unit": "EGP/h",
+        "source": "calculated"
+      },
+      {
+        "label": "Done by hour if I go first",
+        "value": 4.0,
+        "unit": "h",
+        "source": "calculated"
+      },
+      {
+        "label": "Extra cost to the others if I go first",
+        "value": 25785.0,
+        "unit": "EGP",
+        "source": "calculated"
+      }
+    ],
+    "source": "template"
+  }
+}

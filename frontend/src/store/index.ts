@@ -1,16 +1,18 @@
 import { create } from 'zustand';
-import { alertsSlice, assetsSlice, chatSlice, connectionSlice, findingsSlice, forecastSlice, incidentsSlice, readingsSlice, scenariosSlice, topologySlice, type Store } from './slices';
+import { alertsSlice, assetsSlice, boardSlice, chatSlice, connectionSlice, findingsSlice, forecastSlice, incidentsSlice, readingsSlice, scenariosSlice, topologySlice, type Store } from './slices';
+
+export { latestBoardFor } from './slices';
 
 export const useStore = create<Store>()((...args) => ({
   ...connectionSlice(...args), ...topologySlice(...args), ...readingsSlice(...args),
   ...assetsSlice(...args), ...alertsSlice(...args), ...findingsSlice(...args),
   ...scenariosSlice(...args), ...chatSlice(...args), ...forecastSlice(...args),
-  ...incidentsSlice(...args),
+  ...incidentsSlice(...args), ...boardSlice(...args),
   applySnapshot: (snapshot) => {
     const [set, get] = args;
     set({
       incidents: snapshot.incidents ?? [],
-      snapshotReady: true, readings: {}, sensorTicks: {}, assets: {}, forecast: {}, scenarioRuns: {},
+      snapshotReady: true, readings: {}, sensorTicks: {}, assets: {}, forecast: {}, scenarioRuns: {}, boards: {},
       alerts: { data: snapshot.alerts ?? [], status: 'ready' },
       findings: { data: snapshot.findings ?? [], status: 'ready' },
       chat: { data: get().chat.data, status: 'ready' },

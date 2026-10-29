@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import type { AgentFinding, Alert, AssetStatusUpdate, ChatChunk, ChatDone, ChatMessage, ChatRoute, Incident, Forecast, Health, Reading, ReadingPayload, Scenario, ScenarioState, SnapshotPayload, Topology } from '../api/types';
+import type { AgentFinding, Alert, AssetStatusUpdate, BoardDecision, BoardMessage, BoardSession, BoardState, ChatChunk, ChatDone, ChatMessage, ChatRoute, Incident, Forecast, Health, Reading, ReadingPayload, Scenario, ScenarioState, SnapshotPayload, Topology } from '../api/types';
 
 export type LoadState = 'loading' | 'ready' | 'error';
 export interface Resource<T> { data: T; status: LoadState; error?: string }
@@ -14,7 +14,15 @@ export interface ScenariosSlice { scenarios: Resource<Scenario[]>; scenarioRuns:
 export interface IncidentsSlice { incidents: Incident[]; upsertIncident: (incident: Incident) => void }
 export interface ChatSlice { chat: Resource<ChatMessage[]>; appendUserMessage: (text: string) => void; routeChat: (route: ChatRoute) => void; appendChunk: (chunk: ChatChunk) => void; finishChat: (done: ChatDone) => void }
 export interface ForecastSlice { forecast: Record<string, Forecast>; updateForecast: (forecast: Forecast) => void }
-export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & IncidentsSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
+export interface BoardSlice {
+  boards: Record<string, BoardSession>;
+  applyBoardState: (state: BoardState) => void;
+  appendBoardMessage: (message: BoardMessage) => void;
+  setBoardDecision: (decision: BoardDecision) => void;
+  loadBoardSession: (session: BoardSession) => void;
+  clearBoards: () => void;
+}
+export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & IncidentsSlice & BoardSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
 type Slice<T> = StateCreator<Store, [], [], T>;
 const upsert = <T extends { id: string }>(items: T[], item: T) => [item, ...items.filter((old) => old.id !== item.id)];
 export const connectionSlice: Slice<ConnectionSlice> = (set) => ({ connection: 'connecting', health: null, snapshotReady: false, setConnection: (connection) => set({ connection }), setHealth: (health) => set({ health }) });
@@ -55,3 +63,46 @@ export const chatSlice: Slice<ChatSlice> = (set) => ({
 });
 export const incidentsSlice: Slice<IncidentsSlice> = (set) => ({ incidents: [], upsertIncident: (incident) => set((s) => ({ incidents: upsert(s.incidents, incident) })) });
 export const forecastSlice: Slice<ForecastSlice> = (set) => ({ forecast: {}, updateForecast: (forecast) => set((s) => ({ forecast: { ...s.forecast, [`${forecast.network}:${forecast.zoneId}`]: forecast } })) });
+
+// A message may arrive before its metadata. The state event fills in startedAt.
+const emptyBoard = (id: string): BoardSession => ({ id, state: 'running', startedAt: '', messages: [] });
+const uniqueMessages = (messages: BoardMessage[]) => {
+  const seen = new Set<string>();
+  return messages.filter((message) => {
+    if (seen.has(message.id)) return false;
+    seen.add(message.id); return true;
+  });
+};
+export const boardSlice: Slice<BoardSlice> = (set) => ({
+  boards: {},
+  applyBoardState: (event) => set((s) => {
+    const old = s.boards[event.sessionId] ?? emptyBoard(event.sessionId);
+    const session: BoardSession = { ...old, id: event.sessionId, startedAt: event.startedAt,
+      ...(event.incidentId != null ? { incidentId: event.incidentId } : {}),
+      state: old.decision || old.state === 'done' ? 'done' : event.state };
+    return { boards: { ...s.boards, [session.id]: session } };
+  }),
+  appendBoardMessage: (message) => set((s) => {
+    const old = s.boards[message.sessionId] ?? emptyBoard(message.sessionId);
+    if (old.messages.some((m) => m.id === message.id)) return s;
+    return { boards: { ...s.boards, [old.id]: { ...old, messages: [...old.messages, message] } } };
+  }),
+  setBoardDecision: (decision) => set((s) => {
+    const old = s.boards[decision.sessionId] ?? { ...emptyBoard(decision.sessionId), startedAt: decision.createdAt };
+    return { boards: { ...s.boards, [old.id]: { ...old, state: 'done', decision } } };
+  }),
+  loadBoardSession: (session) => set((s) => {
+    const old = s.boards[session.id];
+    const decision = old?.decision ?? session.decision;
+    return { boards: { ...s.boards, [session.id]: { ...session,
+      incidentId: session.incidentId ?? old?.incidentId,
+      messages: uniqueMessages([...session.messages, ...(old?.messages ?? [])]), decision,
+      state: decision || old?.state === 'done' ? 'done' : session.state } } };
+  }),
+  clearBoards: () => set({ boards: {} }),
+});
+
+/** Stable selector result: newest meeting covering this incident, including shared decisions. */
+export const latestBoardFor = (incidentId: string) => (s: Pick<Store, 'boards'>): BoardSession | undefined =>
+  Object.values(s.boards).filter((b) => b.incidentId === incidentId || b.decision?.incidentIds.includes(incidentId))
+    .reduce<BoardSession | undefined>((latest, b) => !latest || (Date.parse(b.startedAt) || 0) > (Date.parse(latest.startedAt) || 0) ? b : latest, undefined);

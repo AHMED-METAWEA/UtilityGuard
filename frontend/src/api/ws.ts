@@ -10,6 +10,18 @@ const routing = (value: unknown) => list(value) && value.every((step) => record(
 const calculation = (value: unknown) => record(value) && text(value.name) && text(value.formula) && number(value.result) && text(value.unit) && list(value.inputs) && value.inputs.every((input) => record(input) && text(input.name) && number(input.value) && text(input.unit) && text(input.source));
 const explanation = (value: unknown) => record(value) && number(value.confidence) && text(value.calculationId) && list(value.reasons) && value.reasons.every((reason) => record(reason) && text(reason.text) && ['measured', 'forecast', 'rule', 'assumed'].includes(String(reason.evidenceType))) && list(value.calculations) && value.calculations.every(calculation) && list(value.assumptions) && list(value.sensitivity);
 const reading = (value: unknown) => record(value) && text(value.sensorId) && text(value.timestamp) && number(value.value) && ['ok', 'suspect', 'missing'].includes(String(value.quality));
+const wording = (value: unknown) => value === 'llm' || value === 'template';
+const optionalText = (value: unknown) => value == null || text(value);
+const optionalNumber = (value: unknown) => value == null || number(value);
+const strings = (value: unknown) => list(value) && value.every(text);
+const network = (value: unknown) => ['water', 'electricity', 'cooling'].includes(String(value));
+const boardFact = (v: unknown) => record(v) && text(v.label) && number(v.value) && text(v.unit) && ['measured', 'calculated', 'assumed'].includes(String(v.source));
+const boardTask = (v: unknown) => record(v) && text(v.id) && network(v.agent) && text(v.assetId) && text(v.assetName) && text(v.kind) && text(v.action) && text(v.crew) && number(v.hoursToFix) && number(v.hourlyCost) && number(v.repairCost) && number(v.returnPerCrewHour) && strings(v.relievedBy);
+const boardStep = (v: unknown) => record(v) && number(v.order) && text(v.taskId) && network(v.agent) && text(v.assetName) && text(v.action) && number(v.crewSlot) && number(v.startHour) && number(v.endHour) && number(v.hourlyCost) && number(v.lossUntilFixed) && number(v.repairCost) && number(v.repairMultiplier) && typeof v.dropped === 'boolean' && optionalNumber(v.reliefHour);
+const boardPlan = (v: unknown) => record(v) && list(v.steps) && v.steps.every(boardStep) && ['expectedCost', 'p10', 'p50', 'p90', 'winShare', 'regretMean', 'regretP90', 'hourlyBleed', 'runs'].every((key) => number(v[key]));
+const boardAlternative = (v: unknown) => record(v) && text(v.id) && text(v.name) && strings(v.order) && number(v.expectedCost) && number(v.extraCost);
+const boardFlip = (v: unknown) => record(v) && text(v.taskId) && text(v.assetName) && number(v.current) && number(v.threshold) && ['below', 'above'].includes(String(v.direction));
+const boardRisk = (v: unknown) => record(v) && ['overload', 'queue', 'tail'].includes(String(v.kind)) && text(v.text);
 
 /** Narrow known messages; additive fields never invalidate an otherwise known envelope. */
 export function parseEnvelope(raw: string): WsEnvelope | null {
@@ -30,6 +42,9 @@ export function parseEnvelope(raw: string): WsEnvelope | null {
     case 'chat_route': valid = text(p.messageId) && routing(p.routing); break;
     case 'chat_chunk': valid = text(p.messageId) && text(p.text); break;
     case 'chat_done': valid = text(p.messageId) && list(p.agentsConsulted) && p.agentsConsulted.every(agent) && routing(p.routing); break;
+    case 'board_state': valid = text(p.sessionId) && optionalText(p.incidentId) && ['running', 'done'].includes(String(p.state)) && text(p.startedAt); break;
+    case 'board_message': valid = text(p.id) && text(p.sessionId) && number(p.round) && Number.isInteger(p.round) && p.round >= 0 && p.round <= 4 && agent(p.agent) && ['opening', 'position', 'dependent', 'challenge', 'decision', 'concession'].includes(String(p.kind)) && text(p.text) && list(p.facts) && p.facts.every(boardFact) && wording(p.source); break;
+    case 'board_decision': valid = text(p.sessionId) && strings(p.incidentIds) && text(p.createdAt) && number(p.crews) && list(p.tasks) && p.tasks.every(boardTask) && boardPlan(p.plan) && list(p.alternatives) && p.alternatives.every(boardAlternative) && list(p.flips) && p.flips.every(boardFlip) && list(p.risks) && p.risks.every(boardRisk) && optionalNumber(p.extraCrewSaving) && typeof p.conflict === 'boolean' && text(p.summary) && wording(p.summarySource) && optionalText(p.calculationId); break;
     default: return null;
   }
   return valid ? message as unknown as WsEnvelope : null;
@@ -49,6 +64,9 @@ export function dispatchMessage(message: WsEnvelope) {
     case 'chat_route': store.routeChat(message.payload); break;
     case 'chat_chunk': store.appendChunk(message.payload); break;
     case 'chat_done': store.finishChat(message.payload); break;
+    case 'board_state': store.applyBoardState(message.payload); break;
+    case 'board_message': store.appendBoardMessage(message.payload); break;
+    case 'board_decision': store.setBoardDecision(message.payload); break;
   }
 }
 

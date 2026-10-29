@@ -133,6 +133,17 @@ for _kind, (_hours, _mult, _min, _max) in POLICIES.items():
         DEFAULTS[f"saving_{_bound}_{_kind}"] = _default(f"Plausible saving {_bound}, {_kind}", _value, "EGP", _value, _value,
             "Planning review threshold for a single district incident, not a cap on the computed value. Verify against the asset replacement budget and historical incident-loss register.")
 
+# Crew planning for the board: how many crews can work at once and how long each fault takes on site.
+DEFAULTS["crews_available"] = _default("Field crews available at once", 2.0, "crews", 2.0, 2.0,
+    "Planning count of crews that can work at the same time across the whole district. Set it to the real shift roster; it is a given, not an uncertain price, so it is not sampled. Verify against the duty roster.")
+DEFAULTS["crew_switch_hours"] = _default("Crew mobilisation between two jobs", 0.5, "h", 0.25, 0.75,
+    "Planning allowance for a crew to pack up, travel and set up at its next job. Verify against dispatch logs.")
+for _kind, _fix, _why in [("pipe_burst", 3.0, "excavate, isolate and replace a section or joint"), ("pump_failure", 4.0, "swap or repair a pump and restart it"),
+                          ("substation_trip", 1.5, "inspect, re-close the breaker and re-energise"), ("cooling_fault", 5.0, "diagnose and repair or swap a chiller component"),
+                          ("stuck_sensor", 1.0, "check and recalibrate or replace the sensor"), ("energy_waste", 1.0, "shed or transfer the excess load")]:
+    DEFAULTS[f"fix_hours_{_kind}"] = _default(f"On-site work time, {_kind}", _fix, "h", _fix * 0.75, _fix * 1.25,
+        f"Planning allowance for a crew to {_why}, counted from arrival to the asset being back. Verify against work-order durations for matching jobs.")
+
 
 class Assumptions:
     def __init__(self, path: Path = ASSUMPTIONS_FILE):

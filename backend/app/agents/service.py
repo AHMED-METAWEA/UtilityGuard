@@ -5,11 +5,13 @@ from __future__ import annotations
 import asyncio
 import itertools
 import logging
+import os
 
 from app.agents.llm import llm
 from app.agents.orchestrator import build_orchestrator
 from app.agents.specialists import build_specialist, run_specialist
 from app.agents.tools import AGENT_FOR_KIND
+from app.board.session import Board
 from app.cost import Assumptions, IncidentFacts, compute
 from app.detection import Detector
 from app.runtime import Runtime
@@ -33,6 +35,7 @@ class AgentService:
         self.tasks: set[asyncio.Task] = set()
         self._msg_ids = itertools.count(1)
         self.settle_seconds = 6.0
+        self.board = Board(rt, self)
 
     async def _sync_llm_mode(self, rt: Runtime) -> None:
         rt.llm_mode = llm.mode
@@ -68,6 +71,11 @@ class AgentService:
                                                       "reanalysing": cur.reanalysing and not current})
         await rt.broadcast("agent_finding", finding)
         await rt.broadcast("incident", rt.incidents[inc.id])
+        if os.getenv("BOARD_AUTO", "1") == "1":  # two networks with their own open problem: the board meets by itself
+            try:
+                self.board.maybe_convene()
+            except Exception:  # noqa: BLE001
+                log.exception("board could not convene")
 
     async def recompute(self) -> int:
         """Assumptions changed: recompute every open incident's record and re-send its finding (same id)."""

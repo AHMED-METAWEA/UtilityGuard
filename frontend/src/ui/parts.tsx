@@ -3,7 +3,7 @@ import { ArrowRight, CircleCheck, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AgentFinding, Incident, Network } from '../api/types';
 import type { Kpi as KpiData } from '../api/dash';
-import { useStore } from '../store';
+import { latestBoardFor, useStore } from '../store';
 import { href } from '../lib/route';
 import { ago, compact, egp, fmt } from '../lib/format';
 import { EvidenceTag } from './Provenance';
@@ -80,6 +80,7 @@ export function IncidentCard({ incident, finding }: { incident?: Incident; findi
   const { t } = useTranslation();
   const topology = useStore((s) => s.topology.data);
   const alerts = useStore((s) => s.alerts.data);
+  const board = useStore(latestBoardFor(incident?.id ?? ''));
   if (!incident) {
     return (
       <Card className="ok-card">
@@ -92,6 +93,7 @@ export function IncidentCard({ incident, finding }: { incident?: Incident; findi
   }
   const zones = incident.zoneIds.map((z) => topology?.zones.find((x) => x.id === z)?.name ?? z).join(', ');
   const alert = alerts.find((a) => a.incidentId === incident.id);
+  const firstJob = board?.decision?.plan.steps[0];
   return (
     <Card style={{ borderColor: incident.severity === 'critical' ? 'color-mix(in srgb, var(--crit) 55%, var(--border))' : undefined }}>
       <div className="row spread" style={{ marginBottom: 8 }}>
@@ -100,6 +102,7 @@ export function IncidentCard({ incident, finding }: { incident?: Incident; findi
       </div>
       <div style={{ fontSize: 17, fontWeight: 650, letterSpacing: '-.01em' }}>{incident.title}</div>
       <div className="sub" style={{ margin: '4px 0 12px' }}>{incident.reanalysing ? 'The incident grew. The agents are re-analysing it, and the figures below are from the earlier stage.' : finding ? finding.headline : `${zones}. The agents are analysing.`}</div>
+      {board && <a href={href('incidents', incident.id)} className="muted" style={{ display: 'block', fontSize: 12, margin: '-4px 0 12px' }}>{board.state === 'running' ? 'In session' : firstJob ? `Board decided: first ${firstJob.assetName}` : 'Board decided'}</a>}
       {finding ? <div style={incident.reanalysing ? { opacity: 0.45 } : undefined}><CostTiles finding={finding} /></div> : <div className="skeleton" style={{ height: 76 }} />}
       <a className="row" href={href('incidents', incident.id)} style={{ gap: 6, marginTop: 12, fontWeight: 600 }}>{t('live.open', 'Open incident')}<ArrowRight size={15} /></a>
     </Card>

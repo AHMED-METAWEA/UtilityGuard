@@ -251,4 +251,44 @@ write("rest/lab_trial.json", TrialResult(truth_asset_id="water-pipe-01", truth_n
                  TrialDetector(detector_id="d3", name="Isolation Forest", detected=True, delay_min=5.0), TrialDetector(detector_id="d4", name="LightGBM classifier", detected=True, delay_min=4.0)],
       localization=_loc, hit_rank=1, disabled_sensors=[]).dump())
 write("rest/quality_now.json", QualityNow(sensors_total=89, flagged=[QualityFlagItem(sensor_id="water-pipe-02-flow-in", status="missing", detail="No reading for the last 3 ticks")]).dump())
+
+# ---------- the board of agents (a real meeting on three simultaneous failures, worded by the code's own sentences) ----------
+import asyncio  # noqa: E402
+
+from app.board import session as board_session  # noqa: E402
+from app.board.analysis import analyse as board_analyse, calculation_record as board_record, decision_object  # noqa: E402
+from app.board.plan import tasks_from_alerts  # noqa: E402
+from app.detection import Detector  # noqa: E402
+from app.runtime import Runtime  # noqa: E402
+from app.scenarios import events_for  # noqa: E402
+from app.schemas.board import BoardMessage, BoardSession, BoardState  # noqa: E402
+
+_rt = Runtime(42)
+_det = Detector(_rt)
+_rt.tick_hooks.append(_det.tick)
+
+
+async def _three_failures():
+    for i in range(30):
+        await _rt.tick_once(T0 + timedelta(seconds=2 * i))
+    for ev in events_for("scn-compound", {}, "run-compound"):
+        _rt.add_event(ev)
+    for i in range(30, 130):
+        await _rt.tick_once(T0 + timedelta(seconds=2 * i))
+
+
+asyncio.run(_three_failures())
+_A = Assumptions(path=Path("/nonexistent/assumptions.json"))
+_an = board_analyse(tasks_from_alerts(_rt, _det, _A), _A, "board-0001", [("SS-02", 118.0)])
+_an.created_at = T0
+_msgs = [BoardMessage(id=f"bmsg-{i + 1:04d}", session_id="board-0001", round=d.round, agent=d.agent, kind=d.kind, text=d.template, facts=d.facts, source="template")
+         for i, d in enumerate(board_session.compose(_an))]
+_sd = board_session.summary_draft(_an)
+_rec = board_record(_an, _A, "calc-board-0001")
+_decision = decision_object(_an, _sd.template, "template", _rec.id)
+_sess = BoardSession(id="board-0001", incident_id=_an.tasks[0].incident_id, state="done", started_at=T0, messages=_msgs, decision=_decision)
+write("rest/board_session.json", _sess.dump())
+write("ws/board_state.json", envelope("board_state", BoardState(session_id="board-0001", incident_id=_sess.incident_id, state="running", started_at=T0)))
+write("ws/board_message.json", envelope("board_message", _msgs[1]))
+write("ws/board_decision.json", envelope("board_decision", _decision))
 print(f"fixtures written to {ROOT}")

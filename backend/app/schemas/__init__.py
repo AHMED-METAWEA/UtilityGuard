@@ -667,3 +667,6 @@ def envelope(type_: str, payload: Model) -> dict[str, Any]:
 Forecast.model_rebuild()
 
 from app.schemas.decision import BreakEven, DecisionMap, DecisionOption, DecisionReport
+from app.schemas.board import BoardDecision, BoardMessage, BoardSession, BoardState
+
+WS_PAYLOADS.update({"board_state": BoardState, "board_message": BoardMessage, "board_decision": BoardDecision})

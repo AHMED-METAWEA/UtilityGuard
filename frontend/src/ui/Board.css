@@ -1,0 +1,30 @@
+.board-panel { overflow-wrap: anywhere; }
+.board-panel > .card-head { flex-wrap: wrap; }
+.board-panel > .card-head > div { flex: 1 1 200px; min-width: 0; }
+.board-transcript { max-height: 420px; overflow-y: auto; overscroll-behavior: contain; padding-inline-end: 8px; scrollbar-gutter: stable; }
+.board-round { font-size: 12px; color: var(--text-3); margin: 14px 0 8px; }
+.board-round:first-child { margin-top: 0; }
+.board-message { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.board-message b { font-weight: 600; }
+.board-message p { margin: 6px 0; line-height: 1.5; }
+.board-message summary { cursor: pointer; font-size: 12px; width: fit-content; }
+.board-facts { margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.board-facts > div { padding: 6px 8px; background: var(--surface-2); border-radius: 6px; }
+.board-facts dt { color: var(--text-2); }
+.board-facts dd { margin: 3px 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.board-deliberating { gap: 8px; font-size: 12px; color: var(--text-3); padding: 12px 0; }
+.board-decision { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; font-size: 13px; }
+.board-timeline { min-width: 0; position: relative; }
+.board-gantt-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+.board-gantt-scroll svg { display: block; }
+.board-gantt-bar { cursor: default; outline: none; }
+.board-gantt-bar:focus-visible > rect:first-of-type { stroke: var(--text); stroke-width: 2px; }
+.board-gantt-tip { width: min(280px, calc(100% - 8px)); min-width: 0; white-space: normal; }
+.board-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 8px; }
+.board-kpis .kpi { padding: 10px 12px; background: var(--surface-2); box-shadow: none; }
+.board-kpis .kpi-value { flex-wrap: wrap; gap: 4px; }
+.board-kpis .kpi-value b { font-size: 24px; }
+.board-list { margin: 0; padding-inline-start: 18px; display: flex; flex-direction: column; gap: 6px; }
+.board-risks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.board-risks li { display: flex; align-items: flex-start; gap: 8px; }
+.board-risks svg { flex: none; margin-top: 2px; }

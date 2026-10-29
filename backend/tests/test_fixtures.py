@@ -19,7 +19,7 @@ REST = {
     "drift": list[S.DriftIndicator], "error": S.ErrorResponse, "decision": S.DecisionReport,
     "sensor_history": S.SensorHistory, "kpis": list[S.Kpi], "savings": S.SavingsReport, "series_demand": S.DemandSeries,
     "forecast_evidence": S.ForecastEvidence, "lab_benchmark": L.LabBenchmark, "lab_sensors": L.SensorValue, "lab_localization": L.LabLocalization,
-    "lab_quality": L.LabQuality, "incident_localization": L.Localization, "lab_trial": L.TrialResult, "quality_now": L.QualityNow, "series_substations": S.SubstationSeries, "series_cooling_efficiency": S.DailySeries,
+    "lab_quality": L.LabQuality, "incident_localization": L.Localization, "lab_trial": L.TrialResult, "quality_now": L.QualityNow, "board_session": S.BoardSession, "series_substations": S.SubstationSeries, "series_cooling_efficiency": S.DailySeries,
 }
 
 
