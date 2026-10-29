@@ -24,6 +24,7 @@ export function parseEnvelope(raw: string): WsEnvelope | null {
     case 'asset_status': valid = text(p.assetId) && ['normal', 'warning', 'fault', 'offline'].includes(String(p.status)) && number(p.healthScore); break;
     case 'alert': valid = text(p.id) && text(p.incidentId) && text(p.title) && text(p.summary) && list(p.assetIds) && ['info', 'warning', 'critical'].includes(String(p.severity)); break;
     case 'agent_finding': valid = text(p.id) && text(p.incidentId) && agent(p.agent) && text(p.headline) && text(p.explanation) && list(p.reasoningSteps) && p.reasoningSteps.every(text) && text(p.createdAt) && explanation(p.explain) && record(p.recommendedAction) && text(p.recommendedAction.text) && text(p.recommendedAction.crewType) && text(p.recommendedAction.urgency) && record(p.cost) && number(p.cost.actNow) && number(p.cost.costOfDelay) && number(p.cost.delayHours) && number(p.cost.expectedSaving); break;
+    case 'incident': valid = text(p.id) && text(p.title) && list(p.alertIds) && ['info', 'warning', 'critical'].includes(String(p.severity)) && text(p.openedAt); break;
     case 'scenario_state': valid = text(p.runId) && text(p.scenarioId) && ['running', 'stopped'].includes(String(p.state)); break;
     case 'forecast_update': valid = text(p.network) && text(p.zoneId) && list(p.points) && record(p.metrics); break;
     case 'chat_route': valid = text(p.messageId) && routing(p.routing); break;
@@ -41,6 +42,7 @@ export function dispatchMessage(message: WsEnvelope) {
     case 'reading': store.ingestReadings(message.payload); break;
     case 'asset_status': store.updateAsset(message.payload); break;
     case 'alert': store.upsertAlert(message.payload); break;
+    case 'incident': store.upsertIncident(message.payload); break;
     case 'agent_finding': store.upsertFinding(message.payload); break;
     case 'scenario_state': store.updateScenario(message.payload); break;
     case 'forecast_update': store.updateForecast(message.payload); break;

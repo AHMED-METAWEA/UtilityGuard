@@ -39,9 +39,10 @@ export interface Explanation {
   sensitivity: Sensitivity[]; confidence: number; calculationId: string;
 }
 export interface CalculationRecord { id: string; incidentId: string; createdAt: Timestamp; cost: Cost; explanation: Explanation }
+export type CalcInputLike = CalculationInput;
 export interface Cost {
   currency: 'EGP'; actNow: number; delayPerHour: number; expectedSaving: number;
-  delayHours: number; costOfDelay: number;
+  delayHours: number; costOfDelay: number; responseHours?: number; actNowLosses?: number; savingRange?: { p10: number; p50: number; p90: number; runs: number };
   breakdown: { label: string; amount: number; cause: string }[]; explanation: Explanation;
 }
 export interface AgentFinding {
@@ -100,7 +101,7 @@ export interface SnapshotPayload {
 }
 export interface WsPayloads {
   snapshot: SnapshotPayload; reading: ReadingPayload; asset_status: AssetStatusUpdate; alert: Alert;
-  agent_finding: AgentFinding; scenario_state: ScenarioState; forecast_update: Forecast;
+  incident: Incident; agent_finding: AgentFinding; scenario_state: ScenarioState; forecast_update: Forecast;
   chat_route: ChatRoute; chat_chunk: ChatChunk; chat_done: ChatDone;
 }
 export type WsEnvelope = { [T in keyof WsPayloads]: { type: T; payload: WsPayloads[T] } }[keyof WsPayloads];

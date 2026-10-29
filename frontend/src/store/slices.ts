@@ -11,7 +11,7 @@ export interface AssetsSlice { assets: Record<string, AssetStatusUpdate>; update
 export interface AlertsSlice { alerts: Resource<Alert[]>; upsertAlert: (alert: Alert) => void }
 export interface FindingsSlice { findings: Resource<AgentFinding[]>; upsertFinding: (finding: AgentFinding) => void }
 export interface ScenariosSlice { scenarios: Resource<Scenario[]>; scenarioRuns: Record<string, ScenarioState>; updateScenario: (state: ScenarioState) => void }
-export interface IncidentsSlice { incidents: Incident[] }
+export interface IncidentsSlice { incidents: Incident[]; upsertIncident: (incident: Incident) => void }
 export interface ChatSlice { chat: Resource<ChatMessage[]>; appendUserMessage: (text: string) => void; routeChat: (route: ChatRoute) => void; appendChunk: (chunk: ChatChunk) => void; finishChat: (done: ChatDone) => void }
 export interface ForecastSlice { forecast: Record<string, Forecast>; updateForecast: (forecast: Forecast) => void }
 export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & IncidentsSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
@@ -53,4 +53,5 @@ export const chatSlice: Slice<ChatSlice> = (set) => ({
     return { chat: { status: 'ready', data: old ? s.chat.data.map((m) => m.messageId === done.messageId ? message : m) : [...s.chat.data, message] } };
   }),
 });
+export const incidentsSlice: Slice<IncidentsSlice> = (set) => ({ incidents: [], upsertIncident: (incident) => set((s) => ({ incidents: upsert(s.incidents, incident) })) });
 export const forecastSlice: Slice<ForecastSlice> = (set) => ({ forecast: {}, updateForecast: (forecast) => set((s) => ({ forecast: { ...s.forecast, [`${forecast.network}:${forecast.zoneId}`]: forecast } })) });

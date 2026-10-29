@@ -16,11 +16,30 @@ export function niceTicks(lo: number, hi: number, count = 5): number[] {
   for (let v = start; v <= hi + step * 1e-6; v += step) out.push(+v.toFixed(10));
   return out;
 }
+/** A domain that always covers [lo, hi]: rounded outward to a nice step. */
 export const niceDomain = (lo: number, hi: number, pad = 0.06): [number, number] => {
   const span = (hi - lo) || Math.abs(hi) || 1;
-  const t = niceTicks(lo - span * pad, hi + span * pad, 5);
-  return [t[0] ?? lo, t[t.length - 1] ?? hi];
+  const a = lo - span * pad, b = hi + span * pad;
+  const raw = (b - a) / 4;
+  const pow = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * pow).find((x) => x >= raw) ?? raw;
+  return [Math.floor(a / step) * step, Math.ceil(b / step) * step];
 };
+
+const cairoOffset = (t: number) => {
+  const d = new Date(t);
+  const local = new Date(d.toLocaleString('en-US', { timeZone: 'Africa/Cairo' }));
+  const utc = new Date(d.toLocaleString('en-US', { timeZone: 'UTC' }));
+  return local.getTime() - utc.getTime();
+};
+/** Ticks on clean Cairo clock times: steps of 1 to 30 minutes for short spans, whole hours for long ones. */
+export function timeTicks(t0: number, t1: number, max = 6): number[] {
+  const M = 60_000, off = cairoOffset(t0);
+  const step = [1, 2, 5, 10, 15, 30, 60, 120, 180, 240, 360, 720, 1440].map((m) => m * M).find((x) => (t1 - t0) / x <= max) ?? 1440 * M;
+  const out: number[] = [];
+  for (let t = Math.ceil((t0 + off) / step) * step - off; t <= t1; t += step) out.push(t);
+  return out;
+}
 
 export const line = (pts: [number, number][]) => (pts.length ? 'M' + pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join('L') : '');
 export const area = (pts: [number, number][], base: number) =>

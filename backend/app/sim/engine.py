@@ -22,6 +22,8 @@ BG_LOSS = 0.115  # background (non-revenue) water loss as a fraction of billed d
 CHILLER_BASE = 0.22  # MW electric per MW thermal at 30 C with clean condensers (about 0.77 kW/TR)
 FOULING = {"cool-plant-01": 1.08}  # DCP-01 condensers are 8% fouled; the rest are clean
 TR_PER_MW = 284.3
+PUMP_SETPOINT = 4.7  # bar, discharge pressure a healthy pump holds
+PUMP_MAX_BOOST = 1.7  # bar a pump can add over its inlet pressure
 
 
 def demand_profile(zone_type: str, hour: float, weekday: int, holiday: bool = False) -> float:
@@ -160,12 +162,15 @@ class Engine:
                 pipe, pump = g.zone_pipe[z], g.zone_pump[z]
                 q_in = total_flow(z)
                 leak = self.leak_m3h.get(pipe, 0)
-                pipe_p = inlet - 0.35 - 0.00004 * q_in - 0.0095 * leak
-                boost = 0.5 if self.pump_on[pump] else -1.5
-                if pump in failed_pumps and self.pump_on[pump]:
-                    boost -= 0.6 * failed_pumps[pump].ramp(self.tick, 30)
-                pump_p = max(0.6, min(inlet, pipe_p) + boost)
-                zone_pressure[z] = min(pump_p, 4.6) if up is not None else pump_p
+                pipe_p = inlet - 0.35 - 0.00004 * q_in - 0.006 * leak
+                p_in = min(inlet, pipe_p)
+                if self.pump_on[pump]:
+                    # a healthy booster holds its discharge set-point, so a burst upstream does not ripple through the whole network
+                    health = 1.0 - (failed_pumps[pump].ramp(self.tick, 30) if pump in failed_pumps else 0.0)
+                    pump_p = max(0.6, min(PUMP_SETPOINT, p_in + PUMP_MAX_BOOST * health))
+                else:
+                    pump_p = max(0.6, p_in - 1.5)
+                zone_pressure[z] = pump_p
                 pump_flow = (self.zone_demand[z][0] + sum(total_flow(d) for d in downstream[z])) if self.pump_on[pump] else 0.15 * self.zone_demand[z][0]
                 if leak:
                     pump_flow *= 1 + 0.12 * min(1, leak / 140)

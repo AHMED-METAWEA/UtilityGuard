@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { area, band as bandPath, line, linear, niceDomain, niceTicks, useWidth } from './scale';
+import { area, band as bandPath, line, linear, niceDomain, niceTicks, timeTicks, useWidth } from './scale';
 import { fmt, hhmm } from '../lib/format';
 
 export interface Pt { t: number; v: number | null }
@@ -32,7 +32,7 @@ export function TimeChart({ series, band, thresholds = [], nowT, height = 220, u
 
   const sx = linear(dom.x[0], dom.x[1], M.l, M.l + iw), sy = linear(dom.y[0], dom.y[1], M.t + ih, M.t);
   const yTicks = niceTicks(dom.y[0], dom.y[1], Math.max(3, Math.round(ih / 44)));
-  const xTicks = niceTicks(dom.x[0], dom.x[1], Math.max(3, Math.round(iw / 110)));
+  const xTicks = timeTicks(dom.x[0], dom.x[1], Math.max(3, Math.floor(iw / 70)));
   const toXY = (pts: Pt[]) => pts.filter((p) => p.v !== null).map((p) => [sx(p.t), sy(p.v as number)] as [number, number]);
 
   const times = useMemo(() => [...new Set(series.flatMap((s) => s.points.map((p) => p.t)))].sort((a, b) => a - b), [series]);
@@ -49,7 +49,8 @@ export function TimeChart({ series, band, thresholds = [], nowT, height = 220, u
   const tipLeft = hover !== null ? Math.min(Math.max(sx(hover) + 12, 4), W - 190) : 0;
 
   return (
-    <div className="chart" ref={ref} style={{ height }}>
+    <div className="chart" ref={ref}>
+      {width === 0 && <div style={{ height }} />}
       {width > 0 && (
         <svg width={W} height={H} role="img" aria-label={label} onPointerMove={onMove} onPointerLeave={() => setHover(null)}>
           {yTicks.map((v) => <g key={v}><line x1={M.l} x2={M.l + iw} y1={sy(v)} y2={sy(v)} stroke="var(--grid)" /><text x={M.l - 8} y={sy(v) + 4} textAnchor="end" fontSize="11" fill="var(--text-3)">{yFmt(v)}</text></g>)}

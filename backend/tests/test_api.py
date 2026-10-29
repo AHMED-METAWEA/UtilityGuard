@@ -189,3 +189,13 @@ def test_savings_report_is_consistent():
         after = next(o for o in S.SavingsReport.model_validate(c.get("/api/v1/savings").json()).opportunities if o.id == "opp-setback").monthly_saving
         assert after == pytest.approx(before * 2, rel=0.02)
         c.post("/api/v1/scenarios/reset")
+
+
+def test_sensor_history():
+    with TestClient(app) as c:
+        import time
+        time.sleep(5)
+        sid = next(s.id for s in S.Topology.model_validate(c.get("/api/v1/topology").json()).sensors if s.kind == "pressure")
+        h = S.SensorHistory.model_validate(c.get(f"/api/v1/sensors/{sid}/history?minutes=5").json())
+        assert len(h.points) >= 2 and h.points[0].t < h.points[-1].t and h.unit == "bar"
+        assert c.get("/api/v1/sensors/nope/history").status_code == 404

@@ -308,6 +308,7 @@ class Detector:
                                              "zone_ids": list(dict.fromkeys([*inc.zone_ids, d.zone_id]))})
                 rt.incidents[inc_id] = inc
                 await rt.broadcast("alert", alert)
+                await rt.broadcast("incident", inc)
                 for cb in self.on_incident_update:
                     cb(inc)
             else:
@@ -319,6 +320,7 @@ class Detector:
                                state="open", opened_at=now, alert_ids=[alert.id])
                 rt.incidents[inc.id] = inc
                 await rt.broadcast("alert", alert)
+                await rt.broadcast("incident", inc)
                 log.info("new incident %s (%s) root=%s", inc.id, d.kind, d.root)
                 for cb in self.on_incident:
                     cb(inc, d.facts, d.root)
@@ -333,6 +335,7 @@ class Detector:
                 inc = rt.incidents.get(a.incident_id)
                 if inc and all(rt.alerts[x].state == "resolved" for x in inc.alert_ids):
                     rt.incidents[inc.id] = inc.model_copy(update={"state": "resolved"})
+                    await rt.broadcast("incident", rt.incidents[inc.id])
 
     def facts_for(self, incident_id: str) -> tuple[IncidentFacts, str, str] | None:
         """Latest facts of the root alert of an incident (for recomputation)."""

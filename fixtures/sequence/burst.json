@@ -1328,6 +1328,32 @@
     }
   },
   {
+    "delayMs": 0,
+    "message": {
+      "type": "incident",
+      "payload": {
+        "id": "inc-0001",
+        "title": "Pipe burst, Government District",
+        "networks": [
+          "water"
+        ],
+        "zoneIds": [
+          "zone-gov"
+        ],
+        "severity": "critical",
+        "state": "open",
+        "openedAt": "2026-10-28T11:30:40Z",
+        "alertIds": [
+          "alert-0001"
+        ],
+        "findingIds": [
+          "find-0001"
+        ],
+        "calculationId": "calc-0001"
+      }
+    }
+  },
+  {
     "delayMs": 3200,
     "message": {
       "type": "agent_finding",

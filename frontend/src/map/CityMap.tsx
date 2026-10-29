@@ -27,7 +27,7 @@ const ZONE_SHORT: Record<string, string> = {
 };
 const MARKER_KINDS = new Set(Object.keys(KIND_ICON));
 
-export interface Focus { lng: number; lat: number; zoom?: number; key: number }
+export interface Focus { lng: number; lat: number; zoom?: number; bounds?: [number, number, number, number]; key: number }
 interface Props {
   onSelectAsset?: (id: string) => void; selectedAsset?: string | null; focus?: Focus | null;
   height?: number | string; interactive?: boolean; showLegend?: boolean; compact?: boolean;
@@ -194,7 +194,8 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
   useEffect(() => {
     const map = ready; if (!map || !focus) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    map.flyTo({ center: [focus.lng, focus.lat], zoom: focus.zoom ?? 15, duration: reduce ? 0 : 1600, curve: 1.5, essential: true });
+    if (focus.bounds) map.fitBounds([[focus.bounds[0], focus.bounds[1]], [focus.bounds[2], focus.bounds[3]]], { padding: 70, maxZoom: 15.4, duration: reduce ? 0 : 1600, essential: true });
+    else map.flyTo({ center: [focus.lng, focus.lat], zoom: focus.zoom ?? 15, duration: reduce ? 0 : 1600, curve: 1.5, essential: true });
   }, [focus, ready]);
 
   // ---- animated flow along healthy lines ----

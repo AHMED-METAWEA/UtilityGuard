@@ -5,6 +5,16 @@ import { useStore } from './store';
 import { useRoute } from './lib/route';
 import { TopBar } from './shell/TopBar';
 import { Live } from './pages/Live';
+import { Incidents } from './pages/Incidents';
+import { Savings } from './pages/Savings';
+import { Forecast } from './pages/Forecast';
+import { Executive } from './pages/Executive';
+import { ScenarioLab } from './panels/ScenarioLab';
+import { ChatDock } from './panels/ChatDock';
+import { AssetDrawer, AssumptionsDrawer, CalcDrawer } from './panels/Drawers';
+import { Palette, Toast } from './panels/Palette';
+import { useUi } from './store/ui';
+import { setTheme, resolve } from './lib/theme';
 
 export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -34,13 +44,39 @@ export default function App() {
     return () => { abort.abort(); unsub(); client.stop(); };
   }, []);
 
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement;
+      const typing = el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName);
+      const ui = useUi.getState();
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); ui.set({ paletteOpen: !ui.paletteOpen }); return; }
+      if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key.toLowerCase();
+      if (k === 's') ui.set({ scenarioOpen: true });
+      else if (k === 'c') ui.set({ chatOpen: !ui.chatOpen });
+      else if (k === 't') setTheme(resolve() === 'dark' ? 'light' : 'dark');
+    };
+    window.addEventListener('keydown', on);
+    return () => window.removeEventListener('keydown', on);
+  }, []);
+
   return (
     <div className="app">
       <TopBar />
       <main id="main">
         {route.page === 'live' && <Live />}
-        {route.page !== 'live' && <div className="page"><div className="card card-body">{route.page} (coming next)</div></div>}
+        {route.page === 'incidents' && <Incidents id={route.id} />}
+        {route.page === 'savings' && <Savings id={route.id} />}
+        {route.page === 'forecast' && <Forecast />}
+        {route.page === 'executive' && <Executive />}
       </main>
+      <ChatDock />
+      <ScenarioLab />
+      <AssetDrawer />
+      <AssumptionsDrawer />
+      <CalcDrawer />
+      <Palette />
+      <Toast />
     </div>
   );
 }

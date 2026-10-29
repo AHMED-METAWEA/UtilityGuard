@@ -14,12 +14,13 @@ from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException
 
 import time
+from datetime import timedelta
 
 from app import dashboard, extras, savings as savings_mod, scenarios
 from app.agents.service import AgentService
 from app.ml.service import MLService
 from app.runtime import runtime
-from app.schemas import ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
+from app.schemas import SensorHistory, SensorHistoryPoint, ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -106,6 +107,10 @@ async def acknowledge(alert_id: str) -> dict:
     a = a.model_copy(update={"state": "acknowledged"})
     runtime.alerts[alert_id] = a
     await runtime.broadcast("alert", a)
+    inc = runtime.incidents.get(a.incident_id)
+    if inc and inc.state == "open" and all(runtime.alerts[x].state != "open" for x in inc.alert_ids):
+        runtime.incidents[inc.id] = inc.model_copy(update={"state": "acknowledged"})
+        await runtime.broadcast("incident", runtime.incidents[inc.id])
     return out(a)
 
 
@@ -241,6 +246,24 @@ def series_substations() -> dict:
 @api.get("/series/cooling-efficiency")
 def series_cooling_efficiency(days: int = 30) -> dict:
     return out(dashboard.cooling_efficiency_daily(runtime, history, max(7, min(days, 60))))
+
+
+@api.get("/sensors/{sensor_id}/history")
+def sensor_history(sensor_id: str, minutes: int = 10) -> dict:
+    sensor = runtime.engine.g.sensor_index.get(sensor_id)
+    if not sensor:
+        raise ApiError(404, "not_found", f"Sensor {sensor_id} does not exist.")
+    vals = runtime.history.get(sensor_id, [])
+    exp = runtime.expected_history.get(sensor_id, [])
+    n = min(len(vals), max(5, min(minutes, 30) * 30))  # one reading every 2 s
+    pts = []
+    for k in range(len(vals) - n, len(vals)):
+        v = vals[k]
+        if v != v:  # a missing reading
+            continue
+        e = exp[k] if k < len(exp) else None
+        pts.append(SensorHistoryPoint(t=runtime.now - timedelta(seconds=2 * (len(vals) - 1 - k)), v=round(v, 3), expected=round(e, 3) if e is not None else None))
+    return out(SensorHistory(sensor_id=sensor_id, unit=sensor.unit, normal_range=sensor.normal_range, points=pts))
 
 
 @api.get("/savings")

@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { alertsSlice, assetsSlice, chatSlice, connectionSlice, findingsSlice, forecastSlice, readingsSlice, scenariosSlice, topologySlice, type Store } from './slices';
+import { alertsSlice, assetsSlice, chatSlice, connectionSlice, findingsSlice, forecastSlice, incidentsSlice, readingsSlice, scenariosSlice, topologySlice, type Store } from './slices';
 
 export const useStore = create<Store>()((...args) => ({
   ...connectionSlice(...args), ...topologySlice(...args), ...readingsSlice(...args),
   ...assetsSlice(...args), ...alertsSlice(...args), ...findingsSlice(...args),
   ...scenariosSlice(...args), ...chatSlice(...args), ...forecastSlice(...args),
-  incidents: [],
+  ...incidentsSlice(...args),
   applySnapshot: (snapshot) => {
     const [set, get] = args;
     set({

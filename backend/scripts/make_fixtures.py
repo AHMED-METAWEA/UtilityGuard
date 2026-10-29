@@ -194,6 +194,7 @@ write("ws/snapshot.json", envelope("snapshot", snap))
 write("ws/reading.json", envelope("reading", batch(1)))
 write("ws/asset_status.json", envelope("asset_status", AssetStatus(asset_id=PIPE, status="fault", health_score=34, failure_probability=0.88)))
 write("ws/alert.json", envelope("alert", alert))
+write("ws/incident.json", envelope("incident", incident))
 write("ws/agent_finding.json", envelope("agent_finding", finding))
 write("ws/scenario_state.json", envelope("scenario_state", run_state))
 write("ws/forecast_update.json", envelope("forecast_update", forecast))
@@ -213,6 +214,7 @@ seq = [
     (500, envelope("asset_status", AssetStatus(asset_id=PIPE, status="fault", health_score=34, failure_probability=0.88))),
     (300, envelope("asset_status", AssetStatus(asset_id=PUMP, status="warning", health_score=71, failure_probability=0.22))),
     (500, envelope("alert", alert)),
+    (0, envelope("incident", incident)),
     (3200, envelope("agent_finding", finding)),
     (8000, envelope("alert", alert.model_copy(update={"state": "resolved"}))),
     (0, envelope("asset_status", AssetStatus(asset_id=PIPE, status="normal", health_score=88, failure_probability=0.05))),
@@ -245,6 +247,10 @@ A = Assumptions(Path(mkdtemp()) / "a.json")
 report = build_savings(rt, hist, A)
 write("rest/savings.json", report.dump())
 write("rest/kpis.json", [k.dump() for k in dashboard.build_kpis(rt, hist, report.total_monthly)])
+_sid = f"{g.zone_pipe['zone-gov']}-pressure"
+_h, _e = rt.history[_sid], rt.expected_history[_sid]
+write("rest/sensor_history.json", {"sensorId": _sid, "unit": "bar", "normalRange": g.sensor_index[_sid].normal_range.dump(),
+      "points": [{"t": (rt.now - timedelta(seconds=2 * (len(_h) - 1 - k))).isoformat().replace("+00:00", "Z"), "v": round(_h[k], 3), "expected": round(_e[k] if _e[k] is not None else _h[k], 3)} for k in range(len(_h))]})
 write("rest/series_demand.json", dashboard.demand_series(rt, hist, SimpleNamespace(models=models), "water", "all").dump())
 write("rest/series_substations.json", dashboard.substation_series(rt, hist).dump())
 write("rest/series_cooling_efficiency.json", dashboard.cooling_efficiency_daily(rt, hist).dump())

@@ -439,6 +439,19 @@ class Kpi(Model):
     network: Network | None = None
 
 
+class SensorHistoryPoint(Model):
+    t: datetime
+    v: float
+    expected: float | None = None
+
+
+class SensorHistory(Model):
+    sensor_id: str
+    unit: str
+    normal_range: Range
+    points: list[SensorHistoryPoint]
+
+
 class DemandSeries(Model):
     network: Network
     zone_id: str
@@ -519,6 +532,7 @@ WS_PAYLOADS: dict[str, type[Model]] = {
     "reading": ReadingBatch,
     "asset_status": AssetStatus,
     "alert": Alert,
+    "incident": Incident,
     "agent_finding": AgentFinding,
     "scenario_state": ScenarioState,
     "forecast_update": Forecast,

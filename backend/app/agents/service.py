@@ -65,6 +65,7 @@ class AgentService:
         rt.incidents[inc.id] = cur.model_copy(update={"finding_ids": [*cur.finding_ids, finding.id],
                                                       "calculation_id": finding.explain.calculation_id})
         await rt.broadcast("agent_finding", finding)
+        await rt.broadcast("incident", rt.incidents[inc.id])
 
     async def recompute(self) -> int:
         """Assumptions changed: recompute every open incident's record and re-send its finding (same id)."""

@@ -44,6 +44,7 @@ class Runtime:
         self.engine.reset()
         self.latest: dict[str, Reading] = {}
         self.history: dict[str, list[float]] = {}
+        self.expected_history: dict[str, list[float | None]] = {}
         self.asset_status: dict[str, AssetStatus] = {}
         self.alerts: dict[str, Alert] = {}
         self.incidents: dict[str, Incident] = {}
@@ -117,6 +118,10 @@ class Runtime:
                 h.append(float(v) if v is not None else float("nan"))
                 if len(h) > 900:
                     del h[:-900]
+                eh = self.expected_history.setdefault(s.id, [])
+                eh.append(self.forecasts.get(s.id))
+                if len(eh) > 900:
+                    del eh[:-900]
             await self.broadcast("reading", ReadingBatch(tick=self.engine.tick, timestamp=ts, readings=readings))
             await self._update_assets()
             for hook in self.tick_hooks:
@@ -168,6 +173,7 @@ class Runtime:
         sb.engine.rng = np.random.default_rng(self.seed + 99)
         sb.clients, sb.tick_hooks, sb.reset_hooks, sb._task, sb._lock = set(), [], [], None, asyncio.Lock()
         sb.latest, sb.history = dict(self.latest), {k: list(v) for k, v in self.history.items()}
+        sb.expected_history = {k: list(v) for k, v in self.expected_history.items()}
         sb.asset_status, sb.alerts, sb.incidents, sb.findings = dict(self.asset_status), {}, {}, {}
         sb.runs, sb.forecasts, sb.now, sb.calculations = {}, dict(self.forecasts), self.now, {}
         return sb
