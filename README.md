@@ -18,7 +18,7 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | --- | --- |
 | **Live twin** | Map of 9 districts with 48 assets and 89 sensors, a reading every 2 s over WebSocket, switchable water / electricity / cooling layers, asset health and failure risk. |
 | **Scenarios** | 15 scenarios from a pipe burst to a cascade storm, run and stopped from the Scenario Lab (table below). |
-| **Detection** | Rule-based detectors with shared-cause grouping, one incident per root cause that escalates when it turns out to be bigger, creeping-leak rule, and settle time after a restore. Measured on 62 injected runs: precision 1.00, recall 0.89. |
+| **Detection** | Rule-based detectors with shared-cause grouping, one incident per root cause that escalates when it turns out to be bigger, creeping-leak rule, and settle time after a restore. Measured on 62 injected runs (54 faults, 8 clean runs): precision 1.00, recall 0.89. |
 | **Agents** | A water, an electricity and a cooling specialist (LLM) plus an orchestrator (LangGraph). They explain what happened, why they are sure, what it costs and what to do. |
 | **Cost and evidence** | Each finding carries a calculation record: formula, inputs, every assumption with basis, range and public reference. Prices can be edited in the app and every finding recomputes. Monte Carlo over the registered ranges gives P10 / P50 / P90. |
 | **Leak localization** | Ranks the suspected pipes and highlights them on the map (rank 1 pulses, the others are dashed, click one to fly to it). |
@@ -26,7 +26,7 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | **Board of agents** | When two or more networks have an open problem and there are fewer crews than problems, the agents meet. The order is the cheapest of every possible order (exhaustive search up to 6 problems), checked against 300 price scenarios. |
 | **Human approval** | The board only proposes. A person approves, approves a different order (priced first, logged as an override) or rejects with a reason. |
 | **Crew dispatch** | The approved plan runs in the twin on a demo clock. When a crew finishes, the fault ends and the detector, not the crew, confirms the alert is clear. |
-| **Early warning** | A pump that is wearing out is flagged about four minutes before it fails, while it still runs: its condition signals drift away from its peers, and the warning prices planned maintenance against an unplanned failure with a break-even risk. Nothing is raised in the other scenarios (checked). |
+| **Early warning** | A pump that is wearing out is flagged three to four minutes before it fails, while it still runs: its condition signals drift away from its peers, and the warning prices planned maintenance against an unplanned failure with a break-even risk. Nothing is raised in the other scenarios (checked). |
 | **Why this number?** | Every dashboard tile, asset health and risk score, savings opportunity and forecast accuracy opens an explanation: formula, worked substitution, inputs with their source, and the assumptions you can edit. A test fails if one of these numbers has no explanation. |
 | **Try to fool the AI** | Send a claim the data does not support. The model answers; the same number checker that protects every agent answer marks each figure verified (with the calculated value it matches) or removed. |
 | **Decision log** | Append-only, hash-chained log of every proposal, decision and crew action. One click verifies the chain. CSV export. |
@@ -163,7 +163,7 @@ cd frontend && npm run lint && npm test && npm run build          # 61 tests
 cd backend && PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1   # the whole demo path against a running server
 ```
 
-- Every fixture in `fixtures/` is validated against the Pydantic schemas and round-trips losslessly, and the frontend parses the same files. Regenerate them with `scripts/make_fixtures.py` (flags `--approval-only`, `--forecast-evidence-only` rewrite only part).
+- Every fixture in `fixtures/` is validated against the Pydantic schemas and round-trips losslessly, and the frontend parses the same files. Regenerate them with `scripts/make_fixtures.py` (flags `--approval-only`, `--insight-only`, `--forecast-evidence-only` rewrite only part).
 - `scripts/demo_check.py` drives a running server through the dashboard, a pipe burst, the AI lab, a price change, a substation trip, chat, the board and the approval with the decision log. For a live run set the key; for an offline run start the server with `LLM_OFFLINE=1`.
 - The board's vectorised scheduler is tested against a slow reference implementation, and the decision log against tampering in memory and on disk.
 
@@ -174,7 +174,7 @@ cd backend && PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1   # t
 ```
 backend/app/        sim, detection, ml, cost, agents, board, lab, schemas, main (API), runtime
 backend/scripts/    demo_check.py, make_fixtures.py
-backend/tests/      236 tests
+backend/tests/      257 tests
 backend/data/       assumptions.json, fallback_cache.json, models.pkl, lab_benchmark.json, audit.jsonl (all git-ignored)
 frontend/src/       pages, ui, panels, charts, map, store, api, lib, i18n, design
 frontend/public/geo OpenStreetMap layers (ODbL, see ATTRIBUTION.txt)
@@ -187,6 +187,7 @@ docs/               spec, contract, cost model, decisions, design system, showca
 | File | What it is |
 | --- | --- |
 | [docs/status.md](docs/status.md) | What was built, what is measured, what still needs review, and the roadmap. **Start here.** |
+| [docs/stress-test.md](docs/stress-test.md) | Arabic: the full review and stress-test plan (every model, number, endpoint, page and document), with pass criteria and a results log. |
 | [docs/showcase.md](docs/showcase.md) | Arabic: the features and numbers that will impress the committee, expected questions and a demo script. |
 | [docs/contract.md](docs/contract.md) | The API and message contract, section by section. |
 | [docs/cost-model.md](docs/cost-model.md) | Every formula, worked examples, the public price check and the assumption table. |

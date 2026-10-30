@@ -18,7 +18,7 @@ Run commands from this folder with `PYTHONPATH=.` and the `.venv` interpreter.
 | `app/main.py` | REST routes under `/api/v1`, the `/ws/stream` WebSocket, error format `{code, message}`. |
 | `app/runtime.py` | Owns the engine, ticks every 2 s, broadcasts to clients, runs tick hooks (ML, detector, board dispatcher). `clone()` makes an isolated sandbox for what-if runs. |
 | `app/sim/` | `topology.py` (9 zones, 48 assets, 89 sensors, 53 links on the real NAC layout) and `engine.py` (seeded physics, events, protection relays, `Engine.repair`). |
-| `app/scenarios.py` | The 14 scenarios and the events each one creates. |
+| `app/scenarios.py` | The 15 scenarios and the events each one creates. |
 | `app/detection/` | Detectors, shared-cause grouping, incidents and alerts, escalation, creeping-leak rule, settle time after a restore. |
 | `app/ml/` | `__init__.py` trains the LightGBM demand forecast and the failure model; `service.py` serves forecasts and evidence; `comparison.py` compares five forecast models; `earlywarn.py` the early warning (peer comparison of condition signals, priced with the cost model); `evaluate.py` scores the detector. |
 | `app/cost/` | Named formulas, the assumption registry (`DEFAULTS`, provenance, ranges, `references.py` public references), calculation records, Monte Carlo and sensitivity. |
@@ -61,7 +61,7 @@ Run commands from this folder with `PYTHONPATH=.` and the `.venv` interpreter.
 PYTHONPATH=. .venv/bin/python -m pytest -q                              # 257 tests, about 8 minutes
 PYTHONPATH=. .venv/bin/python -m pytest tests/test_board_approval.py -q # approval, dispatch, audit chain
 PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1           # full demo path against a running server
-PYTHONPATH=. .venv/bin/python scripts/make_fixtures.py                 # regenerate ../fixtures (also --approval-only, --forecast-evidence-only)
+PYTHONPATH=. .venv/bin/python scripts/make_fixtures.py                 # regenerate ../fixtures (also `--approval-only`, `--insight-only`, `--forecast-evidence-only`)
 ```
 
 | File | Covers |

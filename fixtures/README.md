@@ -9,7 +9,7 @@ Do not edit them by hand. Regenerate with the real functions on a fixed clock:
 
 ```bash
 cd backend && PYTHONPATH=. .venv/bin/python scripts/make_fixtures.py
-# partial: --approval-only (board decision, approval, decision log), --forecast-evidence-only
+# partial: --approval-only (board decision, approval, decision log), --insight-only (early warning, why, guardrail), --forecast-evidence-only
 ```
 
 | Folder | Contents |
