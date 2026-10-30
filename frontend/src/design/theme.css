@@ -77,9 +77,10 @@ a:hover { text-decoration: underline; }
 .brand-mark { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); }
 .brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.1; }
 .brand-sub { font-size: 11px; color: var(--text-3); line-height: 1.1; }
-.nav { display: flex; gap: 2px; height: 100%; align-items: stretch; flex: 1; min-width: 0; overflow-x: auto; }
+.nav { display: flex; gap: 0; height: 100%; align-items: stretch; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
 .nav a {
-  position: relative; display: flex; align-items: center; gap: 8px; padding: 0 14px; color: var(--text-2); font-weight: 500; text-decoration: none;
+  position: relative; display: flex; align-items: center; gap: 8px; padding: 0 9px; color: var(--text-2); font-weight: 500; text-decoration: none;
   transition: color var(--t-fast) var(--ease), background var(--t-fast) var(--ease); white-space: nowrap;
 }
 .nav a:hover { color: var(--text); background: var(--hover); }
@@ -233,7 +234,7 @@ input[type='range'] { accent-color: var(--accent); width: 100%; }
 @media (max-width: 1280px) { .charts-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .charts-grid > :first-child { grid-column: 1 / -1; } }
 @media (max-width: 1100px) { .live-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 720px) { .charts-grid { grid-template-columns: minmax(0, 1fr); } }
-.inc-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(380px, .95fr); gap: var(--s-4); align-items: start; }
+.inc-grid { display: grid; grid-template-columns: var(--cols, minmax(0, 1.15fr) minmax(380px, .95fr)); gap: var(--s-4); align-items: start; }
 @media (max-width: 1100px) { .inc-grid { grid-template-columns: minmax(0, 1fr); } }
 details > summary { list-style: none; } details > summary::-webkit-details-marker { display: none; }
 details > summary::before { content: '▸ '; color: var(--text-3); } details[open] > summary::before { content: '▾ '; }

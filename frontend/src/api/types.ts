@@ -168,6 +168,26 @@ export interface WsPayloads {
   snapshot: SnapshotPayload; reading: ReadingPayload; asset_status: AssetStatusUpdate; alert: Alert;
   incident: Incident; agent_finding: AgentFinding; scenario_state: ScenarioState; forecast_update: Forecast;
   chat_route: ChatRoute; chat_chunk: ChatChunk; chat_done: ChatDone;
-  board_state: BoardState; board_message: BoardMessage; board_decision: BoardDecision; audit_entry: AuditEntry;
+  board_state: BoardState; board_message: BoardMessage; board_decision: BoardDecision; audit_entry: AuditEntry; early_warning: EarlyWarning;
 }
 export type WsEnvelope = { [T in keyof WsPayloads]: { type: T; payload: WsPayloads[T] } }[keyof WsPayloads];
+
+// ---------- early warning, "why this number?", guardrail (contract 4.15 to 4.17) ----------
+export interface WarningSignal { label: string; value: number; peerValue: number; unit: string }
+export interface WarningCost { unplanned: number; planned: number; breakEven: number; risk: number; verdict: 'maintain_now' | 'watch'; expectedSaving: number }
+export interface RiskPoint { t: string; risk: number; peer: number }
+export interface EarlyWarning {
+  id: string; assetId: string; assetName: string; network: Network; zoneId: string; state: 'active' | 'cleared' | 'failed';
+  createdAt: string; updatedAt: string; risk: number; peerRisk: number; excess: number; risePerMinute?: number; minutesTo90?: number;
+  signals: WarningSignal[]; series: RiskPoint[]; cost: WarningCost; text: string; leadTimeSeconds?: number; whyRef: string;
+}
+export interface WhyInput { name: string; value: number; unit: string; source: 'measured' | 'forecast' | 'rule' | 'assumed'; key?: string; basis: string; status?: string }
+export interface WhyRecord {
+  ref: string; title: string; value?: number; unit: string; evidence: 'measured' | 'calculated' | 'model' | 'assumed' | 'forecast';
+  formula: string; steps: string[]; inputs: WhyInput[]; notes: string[]; links: { label: string; href: string }[]; computedAt: string;
+}
+export interface GuardrailFigure { text: string; value: number; verdict: 'verified' | 'removed'; matched?: string; matchedValue?: number }
+export interface GuardrailResult {
+  prompt: string; incidentId: string; calculationId: string; source: 'llm' | 'planted'; raw: string; checked: string;
+  figures: GuardrailFigure[]; removed: number; allowedCount: number;
+}

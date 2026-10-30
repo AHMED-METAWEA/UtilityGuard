@@ -25,7 +25,7 @@ function Benchmark({ b }: { b: LabBenchmark }) {
   const kinds = b.faults.map((f) => f.kind);
   return (
     <>
-      <div className="inc-grid" style={{ gridTemplateColumns: 'minmax(0, 1.5fr) minmax(320px, 1fr)' }}>
+      <div className="inc-grid" style={{ ['--cols' as string]: 'minmax(0, 1.5fr) minmax(320px, 1fr)' }}>
         <Card title="Which detector finds faults soonest, and what does waiting cost?" sub={`${b.config.testRuns} faults the models never saw, ${fmt(b.config.cleanHours)} hours of normal operation, one reading a minute`} pad={false}>
           <div style={{ overflowX: 'auto' }}>
             <table className="table" style={{ minWidth: 640 }}>
@@ -92,7 +92,7 @@ function Trial() {
   const hit = res?.hitRank === 1;
   return (
     <Card title={<span className="row" style={{ gap: 8 }}><FlaskConical size={16} />Hide a leak and see if the system finds it</span>} sub="A burst is injected into a copy of the twin. The detectors and the locator only see sensor readings.">
-      <div className="inc-grid" style={{ gridTemplateColumns: 'minmax(260px, 340px) minmax(0, 1fr)', alignItems: 'start' }}>
+      <div className="inc-grid" style={{ ['--cols' as string]: 'minmax(260px, 340px) minmax(0, 1fr)', alignItems: 'start' }}>
         <div className="stack" style={{ gap: 14 }}>
           <label className="stack" style={{ gap: 4 }}><span className="sub" style={{ fontSize: 12 }}>Where</span>
             <select className="field" value={pipe} onChange={(e) => { setPipe(e.target.value); if (!e.target.value && outage === 'pipe') setOutage('none'); }}>
@@ -193,7 +193,7 @@ function Quality({ q }: { q: LabQuality }) {
         </div>
         <div className="row wrap" style={{ gap: 8, marginTop: 14 }}>
           <span className="chip ok">{fmt(q.falseFlagsPer100SensorHours, 2)} false flags per 100 sensor-hours</span>
-          <span className={`chip ${q.processFalseFlags ? 'warn' : 'ok'}`}>{q.processFalseFlags} sensors wrongly flagged in {q.processRuns} real faults and weather events</span>
+          <span className={`chip ${q.processFalseFlags ? 'warn' : 'ok'}`} style={{ whiteSpace: 'normal', height: 'auto', minHeight: 22, padding: '3px 8px' }}>{q.processFalseFlags} sensors wrongly flagged in {q.processRuns} real faults and weather events</span>
         </div>
       </Card>
       <Card title="Flags right now" sub={`${live.data?.sensorsTotal ?? 89} sensors checked every few seconds`}

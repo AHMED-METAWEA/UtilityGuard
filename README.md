@@ -17,7 +17,7 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | Area | What you get |
 | --- | --- |
 | **Live twin** | Map of 9 districts with 48 assets and 89 sensors, a reading every 2 s over WebSocket, switchable water / electricity / cooling layers, asset health and failure risk. |
-| **Scenarios** | 14 scenarios from a pipe burst to a cascade storm, run and stopped from the Scenario Lab (table below). |
+| **Scenarios** | 15 scenarios from a pipe burst to a cascade storm, run and stopped from the Scenario Lab (table below). |
 | **Detection** | Rule-based detectors with shared-cause grouping, one incident per root cause that escalates when it turns out to be bigger, creeping-leak rule, and settle time after a restore. Measured on 62 injected runs: precision 1.00, recall 0.89. |
 | **Agents** | A water, an electricity and a cooling specialist (LLM) plus an orchestrator (LangGraph). They explain what happened, why they are sure, what it costs and what to do. |
 | **Cost and evidence** | Each finding carries a calculation record: formula, inputs, every assumption with basis, range and public reference. Prices can be edited in the app and every finding recomputes. Monte Carlo over the registered ranges gives P10 / P50 / P90. |
@@ -26,6 +26,9 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | **Board of agents** | When two or more networks have an open problem and there are fewer crews than problems, the agents meet. The order is the cheapest of every possible order (exhaustive search up to 6 problems), checked against 300 price scenarios. |
 | **Human approval** | The board only proposes. A person approves, approves a different order (priced first, logged as an override) or rejects with a reason. |
 | **Crew dispatch** | The approved plan runs in the twin on a demo clock. When a crew finishes, the fault ends and the detector, not the crew, confirms the alert is clear. |
+| **Early warning** | A pump that is wearing out is flagged about four minutes before it fails, while it still runs: its condition signals drift away from its peers, and the warning prices planned maintenance against an unplanned failure with a break-even risk. Nothing is raised in the other scenarios (checked). |
+| **Why this number?** | Every dashboard tile, asset health and risk score, savings opportunity and forecast accuracy opens an explanation: formula, worked substitution, inputs with their source, and the assumptions you can edit. A test fails if one of these numbers has no explanation. |
+| **Try to fool the AI** | Send a claim the data does not support. The model answers; the same number checker that protects every agent answer marks each figure verified (with the calculated value it matches) or removed. |
 | **Decision log** | Append-only, hash-chained log of every proposal, decision and crew action. One click verifies the chain. CSV export. |
 | **Forecast** | Demand forecast per network and district (LightGBM) with a held-out backtest against naive baselines, a coverage-checked uncertainty band, weather and scenario inputs, live correction and a comparison with four other models. |
 | **AI lab** | Four detectors benchmarked on the same injected faults, localization accuracy, sensor value and data-quality flags, all measured by running the twin. |
@@ -46,6 +49,7 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | `scn-pump-failure`, `scn-cooling-fault` | Equipment faults. |
 | `scn-heat-wave`, `scn-holiday`, `scn-iftar-surge` | Demand and weather scenarios (Ramadan evening peak). |
 | `scn-storm` | Cascade storm: a heat wave at the working-day peak, cooling hits its limit, protection relays trip the worst-loaded substations one after another. One incident that escalates. |
+| `scn-pump-wear` | A pump wears for about eight minutes: its pressure starts to hunt and it moves more water for the same duty, then it stops. The early warning should speak first. |
 | `scn-compound` | A main bursts, a chiller fails and a substation trips within the same minute, with fewer crews than problems. The best showcase for the board. |
 
 ---
@@ -141,20 +145,21 @@ REST under `/api/v1`, WebSocket at `/ws/stream`. The full contract, every field 
 | Scenarios | `GET /scenarios`, `POST /scenarios/run`, `/scenarios/stop`, `/scenarios/reset` |
 | Cost | `GET /assumptions`, `PUT /assumptions`, `GET /calculations/{id}`, `GET /incidents/{id}/decision`, `GET /compare`, `GET /savings` |
 | Forecast | `GET /forecast`, `/forecast/evidence`, `/metrics` |
+| Early warning, explanations, guardrail | `GET /warnings`, `GET /why/{ref}`, `POST /guardrail/probe` |
 | AI lab | `GET /lab/benchmark`, `/lab/localization`, `/lab/quality`, `/lab/sensors`, `POST /lab/trial`, `GET /incidents/{id}/localization`, `GET /quality` |
 | Board | `POST /board/convene`, `GET /board/latest`, `/board/sessions/{id}`, `POST /board/sessions/{id}/preview`, `/approve`, `/reject` |
 | Decision log | `GET /audit`, `/audit/verify`, `/audit/export` |
 | Other | `POST /chat`, `GET /incidents/{id}/report` (PDF), `/sensor-placement`, `/drift` |
 
-WebSocket messages: `snapshot`, `reading`, `asset_status`, `alert`, `incident`, `agent_finding`, `scenario_state`, `forecast_update`, `chat_route`, `chat_chunk`, `chat_done`, `board_state`, `board_message`, `board_decision`, `audit_entry`.
+WebSocket messages: `snapshot`, `reading`, `asset_status`, `alert`, `incident`, `agent_finding`, `scenario_state`, `forecast_update`, `chat_route`, `chat_chunk`, `chat_done`, `board_state`, `board_message`, `board_decision`, `audit_entry`, `early_warning`.
 
 ---
 
 ## Tests and checks
 
 ```bash
-cd backend && PYTHONPATH=. .venv/bin/python -m pytest -q          # 236 tests, about 3.5 minutes
-cd frontend && npm run lint && npm test && npm run build          # 47 tests
+cd backend && PYTHONPATH=. .venv/bin/python -m pytest -q          # 257 tests, about 8 minutes
+cd frontend && npm run lint && npm test && npm run build          # 61 tests
 cd backend && PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1   # the whole demo path against a running server
 ```
 

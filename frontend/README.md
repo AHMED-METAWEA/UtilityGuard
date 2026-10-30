@@ -19,6 +19,7 @@ npm run lint && npm run typecheck && npm test
 | `#/forecast` | Forecast and models | Demand forecast with band, backtest evidence against baselines, inputs, and the comparison of five models. |
 | `#/lab` | AI lab | Detector benchmark, localization, sensor value, data quality. |
 | `#/executive` | Executive | Scorecard against target, where money can be saved, what could fail next (risk ranking), district health. |
+| (cards and drawers) | Early warning cards on Live and Executive, the **Why drawer** (any number with a `Why?` control), and **Try to fool the AI** (button on an incident). |
 | `#/audit/{sessionId?}` | Decision log | The hash-chained log: verification, filters by group and session, CSV export. |
 
 Keyboard: `Cmd/Ctrl+K` command palette (includes assumptions), `S` Scenario Lab, `C` chat, `T` theme. Dialogs trap focus and close on Escape. Reduced motion is respected.
@@ -45,7 +46,7 @@ Keyboard: `Cmd/Ctrl+K` command palette (includes assumptions), `S` Scenario Lab,
 
 ## Tests
 
-`npm test` runs Node's test runner over `tests/*.test.ts|mjs` (47 tests): fixture parsing, per-sensor ordering, reconnect hydration, alert counting, same-id finding replacement, burst sequence rehearsals, chat routing, assumptions serialization, lab keys, board state, approval and audit helpers, and the forecast comparison helpers. These are state-level tests; they do not measure frame rate or visual correctness. Visual checks are done in the browser at desktop width and at 390 px (no horizontal overflow).
+`npm test` runs Node's test runner over `tests/*.test.ts|mjs` (61 tests): fixture parsing, per-sensor ordering, reconnect hydration, alert counting, same-id finding replacement, burst sequence rehearsals, chat routing, assumptions serialization, lab keys, board state, approval and audit helpers, and the forecast comparison helpers. These are state-level tests; they do not measure frame rate or visual correctness. Visual checks are done in the browser at desktop width and at 390 px (no horizontal overflow).
 
 ## Mock server
 

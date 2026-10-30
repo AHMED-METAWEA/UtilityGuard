@@ -6,6 +6,7 @@ import type { Kpi as KpiData } from '../api/dash';
 import { latestBoardFor, useStore } from '../store';
 import { href } from '../lib/route';
 import { ago, compact, egp, fmt } from '../lib/format';
+import { kpiRef } from '../lib/why';
 import { EvidenceTag } from './Provenance';
 import { Card, Kpi, Meter, NET, NetIcon, SeverityChip, type KpiProps } from '.';
 
@@ -29,7 +30,7 @@ export function kpiProps(k: KpiData, onClick?: () => void): KpiProps {
   ) : undefined;
   return {
     viz, label: k.label, value, unit: k.unit, color, spark: k.series.length ? k.series.map((p) => p.v) : undefined, target: k.target,
-    foot: k.note, delta, onClick, evidence: k.evidence, icon: k.network ? <NetIcon n={k.network} size={14} /> : undefined,
+    foot: k.note, delta, onClick, evidence: k.evidence, whyRef: kpiRef(k.id), icon: k.network ? <NetIcon n={k.network} size={14} /> : undefined,
   };
 }
 

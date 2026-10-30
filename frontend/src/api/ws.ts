@@ -1,5 +1,5 @@
 import { useStore } from '../store';
-import type { WsEnvelope } from './types';
+import type { EarlyWarning, WsEnvelope } from './types';
 
 const record = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 const text = (value: unknown): value is string => typeof value === 'string';
@@ -27,6 +27,18 @@ const boardReview = (v: unknown) => record(v) && ['approved', 'rejected'].includ
 const executionStep = (v: unknown) => record(v) && ['taskId', 'assetId', 'assetName', 'action', 'note'].every((key) => text(v[key])) && ['crewSlot', 'planStartHour', 'planEndHour'].every((key) => number(v[key])) && ['waiting', 'working', 'done', 'skipped'].includes(String(v.state)) && optionalText(v.startedAt) && optionalText(v.finishedAt) && optionalText(v.confirmedAt);
 const auditEntry = (v: unknown) => record(v) && number(v.seq) && Number.isInteger(v.seq) && v.seq > 0 && ['at', 'run', 'actor', 'action', 'detail', 'prevHash', 'hash'].every((key) => text(v[key])) && optionalText(v.sessionId) && optionalText(v.subject) && record(v.data) && Object.values(v.data).every((value) => text(value) || number(value) || typeof value === 'boolean');
 
+const score = (v: unknown) => number(v) && v >= 0 && v <= 1;
+const timestamp = (v: unknown) => text(v) && Number.isFinite(Date.parse(v));
+const warningCost = (v: unknown) => record(v) && ['unplanned', 'planned', 'breakEven', 'risk', 'expectedSaving'].every((key) => number(v[key])) && ['maintain_now', 'watch'].includes(String(v.verdict));
+export const isEarlyWarning = (v: unknown): v is EarlyWarning => record(v)
+  && ['id', 'assetId', 'assetName', 'zoneId', 'text', 'whyRef'].every((key) => text(v[key]))
+  && network(v.network) && ['active', 'cleared', 'failed'].includes(String(v.state))
+  && timestamp(v.createdAt) && timestamp(v.updatedAt) && score(v.risk) && score(v.peerRisk) && number(v.excess)
+  && optionalNumber(v.risePerMinute) && optionalNumber(v.minutesTo90) && optionalNumber(v.leadTimeSeconds)
+  && list(v.signals) && v.signals.every((s) => record(s) && text(s.label) && number(s.value) && number(s.peerValue) && text(s.unit))
+  && list(v.series) && v.series.every((p) => record(p) && timestamp(p.t) && score(p.risk) && score(p.peer))
+  && warningCost(v.cost);
+
 /** Narrow known messages; additive fields never invalidate an otherwise known envelope. */
 export function parseEnvelope(raw: string): WsEnvelope | null {
   let message: unknown;
@@ -48,6 +60,7 @@ export function parseEnvelope(raw: string): WsEnvelope | null {
     case 'chat_done': valid = text(p.messageId) && list(p.agentsConsulted) && p.agentsConsulted.every(agent) && routing(p.routing); break;
     case 'board_state': valid = text(p.sessionId) && optionalText(p.incidentId) && ['running', 'done'].includes(String(p.state)) && text(p.startedAt); break;
     case 'board_message': valid = text(p.id) && text(p.sessionId) && number(p.round) && Number.isInteger(p.round) && p.round >= 0 && p.round <= 4 && agent(p.agent) && ['opening', 'position', 'dependent', 'challenge', 'decision', 'concession'].includes(String(p.kind)) && text(p.text) && list(p.facts) && p.facts.every(boardFact) && wording(p.source); break;
+    case 'early_warning': valid = isEarlyWarning(p); break;
     case 'audit_entry': valid = auditEntry(p); break;
     case 'board_decision': valid = text(p.sessionId) && strings(p.incidentIds) && text(p.createdAt) && number(p.crews) && list(p.tasks) && p.tasks.every(boardTask) && boardPlan(p.plan) && list(p.alternatives) && p.alternatives.every(boardAlternative) && list(p.flips) && p.flips.every(boardFlip) && list(p.risks) && p.risks.every(boardRisk) && optionalNumber(p.extraCrewSaving) && typeof p.conflict === 'boolean' && text(p.summary) && wording(p.summarySource) && optionalText(p.calculationId) && (p.status === undefined || ['proposed', 'executing', 'completed', 'rejected', 'superseded', 'stale'].includes(String(p.status))) && (p.review == null || boardReview(p.review)) && (p.execution === undefined || (list(p.execution) && p.execution.every(executionStep)));
       if (valid) { p.status ??= 'proposed'; p.execution ??= []; }
@@ -74,6 +87,7 @@ export function dispatchMessage(message: WsEnvelope) {
     case 'board_state': store.applyBoardState(message.payload); break;
     case 'board_message': store.appendBoardMessage(message.payload); break;
     case 'board_decision': store.setBoardDecision(message.payload); break;
+    case 'early_warning': store.upsertWarning(message.payload); break;
     case 'audit_entry': store.appendAuditEntry(message.payload); break;
   }
 }

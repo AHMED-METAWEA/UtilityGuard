@@ -1,0 +1,139 @@
+{
+  "ref": "warning:warn-0001",
+  "title": "Early warning: P-03",
+  "value": 10235.68,
+  "unit": "EGP",
+  "evidence": "calculated",
+  "formula": "risk × cost if it fails − cost of planned maintenance; maintenance pays when the risk is above planned ÷ unplanned",
+  "steps": [
+    "0.428 × 87,560 − 27,240 = 10,236 EGP",
+    "break-even risk = 27,240 ÷ 87,560 = 0.311"
+  ],
+  "inputs": [
+    {
+      "name": "Risk score now",
+      "value": 0.428,
+      "unit": "score",
+      "source": "forecast",
+      "basis": "The failure model's score for this asset (a ranking, not a calibrated probability)."
+    },
+    {
+      "name": "Risk score from age and load alone",
+      "value": 0.15,
+      "unit": "score",
+      "source": "forecast",
+      "basis": "The same score with the condition signals set to the median of the other assets of the same kind."
+    },
+    {
+      "name": "Cost if it fails",
+      "value": 87560.0,
+      "unit": "EGP",
+      "source": "rule",
+      "basis": "Losses until the crew works (3,000 EGP/h) over the delay plus a late repair; cost model pump-failure proxy."
+    },
+    {
+      "name": "Cost of planned maintenance",
+      "value": 27240.0,
+      "unit": "EGP",
+      "source": "rule",
+      "basis": "planned_factor × emergency repair cost"
+    },
+    {
+      "name": "Deviation from the twin",
+      "value": 0.509,
+      "unit": "of normal range",
+      "source": "measured",
+      "basis": "The median of the other assets of the same kind is 0.019."
+    },
+    {
+      "name": "Signal variability",
+      "value": 0.597,
+      "unit": "of normal range",
+      "source": "measured",
+      "basis": "The median of the other assets of the same kind is 0.122."
+    },
+    {
+      "name": "planned_factor",
+      "value": 0.6,
+      "unit": "×",
+      "source": "assumed",
+      "key": "planned_factor",
+      "basis": "Planned work is budgeted at 60% of emergency crew-plus-parts cost. Verify against matched planned and emergency maintenance work orders.",
+      "status": "planning"
+    },
+    {
+      "name": "customers_zone_cbd",
+      "value": 1200.0,
+      "unit": "customers",
+      "source": "assumed",
+      "key": "customers_zone_cbd",
+      "basis": "Planning service-account count scaled to the district demand in ZONE_BASE; residential accounts are households, institutional accounts are service connections, not people. Verify against the district occupancy and utility connection registers.",
+      "status": "planning"
+    },
+    {
+      "name": "customer_hour_business",
+      "value": 2.5,
+      "unit": "EGP/customer-h",
+      "source": "assumed",
+      "key": "customer_hour_business",
+      "basis": "Illustrative business account-hour budget for notification and utility customer support only; excludes customer economic harm covered by VoLL. Verify against the utility support cost ledger and outage notification work orders.",
+      "status": "planning"
+    },
+    {
+      "name": "crew_callout",
+      "value": 3400.0,
+      "unit": "EGP/dispatch",
+      "source": "assumed",
+      "key": "crew_callout",
+      "basis": "Budget allowance for transport and emergency labour per dispatch. Verify against crew timesheets and the maintenance contractor rate card.",
+      "status": "planning"
+    },
+    {
+      "name": "parts_pump",
+      "value": 42000.0,
+      "unit": "EGP/repair",
+      "source": "assumed",
+      "key": "parts_pump",
+      "basis": "Budget for a pump mechanical/electrical repair. Verify against the pump asset bill of materials and maintenance work orders.",
+      "status": "planning"
+    },
+    {
+      "name": "delay_hours_pump_failure",
+      "value": 8.0,
+      "unit": "h",
+      "source": "assumed",
+      "key": "delay_hours_pump_failure",
+      "basis": "An idle failed pump requires slower mechanical restoration; this horizon is a planning scenario. Verify against fault-specific restoration logs and the response SLA.",
+      "status": "planning"
+    },
+    {
+      "name": "response_hours",
+      "value": 1.0,
+      "unit": "h",
+      "source": "assumed",
+      "key": "response_hours",
+      "basis": "One hour is a district dispatch-to-isolation planning allowance. Verify against dispatch logs and the emergency response SLA.",
+      "status": "planning"
+    },
+    {
+      "name": "late_multiplier_pump_failure",
+      "value": 1.4,
+      "unit": "×",
+      "source": "assumed",
+      "key": "late_multiplier_pump_failure",
+      "basis": "An idle failed pump requires slower mechanical restoration; the multiplier is a planning allowance, not an estimated growth law. Verify against matched early and deferred repair work orders.",
+      "status": "planning"
+    }
+  ],
+  "notes": [
+    "The warning opens when the risk score exceeds what age and load explain by 0.15 for three samples in a row while the asset is still running.",
+    "The risk model is trained on a synthetic hazard: this shows the mechanism, not field accuracy."
+  ],
+  "links": [
+    {
+      "label": "Edit the assumptions",
+      "href": "#/savings"
+    }
+  ],
+  "computedAt": "2026-10-30T12:19:11.447917Z"
+}

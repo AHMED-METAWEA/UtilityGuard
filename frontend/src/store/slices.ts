@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import type { AgentFinding, Alert, AssetStatusUpdate, AuditEntry, BoardDecision, BoardMessage, BoardSession, BoardState, ChatChunk, ChatDone, ChatMessage, ChatRoute, Incident, Forecast, Health, Reading, ReadingPayload, Scenario, ScenarioState, SnapshotPayload, Topology } from '../api/types';
+import type { AgentFinding, Alert, AssetStatusUpdate, AuditEntry, BoardDecision, BoardMessage, BoardSession, BoardState, ChatChunk, ChatDone, ChatMessage, ChatRoute, EarlyWarning, Incident, Forecast, Health, Reading, ReadingPayload, Scenario, ScenarioState, SnapshotPayload, Topology } from '../api/types';
 
 export type LoadState = 'loading' | 'ready' | 'error';
 export interface Resource<T> { data: T; status: LoadState; error?: string }
@@ -23,7 +23,8 @@ export interface BoardSlice {
   clearBoards: () => void;
 }
 export interface AuditSlice { audit: AuditEntry[]; auditRevision: number; replaceAudit: (entries: AuditEntry[]) => void; appendAuditEntry: (entry: AuditEntry) => void; clearAudit: () => void }
-export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & IncidentsSlice & BoardSlice & AuditSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
+export interface WarningsSlice { warnings: Record<string, EarlyWarning>; upsertWarning: (warning: EarlyWarning) => void; setWarnings: (warnings: EarlyWarning[]) => void; clearWarnings: () => void }
+export type Store = ConnectionSlice & TopologySlice & ReadingsSlice & AssetsSlice & AlertsSlice & FindingsSlice & ScenariosSlice & ChatSlice & ForecastSlice & IncidentsSlice & BoardSlice & AuditSlice & WarningsSlice & { applySnapshot: (snapshot: SnapshotPayload) => void };
 type Slice<T> = StateCreator<Store, [], [], T>;
 const upsert = <T extends { id: string }>(items: T[], item: T) => [item, ...items.filter((old) => old.id !== item.id)];
 export const connectionSlice: Slice<ConnectionSlice> = (set) => ({ connection: 'connecting', health: null, snapshotReady: false, setConnection: (connection) => set({ connection }), setHealth: (health) => set({ health }) });
@@ -117,4 +118,14 @@ export const auditSlice: Slice<AuditSlice> = (set) => ({
   replaceAudit: (entries) => set({ audit: auditEntries(entries) }),
   appendAuditEntry: (entry) => set((s) => ({ audit: auditEntries([...s.audit, entry]) })),
   clearAudit: () => set((s) => ({ audit: [], auditRevision: s.auditRevision + 1 })),
+});
+
+/** Keep record iteration newest first, including when an older warning is updated. */
+export const warningRecord = (warnings: EarlyWarning[]) => Object.fromEntries([...new Map(warnings.map((warning) => [warning.id, warning])).values()]
+  .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).map((warning) => [warning.id, warning]));
+export const warningsSlice: Slice<WarningsSlice> = (set) => ({
+  warnings: {},
+  upsertWarning: (warning) => set((s) => ({ warnings: warningRecord([...Object.values(s.warnings), warning]) })),
+  setWarnings: (warnings) => set({ warnings: warningRecord(warnings) }),
+  clearWarnings: () => set({ warnings: {} }),
 });

@@ -9,7 +9,7 @@ import { clock } from '../lib/format';
 
 const NAV: Record<Page, [string, string]> = {
   live: ['nav.live', 'Live twin'], incidents: ['nav.incidents', 'Incidents'], savings: ['nav.savings', 'Savings'],
-  forecast: ['nav.forecast', 'Forecast and models'], lab: ['nav.lab', 'AI lab'], executive: ['nav.executive', 'Executive'], audit: ['nav.audit', 'Decision log'],
+  forecast: ['nav.forecast', 'Forecast'], lab: ['nav.lab', 'AI lab'], executive: ['nav.executive', 'Executive'], audit: ['nav.audit', 'Decision log'],
 };
 
 function Clock() {

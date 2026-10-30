@@ -11,6 +11,8 @@ import './forecast-comparison.css';
 import { Card, Empty, Meter, NET, NetIcon, Seg, Skeleton } from '../ui';
 import { EvidenceTag } from '../ui/Provenance';
 import { ago, fmt, hhmm } from '../lib/format';
+import { forecastRef } from '../lib/why';
+import { Why } from '../ui/Why';
 
 const FEATURE: Record<string, string> = {
   same_hour_last_week: 'Same hour last week', same_hour_yesterday: 'Same hour yesterday', hour_of_day: 'Hour of day', temperature: 'Temperature',
@@ -233,7 +235,7 @@ export function Forecast() {
               </span>
               <span className="row" style={{ gap: 14 }}>
                 {d.hindcastMape != null && <span className="num" title="Error of the model on the past 24 hours, compared with what was measured"><span className="muted">Last 24 h </span><b>{fmt(d.hindcastMape, 1)}</b> <span className="muted">%</span></span>}
-                {[['MAE', d.metrics.mae, d.unit], ['MAPE', d.metrics.mape, '%']].map(([l, v, u]) => <span key={l as string} className="num" title="Scored on the test days"><span className="muted">{l} </span><b>{fmt(v as number, 1)}</b> <span className="muted">{u}</span></span>)}
+                {[['MAE', d.metrics.mae, d.unit], ['MAPE', d.metrics.mape, '%']].map(([l, v, u]) => <span key={l as string} className="num" title="Scored on the test days"><span className="muted">{l} </span>{l === 'MAPE' ? <Why refId={forecastRef(net)}><b>{fmt(v as number, 1)}</b> <span className="muted">{u}</span></Why> : <><b>{fmt(v as number, 1)}</b> <span className="muted">{u}</span></>}</span>)}
               </span>
             </div>
           </> : series.error ? <Empty title="No forecast for this selection">Cooling only exists in districts with a cooling loop. Choose another district.</Empty> : <Skeleton h={320} />}

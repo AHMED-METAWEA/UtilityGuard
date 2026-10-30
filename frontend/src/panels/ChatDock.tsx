@@ -84,6 +84,7 @@ export function ChatDock() {
         <input className="field" placeholder="Ask about your district..." value={text} onChange={(e) => setText(e.target.value)} aria-label="Your question" />
         <button className="btn primary icon" type="submit" aria-label="Send" disabled={!text.trim() || sending}><Send size={16} /></button>
       </form>
+      <footer style={{ padding: '0 12px 10px' }}><button className="btn ghost sm" onClick={() => set({ guardrail: {} })}>Test the AI</button></footer>
     </section>
   );
 }

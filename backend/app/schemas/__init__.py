@@ -687,5 +687,6 @@ Forecast.model_rebuild()
 
 from app.schemas.decision import BreakEven, DecisionMap, DecisionOption, DecisionReport
 from app.schemas.board import AuditEntry, BoardDecision, BoardMessage, BoardSession, BoardState
+from app.schemas.insight import EarlyWarning, GuardrailRequest, GuardrailResult, WhyRecord  # noqa: E402,F401
 
-WS_PAYLOADS.update({"board_state": BoardState, "board_message": BoardMessage, "board_decision": BoardDecision, "audit_entry": AuditEntry})
+WS_PAYLOADS.update({"board_state": BoardState, "board_message": BoardMessage, "board_decision": BoardDecision, "audit_entry": AuditEntry, "early_warning": EarlyWarning})

@@ -46,6 +46,9 @@ CATALOG = [
              parameters=[ScenarioParam(name="temperature", type="number", default=47, min=44, max=50)]),
     Scenario(id="scn-compound", name="Three failures at once", description="A main bursts, a chiller fails and a substation trips within the same minute. There are fewer crews than problems, so the order of work matters.", network="multi",
              parameters=[]),
+    Scenario(id="scn-pump-wear", name="Pump wear (early warning)", description="A pump wears for about eight minutes before it stops: its discharge pressure starts to hunt and it moves more water for the same duty. The early warning should speak well before the failure alarm.", network="water",
+             parameters=[ScenarioParam(name="targetAsset", type="asset", default=_g.zone_pump["zone-cbd"], options=_pumps),
+                         ScenarioParam(name="minutesToFailure", type="number", default=8, min=3, max=20)]),
     Scenario(id="scn-holiday", name="Holiday demand", description="Government zones go quiet and residential demand rises.", network="multi",
              parameters=[ScenarioParam(name="factor", type="number", default=1.3, min=1, max=1.8)]),
 ]
@@ -62,6 +65,8 @@ def events_for(scenario_id: str, params: dict, run_id: str) -> list[Event]:
     if scenario_id == "scn-load-shedding":
         return [Event(kind="substation_trip", target=p["targetAsset"], severity=1.0, run_id=run_id, params={**p, "cause": "load_shedding"},
                       duration=int(float(p["durationSeconds"]) / 2))]
+    if scenario_id == "scn-pump-wear":
+        return [Event(kind="pump_failure", target=p["targetAsset"], severity=1.0, run_id=run_id, params={**p, "precursor": True, "ramp_ticks": int(float(p["minutesToFailure"]) * 30)})]
     if scenario_id == "scn-compound":  # three independent faults on three networks, so the board has a real choice to make
         return [Event(kind="pipe_burst", target=_g.zone_pipe["zone-gov"], severity=0.6, run_id=run_id, params={}),
                 Event(kind="cooling_fault", target="cool-plant-01", severity=0.7, run_id=run_id, params={}),

@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 
 from app import ml
+from app.ml.earlywarn import EarlyWarnings
 from app.ml.evaluate import evaluate
 from app.runtime import Runtime
 from app.schemas import (
@@ -41,6 +42,7 @@ class MLService:
         self.run_hours = {a.id: float(rng.uniform(5, 55)) for a in assets}
         self.recent: deque = deque(maxlen=60)  # (time, {zone: (water, electricity, cooling)}) of the latest ticks, the live correction's input
         self.retraining = False
+        self.warnings = EarlyWarnings(rt, self)
         rt.tick_hooks.insert(0, self.tick)
         rt.reset_hooks.append(self.shadow.reset)
         rt.reset_hooks.append(self.recent.clear)
@@ -89,7 +91,9 @@ class MLService:
 
     async def _failure(self, rt: Runtime) -> None:
         ids = [a.id for a in rt.engine.g.topology.assets if a.kind in ("pump", "transformer", "pipe", "plant", "substation")]
-        probs = ml.failure_probability(self.models, np.array([self.features(a) for a in ids]))
+        feats = np.array([self.features(a) for a in ids])
+        probs = ml.failure_probability(self.models, feats)
+        await self.warnings.update(ids, feats, probs)
         for aid, p in zip(ids, probs):
             cur = rt.asset_status.get(aid)
             if not cur:

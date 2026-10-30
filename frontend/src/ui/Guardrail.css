@@ -1,0 +1,28 @@
+.guardrail-dialog { top: 5vh; max-height: 90vh; max-height: 90dvh; display: flex; flex-direction: column; }
+.guardrail-dialog .drawer-body { min-height: 0; padding: 16px 20px; }
+.guardrail-content { min-width: 0; overflow-wrap: anywhere; }
+.guardrail-content p { margin: 0; }
+.guardrail-content .field { height: auto; min-height: 90px; resize: vertical; padding: 8px 12px; }
+.guardrail-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.guardrail-presets .btn { height: auto; padding: 7px 10px; text-align: start; white-space: normal; justify-content: flex-start; }
+.guardrail-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.guardrail-answer { white-space: pre-wrap; line-height: 1.8; }
+.guardrail-source { align-self: flex-start; }
+.guardrail-planted { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; background: var(--warn-soft); color: var(--warn-text); border: 1px dashed var(--warn); border-radius: var(--r-ctl); }
+.guardrail-planted svg, .guardrail-good svg { flex: none; margin-top: 2px; }
+.guardrail-figure { display: inline; padding: 2px 4px; border-radius: var(--r-chip); font-variant-numeric: tabular-nums; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.guardrail-figure.verified { background: var(--ok-soft); color: var(--ok-text); }
+.guardrail-figure.removed, .guardrail-figure.removed-placeholder { background: var(--crit-soft); color: var(--crit-text); }
+.guardrail-figure.removed { text-decoration: line-through; }
+.guardrail-summary { color: var(--text-2); font-size: 13px; }
+.guardrail-good { display: flex; gap: 8px; color: var(--ok-text); }
+.guardrail-error { color: var(--crit-text); }
+.guardrail-table { table-layout: fixed; }
+.guardrail-table th, .guardrail-table td { overflow-wrap: anywhere; padding: 8px; }
+@media (max-width: 600px) {
+  .guardrail-panels { grid-template-columns: minmax(0, 1fr); }
+  .guardrail-dialog .drawer-body { padding: 12px; }
+  .guardrail-table th, .guardrail-table td { padding: 8px 4px; font-size: 12px; }
+  .guardrail-table .chip { padding: 0 3px; gap: 3px; font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) { .guardrail-dialog, .guardrail-content .skeleton { animation: none; } }

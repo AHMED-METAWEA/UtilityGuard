@@ -99,6 +99,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
         </div>
         <div className="row wrap" style={{ gap: 8 }}>
           <button className="btn" onClick={() => set({ chatOpen: true })}><MessageCircle size={16} />Ask the team</button>
+          <button className="btn" onClick={() => set({ guardrail: { incidentId: incident.id } })}><FlaskConical size={16} />Test the AI</button>
           <a className="btn" href={`/api/v1/incidents/${incident.id}/report`} download><Download size={16} />Report (PDF)</a>
           <button className="btn primary" disabled={!open.length || busy} onClick={ack}><ShieldCheck size={16} />{open.length ? 'Acknowledge' : 'Acknowledged'}</button>
         </div>

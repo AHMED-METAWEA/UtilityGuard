@@ -196,7 +196,7 @@ class Engine:
             zone = g.asset_index[pump].zone_id
             on = self.sub_on[ZONE_SUBSTATION[zone]]
             if pump in failed_pumps:
-                on = on and failed_pumps[pump].ramp(self.tick, 30) < 1.0
+                on = on and failed_pumps[pump].ramp(self.tick, int(failed_pumps[pump].params.get("ramp_ticks", 30))) < 1.0
             self.pump_on[pump] = on
 
         downstream = {z: [] for z in g.zone_pipe}
@@ -227,7 +227,7 @@ class Engine:
                 p_in = min(inlet, pipe_p)
                 if self.pump_on[pump]:
                     # a healthy booster holds its discharge set-point, so a burst upstream does not ripple through the whole network
-                    health = 1.0 - (failed_pumps[pump].ramp(self.tick, 30) if pump in failed_pumps else 0.0)
+                    health = 1.0 - (failed_pumps[pump].ramp(self.tick, int(failed_pumps[pump].params.get("ramp_ticks", 30))) if pump in failed_pumps else 0.0)
                     pump_p = max(0.6, min(PUMP_SETPOINT, p_in + PUMP_MAX_BOOST * health))
                 else:
                     pump_p = max(0.6, p_in - 1.5)
@@ -238,6 +238,13 @@ class Engine:
                 t[f"{pipe}-flow-in"] = q_in
                 t[f"{pipe}-flow-out"] = q_in - leak
                 t[f"{pipe}-pressure"] = max(0.4, pipe_p)
+                wear = failed_pumps.get(pump)
+                if wear is not None and wear.params.get("precursor") and self.pump_on[pump]:
+                    # a wearing pump gives warning before it stops: discharge pressure starts to hunt (cavitation) and it moves more
+                    # water for the same duty (efficiency loss). Both grow with the wear and are what the early warning reads.
+                    progress = wear.ramp(self.tick, int(wear.params.get("ramp_ticks", 30)))
+                    pump_p += float(self.rng.normal(0.0, 0.30 * progress ** 1.3))
+                    pump_flow *= 1 + 0.08 * progress
                 t[f"{pump}-pressure"] = pump_p
                 t[f"{pump}-flow"] = pump_flow
                 resolved.append(z)

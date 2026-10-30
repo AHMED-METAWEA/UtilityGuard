@@ -5,8 +5,11 @@ import type { AssetStatus } from '../api/types';
 import { useStore } from '../store';
 import { Card, Meter, NetIcon, Skeleton, StatusChip } from '../ui';
 import { KpiStrip } from '../ui/parts';
+import { EarlyWarningsOverview } from '../ui/EarlyWarning';
 import { compact, fmt } from '../lib/format';
 import { go } from '../lib/route';
+import { healthRef, kpiRef, riskRef, savingRef } from '../lib/why';
+import { Why } from '../ui/Why';
 
 const RANK: Record<AssetStatus, number> = { normal: 0, warning: 1, offline: 2, fault: 3 };
 
@@ -34,27 +37,29 @@ export function Executive() {
       <div className="page-head"><div><h1>Executive overview</h1><p>How the utilities are performing against their targets, where money can be saved, and what could fail next.</p></div></div>
       <KpiStrip kpis={kpis.data} loading={kpis.loading} />
 
-      <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))' }}>
+      <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))' }}>
         <Card title="Scorecard" sub="Today against target" pad={false}>
-          {kpis.data ? <table className="table"><thead><tr><th>Indicator</th><th className="r">Now</th><th className="r">Target</th><th>Status</th></tr></thead><tbody>
+          {kpis.data ? <div style={{ overflowX: 'auto', maxWidth: '100%' }}><table className="table"><thead><tr><th>Indicator</th><th className="r">Now</th><th className="r">Target</th><th>Status</th></tr></thead><tbody>
             {kpis.data.filter((k) => k.target !== undefined && k.target !== null).map((k) => { const ok = meets(k); return (
-              <tr key={k.id}><td><span className="row" style={{ gap: 8 }}>{k.network && <NetIcon n={k.network} />}{k.label}</span></td><td className="r num"><b>{fmt(k.value, k.digits)}</b> <span className="muted">{k.unit}</span></td><td className="r num">{fmt(k.target, k.digits)}</td>
+              <tr key={k.id}><td><span className="row" style={{ gap: 8 }}>{k.network && <NetIcon n={k.network} />}{k.label}</span></td><td className="r num"><Why refId={kpiRef(k.id)}><b>{fmt(k.value, k.digits)}</b> <span className="muted">{k.unit}</span></Why></td><td className="r num"><Why refId={kpiRef(k.id)}>{fmt(k.target, k.digits)}</Why></td>
                 <td>{ok ? <span className="chip ok"><CircleCheck size={13} />Meets target</span> : <span className="chip warn"><TriangleAlert size={13} />{k.better === 'lower' ? 'Above target' : 'Below target'}</span>}</td></tr>); })}
             <tr><td>Open incidents</td><td className="r num"><b>{open}</b></td><td className="r num">0</td><td>{open === 0 ? <span className="chip ok"><CircleCheck size={13} />Clear</span> : <span className="chip crit"><TriangleAlert size={13} />Needs attention</span>}</td></tr>
-          </tbody></table> : <div className="card-body"><Skeleton h={160} /></div>}
+          </tbody></table></div> : <div className="card-body"><Skeleton h={160} /></div>}
         </Card>
 
         <Card title="Where money can be saved" sub="Recommended opportunities, per month"
           right={<button className="btn sm" onClick={() => go('savings')}>Open advisor</button>}>
           {savings.data ? <>
-            <div className="row" style={{ alignItems: 'baseline', gap: 6 }}><b className="num" style={{ fontSize: 28, color: 'var(--ok-text)', fontWeight: 650 }}>{compact(savings.data.totalMonthly)}</b><span className="muted">EGP / month · {compact(savings.data.totalMonthly * 12)} a year</span></div>
+            <div className="row wrap" style={{ alignItems: 'baseline', gap: 6 }}><b className="num" style={{ fontSize: 28, color: 'var(--ok-text)', fontWeight: 650 }}><Why refId={kpiRef('savings_available')}>{compact(savings.data.totalMonthly)}</Why></b><span className="muted">EGP / month · {compact(savings.data.totalMonthly * 12)} a year</span></div>
             <div className="muted" style={{ fontSize: 12, margin: '2px 0 10px' }}>Likely range {compact(savings.data.totalRange.p10)} to {compact(savings.data.totalRange.p90)} against {compact(savings.data.totalInvestment)} EGP of investment</div>
-            {savings.data.opportunities.slice(0, 4).map((o) => <button key={o.id} onClick={() => go('savings', o.id)} className="row spread" style={{ width: '100%', border: 0, borderTop: '1px solid var(--border)', background: 'transparent', padding: '9px 0', textAlign: 'start', gap: 12 }}><span className="row" style={{ gap: 8 }}><NetIcon n={o.network} size={14} />{o.title}</span><b className="num" style={{ color: 'var(--ok-text)' }}>+{compact(o.monthlySaving)}</b></button>)}
+            {savings.data.opportunities.slice(0, 4).map((o) => <div key={o.id} className="row spread" style={{ width: '100%', borderTop: '1px solid var(--border)', padding: '9px 0', gap: 12 }}><button type="button" onClick={() => go('savings', o.id)} className="row" style={{ flex: 1, minWidth: 0, border: 0, background: 'transparent', padding: 0, textAlign: 'start', gap: 8 }}><NetIcon n={o.network} size={14} />{o.title}</button><b className="num" style={{ color: 'var(--ok-text)' }}><Why refId={savingRef(o.id)}>+{compact(o.monthlySaving)}</Why></b></div>)}
           </> : <Skeleton h={200} />}
         </Card>
 
+        <EarlyWarningsOverview />
+
         <Card title="What could fail next" sub="Highest risk score over 30 days. A model ranking from simulated wear, not a calibrated chance of failure.">
-          {risky.length ? <div className="stack" style={{ gap: 12 }}>{risky.map((a) => <div key={a.assetId}><div className="row spread" style={{ marginBottom: 4 }}><span>{name(a.assetId)} <span className="muted" style={{ fontSize: 12 }}>health {fmt(a.healthScore)}</span></span><b className="num">{fmt((a.failureProbability ?? 0) * 100)}%</b></div><Meter value={a.failureProbability ?? 0} color={(a.failureProbability ?? 0) > 0.3 ? 'var(--warn)' : 'var(--accent)'} label={name(a.assetId)} /></div>)}</div> : <Skeleton h={180} />}
+          {risky.length ? <div className="stack" style={{ gap: 12 }}>{risky.map((a) => <div key={a.assetId}><div className="row spread" style={{ marginBottom: 4 }}><span>{name(a.assetId)} <span className="muted" style={{ fontSize: 12 }}>health <Why refId={healthRef(a.assetId)}>{fmt(a.healthScore)}</Why></span></span><b className="num"><Why refId={riskRef(a.assetId)}>{fmt((a.failureProbability ?? 0) * 100)}%</Why></b></div><Meter value={a.failureProbability ?? 0} color={(a.failureProbability ?? 0) > 0.3 ? 'var(--warn)' : 'var(--accent)'} label={name(a.assetId)} /></div>)}</div> : <Skeleton h={180} />}
         </Card>
 
         <Card title="Districts" sub="Worst asset status and average health" style={{ gridColumn: '1 / -1' }}>

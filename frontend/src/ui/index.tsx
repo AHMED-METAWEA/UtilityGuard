@@ -1,9 +1,10 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Droplets, Snowflake, TriangleAlert, CircleCheck, CircleX, Zap, X, TrendingDown, TrendingUp, Minus, type LucideIcon } from 'lucide-react';
 import type { AssetStatus, Network } from '../api/types';
 import { Sparkline } from '../charts/Sparkline';
 import { EvidenceTag, type Evidence } from './Provenance';
+import { Why } from './Why';
 
 export const NET: Record<Network, { icon: LucideIcon; color: string; soft: string; label: string }> = {
   water: { icon: Droplets, color: 'var(--water)', soft: 'var(--water-soft)', label: 'Water' },
@@ -41,12 +42,38 @@ export function Seg<T extends string>({ value, options, onChange, label }: { val
   return <div className="seg" role="group" aria-label={label}>{options.map((o) => <button key={o.v} type="button" aria-pressed={value === o.v} onClick={() => onChange(o.v)}>{o.label}</button>)}</div>;
 }
 
-export function Drawer({ title, onClose, children, foot, width }: { title: ReactNode; onClose: () => void; children: ReactNode; foot?: ReactNode; width?: number }) {
-  useEffect(() => { const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose(); window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, [onClose]);
+export function Drawer({ title, onClose, children, foot, width, modal = false }: { title: ReactNode; onClose: () => void; children: ReactNode; foot?: ReactNode; width?: number; modal?: boolean }) {
+  useEffect(() => { const k = (e: KeyboardEvent) => { if (e.key === 'Escape' && ref.current === [...document.querySelectorAll('.drawer, .guardrail-dialog')].at(-1)) onClose(); }; window.addEventListener('keydown', k); return () => window.removeEventListener('keydown', k); }, [onClose]);
+  const ref = useRef<HTMLElement>(null);
+  const titleId = useId();
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    const panel = ref.current;
+    const isTop = () => panel === [...document.querySelectorAll('.drawer, .guardrail-dialog')].at(-1);
+    const focusable = () => [...(panel?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex="0"], summary') ?? [])].filter((el) => el.getClientRects().length > 0);
+    const focus = () => (focusable()[0] ?? panel)?.focus();
+    focus();
+    const keepFocus = (event: FocusEvent) => { if (isTop() && panel && !panel.contains(event.target as Node)) focus(); };
+    const trap = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab' || !isTop()) return;
+      const items = focusable(), first = items[0], last = items[items.length - 1];
+      if (!first) { event.preventDefault(); panel?.focus(); }
+      else if (event.shiftKey && (document.activeElement === first || document.activeElement === panel)) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', trap); document.addEventListener('focusin', keepFocus);
+    return () => {
+      document.removeEventListener('keydown', trap); document.removeEventListener('focusin', keepFocus);
+      document.body.style.overflow = overflow;
+      if (previous?.isConnected) previous.focus();
+    };
+  }, [modal]);
   return createPortal(<>
     <div className="scrim" onClick={onClose} />
-    <aside className="drawer" role="dialog" aria-modal="true" style={width ? { width: `min(${width}px, 100vw)` } : undefined}>
-      <header className="drawer-head"><h2>{title}</h2><button className="btn ghost icon sm" onClick={onClose} aria-label="Close"><X size={18} /></button></header>
+    <aside ref={ref} tabIndex={-1} className={modal ? 'modal guardrail-dialog' : 'drawer'} role="dialog" aria-modal="true" aria-labelledby={titleId} style={width ? { width: `min(${width}px, ${modal ? 'calc(100vw - 32px)' : '100vw'})` } : undefined}>
+      <header className="drawer-head"><h2 id={titleId}>{title}</h2><button className="btn ghost icon sm" onClick={onClose} aria-label="Close"><X size={18} /></button></header>
       <div className="drawer-body">{children}</div>
       {foot && <footer className="drawer-foot">{foot}</footer>}
     </aside>
@@ -55,20 +82,21 @@ export function Drawer({ title, onClose, children, foot, width }: { title: React
 
 export interface KpiProps {
   label: string; value: string; unit?: string; color: string; spark?: number[]; target?: number; foot?: string;
-  delta?: { text: string; good: boolean | null; dir: 'up' | 'down' | 'flat' }; onClick?: () => void; loading?: boolean; icon?: ReactNode; viz?: ReactNode; evidence?: Evidence;
+  delta?: { text: string; good: boolean | null; dir: 'up' | 'down' | 'flat' }; onClick?: () => void; loading?: boolean; icon?: ReactNode; viz?: ReactNode; evidence?: Evidence; whyRef?: string;
 }
-export function Kpi({ label, value, unit, color, spark, target, foot, delta, onClick, loading, icon, viz, evidence }: KpiProps) {
+export function Kpi({ label, value, unit, color, spark, target, foot, delta, onClick, loading, icon, viz, evidence, whyRef }: KpiProps) {
   const body = <>
     <div className="kpi-label"><span className="row" style={{ gap: 6 }}>{icon}{label}</span>
       {delta && <span className={`delta ${delta.good === null ? 'flat' : delta.good ? 'good' : 'bad'}`}>{delta.dir === 'up' ? <TrendingUp size={13} aria-hidden /> : delta.dir === 'down' ? <TrendingDown size={13} aria-hidden /> : <Minus size={13} aria-hidden />}{delta.text}</span>}
     </div>
     {loading ? <Skeleton h={30} w={110} style={{ marginTop: 6 }} /> : <div className="kpi-value"><b>{value}</b>{unit && <span className="kpi-unit">{unit}</span>}</div>}
     <div style={{ margin: '6px 0 2px' }}>{loading ? <Skeleton h={34} /> : viz ? viz : spark ? <Sparkline values={spark} color={color} target={target} label={`${label} trend`} /> : <div style={{ height: 36 }} />}</div>
-    <div className="kpi-foot row spread" style={{ gap: 8 }}><span>{foot ?? ' '}</span>{evidence && <EvidenceTag e={evidence} />}</div>
+    <div className="kpi-foot row spread" style={{ gap: 8, paddingInlineEnd: whyRef ? 54 : undefined }}><span>{foot ?? ' '}</span>{evidence && <EvidenceTag e={evidence} />}</div>
   </>;
-  return onClick
+  const tile = onClick
     ? <button type="button" className="card kpi" onClick={onClick} style={{ cursor: 'pointer', font: 'inherit', color: 'inherit' }}>{body}</button>
     : <div className="card kpi">{body}</div>;
+  return whyRef && !loading ? <div className="kpi-wrap">{tile}<Why refId={whyRef} className="kpi-why" value={`${value}${unit ? ` ${unit}` : ''}`}>Why?</Why></div> : tile;
 }
 
 export const Meter = ({ value, color = 'var(--accent)', label }: { value: number; color?: string; label: string }) => (

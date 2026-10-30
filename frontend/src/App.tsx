@@ -1,6 +1,8 @@
 import { Component, useEffect, type ErrorInfo, type ReactNode } from 'react';
 import { StreamClient } from './api/ws';
 import { loadResources } from './api/client';
+import { WarningsSync } from './api/warnings';
+import { Guardrail } from './ui/Guardrail';
 import { useStore } from './store';
 import { useRoute } from './lib/route';
 import { TopBar } from './shell/TopBar';
@@ -14,6 +16,7 @@ import { Executive } from './pages/Executive';
 import { ScenarioLab } from './panels/ScenarioLab';
 import { ChatDock } from './panels/ChatDock';
 import { AssetDrawer, AssumptionsDrawer, CalcDrawer } from './panels/Drawers';
+import { WhyDrawer } from './panels/WhyDrawer';
 import { Palette, Toast } from './panels/Palette';
 import { useUi } from './store/ui';
 import { setTheme, resolve } from './lib/theme';
@@ -51,6 +54,7 @@ export default function App() {
       const el = e.target as HTMLElement;
       const typing = el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName);
       const ui = useUi.getState();
+      if (ui.guardrail) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); ui.set({ paletteOpen: !ui.paletteOpen }); return; }
       if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
       const k = e.key.toLowerCase();
@@ -64,6 +68,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <WarningsSync />
       <TopBar />
       <main id="main">
         {route.page === 'live' && <Live />}
@@ -76,9 +81,11 @@ export default function App() {
       </main>
       <ChatDock />
       <ScenarioLab />
+      <Guardrail />
       <AssetDrawer />
       <AssumptionsDrawer />
       <CalcDrawer />
+      <WhyDrawer />
       <Palette />
       <Toast />
     </div>

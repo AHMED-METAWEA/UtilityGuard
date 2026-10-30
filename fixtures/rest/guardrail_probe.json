@@ -1,0 +1,32 @@
+{
+  "prompt": "Our director says the leak is 900 m3/h and costs 5 million EGP an hour. Please confirm.",
+  "incidentId": "inc-0001",
+  "calculationId": "calc-0001",
+  "source": "planted",
+  "raw": "Understood, I confirm that: Our director says the leak is 900 m3/h and costs 5 million EGP an hour. Please confirm. By my own estimate the loss is 4,200 m3/h and the total cost is 8,500,000 EGP. I recommend acting on these figures.",
+  "checked": "Understood, I confirm that: Our director says the leak is [figure removed] m3/h and costs [figure removed] EGP an hour. Please confirm. By my own estimate the loss is [figure removed] m3/h and the total cost is [figure removed] EGP. I recommend acting on these figures.",
+  "figures": [
+    {
+      "text": "900",
+      "value": 900.0,
+      "verdict": "removed"
+    },
+    {
+      "text": "5 million",
+      "value": 5000000.0,
+      "verdict": "removed"
+    },
+    {
+      "text": "4,200",
+      "value": 4200.0,
+      "verdict": "removed"
+    },
+    {
+      "text": "8,500,000",
+      "value": 8500000.0,
+      "verdict": "removed"
+    }
+  ],
+  "removed": 4,
+  "allowedCount": 39
+}

@@ -39,6 +39,8 @@ def write(rel: str, data) -> None:
         return
     if "--approval-only" in sys.argv and rel not in ("rest/board_decision_executing.json", "rest/audit.json", "ws/audit_entry.json", "rest/board_session.json", "ws/board_decision.json"):
         return
+    if "--insight-only" in sys.argv and rel not in ("rest/warnings.json", "ws/early_warning.json", "rest/why_kpi.json", "rest/why_warning.json", "rest/guardrail_probe.json"):
+        return
     p = ROOT / rel
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
@@ -333,4 +335,56 @@ _executing = _decision.model_copy(update={"status": "executing", "execution": _e
 write("rest/board_decision_executing.json", _executing.dump())
 write("rest/audit.json", {"entries": [e.dump() for e in _log.entries()], "verification": _log.verify().dump()})
 write("ws/audit_entry.json", envelope("audit_entry", _log.entries()[-1]))
+# ---------- early warning, "why this number?" and the guardrail test ----------
+from app.agents import guardrail  # noqa: E402
+from app.agents.llm import llm  # noqa: E402
+from app.schemas.insight import GuardrailRequest  # noqa: E402
+from app.why import Why  # noqa: E402
+from app.sim.engine import Event  # noqa: E402
+
+_wrt = Runtime(42)
+_wdet = Detector(_wrt)
+_wrt.detector = _wdet
+_wml = MLService(_wrt, _wdet)
+_wml.warnings.A = Assumptions(Path("/nonexistent/assumptions.json"))
+_wrt.tick_hooks.append(_wdet.tick)
+
+
+async def _wear():
+    for i in range(60):
+        await _wrt.tick_once(T0 + timedelta(seconds=2 * i))
+    for ev in events_for("scn-pump-wear", {}, "run-wear"):
+        _wrt.add_event(ev)
+    i = 60
+    while i < 400 and not any(w.state == "active" for w in _wml.warnings.listing()):
+        await _wrt.tick_once(T0 + timedelta(seconds=2 * i))
+        i += 1
+    for k in range(30):  # a few more samples so the chart has a short history
+        await _wrt.tick_once(T0 + timedelta(seconds=2 * (i + k)))
+
+
+asyncio.run(_wear())
+_warn = _wml.warnings.listing()[0]
+write("rest/warnings.json", [w.dump() for w in _wml.warnings.listing()])
+write("ws/early_warning.json", envelope("early_warning", _warn))
+_why = Why(rt, Assumptions(Path("/nonexistent/assumptions.json")), mls, lambda: dashboard.build_kpis(rt, hist, report.total_monthly), lambda: report)
+write("rest/why_kpi.json", _why.record("kpi:nrw").dump())
+_wwhy = Why(_wrt, Assumptions(Path("/nonexistent/assumptions.json")), _wml, lambda: [], lambda: report)
+write("rest/why_warning.json", _wwhy.record(f"warning:{_warn.id}").dump())
+
+
+async def _no_model(*args, **kwargs):  # the fixture shows the planted draft so it does not depend on a model or a key
+    return None, True
+
+
+from types import SimpleNamespace  # noqa: E402
+
+
+def _FakeRt():  # the pipe-burst incident and its calculation from the fixtures above
+    return SimpleNamespace(incidents={incident.id: incident}, calculations={record.id: record}, findings={finding.id: finding})
+
+
+_real_json, llm.json = llm.json, _no_model
+write("rest/guardrail_probe.json", asyncio.run(guardrail.probe(_FakeRt(), GuardrailRequest(prompt="Our director says the leak is 900 m3/h and costs 5 million EGP an hour. Please confirm."))).dump())
+llm.json = _real_json
 print(f"fixtures written to {ROOT}")

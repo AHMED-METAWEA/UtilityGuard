@@ -1,0 +1,148 @@
+[
+  {
+    "id": "warn-0001",
+    "assetId": "water-pump-03",
+    "assetName": "P-03",
+    "network": "water",
+    "zoneId": "zone-cbd",
+    "state": "active",
+    "createdAt": "2026-10-28T11:35:40Z",
+    "updatedAt": "2026-10-28T11:36:40Z",
+    "risk": 0.428,
+    "peerRisk": 0.15,
+    "excess": 0.278,
+    "risePerMinute": 0.109,
+    "minutesTo90": 4.3,
+    "signals": [
+      {
+        "label": "Deviation from the twin",
+        "value": 0.509,
+        "peerValue": 0.019,
+        "unit": "of normal range"
+      },
+      {
+        "label": "Signal variability",
+        "value": 0.597,
+        "peerValue": 0.122,
+        "unit": "of normal range"
+      }
+    ],
+    "series": [
+      {
+        "t": "2026-10-28T11:30:00Z",
+        "risk": 0.18,
+        "peer": 0.18
+      },
+      {
+        "t": "2026-10-28T11:30:20Z",
+        "risk": 0.157,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:30:40Z",
+        "risk": 0.157,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:31:00Z",
+        "risk": 0.157,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:31:20Z",
+        "risk": 0.161,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:31:40Z",
+        "risk": 0.145,
+        "peer": 0.145
+      },
+      {
+        "t": "2026-10-28T11:32:00Z",
+        "risk": 0.157,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:32:20Z",
+        "risk": 0.161,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:32:40Z",
+        "risk": 0.157,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:33:00Z",
+        "risk": 0.157,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:33:20Z",
+        "risk": 0.165,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:33:40Z",
+        "risk": 0.181,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:34:00Z",
+        "risk": 0.196,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:34:20Z",
+        "risk": 0.237,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:34:40Z",
+        "risk": 0.217,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:35:00Z",
+        "risk": 0.389,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:35:20Z",
+        "risk": 0.361,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:35:40Z",
+        "risk": 0.326,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:36:00Z",
+        "risk": 0.322,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:36:20Z",
+        "risk": 0.322,
+        "peer": 0.157
+      },
+      {
+        "t": "2026-10-28T11:36:40Z",
+        "risk": 0.428,
+        "peer": 0.15
+      }
+    ],
+    "cost": {
+      "unplanned": 87560.0,
+      "planned": 27240.0,
+      "breakEven": 0.3111,
+      "risk": 0.428,
+      "verdict": "maintain_now",
+      "expectedSaving": 10235.68
+    },
+    "text": "P-03 is still running, but its signal variability is 0.60 against 0.12 for its peers, and its risk score is 43% where age and load alone would give 15%. Maintenance pays when the chance of failing is above 31.1%: 27,240 EGP planned against 87,560 EGP if it fails. At this risk score maintaining now is cheaper than waiting.",
+    "whyRef": "warning:warn-0001"
+  }
+]

@@ -20,11 +20,13 @@ Run commands from this folder with `PYTHONPATH=.` and the `.venv` interpreter.
 | `app/sim/` | `topology.py` (9 zones, 48 assets, 89 sensors, 53 links on the real NAC layout) and `engine.py` (seeded physics, events, protection relays, `Engine.repair`). |
 | `app/scenarios.py` | The 14 scenarios and the events each one creates. |
 | `app/detection/` | Detectors, shared-cause grouping, incidents and alerts, escalation, creeping-leak rule, settle time after a restore. |
-| `app/ml/` | `__init__.py` trains the LightGBM demand forecast and the failure model; `service.py` serves forecasts and evidence; `comparison.py` compares five forecast models; `evaluate.py` scores the detector. |
+| `app/ml/` | `__init__.py` trains the LightGBM demand forecast and the failure model; `service.py` serves forecasts and evidence; `comparison.py` compares five forecast models; `earlywarn.py` the early warning (peer comparison of condition signals, priced with the cost model); `evaluate.py` scores the detector. |
 | `app/cost/` | Named formulas, the assumption registry (`DEFAULTS`, provenance, ranges, `references.py` public references), calculation records, Monte Carlo and sensitivity. |
 | `app/agents/` | `llm.py` (Groq with retries and a recorded-answer fallback), `specialists.py`, `orchestrator.py` (LangGraph), `tools.py`, `checker.py` (the number checker), `service.py` (analysis pipeline). |
 | `app/board/` | `plan.py` crew scheduling search, `analysis.py` robustness and provenance, `session.py` the meeting, `dispatch.py` approval and crew dispatch, `audit.py` the hash-chained decision log. |
 | `app/lab/` | Fault-injection harness and the benchmarks behind the AI lab page. |
+| `app/why.py` | "Why this number?": `GET /why/{ref}` builds the formula, worked substitution and sourced inputs for dashboard tiles, asset health and risk, warnings, savings and forecast accuracy. |
+| `app/agents/guardrail.py` | The "try to fool the AI" probe: real incident data plus the person's claim go to the model; the number checker rules on every figure. |
 | `app/decision.py` | Decision Studio: act now or wait, regret, break-even, decision map. |
 | `app/savings.py`, `app/dashboard.py`, `app/extras.py` | Savings advisor, KPIs and series, PDF report, compare, sensor placement, drift. |
 | `app/schemas/` | Pydantic models for every REST and WebSocket shape. camelCase on the wire. |
@@ -56,7 +58,7 @@ Run commands from this folder with `PYTHONPATH=.` and the `.venv` interpreter.
 ## Tests
 
 ```bash
-PYTHONPATH=. .venv/bin/python -m pytest -q                              # 236 tests, about 3.5 minutes
+PYTHONPATH=. .venv/bin/python -m pytest -q                              # 257 tests, about 8 minutes
 PYTHONPATH=. .venv/bin/python -m pytest tests/test_board_approval.py -q # approval, dispatch, audit chain
 PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1           # full demo path against a running server
 PYTHONPATH=. .venv/bin/python scripts/make_fixtures.py                 # regenerate ../fixtures (also --approval-only, --forecast-evidence-only)
@@ -70,6 +72,8 @@ PYTHONPATH=. .venv/bin/python scripts/make_fixtures.py                 # regener
 | `test_forecast.py` | Forecast evidence, baselines, band coverage, model comparison and its bootstrap. |
 | `test_lab.py`, `test_decision.py`, `test_savings.py`, `test_checker.py` | AI lab, Decision Studio, savings advisor, the number checker. |
 | `test_board.py` | The vectorised scheduler against a slow reference, Smith's rule, relief, guards on the model's wording, the storm. |
+| `test_early_warning.py` | The warning arrives while the pump still runs and before the failure alarm (about four minutes), stays quiet on a quiet twin, a burst and a power cut, prices the choice, and every figure in its text is one of its numbers. |
+| `test_why_guardrail.py` | Every KPI, asset, opportunity and network has an explanation; unknown refs are a clean 404; the guardrail catches an invented figure, matches a true one, and says when a planted draft stands in. |
 | `test_board_approval.py` | Approve, override and preview, reject, superseded and stale proposals, claimed problems, alert id changes, the hash chain and tampering, CSV safety, reset. |
 
 When running tests in a loop, use `LLM_OFFLINE=1` so the Groq quota is not spent.

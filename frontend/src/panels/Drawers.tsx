@@ -10,6 +10,8 @@ import { CalcView } from '../ui/Calc';
 import { TimeChart } from '../charts/TimeChart';
 import { ago, fmt, sensorLabel } from '../lib/format';
 import { useSensorSeries } from '../lib/useSensorSeries';
+import { healthRef, riskRef } from '../lib/why';
+import { Why } from '../ui/Why';
 
 const NETVAR = { water: 'var(--water)', electricity: 'var(--elec)', cooling: 'var(--cool)' } as const;
 
@@ -42,8 +44,8 @@ export function AssetDrawer() {
     <Drawer title={<span className="row" style={{ gap: 8 }}><NetIcon n={asset.network} size={18} />{asset.name}</span>} onClose={() => set({ selectedAsset: null })} width={480}>
       <div className="row wrap" style={{ gap: 8 }}><StatusChip s={status} /><span className="chip">{asset.kind}</span><span className="chip">{zone?.name ?? asset.zoneId}</span></div>
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <div><div className="sub" style={{ fontSize: 12, marginBottom: 4 }}>Health score</div><div className="num" style={{ fontSize: 24, fontWeight: 650 }}>{state ? fmt(state.healthScore) : '–'}<span className="muted" style={{ fontSize: 13 }}> / 100</span></div><Meter value={(state?.healthScore ?? 0) / 100} color={NETVAR[asset.network]} label="Health score" /></div>
-        <div><div className="sub" style={{ fontSize: 12, marginBottom: 4 }}>Risk score, 30 days</div><div className="num" style={{ fontSize: 24, fontWeight: 650 }}>{state?.failureProbability !== undefined ? `${fmt(state.failureProbability * 100)}%` : '–'}</div><div className="muted" style={{ fontSize: 12 }}>model score, not a calibrated chance</div></div>
+        <div><div className="sub" style={{ fontSize: 12, marginBottom: 4 }}>Health score</div><div className="num" style={{ fontSize: 24, fontWeight: 650 }}>{state ? <Why refId={healthRef(id)}>{fmt(state.healthScore)}</Why> : '–'}<span className="muted" style={{ fontSize: 13 }}> / 100</span></div><Meter value={(state?.healthScore ?? 0) / 100} color={NETVAR[asset.network]} label="Health score" /></div>
+        <div><div className="sub" style={{ fontSize: 12, marginBottom: 4 }}>Risk score, 30 days</div><div className="num" style={{ fontSize: 24, fontWeight: 650 }}>{state?.failureProbability !== undefined ? <Why refId={riskRef(id)}>{fmt(state.failureProbability * 100)}%</Why> : '–'}</div><div className="muted" style={{ fontSize: 12 }}>model score, not a calibrated chance</div></div>
       </div>
       {sensors.length === 0 && <Empty title="No sensors on this asset">It is monitored through its neighbours.</Empty>}
       {sensors.map((s) => <SensorCard key={s.id} s={s} asset={asset} />)}

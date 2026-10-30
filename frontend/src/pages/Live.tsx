@@ -8,6 +8,7 @@ import { CityMap, type Focus } from '../map/CityMap';
 import { TimeChart, type Series } from '../charts/TimeChart';
 import { Columns } from '../charts/Columns';
 import { Card, Empty, NetIcon, Skeleton } from '../ui';
+import { ActiveWarnings } from '../ui/EarlyWarning';
 import { CostTiles, HBars, IncidentCard, KpiStrip, Legend, NetworkHealth } from '../ui/parts';
 import { go, href } from '../lib/route';
 import { compact, fmt, hhmm } from '../lib/format';
@@ -114,6 +115,7 @@ export function Live() {
       <div className="page-head">
         <div><h1>{t('live.title', 'New Administrative Capital')}</h1><p>{t('live.sub', 'Live twin of the water, electricity and district cooling networks.')}</p></div>
       </div>
+      <ActiveWarnings />
       <KpiStrip kpis={kpis.data} loading={kpis.loading} onOpen={(k) => k.id === 'savings_available' ? go('savings') : k.id === 'cooling_efficiency' || k.id === 'water_production' || k.id === 'electric_load' ? go('forecast') : undefined} />
       <div className="live-grid">
         <CityMap height={640} selectedAsset={sel} onSelectAsset={(id) => set({ selectedAsset: id })} focus={focus} />

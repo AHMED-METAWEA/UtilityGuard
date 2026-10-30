@@ -1,0 +1,19 @@
+.early-warning { border-color: var(--warn); overflow-wrap: anywhere; }
+.early-warning > .card-head { background: var(--warn-soft); padding-bottom: 12px; border-radius: var(--r-card) var(--r-card) 0 0; }
+.warning-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; }
+.early-warning .tooltip { max-width: min(280px, calc(100% - 8px)); white-space: normal; }
+.early-warning .tooltip .row > span { min-width: 0; }
+.early-warning .tooltip .swatch { flex: none; }
+.warning-signals { display: flex; flex-wrap: wrap; gap: 6px; }
+.warning-signals .chip { height: auto; white-space: normal; flex-wrap: wrap; padding: 5px 8px; gap: 4px; }
+.warning-costs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); gap: 12px; margin: 0; }
+.warning-costs dt { color: var(--text-2); font-size: 12px; }
+.warning-costs dd { margin: 3px 0 0; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.warning-costs small { font-size: 12px; font-weight: 400; color: var(--text-3); }
+.warning-text { margin: 14px 0 8px; }
+.warning-limit { font-size: 12px; margin: 8px 0 12px; }
+.warning-more summary { cursor: pointer; color: var(--text-2); margin-bottom: 12px; }
+.warning-overview { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.warning-overview li { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+.warning-overview li > div { flex: 1 1 180px; min-width: 0; }
+@media (max-width: 700px) { .warning-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; } }

@@ -20,6 +20,7 @@ import time
 from datetime import timedelta
 
 from app import dashboard, decision as decision_mod, extras, savings as savings_mod, scenarios
+from app.agents import guardrail
 from app.agents.service import AgentService
 from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
 from app.lab.live import live_localization
@@ -29,7 +30,8 @@ from app.schemas.board import ConveneRequest, PreviewRequest, ReviewRequest
 from app.schemas.lab import QualityFlagItem, QualityNow, TrialRequest
 from app.ml.service import MLService
 from app.runtime import runtime
-from app.schemas import SensorHistory, SensorHistoryPoint, ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
+from app.why import Why
+from app.schemas import GuardrailRequest, SensorHistory, SensorHistoryPoint, ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -53,6 +55,7 @@ api = APIRouter(prefix="/api/v1")
 _run_ids = itertools.count(1)
 service = AgentService(runtime)
 ml_service = MLService(runtime, service.detector)
+ml_service.warnings.A = service.A
 history = dashboard.History(runtime.seed)
 lab_cache = LabCache(runtime.seed)
 _savings_cache: dict = {}
@@ -66,6 +69,9 @@ def get_savings():
     rep = savings_mod.build_savings(runtime, history, service.A)
     _savings_cache['v'] = (key, time.time(), rep)
     return rep
+
+
+why = Why(runtime, service.A, ml_service, lambda: dashboard.build_kpis(runtime, history, get_savings().total_monthly), get_savings)
 
 
 @app.exception_handler(ApiError)
@@ -328,6 +334,27 @@ def audit_verify() -> dict:
 @api.get("/audit/export")
 def audit_export() -> Response:
     return Response(service.board.audit.csv(), media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="utilityguard-decision-log.csv"'})
+
+
+@api.get("/warnings")
+def warnings_list() -> list[dict]:
+    return out(ml_service.warnings.listing())
+
+
+@api.get("/why/{ref:path}")
+def why_record(ref: str) -> dict:
+    try:
+        return out(why.record(ref))
+    except KeyError as e:
+        raise ApiError(404, "no_explanation", f"There is no explanation for {ref}.") from e
+
+
+@api.post("/guardrail/probe")
+async def guardrail_probe(req: GuardrailRequest) -> dict:
+    try:
+        return out(await guardrail.probe(runtime, req))
+    except guardrail.NoIncident as e:
+        raise ApiError(409, "no_incident", "Run a scenario first: the test needs an incident with a calculation to check the answer against.") from e
 
 
 @api.get("/forecast/evidence")

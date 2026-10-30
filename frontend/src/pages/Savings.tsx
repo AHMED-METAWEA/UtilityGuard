@@ -7,6 +7,8 @@ import { RangeBar, Reasons } from '../ui/Calc';
 import { Basis, EvidenceTag } from '../ui/Provenance';
 import { HBars } from '../ui/parts';
 import { compact, fmt } from '../lib/format';
+import { savingRef } from '../lib/why';
+import { Why } from '../ui/Why';
 import type { Network } from '../api/types';
 
 const payback = (o: Opportunity) => (o.investment === 0 ? 'Immediate' : o.paybackDays !== null && o.paybackDays < 60 ? `${fmt(o.paybackDays)} ${Math.round(o.paybackDays) === 1 ? 'day' : 'days'}` : `${fmt((o.paybackDays ?? 0) / 30, 1)} months`);
@@ -14,7 +16,7 @@ const payback = (o: Opportunity) => (o.investment === 0 ? 'Immediate' : o.paybac
 function Detail({ o }: { o: Opportunity }) {
   const set = useUi((s) => s.set);
   return (
-    <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, padding: '4px 4px 8px' }}>
+    <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 20, padding: '4px 4px 8px' }}>
       <div className="stack" style={{ gap: 14 }}>
         <p className="sub" style={{ margin: 0, lineHeight: 1.55 }}>{o.summary}</p>
         <div><div className="card-title" style={{ marginBottom: 8 }}>Why this is recommended</div><Reasons reasons={o.reasons} /></div>
@@ -60,7 +62,7 @@ export function Savings({ id }: { id?: string }) {
         </> : [0, 1, 2, 3].map((i) => <div key={i} className="card kpi"><Skeleton h={14} w={120} /><Skeleton h={30} w={100} style={{ marginTop: 10 }} /><Skeleton h={12} style={{ marginTop: 14 }} /></div>)}
       </section>
 
-      <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))' }}>
+      <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))' }}>
         <Card title="By network" sub="EGP per month available">
           {byNet ? <HBars unit="EGP" rows={byNet.map((x) => ({ id: x.n, label: NET[x.n].label, value: x.v, max: maxNet, color: NET[x.n].color }))} /> : <Skeleton h={120} />}
         </Card>
@@ -72,7 +74,7 @@ export function Savings({ id }: { id?: string }) {
 
       <Card title="Opportunities" sub="Ranked by monthly saving. Open a row to see the reasons, the values and the assumptions." pad={false}>
         {error && !data && <Empty title="Could not load the savings advisor">{error}</Empty>}
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
           <table className="table" style={{ minWidth: 940 }}>
             <thead><tr><th style={{ width: 28 }} /><th>Opportunity</th><th>EGP / month <EvidenceTag e="assumed" /></th><th>Likely range</th><th className="r">Investment</th><th className="r">Payback</th><th className="r">3-year value</th><th className="r">Confidence</th></tr></thead>
             <tbody>
@@ -84,7 +86,7 @@ export function Savings({ id }: { id?: string }) {
                     <tr style={{ cursor: 'pointer', background: isOpen ? 'var(--hover)' : undefined }} onClick={() => setOpen(isOpen ? null : o.id)}>
                       <td>{isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</td>
                       <td><div className="row" style={{ gap: 8, fontWeight: 500 }}><NetIcon n={o.network} />{o.title}</div><div className="muted" style={{ fontSize: 12, marginInlineStart: 24 }}>{o.where}</div></td>
-                      <td className="num" style={{ color: 'var(--ok-text)', fontWeight: 650 }}>{fmt(o.monthlySaving)}</td>
+                      <td className="num" style={{ color: 'var(--ok-text)', fontWeight: 650 }}><Why refId={savingRef(o.id)}>{fmt(o.monthlySaving)}</Why></td>
                       <td className="num sub">{compact(o.savingRange.p10)} to {compact(o.savingRange.p90)}</td>
                       <td className="r num">{o.investment ? fmt(o.investment) : '0'}</td>
                       <td className="r num">{payback(o)}</td>

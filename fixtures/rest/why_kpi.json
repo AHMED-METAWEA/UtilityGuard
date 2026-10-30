@@ -1,0 +1,44 @@
+{
+  "ref": "kpi:nrw",
+  "title": "Non-revenue water",
+  "value": 10.3,
+  "unit": "%",
+  "evidence": "calculated",
+  "formula": "(production − billed) ÷ production",
+  "steps": [
+    "(4,456.9 − 3,997.2) ÷ 4,456.9 × 100 = 10.3%"
+  ],
+  "inputs": [
+    {
+      "name": "Water produced",
+      "value": 4456.879220568987,
+      "unit": "m3/h",
+      "source": "measured",
+      "basis": "Reservoir outflow sensor water-res-01-flow."
+    },
+    {
+      "name": "Water billed",
+      "value": 3997.201094680706,
+      "unit": "m3/h",
+      "source": "measured",
+      "basis": "Sum of the billed demand of the districts, from the twin's customer meters."
+    },
+    {
+      "name": "Target",
+      "value": 10.0,
+      "unit": "%",
+      "source": "rule",
+      "basis": "The common international benchmark for well-run utilities (a fixed target, not a measurement)."
+    }
+  ],
+  "notes": [
+    "Target 10%. Water produced but not billed."
+  ],
+  "links": [
+    {
+      "label": "Open the dashboard",
+      "href": "#/live"
+    }
+  ],
+  "computedAt": "2026-10-30T12:19:11.447692Z"
+}
