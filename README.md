@@ -1,3 +1,5 @@
+<p align="center"><img src="frontend/public/brand/utilityguard-hero.jpg" alt="UtilityGuard: multi-agent digital twin for smart utilities in the New Administrative Capital" width="760"></p>
+
 # UtilityGuard: Multi-Agent Digital Twin
 
 A live 2D digital twin of a district of the New Administrative Capital (Egypt) with three utility networks: **water, electricity and district cooling**. Specialist AI agents watch the networks, an orchestrator coordinates them, and a **board of agents** proposes who gets a repair crew first. A person approves, and the approved plan runs inside the twin.

@@ -74,8 +74,11 @@ a:hover { text-decoration: underline; }
   padding: 0 var(--s-5); background: var(--surface); border-bottom: 1px solid var(--border);
 }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.brand-mark { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); }
-.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.1; }
+.brand-mark { display: none; width: 32px; height: 32px; border-radius: 8px; flex: none; }
+.brand-text { display: flex; flex-direction: column; gap: 2px; }
+.brand-logo { display: block; height: 26px; width: auto; }
+.brand-logo-dark, :root[data-theme='dark'] .brand-logo-light { display: none; }
+:root[data-theme='dark'] .brand-logo-dark { display: block; }
 .brand-sub { font-size: 11px; color: var(--text-3); line-height: 1.1; }
 .nav { display: flex; gap: 0; height: 100%; align-items: stretch; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
@@ -225,7 +228,7 @@ input[type='range'] { accent-color: var(--accent); width: 100%; }
   .nav a { padding: 0 12px; }
   .page { padding: var(--s-3); padding-bottom: 96px; } .brand-sub, .hide-sm { display: none; }
 }
-@media (max-width: 560px) { .brand-text { display: none; } .page-head h1 { font-size: 19px; } }
+@media (max-width: 560px) { .brand-text { display: none; } .brand-mark { display: block; } .page-head h1 { font-size: 19px; } }
 @media print { .topbar, .no-print { display: none !important; } body { background: #fff; } }
 
 /* ---------- layout helpers ---------- */

@@ -37,6 +37,10 @@ Keyboard: `Cmd/Ctrl+K` command palette (includes assumptions), `S` Scenario Lab,
 | `lib/` | Pure helpers: formatting, route parsing, `present.ts` (what to show for a finding), `decision.ts` (approval helpers and error texts), `audit.ts` (grouping and labels for the log), `why.ts`, `warning.ts` and `guardrail.ts` (helpers for the three insight features). |
 | `i18n/` | English copy lives in the code as default values; `ar.json` is a partial Arabic stub (navigation and top bar only) with RTL layout. |
 
+## Brand assets
+
+`public/brand/` holds the logo: `wordmark-light.png` and `wordmark-dark.png` (transparent, the top bar switches between them with the theme), `icon-192.png` (the mark on a white tile, shown instead of the wordmark below 560 px), `favicon-32.png`, `favicon-64.png`, `apple-touch-icon.png`, `icon-512.png`, and `utilityguard-hero.jpg` (the full artwork, for the README, the title slide and the report cover). The wordmark and icons were cut from the hero artwork; the dark wordmark has the navy letters turned pale.
+
 ## Rules
 
 - **Never invent a number.** Costs, forecasts, figures in the board and the calculation view are rendered from the backend. Unknown inputs stay named.

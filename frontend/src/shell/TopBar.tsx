@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Activity, ClipboardList, Command, FlaskConical, Languages, Monitor, Moon, Sun } from 'lucide-react';
+import { ClipboardList, Command, FlaskConical, Languages, Monitor, Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
 import { useUi } from '../store/ui';
@@ -33,8 +33,12 @@ export function TopBar() {
   return (
     <header className="topbar">
       <a className="brand" href={href('live')} style={{ textDecoration: 'none', color: 'inherit' }}>
-        <span className="brand-mark"><Activity size={18} strokeWidth={2.6} /></span>
-        <span className="brand-text"><div className="brand-name">{t('app.name', 'UtilityGuard')}</div><div className="brand-sub">{t('app.sub', 'New Administrative Capital')}</div></span>
+        <img className="brand-mark" src="/brand/icon-192.png" alt="" width={32} height={32} />
+        <span className="brand-text">
+          <img className="brand-logo brand-logo-light" src="/brand/wordmark-light.png" alt={t('app.name', 'UtilityGuard')} height={26} />
+          <img className="brand-logo brand-logo-dark" src="/brand/wordmark-dark.png" alt="" aria-hidden height={26} />
+          <div className="brand-sub">{t('app.sub', 'New Administrative Capital')}</div>
+        </span>
       </a>
       <nav className="nav" aria-label="Sections">
         {PAGES.map((p) => (
