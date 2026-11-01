@@ -17,6 +17,11 @@
       "verdict": "removed"
     },
     {
+      "text": "million",
+      "value": 1000000.0,
+      "verdict": "removed"
+    },
+    {
       "text": "4,200",
       "value": 4200.0,
       "verdict": "removed"

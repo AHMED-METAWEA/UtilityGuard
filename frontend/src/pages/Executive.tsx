@@ -6,6 +6,7 @@ import { useStore } from '../store';
 import { Card, Meter, NetIcon, Skeleton, StatusChip } from '../ui';
 import { KpiStrip } from '../ui/parts';
 import { EarlyWarningsOverview } from '../ui/EarlyWarning';
+import { BriefingCard } from '../ui/Briefing';
 import { compact, fmt } from '../lib/format';
 import { go } from '../lib/route';
 import { healthRef, kpiRef, riskRef, savingRef } from '../lib/why';
@@ -36,6 +37,7 @@ export function Executive() {
     <div className="page">
       <div className="page-head"><div><h1>Executive overview</h1><p>How the utilities are performing against their targets, where money can be saved, and what could fail next.</p></div></div>
       <KpiStrip kpis={kpis.data} loading={kpis.loading} />
+      <BriefingCard />
 
       <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))' }}>
         <Card title="Scorecard" sub="Today against target" pad={false}>

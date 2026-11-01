@@ -20,7 +20,7 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | --- | --- |
 | **Live twin** | Map of 9 districts with 48 assets and 89 sensors, a reading every 2 s over WebSocket, switchable water / electricity / cooling layers, asset health and failure risk. |
 | **Scenarios** | 15 scenarios from a pipe burst to a cascade storm, run and stopped from the Scenario Lab (table below). |
-| **Detection** | Rule-based detectors with shared-cause grouping, one incident per root cause that escalates when it turns out to be bigger, creeping-leak rule, and settle time after a restore. Measured on 62 injected runs (54 faults, 8 clean runs): precision 1.00, recall 0.89. |
+| **Detection** | Rule-based detectors with shared-cause grouping, one incident per root cause that escalates when it turns out to be bigger, a creeping-leak rule, alerts that close on a lower threshold than they open on, and a fault that comes back within five minutes reopening its incident. Measured with matched pairs (the same seed and start time with and without the fault, `docs/measurements/detection-pr.md`): recall 93% over 212 injected faults, no false alarm in 172.5 clean hours (under 2.14 per 100 hours with 95% confidence); the only fault it misses is a leak below about 24 m3/h. |
 | **Agents** | A water, an electricity and a cooling specialist (LLM) plus an orchestrator (LangGraph). They explain what happened, why they are sure, what it costs and what to do. |
 | **Cost and evidence** | Each finding carries a calculation record: formula, inputs, every assumption with basis, range and public reference. Prices can be edited in the app and every finding recomputes. Monte Carlo over the registered ranges gives P10 / P50 / P90. |
 | **Leak localization** | Ranks the suspected pipes and highlights them on the map (rank 1 pulses, the others are dashed, click one to fly to it). |
@@ -29,10 +29,11 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | **Human approval** | The board only proposes. A person approves, approves a different order (priced first, logged as an override) or rejects with a reason. |
 | **Crew dispatch** | The approved plan runs in the twin on a demo clock. When a crew finishes, the fault ends and the detector, not the crew, confirms the alert is clear. |
 | **Early warning** | A pump that is wearing out is flagged three to four minutes before it fails, while it still runs: its condition signals drift away from its peers, and the warning prices planned maintenance against an unplanned failure with a break-even risk. Nothing is raised in the other scenarios (checked). |
+| **Morning briefing** | What needs attention today, composed by code in English and Arabic (no model in the path): a board decision waiting for approval first, open incidents ranked by what an hour of delay costs, early warnings, the next 24 hours of demand against capacity, savings. Sent to Telegram once a day; a problem already reported is counted, not repeated. |
 | **Why this number?** | Every dashboard tile, asset health and risk score, savings opportunity and forecast accuracy opens an explanation: formula, worked substitution, inputs with their source, and the assumptions you can edit. A test fails if one of these numbers has no explanation. |
 | **Try to fool the AI** | Send a claim the data does not support. The model answers; the same number checker that protects every agent answer marks each figure verified (with the calculated value it matches) or removed. |
 | **Decision log** | Append-only, hash-chained log of every proposal, decision and crew action. One click verifies the chain. CSV export. |
-| **Forecast** | Demand forecast per network and district (LightGBM) with a held-out backtest against naive baselines, a coverage-checked uncertainty band, weather and scenario inputs, live correction and a comparison with four other models. |
+| **Forecast** | Demand forecast per network and district (LightGBM) trained on 270 days, scored on ten held-out days against simple baselines (error 2.5% water, 1.0% electricity, 3.2% cooling; 65% / 65% / 81% better than the best baseline), a coverage-checked uncertainty band, weather and scenario inputs, live correction, a reliability verdict with its checks, the error by kind of day, and a comparison with four other models. 270 days beat 75 by about a quarter of the error, measured on identical test days with three seeds (`docs/measurements/forecast-history-length.md`). |
 | **AI lab** | Four detectors benchmarked on the same injected faults, localization accuracy, sensor value and data-quality flags, all measured by running the twin. |
 | **Savings advisor** | Monthly savings opportunities, each a named formula over 30 days of baseline history with P10 / P50 / P90, investment and payback: after-hours cooling setback for government buildings, night pressure management (FAVAD), raising the chilled-water supply temperature on mild days, condenser cleaning and planned maintenance of the assets most at risk. |
 | **Chat** | Ask the team; the orchestrator routes to the agents it needs. |
@@ -107,7 +108,7 @@ cd ../frontend && npm install && npm run build                         # once, a
 cd ../backend && PYTHONPATH=. .venv/bin/uvicorn app.main:app --port 8000
 ```
 
-The first start trains the forecast models (about 45 s) and caches them in `backend/data/models.pkl`. Wait for `http://localhost:8000/api/v1/health` to answer, then open http://localhost:8000.
+The first start trains the forecast models (about 3 minutes, under 700 MB of memory) and caches them in `backend/data/models.pkl`; they are retrained once a day. Wait for `http://localhost:8000/api/v1/health` to answer, then open http://localhost:8000.
 
 For frontend development run `npm run dev` in `frontend/` (port 5173, proxies `/api` and `/ws` to 8000). Everything the map needs (buildings, roads, parks, the Green River) is stored in `frontend/public/geo`, so the map works offline.
 
@@ -129,7 +130,9 @@ For frontend development run `npm run dev` in `frontend/` (port 5173, proxies `/
 | `GROQ_MODEL_ORCHESTRATOR` / `GROQ_MODEL_SPECIALIST` | `openai/gpt-oss-120b` / `openai/gpt-oss-20b` | Models. |
 | `LLM_OFFLINE` | unset | `1` answers from recorded responses. |
 | `SIM_SEED` | `42` | Simulation seed. |
+| `FORECAST_HISTORY_DAYS` | `270` | Days of history the demand models are trained on. |
 | `BOARD_AUTO` | `1` | `0` stops the board from meeting by itself (the button still works). |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `BRIEFING_AT`, `BRIEFING_LANG` | none, none, `07:00` Cairo, `ar` | Where, when and in which language the morning briefing is sent (a bot from @BotFather). |
 | `DISPATCH_SECONDS_PER_HOUR` | `20` | Demo clock: seconds of twin time per planned hour of crew work. |
 | `AUDIT_PATH` | `backend/data/audit.jsonl` | Where the decision log is written. |
 
@@ -148,6 +151,7 @@ REST under `/api/v1`, WebSocket at `/ws/stream`. The full contract, every field 
 | Cost | `GET /assumptions`, `PUT /assumptions`, `GET /calculations/{id}`, `GET /incidents/{id}/decision`, `GET /compare`, `GET /savings` |
 | Forecast | `GET /forecast`, `/forecast/evidence`, `/metrics` |
 | Early warning, explanations, guardrail | `GET /warnings`, `GET /why/{ref}`, `POST /guardrail/probe` |
+| Morning briefing | `GET /briefing?lang=en\|ar`, `GET /briefing/channels`, `POST /briefing/send` |
 | AI lab | `GET /lab/benchmark`, `/lab/localization`, `/lab/quality`, `/lab/sensors`, `POST /lab/trial`, `GET /incidents/{id}/localization`, `GET /quality` |
 | Board | `POST /board/convene`, `GET /board/latest`, `/board/sessions/{id}`, `POST /board/sessions/{id}/preview`, `/approve`, `/reject` |
 | Decision log | `GET /audit`, `/audit/verify`, `/audit/export` |
@@ -160,8 +164,8 @@ WebSocket messages: `snapshot`, `reading`, `asset_status`, `alert`, `incident`, 
 ## Tests and checks
 
 ```bash
-cd backend && PYTHONPATH=. .venv/bin/python -m pytest -q          # 257 tests, about 8 minutes
-cd frontend && npm run lint && npm test && npm run build          # 61 tests
+cd backend && PYTHONPATH=. .venv/bin/python -m pytest -q          # 291 tests, about 8 minutes
+cd frontend && npm run lint && npm test && npm run build          # 70 tests
 cd backend && PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1   # the whole demo path against a running server
 ```
 
@@ -176,7 +180,7 @@ cd backend && PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1   # t
 ```
 backend/app/        sim, detection, ml, cost, agents, board, lab, schemas, main (API), runtime
 backend/scripts/    demo_check.py, make_fixtures.py
-backend/tests/      257 tests
+backend/tests/      291 tests
 backend/data/       assumptions.json, fallback_cache.json, models.pkl, lab_benchmark.json, audit.jsonl (all git-ignored)
 frontend/src/       pages, ui, panels, charts, map, store, api, lib, i18n, design
 frontend/public/geo OpenStreetMap layers (ODbL, see ATTRIBUTION.txt)
@@ -202,6 +206,8 @@ docs/               spec, contract, cost model, decisions, design system, showca
 
 - The data is simulated. Physics is simplified (relations between demand, flow, pressure, temperature and load), and the measured accuracy is measured on that simulation.
 - Most prices are planning figures. Electricity and the discount rate have published references (flagged where they differ); water and cooling have no published 2026 figure. All are editable in the app.
+- Detection is measured on the simulation with matched pairs and published with intervals. Precision is computed at an assumed fault rate, not measured at a real one, and a leak below about 24 m3/h is mostly missed (22% found).
+- The demand forecast is trained and scored on simulated days. The twin gives every date its own random demand and temperature, which no model can know, so a single day says more about that day than about the model.
 - The board decides the order in which to send crews. It does not dispatch real crews, and it does not re-plan in the middle of execution.
 - The approver's name is whatever is typed; there is no sign-in. The hash chain shows tampering inside the log file but cannot stop someone with file access from rewriting the whole file.
 - Storage is in memory plus JSON files; one simulation runs at a time.

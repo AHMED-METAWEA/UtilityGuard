@@ -22,11 +22,13 @@ from datetime import timedelta
 from app import dashboard, decision as decision_mod, extras, savings as savings_mod, scenarios
 from app.agents import guardrail
 from app.agents.service import AgentService
+from app.briefing import BriefingService
 from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
 from app.lab.live import live_localization
 from app.lab.quality import live_quality
 from app.board.dispatch import DecisionError
 from app.schemas.board import ConveneRequest, PreviewRequest, ReviewRequest
+from app.schemas.briefing import BriefingSendRequest, BriefingSendResult
 from app.schemas.lab import QualityFlagItem, QualityNow, TrialRequest
 from app.ml.service import MLService
 from app.runtime import runtime
@@ -45,7 +47,9 @@ class ApiError(Exception):
 async def lifespan(_: FastAPI):
     runtime.start()
     asyncio.get_running_loop().run_in_executor(None, lab_cache.warm)  # builds the detector benchmark once, off the event loop
+    daily = asyncio.create_task(briefing_service.loop())  # sends the morning briefing once a day when Telegram is configured
     yield
+    daily.cancel()
     await runtime.stop()
 
 
@@ -59,6 +63,9 @@ ml_service.warnings.A = service.A
 history = dashboard.History(runtime.seed)
 lab_cache = LabCache(runtime.seed)
 _savings_cache: dict = {}
+
+
+briefing_service = BriefingService(runtime, service.board, ml_service, history, lambda: get_savings().total_monthly)
 
 
 def get_savings():
@@ -355,6 +362,24 @@ async def guardrail_probe(req: GuardrailRequest) -> dict:
         return out(await guardrail.probe(runtime, req))
     except guardrail.NoIncident as e:
         raise ApiError(409, "no_incident", "Run a scenario first: the test needs an incident with a calculation to check the answer against.") from e
+
+
+@api.get("/briefing")
+def briefing(lang: str = "ar", forSend: bool = False) -> dict:  # noqa: N803
+    if lang not in ("en", "ar"):
+        raise ApiError(422, "bad_language", "lang must be en or ar.")
+    return out(briefing_service.compose(lang, suppress_repeats=forSend))  # type: ignore[arg-type]
+
+
+@api.get("/briefing/channels")
+def briefing_channels() -> list[dict]:
+    return out(briefing_service.channels())
+
+
+@api.post("/briefing/send")
+async def briefing_send(req: BriefingSendRequest) -> dict:
+    delivery, b = await briefing_service.send(req.lang, req.channel)
+    return out(BriefingSendResult(delivery=delivery, briefing=b))
 
 
 @api.get("/forecast/evidence")

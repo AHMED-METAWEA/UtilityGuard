@@ -20,6 +20,8 @@ export interface ForecastEvidence {
   network: Network; unit: string; trainDays: number; testDays: number; points: number; trainedThrough: string; weatherErrorC: number;
   model: { mae: number; rmse: number; mape: number; bias: number }; baselines: { name: string; mae: number; mape: number }[];
   skill: number; coverage: number; nominal: number; byHour: { hour: number; mape: number }[];
+  byDayType?: { name: string; days: number; mape: number }[];
+  reliability?: { label: 'reliable' | 'indicative' | 'unreliable'; checks: { name: string; status: 'ok' | 'weak' | 'fail'; detail: string }[] };
   scenario: { days: number; mape: number; mapeBlind: number }; liveCorrection: { tauHours: number; maeWithout: number; maeWith: number };
   zones: { zoneId: string; name: string; mae: number; rmse: number; mape: number }[]; importances: { feature: string; importance: number }[];
 }

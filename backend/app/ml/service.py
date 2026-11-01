@@ -6,6 +6,7 @@ import asyncio
 import logging
 import pickle
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
 import numpy as np
@@ -14,14 +15,26 @@ import pandas as pd
 from app import ml
 from app.ml.earlywarn import EarlyWarnings
 from app.ml.evaluate import evaluate
+from app.ml.verdict import assess
 from app.runtime import Runtime
 from app.schemas import (
-    AssetStatus, BaselineScore, CorrectionScore, DemandSeries, FeatureImportance, Forecast, ForecastDrivers, ForecastEvidence,
-    ForecastMetrics, ForecastPoint, HourError, ModelComparisonRow, ModelMetrics, ModelScore, ScenarioScore, SeriesPoint, ZoneScore,
+    AssetStatus, BaselineScore, CorrectionScore, DayTypeScore, DemandSeries, FeatureImportance, Forecast, ForecastDrivers, ForecastEvidence,
+    ForecastMetrics, ForecastPoint, HourError, ModelComparisonRow, ModelMetrics, ModelScore, Reliability, ReliabilityCheck, ScenarioScore, SeriesPoint, ZoneScore,
 )
 from app.sim.engine import Engine
 
 log = logging.getLogger("utilityguard.ml.service")
+
+
+def outside_loop(fn):
+    """Run `fn` where `asyncio.run` is allowed. uvicorn imports the app inside its own event loop, and on a first start (no cached models) the detector's
+    evaluation, which drives the twin with `asyncio.run`, was called from there and crashed the server on a fresh clone."""
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return fn()
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(fn).result()
 
 FAILURE_EVERY = 10  # ticks
 FORECAST_EVERY = 150  # ticks (5 min)
@@ -32,7 +45,7 @@ class MLService:
         self.rt = rt
         self.models = ml.load_or_train(rt.engine)
         if not self.models.detection:
-            self.models.detection = evaluate(lambda: Runtime(rt.seed), detector)
+            self.models.detection = outside_loop(lambda: evaluate(lambda: Runtime(rt.seed), detector))
             ml.MODELS.write_bytes(pickle.dumps(self.models))
         # shadow twin: same seed and clock, never receives events -> the "expected" value
         self.shadow = Engine(rt.seed)
@@ -188,6 +201,8 @@ class MLService:
         e = m.evidence[network]
         names = {z.id: z.name for z in self.rt.engine.g.topology.zones}
         sc = e["scenario"]
+        by_day = [DayTypeScore(name=d["name"], days=d["days"], mape=round(d["mape"], 2)) for d in e.get("by_day_type", [])]
+        verdict = assess(e["skill"], e["coverage"], e["nominal"], e["model"]["mape"], e.get("by_day_type", []))
         return ForecastEvidence(
             network=network, unit=e["unit"], train_days=e["train_days"], test_days=e["test_days"], points=e["points"],
             trained_through=m.trained_through, weather_error_c=e["weather_error_c"],
@@ -202,7 +217,8 @@ class MLService:
             scenario=ScenarioScore(days=sc["days"], mape=round(sc["mape"], 2), mape_blind=round(sc["mape_blind"], 2)),
             live_correction=CorrectionScore(tau_hours=e["anchor"]["tau_hours"], mae_without=round(e["anchor"]["mae_without"], 3), mae_with=round(e["anchor"]["mae_with"], 3)),
             zones=[ZoneScore(zone_id=z, name=names.get(z, z), mae=round(v["mae"], 3), rmse=round(v["rmse"], 3), mape=round(v["mape"], 2)) for z, v in e["zones"].items()],
-            importances=[FeatureImportance(feature=f, importance=round(v, 3)) for f, v in m.importances[f"forecast-{network}"]])
+            importances=[FeatureImportance(feature=f, importance=round(v, 3)) for f, v in m.importances[f"forecast-{network}"]],
+            by_day_type=by_day, reliability=Reliability(label=verdict["label"], checks=[ReliabilityCheck(**c) for c in verdict["checks"]]))
 
     def metrics(self) -> ModelMetrics:
         fi = {k: [FeatureImportance(feature=f, importance=round(v, 3)) for f, v in vals] for k, vals in self.models.importances.items()}

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CircleAlert, Flame, ShieldCheck, Sun } from 'lucide-react';
+import { CircleAlert, CircleCheck, CircleX, Flame, ShieldCheck, Sun, TriangleAlert } from 'lucide-react';
 import { useFetch, type DemandSeries, type ForecastEvidence } from '../api/dash';
 import type { Forecast as ForecastT, ModelMetrics, Network } from '../api/types';
 import { useStore } from '../store';
@@ -12,6 +12,7 @@ import { Card, Empty, Meter, NET, NetIcon, Seg, Skeleton } from '../ui';
 import { EvidenceTag } from '../ui/Provenance';
 import { ago, fmt, hhmm } from '../lib/format';
 import { forecastRef } from '../lib/why';
+import { reliabilityChip, sortDayTypes, worstDayType } from '../lib/reliability';
 import { Why } from '../ui/Why';
 
 const FEATURE: Record<string, string> = {
@@ -96,14 +97,22 @@ function Evidence({ ev, color }: { ev: ForecastEvidence; color: string }) {
   const lc = ev.liveCorrection;
   const gain = lc.maeWithout > 0 ? 1 - lc.maeWith / lc.maeWithout : 0;
   const cols = ev.byHour.map((h) => ({ key: String(h.hour), label: `${String(h.hour).padStart(2, '0')}:00`, value: h.mape, color }));
+  const verdict = ev.reliability && reliabilityChip(ev.reliability.label);
+  const VerdictIcon = ev.reliability?.label === 'reliable' ? CircleCheck : ev.reliability?.label === 'indicative' ? TriangleAlert : CircleX;
+  const dayTypes = sortDayTypes(ev.byDayType ?? []);
+  const worst = worstDayType(dayTypes);
   return (
     <>
-      <div className="page-head" style={{ marginTop: 8 }}>
-        <div>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 650 }}>Can you trust this forecast?</h2>
-          <p>Scored on the last {ev.testDays} days ({fmt(ev.points)} half-hour points) that nothing was fitted on, against simple methods anyone could use.</p>
-        </div>
-      </div>
+      <Card title="Can you trust this forecast?" sub={`Scored on the last ${ev.testDays} days (${fmt(ev.points)} half-hour points) that nothing was fitted on, against simple methods anyone could use.`} className="forecast-reliability" style={{ marginBottom: 16 }}>
+        {verdict && <span className={`chip ${verdict.cls}`}><VerdictIcon size={13} aria-hidden />{verdict.label}</span>}
+        {ev.reliability && <ul className="reliability-checks">{ev.reliability.checks.map((check) => <li key={check.name}>
+          <span className={`chip ${check.status === 'ok' ? 'ok' : check.status === 'weak' ? 'warn' : 'crit'}`}>{check.status === 'ok' ? <CircleCheck size={13} aria-hidden /> : check.status === 'weak' ? <TriangleAlert size={13} aria-hidden /> : <CircleX size={13} aria-hidden />}{check.status}</span>
+          <div><b>{check.name}</b><p className="muted">{check.detail}</p></div>
+        </li>)}</ul>}
+        {dayTypes.length > 0 && <table className="table reliability-table"><caption>Error by kind of day</caption><thead><tr><th>Kind of day</th><th>Days</th><th>MAPE %</th></tr></thead><tbody>
+          {dayTypes.map((row) => <tr key={row.name} data-worst={row === worst}><td>{row.name}{row === worst && <span className="reliability-worst"><TriangleAlert size={13} aria-hidden />Worst error</span>}</td><td className="num">{row.days}</td><td className="num">{row.mape}%</td></tr>)}
+        </tbody></table>}
+      </Card>
       <ModelComparison ev={ev} color={color} />
       <section className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))' }}>
         <Card title="Against simple methods" sub="Average error over the test days, lower is better">

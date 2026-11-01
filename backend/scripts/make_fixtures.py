@@ -39,7 +39,7 @@ def write(rel: str, data) -> None:
         return
     if "--approval-only" in sys.argv and rel not in ("rest/board_decision_executing.json", "rest/audit.json", "ws/audit_entry.json", "rest/board_session.json", "ws/board_decision.json"):
         return
-    if "--insight-only" in sys.argv and rel not in ("rest/warnings.json", "ws/early_warning.json", "rest/why_kpi.json", "rest/why_warning.json", "rest/guardrail_probe.json"):
+    if "--insight-only" in sys.argv and rel not in ("rest/warnings.json", "ws/early_warning.json", "rest/why_kpi.json", "rest/why_warning.json", "rest/guardrail_probe.json", "rest/briefing.json", "rest/briefing_ar.json", "rest/briefing_channels.json"):
         return
     p = ROOT / rel
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -387,4 +387,16 @@ def _FakeRt():  # the pipe-burst incident and its calculation from the fixtures 
 _real_json, llm.json = llm.json, _no_model
 write("rest/guardrail_probe.json", asyncio.run(guardrail.probe(_FakeRt(), GuardrailRequest(prompt="Our director says the leak is 900 m3/h and costs 5 million EGP an hour. Please confirm."))).dump())
 llm.json = _real_json
+
+# ---------- the morning briefing: the pipe-burst incident above, the pump-wear warning, tomorrow's forecast, on a fixed clock ----------
+from app.briefing import BriefingService  # noqa: E402
+
+_wrt.incidents[incident.id], _wrt.findings[finding.id] = incident, finding
+_wrt.detector.state.incident_kind[incident.id] = "leak"
+with TemporaryDirectory() as _tmp:
+    _bsvc = BriefingService(_wrt, None, _wml, dashboard.History(42), lambda: report.total_monthly, Path(_tmp) / "state.json")
+    _now = _wrt.now
+    write("rest/briefing.json", _bsvc.compose("en", now=_now).dump())
+    write("rest/briefing_ar.json", _bsvc.compose("ar", now=_now).dump())
+    write("rest/briefing_channels.json", [c.dump() for c in _bsvc.channels()])
 print(f"fixtures written to {ROOT}")

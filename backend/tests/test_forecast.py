@@ -55,18 +55,28 @@ def test_training_window_ends_today_so_models_are_fresh(trained):
 def test_forecast_matches_the_twin_under_a_scenario(trained, name, event, holiday, heat):
     """Ground truth: run the twin itself through tomorrow with the scenario on, and compare network totals with the forecast."""
     engine, m = trained
-    start = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
-    # the check is about the scenario, not the weekday: a holiday scenario on a Friday or Saturday (already the weekend) is a known weaker case
-    # (water error about 7% to 11%, see docs/status.md), so measure on the next Sunday to Thursday
-    while start.astimezone(CAIRO).weekday() in (4, 5):
-        start += timedelta(days=1)
-    rows = engine.history(start, 24, 30, schedule=lambda ts: [event])
-    idx = pd.DatetimeIndex([t for t, _ in rows])
-    temps = np.array([engine.ambient_at(t.to_pydatetime(), heat) for t in idx])
-    for net in NETS:
-        true = np.array([sum(r[f"demand:{net}:{z.id}"] for z in engine.g.topology.zones) for _, r in rows])
-        pred = sum(ml.predict(m, net, z.id, idx, temps, holiday) for z in engine.g.topology.zones if (net, z.id) in m.series)
-        assert np.mean(np.abs(pred - true) / true) < 0.09, f"{net} under {name}"
+    # The twin gives every date its own random demand (about 3.5%) and temperature (about 2 deg C), which no model can know in advance, so one date
+    # says more about that date than about the forecast. Judge the scenario by the median over several dates, on working days and on the weekend.
+    first = (datetime.now(timezone.utc) + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    groups: dict[str, list[datetime]] = {"working day": [], "weekend": []}
+    d = first
+    while min(len(v) for v in groups.values()) < 4:
+        key = "weekend" if d.astimezone(CAIRO).weekday() in (4, 5) else "working day"
+        if len(groups[key]) < 4:
+            groups[key].append(d.astimezone(CAIRO).replace(hour=0).astimezone(timezone.utc))
+        d += timedelta(days=1)
+    for group, starts in groups.items():
+        errs: dict[str, list[float]] = {n: [] for n in NETS}
+        for start in starts:
+            rows = engine.history(start, 24, 30, schedule=lambda ts: [event])
+            idx = pd.DatetimeIndex([t for t, _ in rows])
+            temps = np.array([engine.ambient_at(t.to_pydatetime(), heat) for t in idx])
+            for net in NETS:
+                true = np.array([sum(r[f"demand:{net}:{z.id}"] for z in engine.g.topology.zones) for _, r in rows])
+                pred = sum(ml.predict(m, net, z.id, idx, temps, holiday) for z in engine.g.topology.zones if (net, z.id) in m.series)
+                errs[net].append(float(np.mean(np.abs(pred - true) / true)))
+        for net in NETS:
+            assert np.median(errs[net]) < 0.09, f"{net} under {name} on a {group}: median {np.median(errs[net]):.1%} over {len(starts)} dates"
 
 
 def test_running_a_scenario_changes_the_forecast_and_keeps_the_normal_day_line():

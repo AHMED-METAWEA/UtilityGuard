@@ -222,3 +222,8 @@ data-raw/
 .playwright-mcp/
 shots/
 backend/data/audit.jsonl
+
+# measurement outputs and the briefing history (local state)
+backend/data/stress/
+backend/data/briefing_state.json
+backend/data/exports/

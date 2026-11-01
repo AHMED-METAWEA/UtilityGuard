@@ -377,6 +377,23 @@ class ModelComparisonRow(ModelScore):
     weights_source: str = ""
 
 
+class DayTypeScore(Model):
+    name: str  # a kind of day: working day, weekend, holiday on a working day, holiday on a weekend day, heat wave
+    days: int
+    mape: float  # percent, network total, out-of-fold on the development window
+
+
+class ReliabilityCheck(Model):
+    name: str
+    status: Literal["ok", "weak", "fail"]
+    detail: str  # the figures behind the status
+
+
+class Reliability(Model):
+    label: Literal["reliable", "indicative", "unreliable"]  # the weakest of the checks
+    checks: list[ReliabilityCheck]
+
+
 class ForecastEvidence(Model):
     """Everything behind the accuracy claim for one network: test window, scores against naive baselines, band coverage."""
     network: Network
@@ -400,6 +417,8 @@ class ForecastEvidence(Model):
     selected: str = "lightgbm"
     selected_matches_live: bool = True
     comparison_note: str = ""
+    by_day_type: list[DayTypeScore] = Field(default_factory=list)
+    reliability: Reliability | None = None
 
 
 class ModelMetrics(Model):

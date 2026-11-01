@@ -57,10 +57,14 @@ test('clear and new snapshots discard warnings just like boards', async () => {
   assert.deepEqual(useStore.getState().warnings, {});
 });
 
-test('real guardrail output segments losslessly and marks exactly the removed figures', () => {
+test('real guardrail output segments losslessly and marks removed spans without duplicating overlaps', () => {
   const pieces = segment(probe.raw, probe.figures);
   assert.equal(pieces.map((piece) => piece.text).join(''), probe.raw);
-  assert.deepEqual(pieces.flatMap((piece) => piece.figure?.verdict === 'removed' ? [piece.figure] : []), probe.figures.filter((figure) => figure.verdict === 'removed'));
+  const marked = pieces.flatMap((piece) => piece.figure?.verdict === 'removed' ? [piece.figure] : []);
+  assert.equal(marked.length, probe.removed);
+  assert.ok(marked.every((figure) => probe.figures.includes(figure)));
+  // The fixture also reports "million" inside the already removed "5 million".
+  assert.ok(probe.figures.filter((figure) => figure.verdict === 'removed').every((figure) => marked.includes(figure) || marked.some((span) => span.text.includes(figure.text))));
   assert.equal(pieces.map((piece) => piece.figure?.verdict === 'removed' ? '[figure removed]' : piece.text).join(''), probe.checked);
 });
 
@@ -81,7 +85,7 @@ test('sequential segmentation distinguishes repeated numbers and skips unmatched
 });
 
 test('summary handles zero, singular and plural counts', () => {
-  assert.equal(summarize(probe), '4 figures checked against 39 calculated values; 4 removed');
+  assert.equal(summarize(probe), '5 figures checked against 39 calculated values; 4 removed');
   assert.equal(summarize({ ...probe, figures: probe.figures.slice(0, 1), allowedCount: 1, removed: 0 }), '1 figure checked against 1 calculated value; 0 removed');
   assert.equal(summarize({ ...probe, figures: [], allowedCount: 0, removed: 0 }), '0 figures checked against 0 calculated values; 0 removed');
   assert.equal(PRESETS.length, 3); assert.ok(PRESETS.every((prompt) => prompt.length > 0 && prompt.length <= 600));

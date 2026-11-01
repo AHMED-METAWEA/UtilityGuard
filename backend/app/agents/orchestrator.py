@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from app.agents.checker import allowed_numbers, check
+from app.agents.figures import FigureSet, for_findings, for_record, item_key
 from app.agents.llm import MODEL_FAST, MODEL_ORCH, llm
 from app.agents.specialists import DOMAIN
 from app.agents.tools import AGENT_FOR_KIND, find_asset, impacted, what_if
@@ -33,14 +34,17 @@ Pick which specialists must be consulted for the owner's question, in a sensible
 Return JSON: {"route": [{"agent": "water"|"electricity"|"cooling", "reason": str}]}"""
 
 CONSULT = """You are the {agent} agent of UtilityGuard. Expert only in {domain}.
-Answer the orchestrator about your domain in at most 2 sentences, using ONLY numbers present in the data.
+Answer the orchestrator about your domain in at most 2 sentences. Never type a cost: write its token from `figures`, for example {{{{find_0001_act_now}}}};
+the token carries its unit and is replaced by code with the calculated value. Any other number you type must be in the data, quoted exactly.
 Return JSON: {{"view": str}}"""
 
 SYNTH = """You are the orchestrator of UtilityGuard, advising the business owner of the New Administrative Capital utilities.
 Combine the specialists' views into one clear answer: the consequence, a ranked action plan, and the money (act now vs delay, saving).
-Rules: use ONLY numbers that appear in the data; never estimate. If data is missing, say so.
+Rules: never type a cost. The data holds a table of `figures`: write the token of each money amount or duration, for example {{act_now}}; the token already
+carries its unit ("18,400 EGP") and is replaced by code with the calculated value, so do not add a unit after it. Any other number you type must be in the data,
+quoted exactly; never estimate. If data is missing, say so.
 Style: max 100 words, plain sentences, no markdown, no emoji, no quotes around numbers. Refer to assets by their short names (SS-02, P-04, DCP-01).
-Write money as "18,400 EGP". Mention only the 3 or 4 most important effects, then a numbered action plan (1. 2. 3.), then act now vs delay and the saving.
+Mention only the 3 or 4 most important effects, then a numbered action plan (1. 2. 3.), then act now vs delay and the saving.
 Return JSON: {"answer": str}"""
 
 KEYWORDS = {
@@ -134,12 +138,15 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
         open_incs = [i for i in rt.incidents.values() if i.state != "resolved"]
         for step in s["route"]:
             a = step.agent
+            mine = [f for f in rt.findings.values() if f.agent == a][-2:]
+            fs = for_findings(mine)
             data = {
                 "question": s["question"],
                 "whatIf": {"asset": s["whatif"].get("asset"), "changes": s["whatif"].get("changes", {}).get(a, [])} if s["whatif"] else None,
                 "openIncidents": [{"title": i.title, "networks": i.networks} for i in open_incs if a in i.networks],
-                "findings": [{"headline": f.headline, "action": f.recommended_action.text, "actNow": f.cost.act_now,
-                              "saving": f.cost.expected_saving} for f in rt.findings.values() if f.agent == a][-2:],
+                "findings": [{"headline": f.headline, "action": f.recommended_action.text, "actNow": "{{" + f"{f.id.replace('-', '_')}_act_now" + "}}",
+                              "saving": "{{" + f"{f.id.replace('-', '_')}_saving" + "}}"} for f in mine],
+                "figures": fs.table(),
             }
             out, fb = await llm.json(llm.key("consult", a, s["question"].lower().strip()),
                                      CONSULT.format(agent=a, domain=DOMAIN[a]), json.dumps(data, default=str), model=MODEL_FAST)
@@ -147,7 +154,12 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
             known = [x[k] for net in (s["whatif"] or {}).get("changes", {}).values() for x in net for k in ("from", "to", "change")]
             known += [v for f in rt.findings.values() for v in (f.cost.expected_saving, f.cost.act_now, f.cost.cost_of_delay or 0)]
             raw = (out or {}).get("view")
+            if isinstance(raw, str):
+                raw, unknown = fs.render(raw)
+            else:
+                unknown = []
             view, removed = check(raw, allowed_numbers(rec, known)) if raw else ("", [])
+            removed = [*unknown, *removed]
             # a specialist view with a figure we cannot trace to the data is replaced by the computed wording
             views[a] = view if raw and not removed else _template_view(a, data)
             s = {**s, "fallback": s.get("fallback") or fb or bool(removed)}
@@ -155,20 +167,25 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
 
     async def synthesize(s: OState) -> OState:
         rec = s.get("record")
+        open_findings = [f for f in rt.findings.values() if rt.incidents.get(f.incident_id) and rt.incidents[f.incident_id].state != "resolved"]
+        fs = for_record(rec).merge(for_findings(open_findings)) if rec else for_findings(open_findings)
+        tok = lambda key: "{{" + key + "}}"  # noqa: E731
         data = {"question": s["question"], "specialists": s["views"], "whatIf": s["whatif"] or None,
-                "cost": {"actNowEGP": rec.cost.act_now, "costOfDelayEGP": rec.cost.cost_of_delay, "delayHours": rec.cost.delay_hours,
-                         "savingEGP": rec.cost.expected_saving, "breakdown": [b.dump() for b in rec.cost.breakdown]} if rec else "not available",
+                "cost": {"actNow": tok("act_now"), "costOfDelay": tok("cost_of_delay"), "delayHours": tok("delay_hours"), "saving": tok("expected_saving"),
+                         "breakdown": [{"item": b.label, "amount": tok(item_key(i, b.label))} for i, b in enumerate(rec.cost.breakdown, 1)]} if rec else "not available",
                 "openFindings": [{"agent": f.agent, "action": f.recommended_action.text, "urgency": f.recommended_action.urgency,
-                                  "saving": f.cost.expected_saving, "actNow": f.cost.act_now} for f in rt.findings.values()
-                                 if rt.incidents.get(f.incident_id) and rt.incidents[f.incident_id].state != "resolved"]}
+                                  "saving": tok(f"{f.id.replace('-', '_')}_saving"), "actNow": tok(f"{f.id.replace('-', '_')}_act_now")} for f in open_findings],
+                "figures": fs.table()}
         out, fb = await llm.json(llm.key("synth", s["question"].lower().strip(), str(sorted(s["views"]))), SYNTH,
                                  json.dumps(data, default=str), model=MODEL_ORCH)
         answer = (out or {}).get("answer") or _template_answer(s, rec)
+        answer, unknown = fs.render(answer) if isinstance(answer, str) else (answer, [])
         extra = [x[k] for net in (s["whatif"] or {}).get("changes", {}).values() for x in net for k in ("from", "to", "change")]
         extra += [f.cost.expected_saving for f in rt.findings.values()] + [f.cost.act_now for f in rt.findings.values()]
         extra += [float(n.replace(",", "")) for v in s["views"].values() for n in re.findall(r"\d[\d,]*\.?\d*", v)]
         allowed = allowed_numbers(rec, extra)
         cleaned, removed = check(answer, allowed)
+        removed = [*unknown, *removed]
         if removed:  # the wording quoted a figure that is not in the data: use the computed wording
             cleaned, _ = check(_template_answer(s, rec), allowed)
         return {"answer": cleaned, "removed": removed, "fallback": s.get("fallback") or fb or bool(removed)}

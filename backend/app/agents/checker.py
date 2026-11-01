@@ -7,14 +7,69 @@ from typing import Iterable
 
 from app.schemas import CalculationRecord
 
-NUM = re.compile(r"(?<![\w.,])(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)(\s*(?:million|billion|thousand)\b|[kKmMbB](?![A-Za-z0-9]))?(?![\w])")
-SCALE = {"k": 1e3, "thousand": 1e3, "m": 1e6, "million": 1e6, "b": 1e9, "billion": 1e9}
+# \d also matches Arabic-Indic and fullwidth digits; the Arabic thousands (U+066C) and decimal (U+066B) separators are accepted next to , and . and the Arabic scale words
+# (thousand, million, billion) count like the English ones. Arabic letters may touch a figure ("و٥٠٠": the conjunction is written glued to it); Latin letters may not (asset ids).
+NUM = re.compile(r"(?<![\d_A-Za-z.,\u066b\u066c])(\d{1,3}(?:[,\u066c]\d{3})+(?:[.\u066b]\d+)?|\d+(?:[.\u066b]\d+)?)(\s*(?:million|billion|thousand|\u0645\u0644\u064a\u0648\u0646|\u0645\u0644\u0627\u064a\u064a\u0646|\u0645\u0644\u064a\u0627\u0631|\u0645\u0644\u064a\u0627\u0631\u0627\u062a|\u0623\u0644\u0641|\u0622\u0644\u0627\u0641)\b|[kKmMbB](?![A-Za-z0-9]))?(?![A-Za-z0-9_])")
+SCALE = {"k": 1e3, "thousand": 1e3, "m": 1e6, "million": 1e6, "b": 1e9, "billion": 1e9,
+         "\u0623\u0644\u0641": 1e3, "\u0622\u0644\u0627\u0641": 1e3, "\u0645\u0644\u064a\u0648\u0646": 1e6, "\u0645\u0644\u0627\u064a\u064a\u0646": 1e6,
+         "\u0645\u0644\u064a\u0627\u0631": 1e9, "\u0645\u0644\u064a\u0627\u0631\u0627\u062a": 1e9}
 
 
 def value(m: re.Match) -> float:
     """The number a match stands for: '5 million' is 5,000,000 and '36k' is 36,000, so a scale word cannot hide a figure."""
-    return abs(float(m.group(1).replace(",", ""))) * SCALE.get((m.group(2) or "").strip().lower(), 1.0)
+    digits = m.group(1).replace(",", "").replace("\u066c", "").replace("\u066b", ".")
+    return abs(float(digits)) * SCALE.get((m.group(2) or "").strip().lower(), 1.0)
+
+
+_UNITS = {w: i for i, w in enumerate("one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split(), 1)}
+_TENS = {w: 10 * i for i, w in enumerate("twenty thirty forty fifty sixty seventy eighty ninety".split(), 2)}
+_BIG = {"hundred": 100, "thousand": 1e3, "million": 1e6, "billion": 1e9}
+_WORD = "|".join([*_UNITS, *_TENS, *_BIG, "a", "an", "and"])
+WORDNUM = re.compile(rf"\b(?:(?:{_WORD})\b[ \t-]*)+", re.I)
+
+
+def _words_value(raw: str) -> float | None:
+    """'fifty thousand' is 50,000 and 'a million' is 1,000,000. Only a run that contains a scale word counts: 'one of the pumps' is not a figure."""
+    toks = [t for t in re.split(r"[ \t-]+", raw.lower().strip()) if t]
+    while toks and toks[0] == "and":
+        toks.pop(0)
+    while toks and toks[-1] in ("and", "a", "an"):
+        toks.pop()
+    if not toks or not any(t in _BIG for t in toks) or all(t in ("a", "an", "and") for t in toks):
+        return None
+    total, cur = 0.0, 0.0
+    for t in toks:
+        if t in ("a", "an"):
+            cur = cur or 1
+        elif t in _UNITS:
+            cur += _UNITS[t]
+        elif t in _TENS:
+            cur += _TENS[t]
+        elif t == "hundred":
+            cur = (cur or 1) * 100
+        elif t in _BIG:
+            total += (cur or 1) * _BIG[t]
+            cur = 0
+    return total + cur
+
+
 REMOVED = "[figure removed]"
+
+
+def _quantities(text: str):
+    """Every figure in a text, as (start, end, raw, value, what follows it): digits and spelled-out numbers, in reading order."""
+    spans = []
+    for m in NUM.finditer(text):
+        before = text[max(0, m.start() - 3):m.start()]
+        if re.search(r"[A-Za-z]-$|[A-Za-z]$", before) or text[m.end():m.end() + 1] == ":" or before.endswith(":"):
+            continue  # asset ids like SS-03 or R5 and clock times
+        spans.append((m.start(), m.end(), m.group(0), value(m), text[m.end():m.end() + 8]))
+    for m in WORDNUM.finditer(text):
+        v = _words_value(m.group(0))
+        if v is not None:
+            raw = m.group(0).rstrip(" \t-")
+            spans.append((m.start(), m.start() + len(raw), raw, v, text[m.start() + len(raw):m.start() + len(raw) + 8]))
+    return sorted(spans)
 
 
 Labeled = list[tuple[float, str]]
@@ -80,33 +135,27 @@ def _ok(x: float, allowed: set[float], after: str = "") -> bool:
 def check(text: str, allowed: set[float]) -> tuple[str, list[str]]:
     """Return text with unverifiable figures removed, and the list of removed figures."""
     removed: list[str] = []
-
-    def sub(m: re.Match) -> str:
-        raw = m.group(0)
-        # ids like SS-03, P-04, R5, CL-02 and times like 14:32 are not quantities
-        before = text[max(0, m.start() - 3):m.start()]
-        if re.search(r"[A-Za-z]-$|[A-Za-z]$", before) or text[m.end():m.end() + 1] == ":" or before.endswith(":"):
-            return raw
-        x = value(m)
-        if _ok(x, allowed, text[m.end():m.end() + 8]):
-            return raw
-        removed.append(raw)
-        return REMOVED
-
-    return NUM.sub(sub, text), removed
+    out, pos = [], 0
+    for start, end, raw, x, after in _quantities(text):
+        if start < pos:
+            continue
+        out.append(text[pos:start])
+        if _ok(x, allowed, after):
+            out.append(raw)
+        else:
+            removed.append(raw)
+            out.append(REMOVED)
+        pos = end
+    out.append(text[pos:])
+    return "".join(out), removed
 
 
 def figures(text: str, allowed: Labeled) -> list[dict]:
     """Every figure in a text with the verdict the checker gives it and, when it passes, the calculated value it matches."""
     out = []
-    for m in NUM.finditer(text):
-        before = text[max(0, m.start() - 3):m.start()]
-        if re.search(r"[A-Za-z]-$|[A-Za-z]$", before) or text[m.end():m.end() + 1] == ":" or before.endswith(":"):
-            continue  # asset ids and clock times
-        raw = m.group(0)
-        x = value(m)
+    for _, _, raw, x, after in _quantities(text):
         hit = _match(x, allowed)
-        if hit is None and _small_count(x, text[m.end():m.end() + 8]):
+        if hit is None and _small_count(x, after):
             out.append({"text": raw, "value": x, "verdict": "verified", "matched": "a small count or ordinal", "matched_value": x})
         elif hit is None:
             out.append({"text": raw, "value": x, "verdict": "removed", "matched": None, "matched_value": None})

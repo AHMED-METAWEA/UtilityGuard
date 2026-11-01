@@ -15,6 +15,7 @@ Failure prediction: gradient boosting on asset condition features with labels fr
 from __future__ import annotations
 
 import logging
+import os
 import pickle
 import time
 from dataclasses import dataclass, field
@@ -28,16 +29,18 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
+from app.ml.verdict import day_type_scores
 from app.schemas import FeatureImportance, Forecast, ForecastMetrics, ForecastPoint, NetworkMetrics
 from app.sim.engine import CAIRO, Engine, Event, ambient_temp
 from app.sim.topology import ZONE_BASE
 
 log = logging.getLogger("utilityguard.ml")
 MODELS = Path(__file__).resolve().parents[2] / "data" / "models.pkl"
-MODEL_VERSION = 5
-HISTORY_DAYS = 75  # the window always ends at the start of today, so the model has seen the latest weather
+MODEL_VERSION = 7  # 7: the test slice is the same dates whatever the history length; 6: the scenario calendar includes weekend days
+HISTORY_DAYS = int(os.getenv("FORECAST_HISTORY_DAYS", "270"))  # days of history; 270 beat 75 by about a quarter of the error on identical test days (docs/measurements/forecast-history-length.md). The window always ends at the start of today, so the model has seen the latest weather
 FOLDS = 5  # blocked cross-validation folds over the development window
 TEST_DAYS = 10
+HOLIDAY_DAYS = 14  # holidays in the development window; the demand on a holiday is a mix of the weekend and the working day, and it is the case the model learns last
 NOMINAL = 0.8  # share of real values the band is built to contain
 WEATHER_SIGMA = 1.0  # deg C, assumed error of the weather forecast the model is given at prediction time
 ANCHOR_TAUS = (0, 2.0, 4.0, 8.0, 16.0)  # hours over which a live correction fades; 0 = no correction
@@ -69,25 +72,45 @@ def lag_values(hist: pd.Series, times: pd.DatetimeIndex, days: int) -> np.ndarra
     return hist.values[hist.index.get_indexer(ref, method="nearest")]
 
 
-def scenario_calendar(seed: int, start: date) -> dict[date, tuple[float, float]]:
+def scenario_calendar(seed: int, start: date, days: int | None = None) -> dict[date, tuple[float, float]]:
     """Days of the training history with a heat wave (peak deg C) or a holiday (residential factor).
-    The development window and the test slice both get some, so the model learns them and the test can score them."""
-    rng = np.random.default_rng(seed + 21)
+    The development window and the test slice both get some, so the model learns them and the test can score them.
+    Some of them fall on the Friday and Saturday weekend, about their natural share: a holiday on a weekend day is a combination the model must have seen,
+    or the first Friday on which someone runs the holiday scenario it extrapolates (it did, with water errors of 7% to 11%).
+    The test slice is chosen by its distance from the end of the window, so it is the same dates whatever the window's length and a longer history can be
+    compared with a shorter one on identical days. The development window keeps the density of scenario days it has always had (10 heat days and
+    HOLIDAY_DAYS holidays in 63 free days) however long it is."""
+    days = days or HISTORY_DAYS
     cal: dict[date, tuple[float, float]] = {}
-    windows = [(0, HISTORY_DAYS - TEST_DAYS, 10), (HISTORY_DAYS - TEST_DAYS, HISTORY_DAYS, 2)]
-    for lo, hi, n in windows:
-        days = [d for d in range(lo + 1, hi - 1) if (start + timedelta(days=d)).weekday() not in (4, 5)]
-        picks = rng.choice(days, size=2 * n, replace=False)
-        for d in picks[:n]:
-            cal[start + timedelta(days=int(d))] = (float(rng.uniform(41, 48)), 0.0)
-        for d in picks[n:]:
-            cal[start + timedelta(days=int(d))] = (0.0, float(rng.uniform(1.15, 1.6)))
+    dev_free = list(range(1, days - TEST_DAYS - 1))
+    test_free = list(range(days - TEST_DAYS + 1, days - 1))
+    scale = len(dev_free) / 63
+    windows = [(np.random.default_rng(seed + 21), dev_free, {"heat": max(4, round(10 * scale)), "holiday": max(6, round(HOLIDAY_DAYS * scale))}),
+               (np.random.default_rng(seed + 22), test_free, {"heat": 2, "holiday": 2})]
+    for rng, free, counts in windows:
+        weekend = [d for d in free if (start + timedelta(days=d)).weekday() in (4, 5)]
+        left_wk = list(weekend)
+        left_wd = [d for d in free if d not in weekend]
+        picks: dict[str, list[int]] = {}
+        for kind in ("heat", "holiday"):
+            n = counts[kind]
+            n_weekend = max(1, round(n * 2 / 7))  # their natural share
+            wk = [int(d) for d in rng.choice(left_wk, size=min(n_weekend, len(left_wk)), replace=False)]
+            wd = [int(d) for d in rng.choice(left_wd, size=n - len(wk), replace=False)]
+            left_wk = [d for d in left_wk if d not in wk]
+            left_wd = [d for d in left_wd if d not in wd]
+            picks[kind] = wk + wd
+        for d in picks["heat"]:
+            cal[start + timedelta(days=d)] = (float(rng.uniform(41, 48)), 0.0)
+        for d in picks["holiday"]:
+            cal[start + timedelta(days=d)] = (0.0, float(rng.uniform(1.15, 1.6)))
     return cal
 
 
 @dataclass
 class Models:
     version: int = MODEL_VERSION
+    history_days: int = 75  # how many days it was trained on; a model trained on another length is not reused
     demand: dict = field(default_factory=dict)  # network -> median model
     metrics: dict = field(default_factory=dict)  # network -> (mae, rmse, mape) of the whole network on the test slice
     importances: dict = field(default_factory=dict)
@@ -136,11 +159,11 @@ def window_end(now: datetime) -> datetime:
     return now.astimezone(CAIRO).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
 
 
-def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -> Models:
+def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None, capture: dict | None = None) -> Models:
     t0 = time.time()
     end = window_end(now or datetime.now(timezone.utc))
     start = end - timedelta(days=HISTORY_DAYS)
-    cal = scenario_calendar(engine.seed, start.astimezone(CAIRO).date())
+    cal = scenario_calendar(engine.seed, start.astimezone(CAIRO).date(), HISTORY_DAYS)
 
     def schedule(ts: datetime) -> list[Event]:
         heat, hol = cal.get(ts.astimezone(CAIRO).date(), (0.0, 0.0))
@@ -152,7 +175,7 @@ def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -
     hours = HISTORY_DAYS * 24
     clean = frame(engine.history(start, hours, step_minutes))  # a normal-day history, the lag source
     df = frame(engine.history(start, hours, step_minutes, schedule=schedule))  # the same days with the scenarios in
-    m = Models(zone_types={z.id: z.type for z in engine.g.topology.zones}, trained_through=end)
+    m = Models(zone_types={z.id: z.type for z in engine.g.topology.zones}, trained_through=end, history_days=HISTORY_DAYS)
     per_day = 24 * 60 // step_minutes
     t_test = df.index[-TEST_DAYS * per_day]
     ts_all = pd.Series(df.index)
@@ -203,6 +226,8 @@ def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -
             live_seconds += time.perf_counter() - fit_start
             oof[block == k] = score(fit, dev[block == k], "temp_fc")
         ca, te = dev.assign(p=oof), te.assign(p=score(med, te), p_blind=score(med, te, "temp_blind", True))
+        if capture is not None:  # the exact rows this network's model was fitted and scored on, for `scripts/export_training_data.py`
+            capture[net] = pd.concat([ca.assign(split="dev", fold=block), te.assign(split="test", fold=-1)], ignore_index=True)
         # band: relative error quantiles of those out-of-fold errors, per zone and for the network total, kept apart for
         # heat-wave days because demand there is more sensitive to the weather feed's error
         for z in list(ca.zone.unique()) + ["all"]:
@@ -234,6 +259,7 @@ def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -
                     "mape_blind": _stats(y[scen], agg.p_blind.values[scen])["mape"] if scen.any() else 0.0}
         # live correction: pick how long it should last on the out-of-fold errors, report it on the test slice
         cal_agg = ca.groupby("ts")[["y", "p"]].sum()
+        by_day_type = day_type_scores(ca.groupby("ts").agg(y=("y", "sum"), p=("p", "sum"), heat=("heat", "max"), holiday=("holiday", "max")))
         errs = {tau: _stats(*_anchored(cal_agg.y.values, cal_agg.p.values, tau, step_h, per_day))["mae"] for tau in ANCHOR_TAUS}
         tau = min(errs, key=errs.get)
         m.anchor_tau[net] = tau
@@ -245,7 +271,7 @@ def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -
             "weather_error_c": WEATHER_SIGMA, "unit": UNITS[net], "model": model_stats, "baselines": base_stats,
             "skill": 1 - model_stats["mae"] / best, "coverage": coverage, "nominal": NOMINAL, "by_hour": by_hour,
             "scenario": scenario, "anchor": {"tau_hours": tau, "mae_without": _stats(ya0, pa0)["mae"], "mae_with": _stats(ya, pa)["mae"]},
-            "zones": zones,
+            "zones": zones, "by_day_type": by_day_type,
         }
         from app.ml.comparison import compare
         m.evidence[net].update(compare(dev, te, block, oof, agg, best, live_seconds, engine.seed, per_day))
@@ -257,7 +283,7 @@ def train(engine: Engine, step_minutes: int = 30, now: datetime | None = None) -
         m.importances[f"forecast-{net}"] = sorted(((k, v / total) for k, v in imp.items()), key=lambda kv: -kv[1])[:6]
         log.info("trained %s forecast mape=%.1f%% skill=%.0f%% coverage=%.0f%% anchor tau=%sh", net, model_stats["mape"], m.evidence[net]["skill"] * 100, coverage * 100, tau)
 
-    m.failure, m.failure_auc, fi = _train_failure(engine.seed)
+    m.failure, m.failure_auc, fi = _train_failure(engine.seed, capture)
     m.importances["failure"] = fi
     m.last_run = datetime.now(timezone.utc)
     log.info("ml training done in %.1fs", time.time() - t0)
@@ -271,12 +297,14 @@ def failure_hazard(x: np.ndarray) -> np.ndarray:
     return 1 / (1 + np.exp(-z))
 
 
-def _train_failure(seed: int):
+def _train_failure(seed: int, capture: dict | None = None):
     rng = np.random.default_rng(seed + 3)
     n = 6000
     X = np.column_stack([rng.uniform(0, 25, n), rng.uniform(0, 60, n), rng.gamma(1.2, 0.35, n),
                          rng.gamma(1.0, 0.3, n), rng.uniform(0.3, 1.15, n), np.maximum(rng.normal(0, 6, n), 0)])
     y = rng.uniform(size=n) < failure_hazard(X)
+    if capture is not None:
+        capture["failure"] = pd.DataFrame(X, columns=FAIL_FEATURES).assign(hazard=failure_hazard(X), failed=y)
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.25, random_state=seed)
     clf = GradientBoostingClassifier(n_estimators=150, max_depth=3, random_state=seed).fit(Xtr, ytr)
     auc = float(roc_auc_score(yte, clf.predict_proba(Xte)[:, 1]))
@@ -292,7 +320,7 @@ def load_or_train(engine: Engine) -> Models:
     if MODELS.exists():
         try:
             m = pickle.loads(MODELS.read_bytes())
-            if isinstance(m, Models) and getattr(m, "version", 0) == MODEL_VERSION and not is_stale(m, datetime.now(timezone.utc)):
+            if isinstance(m, Models) and getattr(m, "version", 0) == MODEL_VERSION and getattr(m, "history_days", 75) == HISTORY_DAYS and not is_stale(m, datetime.now(timezone.utc)):
                 return m
         except Exception:  # noqa: BLE001
             log.warning("model cache unreadable, retraining")

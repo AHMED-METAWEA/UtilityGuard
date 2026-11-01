@@ -191,3 +191,13 @@ export interface GuardrailResult {
   prompt: string; incidentId: string; calculationId: string; source: 'llm' | 'planted'; raw: string; checked: string;
   figures: GuardrailFigure[]; removed: number; allowedCount: number;
 }
+
+export interface BriefingDelivery { channel: 'telegram' | 'in_app'; state: 'sent' | 'failed' | 'skipped'; detail: string; at: Timestamp }
+export interface Briefing {
+  generatedAt: Timestamp; lang: 'en' | 'ar'; headline: string;
+  sections: { id: 'decision' | 'now' | 'watch' | 'outlook' | 'money'; title: string; items: { kind: string; severity: 'critical' | 'warning' | 'info'; text: string; fingerprint: string; link?: string }[] }[];
+  text: string; figures: { key: string; label: string; display: string; value: number }[];
+  repeated: number; deliveries: BriefingDelivery[];
+}
+export interface BriefingChannel { channel: BriefingDelivery['channel']; configured: boolean; detail: string }
+export interface BriefingSendResult { delivery: BriefingDelivery; briefing: Briefing }

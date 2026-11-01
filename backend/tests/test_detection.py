@@ -122,3 +122,55 @@ def test_storm_cascades_into_one_escalating_incident():
     assert {"electricity", "water", "cooling"} <= set(inc.networks)
     assert det.state.incident_kind[inc.id] == "substation_trip"
     assert [f.kind for _, f, _ in found][0] != "substation_trip" and found[-1][1].kind == "substation_trip"
+
+
+# ---------- one fault is one incident, however its symptoms move ----------
+def run_timeline(events: dict[int, list], total: int, warm: int = 120):
+    """Events are added at the given ticks (counted from the end of the warm-up)."""
+    rt = Runtime(42)
+    det = Detector(rt)
+    rt.tick_hooks.append(det.tick)
+
+    async def go():
+        for i in range(warm + total):
+            for ev in events.get(i - warm, []):
+                rt.add_event(ev)
+            await rt.tick_once(T0 + timedelta(seconds=2 * i))
+
+    asyncio.run(go())
+    return rt, det
+
+
+def test_a_weak_cooling_fault_is_one_incident_not_a_dozen(monkeypatch):
+    weak = events_for("scn-cooling-fault", {"targetAsset": "cool-plant-01", "severity": 0.2}, "t")
+    rt, _ = run_timeline({0: weak}, 450)
+    assert len(rt.incidents) == 1, [i.title for i in rt.incidents.values()]
+    # without the margin between opening and closing the same fault opens and closes the alert over and over
+    import app.detection as detection
+    monkeypatch.setattr(detection, "COOLING_RELEASE_C", 0.6)
+    monkeypatch.setattr(detection, "REOPEN_TICKS", 0)
+    rt, _ = run_timeline({0: events_for("scn-cooling-fault", {"targetAsset": "cool-plant-01", "severity": 0.2}, "t")}, 450)
+    assert len(rt.incidents) > 1
+
+
+def test_a_leak_stays_open_while_its_pump_has_no_power():
+    """A pump with no power moves no water, so a leak on its pipe shows no flow mismatch. That is not a repair."""
+    from app.sim.engine import Event
+    from app.sim.topology import ZONE_SUBSTATION
+    zone = "zone-gov"
+    pipe, sub = Runtime(42).engine.g.zone_pipe[zone], ZONE_SUBSTATION[zone]
+    burst = events_for("scn-pipe-burst", {"targetAsset": pipe, "severity": 0.7}, "t")
+    rt, det = run_timeline({0: burst, 100: [Event(kind="substation_trip", target=sub, severity=1.0, run_id="t")]}, 600)
+    leaks = [a for a in rt.alerts.values() if pipe in a.asset_ids and a.title in ("Pipe burst suspected", "Slow leak suspected")]
+    assert len(leaks) == 1 and leaks[0].state != "resolved", [(a.title, a.state) for a in leaks]
+
+
+def test_a_fault_that_comes_back_reopens_its_incident():
+    from app.sim.engine import Event
+    pipe = Runtime(42).engine.g.zone_pipe["zone-gov"]
+    first = Event(kind="pipe_burst", target=pipe, severity=0.7, run_id="t1", duration=80)
+    again = Event(kind="pipe_burst", target=pipe, severity=0.7, run_id="t2")
+    rt, det = run_timeline({0: [first], 130: [again]}, 400)
+    assert len(rt.incidents) == 1, [(i.id, i.state, i.title) for i in rt.incidents.values()]
+    inc = next(iter(rt.incidents.values()))
+    assert inc.state == "open" and len(inc.alert_ids) == 2

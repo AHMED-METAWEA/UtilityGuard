@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from app.agents.checker import allowed_numbers, check
+from app.agents.figures import TOKEN, FigureSet, for_record, for_sensors
 from app.agents.llm import MODEL_FAST, llm
 from app.agents.tools import PLAYBOOKS, impacted, read_sensors
 from app.cost import Assumptions, IncidentFacts, compute
@@ -35,7 +36,9 @@ SYSTEM = """You are the {agent} agent of UtilityGuard, a digital twin of the New
 You are an expert only in {domain}, and you treat it as the most important thing in the system.
 You receive measured facts and a cost calculation computed by code.
 Rules:
-- Use ONLY numbers that appear in the data, quoted exactly. Never invent or estimate a number.
+- Never type a digit for a cost, a duration or a sensor reading. The data holds a table of `figures`: write the figure's token, for example {{{{act_now}}}}.
+  The token already carries its unit and is replaced by code with the calculated value, so do not add a unit after it. Use only tokens from the table.
+- Asset names such as SS-02 and counts below ten may be written as they are. Any other number you type must appear in the data, quoted exactly. Never invent or estimate a number.
 - If something is not in the data, say it is not available.
 - Plain language for a business owner. Short.
 Return JSON: {{"headline": str (max 12 words), "explanation": str (2 sentences), "probableCauses": [str, str],
@@ -54,6 +57,7 @@ class SState(TypedDict, total=False):
     text: dict
     fallback: bool
     removed: list[str]
+    figs: FigureSet
     t0: float
     finding: Any
 
@@ -84,12 +88,11 @@ def build_specialist(rt: "Runtime", A: Assumptions):
     async def reason(s: SState) -> SState:
         rec, f = s["record"], s["facts"]
         crew, urgency, action = PLAYBOOKS[f.kind]
+        figs = for_record(rec).merge(for_sensors(s["sensors"][:8]))
         data = {
             "incident": s["incident"].title, "kind": f.kind, "reasons": [r.text for r in f.reasons],
-            "sensors": s["sensors"][:8], "dependencies": s["impact"],
-            "cost": {"actNowEGP": rec.cost.act_now, "costOfDelayEGP": rec.cost.cost_of_delay,
-                     "delayHours": rec.cost.delay_hours, "savingEGP": rec.cost.expected_saving,
-                     "delayPerHourEGP": rec.cost.delay_per_hour},
+            "sensors": [{"sensor": x["sensor"], "kind": x["kind"], "unit": x["unit"], "normal": x["normal"], "quality": x["quality"]} for x in s["sensors"][:8]],
+            "dependencies": s["impact"], "figures": figs.table(),
             "playbook": {"crew": crew, "action": action},
         }
         key = llm.key("finding", s["agent"], f.kind, s["root"])
@@ -98,17 +101,22 @@ def build_specialist(rt: "Runtime", A: Assumptions):
         if not out:
             out = template(s)
         steps = _step(s, f"Looked up {crew} playbook and wrote recommendation ({'recorded fallback' if fb else 'live LLM'})")
-        return {"text": out, "fallback": fb, "steps": steps}
+        return {"text": out, "fallback": fb, "steps": steps, "figs": figs}
 
     def verify(s: SState) -> SState:
         allowed = allowed_numbers(s["record"], [x for sn in s["sensors"] for x in (sn["now"], sn["min30"] or 0, sn["max30"] or 0, *sn["normal"])])
-        cleaned, removed = _clean(s["text"], allowed)
+        figs = s.get("figs") or FigureSet()
+        rendered, unknown = figs.render_any(s["text"])  # cited figures go in first; a token that is not in the table is removed
+        cleaned, removed = _clean(rendered, allowed)
+        removed = [*unknown, *removed]
         steps, fallback = s.get("steps", []), s.get("fallback", False)
         if removed and fallback:
             # a recorded answer quotes figures from an older state: use the computed wording instead of leaving holes
             cleaned, removed = _clean(template(s), allowed)
             steps = _step(s, "Recorded wording was out of date, so the computed wording is used")
-        msg = "Number check passed: every figure matches the calculation" if not removed else f"Number check removed {len(removed)} unverified figure(s)"
+        cited = len(TOKEN.findall(json.dumps(s["text"], ensure_ascii=False)))
+        msg = ("Number check passed: every figure matches the calculation" + (f" ({cited} cited by token)" if cited else "")
+               if not removed else f"Number check removed {len(removed)} unverified figure(s)")
         return {"text": cleaned, "removed": removed, "steps": _step({**s, "steps": steps}, msg)}
 
     def finalize(s: SState) -> SState:

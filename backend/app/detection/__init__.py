@@ -30,6 +30,9 @@ HEAT_CAUSE_C = 38.0  # above this air temperature, overloads and cooling at capa
 SETTLE_AFTER_RESTORE = 15  # ticks after a substation returns during which pump and load readings are still recovering
 RESOLVE_AFTER = 6  # ticks without the condition before an alert resolves
 CONFIRM_TICKS = 3  # ticks a condition must persist before it becomes an alert
+REOPEN_TICKS = 150  # a fault that comes back within this many ticks (5 minutes) of its alert closing is the same incident, not a new one
+COOLING_RELEASE_C = 0.2  # an open cooling alert closes only when the supply temperature is back within this margin of its limit (it opens at 0.6 above)
+LEAK_RELEASE = 0.5  # an open leak alert closes only when the flow mismatch falls below this share of the creeping-leak threshold
 SEVERITY_RANK = {"info": 0, "warning": 1, "critical": 2}
 # when alerts of several kinds land in one incident, the one whose loss is largest owns it (an overload that ends in a trip becomes a trip)
 KIND_PRIORITY = {"substation_trip": 3, "cooling_fault": 2, "pump_failure": 2, "leak": 2, "energy_waste": 1, "sensor_fault": 0}
@@ -74,6 +77,7 @@ class DetectionState:
     pending: dict[str, int] = field(default_factory=dict)
     sub_was_on: dict[str, bool] = field(default_factory=dict)
     restored_at: dict[str, int] = field(default_factory=dict)  # substation -> tick it came back; readings take a moment to settle
+    closed: dict[str, tuple[str, int]] = field(default_factory=dict)  # alert key -> (incident id, tick) of the alert that closed last
 
 
 def _mean(h: list[float], n: int) -> float:
@@ -321,6 +325,38 @@ class Detector:
                 rt.latest[s.id] = rt.latest[s.id].model_copy(update={"quality": "suspect"})
         return out
 
+    # ---------- when an open alert may close ----------
+    def _holds(self, o: "_Open") -> bool:
+        """An alert opens on a firm condition and closes only when the evidence is clearly gone. Closing on the opening threshold lets a fault
+        that sits near it open and close the alert over and over (a weak chiller fault opened a dozen incidents), and lets a fault whose
+        symptom is masked by another one (a pump with no power moves no water, so a leak on its pipe shows no mismatch) look repaired."""
+        rt, g, eng, H = self.rt, self.g, self.rt.engine, self.rt.history
+        settling = lambda sub: eng.tick - self.state.restored_at.get(sub, -10**6) < SETTLE_AFTER_RESTORE  # noqa: E731
+        if o.kind == "leak":
+            pipe = o.root
+            zone = g.asset_index[pipe].zone_id
+            sub = ZONE_SUBSTATION[zone]
+            if not eng.sub_on.get(sub, True) or settling(sub):
+                return True  # the pump that would show the leak has no power: it cannot be seen, so it is not cleared
+            fin, fout = H.get(f"{pipe}-flow-in", []), H.get(f"{pipe}-flow-out", [])
+            return len(fin) >= 20 and _mean(fin, 20) - _mean(fout, 20) >= LEAK_RELEASE * CREEP_MISMATCH
+        if o.kind == "cooling_fault":
+            t = H.get(f"{o.root}-supply-temp", [])
+            rng = g.sensor_index[f"{o.root}-supply-temp"].normal_range
+            return len(t) > 3 and _mean(t, 3) > rng.max + COOLING_RELEASE_C and eng.sub_on.get(ZONE_SUBSTATION[g.asset_index[o.root].zone_id], True)
+        if o.kind == "pump_failure":
+            p = H.get(f"{o.root}-pressure", [])
+            rng = g.sensor_index[f"{o.root}-pressure"].normal_range
+            sub = ZONE_SUBSTATION[g.asset_index[o.root].zone_id]
+            return len(p) > 5 and _mean(p, 3) < rng.min * 1.03 and eng.sub_on.get(sub, True) and not settling(sub)
+        if o.kind == "energy_waste":
+            ld = H.get(f"{o.root}-load", [])
+            rng = g.sensor_index[f"{o.root}-load"].normal_range
+            # the opening rule leaves out a substation that is covering for a tripped one, and one that has just come back: the trip explains that load
+            covering = any((not eng.sub_on.get(other, True) or settling(other)) and backup == o.root for other, backup in SUBSTATION_BACKUP.items())
+            return len(ld) > 3 and _mean(ld, 3) > rng.max * 0.98 and eng.sub_on.get(o.root, True) and not covering and not settling(o.root)
+        return False
+
     # ---------- grouping ----------
     async def tick(self, rt: "Runtime") -> None:
         self.anomaly_scores.append(self.anomaly_score())
@@ -347,6 +383,12 @@ class Detector:
                            if rt.incidents[i].state != "resolved" and (d.root in radius or set(d.asset_ids) & radius)), None)
             if inc_id is None and d.cause:
                 inc_id = next((i for i, c in self.state.incident_cause.items() if c == d.cause and rt.incidents[i].state != "resolved"), None)
+            back = self.state.closed.get(d.key)
+            if inc_id is None and back and tick - back[1] <= REOPEN_TICKS and back[0] in rt.incidents and back[0] in self.state.incident_roots:
+                inc_id = back[0]  # the same fault coming back: one incident, not a second one beside the first
+                if rt.incidents[inc_id].state == "resolved":
+                    rt.incidents[inc_id] = rt.incidents[inc_id].model_copy(update={"state": "open"})
+                    log.info("incident %s reopened by %s", inc_id, d.key)
             alert = Alert(id=f"alert-{next(self.state.alert_ids):04d}", incident_id=inc_id or f"inc-{next(self.state.inc_ids):04d}",
                           network=d.network, zone_id=d.zone_id, asset_ids=d.asset_ids, severity=d.severity, title=d.title,
                           summary=d.summary, detected_at=now, confidence=d.confidence)
@@ -391,8 +433,12 @@ class Detector:
 
         # resolution
         for key, o in list(self.state.open.items()):
+            if key not in seen_keys and self._holds(o):
+                o.last_seen = tick  # the evidence is still there, only the opening condition has lapsed
+                continue
             if key not in seen_keys and tick - o.last_seen >= RESOLVE_AFTER:
                 del self.state.open[key]
+                self.state.closed[key] = (o.alert.incident_id, tick)
                 a = o.alert.model_copy(update={"state": "resolved"})
                 rt.alerts[a.id] = a
                 await rt.broadcast("alert", a)

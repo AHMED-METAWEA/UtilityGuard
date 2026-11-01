@@ -1,208 +1,208 @@
 {
   "network": "water",
   "unit": "m3/h",
-  "trainDays": 65,
+  "trainDays": 260,
   "testDays": 10,
   "points": 480,
-  "trainedThrough": "2026-10-28T21:00:00Z",
+  "trainedThrough": "2026-10-31T21:00:00Z",
   "weatherErrorC": 1.0,
   "model": {
-    "mae": 103.299,
-    "rmse": 134.487,
-    "mape": 2.657,
-    "bias": -1.238
+    "mae": 91.87,
+    "rmse": 118.21,
+    "mape": 2.455,
+    "bias": 0.39
   },
   "baselines": [
     {
       "name": "Same hour yesterday",
-      "mae": 348.699,
-      "mape": 9.165
+      "mae": 377.992,
+      "mape": 9.563
     },
     {
       "name": "Same hour last week",
-      "mae": 207.263,
-      "mape": 5.627
+      "mae": 259.972,
+      "mape": 6.72
     },
     {
       "name": "Average of both",
-      "mae": 266.852,
-      "mape": 7.073
+      "mae": 301.029,
+      "mape": 7.673
     }
   ],
-  "skill": 0.502,
-  "coverage": 0.975,
+  "skill": 0.647,
+  "coverage": 0.95,
   "nominal": 0.8,
   "byHour": [
     {
       "hour": 0,
-      "mape": 2.26
+      "mape": 2.69
     },
     {
       "hour": 1,
-      "mape": 2.12
+      "mape": 2.49
     },
     {
       "hour": 2,
-      "mape": 2.11
+      "mape": 2.3
     },
     {
       "hour": 3,
-      "mape": 2.44
+      "mape": 2.18
     },
     {
       "hour": 4,
-      "mape": 2.45
+      "mape": 2.29
     },
     {
       "hour": 5,
-      "mape": 3.28
+      "mape": 2.26
     },
     {
       "hour": 6,
-      "mape": 2.64
+      "mape": 2.46
     },
     {
       "hour": 7,
-      "mape": 2.72
+      "mape": 2.57
     },
     {
       "hour": 8,
-      "mape": 2.43
+      "mape": 2.68
     },
     {
       "hour": 9,
-      "mape": 2.67
-    },
-    {
-      "hour": 10,
-      "mape": 2.77
-    },
-    {
-      "hour": 11,
       "mape": 2.62
     },
     {
+      "hour": 10,
+      "mape": 2.33
+    },
+    {
+      "hour": 11,
+      "mape": 2.61
+    },
+    {
       "hour": 12,
-      "mape": 2.38
+      "mape": 2.37
     },
     {
       "hour": 13,
-      "mape": 2.93
+      "mape": 2.27
     },
     {
       "hour": 14,
-      "mape": 3.19
+      "mape": 2.47
     },
     {
       "hour": 15,
-      "mape": 2.84
+      "mape": 2.46
     },
     {
       "hour": 16,
-      "mape": 2.81
+      "mape": 2.18
     },
     {
       "hour": 17,
-      "mape": 2.55
+      "mape": 2.37
     },
     {
       "hour": 18,
-      "mape": 2.89
+      "mape": 2.53
     },
     {
       "hour": 19,
-      "mape": 2.14
+      "mape": 2.82
     },
     {
       "hour": 20,
-      "mape": 2.36
+      "mape": 2.59
     },
     {
       "hour": 21,
-      "mape": 2.08
+      "mape": 2.57
     },
     {
       "hour": 22,
-      "mape": 3.66
+      "mape": 2.52
     },
     {
       "hour": 23,
-      "mape": 3.44
+      "mape": 2.29
     }
   ],
   "scenario": {
     "days": 4,
-    "mape": 4.03,
-    "mapeBlind": 11.94
+    "mape": 1.71,
+    "mapeBlind": 12.21
   },
   "liveCorrection": {
     "tauHours": 16.0,
-    "maeWithout": 111.47,
-    "maeWith": 87.978
+    "maeWithout": 88.495,
+    "maeWith": 78.0
   },
   "zones": [
     {
       "zoneId": "zone-cbd",
       "name": "Central Business District",
-      "mae": 19.881,
-      "rmse": 28.61,
-      "mape": 3.79
+      "mae": 13.472,
+      "rmse": 19.021,
+      "mape": 2.64
     },
     {
       "zoneId": "zone-cult",
       "name": "Arts and Culture City",
-      "mae": 11.929,
-      "rmse": 15.344,
-      "mape": 2.78
+      "mae": 11.655,
+      "rmse": 14.594,
+      "mape": 2.86
     },
     {
       "zoneId": "zone-gov",
       "name": "Government District",
-      "mae": 15.539,
-      "rmse": 21.883,
-      "mape": 3.43
+      "mae": 11.38,
+      "rmse": 16.49,
+      "mape": 2.59
     },
     {
       "zoneId": "zone-just",
       "name": "Justice City",
-      "mae": 9.289,
-      "rmse": 13.229,
-      "mape": 3.44
+      "mae": 6.891,
+      "rmse": 9.499,
+      "mape": 2.69
     },
     {
       "zoneId": "zone-pres",
       "name": "Presidential District",
-      "mae": 9.296,
-      "rmse": 13.484,
-      "mape": 3.52
+      "mae": 6.777,
+      "rmse": 9.437,
+      "mape": 2.62
     },
     {
       "zoneId": "zone-res-2",
       "name": "Residential R2",
-      "mae": 18.741,
-      "rmse": 25.623,
-      "mape": 3.42
+      "mae": 17.143,
+      "rmse": 23.007,
+      "mape": 3.12
     },
     {
       "zoneId": "zone-res-far",
       "name": "Residential Far North-East",
-      "mae": 14.262,
-      "rmse": 19.618,
-      "mape": 3.39
+      "mae": 12.477,
+      "rmse": 17.132,
+      "mape": 2.95
     },
     {
       "zoneId": "zone-res-n",
       "name": "Residential North",
-      "mae": 16.398,
-      "rmse": 23.037,
-      "mape": 3.36
+      "mae": 14.598,
+      "rmse": 19.827,
+      "mape": 2.98
     },
     {
       "zoneId": "zone-res-ne",
       "name": "Residential North-East",
-      "mae": 14.938,
-      "rmse": 20.363,
-      "mape": 3.34
+      "mae": 13.486,
+      "rmse": 18.552,
+      "mape": 2.97
     }
   ],
   "importances": [
@@ -212,246 +212,293 @@
     },
     {
       "feature": "holiday",
-      "importance": 0.125
+      "importance": 0.135
     },
     {
       "feature": "zone_type",
-      "importance": 0.096
-    },
-    {
-      "feature": "hour_of_day",
-      "importance": 0.034
-    },
-    {
-      "feature": "zone_size",
-      "importance": 0.026
+      "importance": 0.084
     },
     {
       "feature": "same_hour_yesterday",
+      "importance": 0.035
+    },
+    {
+      "feature": "hour_of_day",
+      "importance": 0.027
+    },
+    {
+      "feature": "zone_size",
       "importance": 0.024
     }
   ],
   "comparison": [
     {
-      "mae": 103.299,
-      "rmse": 134.487,
-      "mape": 2.657,
-      "bias": -1.238,
+      "mae": 91.87,
+      "rmse": 118.21,
+      "mape": 2.455,
+      "bias": 0.39,
       "name": "lightgbm",
       "kind": "gradient boosting",
-      "oofMae": 162.9274239738258,
-      "skillVsBestBaseline": 0.5016060039456101,
-      "fitSeconds": 10.457,
+      "oofMae": 144.48488981466124,
+      "skillVsBestBaseline": 0.6466166851226482,
+      "fitSeconds": 10.363,
       "isLive": true,
       "isSelected": false,
       "params": "300 trees; learning_rate=.05; num_leaves=31; min_child_samples=20",
       "pLgbmBetter": 0.0,
       "hourlyMape": [
-        2.262703043800817,
-        2.1237902429991706,
-        2.112014976429464,
-        2.4422081866270196,
-        2.4468446258520764,
-        3.2818289176556403,
-        2.6441331864296935,
-        2.7171291047244956,
-        2.42803210583207,
-        2.6699551658602534,
-        2.765574403501805,
-        2.6222898717361156,
-        2.376840529117992,
-        2.928647131677181,
-        3.1899687727963526,
-        2.840073207752194,
-        2.8076891759179334,
-        2.548222659133854,
-        2.8888987793186085,
-        2.1362821263484886,
-        2.356114456745356,
-        2.0843576087549507,
-        3.6624847489892436,
-        3.4419194898210574
+        2.693530751557509,
+        2.4897766208519987,
+        2.2964343453490197,
+        2.1766323876910723,
+        2.293454860039911,
+        2.257502952222503,
+        2.4617066687050317,
+        2.56754349956329,
+        2.683652900965669,
+        2.6196049640235466,
+        2.332273272194325,
+        2.6129067401360655,
+        2.36701067634097,
+        2.2714935276297887,
+        2.468347824989834,
+        2.4617348018174385,
+        2.1761278256496572,
+        2.3675673789109695,
+        2.532018058775084,
+        2.8236205355753228,
+        2.5897328042486207,
+        2.5667848947174576,
+        2.521005694965079,
+        2.2871093201236694
       ],
       "weights": {},
       "weightsSource": ""
     },
     {
-      "mae": 251.466,
-      "rmse": 434.174,
-      "mape": 6.678,
-      "bias": 1.015,
+      "mae": 210.096,
+      "rmse": 347.039,
+      "mape": 5.365,
+      "bias": 0.109,
       "name": "ridge",
       "kind": "linear",
-      "oofMae": 297.022900787857,
-      "skillVsBestBaseline": -0.21326700906450258,
-      "fitSeconds": 0.055,
+      "oofMae": 269.32311524846335,
+      "skillVsBestBaseline": 0.19185102555999245,
+      "fitSeconds": 1.297,
       "isLive": false,
       "isSelected": false,
       "params": "StandardScaler + Ridge(alpha=1); FEATURES only",
       "pLgbmBetter": 1.0,
       "hourlyMape": [
-        3.094122356379947,
-        3.1125594973839354,
-        3.664554395574167,
-        3.6820906146157357,
-        3.4746198452579384,
-        3.0455500800612394,
-        3.6754908675168054,
-        5.326412392878574,
-        7.670070486780334,
-        10.985971970936623,
-        14.794879610167285,
-        16.78254787932322,
-        16.31552925712597,
-        14.172485716491275,
-        10.838598281170379,
-        7.672230635514395,
-        4.493288813532269,
-        2.4515505108452853,
-        2.3054853448953394,
-        3.2519828541522355,
-        3.7188619201117796,
-        3.438017065418571,
-        4.474158301093387,
-        7.823747092063307
+        2.4392974349497445,
+        2.608345312589999,
+        2.8271491327775697,
+        2.738851406245772,
+        2.8387612496136025,
+        2.992480214032307,
+        4.036064724217732,
+        4.742946047389866,
+        5.653767417929747,
+        7.088106400064882,
+        8.634490273445403,
+        9.36459605766647,
+        9.049990377654494,
+        7.993536517545459,
+        6.555736587351378,
+        5.0695834219618945,
+        3.9080106057780353,
+        3.1546467778798957,
+        4.256707636625307,
+        5.049256200844056,
+        5.775810756850454,
+        5.918601981579349,
+        7.17501073860661,
+        8.89431503886421
       ],
       "weights": {},
       "weightsSource": ""
     },
     {
-      "mae": 109.652,
-      "rmse": 144.198,
-      "mape": 2.895,
-      "bias": -1.362,
+      "mae": 95.237,
+      "rmse": 118.861,
+      "mape": 2.491,
+      "bias": 0.413,
       "name": "random_forest",
       "kind": "random forest",
-      "oofMae": 151.58788864437992,
-      "skillVsBestBaseline": 0.4709547585244719,
-      "fitSeconds": 9.497,
+      "oofMae": 133.1230718443569,
+      "skillVsBestBaseline": 0.6336644085277404,
+      "fitSeconds": 62.577,
       "isLive": false,
       "isSelected": false,
       "params": "200 trees; depth=14; min_leaf=2; max_samples=.55; n_jobs=-1",
-      "pLgbmBetter": 0.666,
+      "pLgbmBetter": 0.637,
       "hourlyMape": [
-        2.939162326617824,
-        2.8499586317559307,
-        2.6383543173071504,
-        2.9253970168772456,
-        2.707367887172251,
-        2.4598615712505163,
-        2.180557463151492,
-        2.952435385292061,
-        3.2910975858884335,
-        4.029998784136392,
-        3.3726676491195247,
-        3.6345995203797563,
-        3.261055520841401,
-        3.352222756307319,
-        2.7814441508327636,
-        2.9866523187176717,
-        2.9980472172376547,
-        2.3107705900608932,
-        2.6301573949858237,
-        1.8510158351090118,
-        2.3367092928240556,
-        2.08534449755617,
-        3.134058679662346,
-        3.7749915094035824
+        2.113973600090169,
+        1.8180719256612423,
+        1.8358750614428943,
+        2.1205055185784962,
+        2.5148992529414205,
+        2.530762170038376,
+        2.5178965801233706,
+        2.527602829323906,
+        2.3229794320498405,
+        2.42673837037263,
+        2.9463572309234762,
+        2.683223232202456,
+        2.2609270547191915,
+        2.4960984842960823,
+        2.765882408537954,
+        2.885210356287986,
+        2.615383614241553,
+        2.168579071138247,
+        2.4770292858114233,
+        2.7608206910604123,
+        3.2650765571971676,
+        2.70431522061581,
+        2.5820769946896407,
+        2.4502925538441365
       ],
       "weights": {},
       "weightsSource": ""
     },
     {
-      "mae": 434.256,
-      "rmse": 561.348,
-      "mape": 11.138,
-      "bias": -6.272,
+      "mae": 416.463,
+      "rmse": 556.485,
+      "mape": 10.695,
+      "bias": -4.077,
       "name": "seasonal_smoothing",
       "kind": "statistical",
-      "oofMae": 510.1864075075292,
-      "skillVsBestBaseline": -1.0951881193013553,
-      "fitSeconds": 0.143,
+      "oofMae": 486.2025602738623,
+      "skillVsBestBaseline": -0.6019498527294702,
+      "fitSeconds": 0.76,
       "isLive": false,
       "isSelected": false,
       "params": "Additive daily seasonality (48 slots); alpha=.15; gamma=.10; no trend/features",
       "pLgbmBetter": 1.0,
       "hourlyMape": [
-        12.761713040584223,
-        12.668222552360008,
-        12.153821715844568,
-        11.817490991921616,
-        10.414424793921004,
-        8.235480381055222,
-        6.621446833191355,
-        7.372158162035543,
-        10.206111534486336,
-        16.456094132477585,
-        22.371676012592694,
-        25.207167167439408,
-        24.750825442600437,
-        21.65429560650906,
-        16.90426092280704,
-        11.449957388758454,
-        6.269534294193481,
-        3.1517739679780763,
-        2.987453823704061,
-        3.99553404793445,
-        4.870838601637579,
-        4.557480140623443,
-        4.715453808169919,
-        5.727761473304423
+        8.775673442929595,
+        8.47291959296518,
+        8.056810966010481,
+        7.799121332013999,
+        7.073727592677594,
+        6.157175772352651,
+        5.630999242662322,
+        6.5753743981365185,
+        9.858734705514042,
+        14.724632874193707,
+        21.079578945819414,
+        24.388168507409407,
+        23.615616484478053,
+        19.863861158038347,
+        15.35913036822317,
+        11.25549884030077,
+        8.192849819136452,
+        7.033921702805911,
+        6.701370064869056,
+        6.876939694440923,
+        7.485745088760395,
+        7.414499783063063,
+        7.4055867245737765,
+        6.8913068925854235
       ],
       "weights": {},
       "weightsSource": ""
     },
     {
-      "mae": 106.881,
-      "rmse": 139.553,
-      "mape": 2.809,
-      "bias": -1.343,
+      "mae": 93.44,
+      "rmse": 117.482,
+      "mape": 2.445,
+      "bias": 0.411,
       "name": "ensemble",
       "kind": "ensemble",
-      "oofMae": 151.32664478704675,
-      "skillVsBestBaseline": 0.4843218863659352,
-      "fitSeconds": 0.001,
+      "oofMae": 132.96346303779137,
+      "skillVsBestBaseline": 0.6405751214530544,
+      "fitSeconds": 0.003,
       "isLive": false,
       "isSelected": true,
-      "params": "LGBM=0.15; RF=0.85; dev OOF MAE grid, step=.01",
-      "pLgbmBetter": 0.604,
+      "params": "LGBM=0.10; RF=0.90; dev OOF MAE grid, step=.01",
+      "pLgbmBetter": 0.537,
       "hourlyMape": [
-        2.781895671117519,
-        2.6792549774204986,
-        2.4776538393282936,
-        2.824796956103327,
-        2.6233306657167543,
-        2.5623007014756336,
-        2.10715917435727,
-        2.8435267397044455,
-        3.140246437089357,
-        3.798534216477224,
-        3.2507126389286807,
-        3.472463350930096,
-        3.0954903401862417,
-        3.2032923628901395,
-        2.7203198761343517,
-        2.9041304429750734,
-        2.9344178693152685,
-        2.315189024294071,
-        2.6218003418306925,
-        1.8406643296862215,
-        2.3327684870988232,
-        2.055743925246421,
-        3.1423569273399856,
-        3.679202198948391
+        2.008286964273275,
+        1.7980681663167402,
+        1.7783665499295185,
+        2.040403006329577,
+        2.449643061571099,
+        2.4518667394952574,
+        2.4908398030240946,
+        2.531596896347844,
+        2.333071900360522,
+        2.3767983429380792,
+        2.8751866766177256,
+        2.670891532872492,
+        2.254186193200525,
+        2.4468898257102842,
+        2.6993363290061896,
+        2.7868102962371903,
+        2.5489455865323354,
+        2.1235600676663324,
+        2.4391734219428565,
+        2.7420021151831517,
+        3.1758709850309166,
+        2.684862842089768,
+        2.5759698647171847,
+        2.4052607574033766
       ],
       "weights": {
-        "lightgbm": 0.15000000000000002,
-        "random_forest": 0.85
+        "lightgbm": 0.09999999999999998,
+        "random_forest": 0.9
       },
       "weightsSource": "dev_oof"
     }
   ],
   "selected": "ensemble",
   "selectedMatchesLive": false,
-  "comparisonNote": "Same dev/test split and five blocked folds; train on other dev blocks, including later blocks (not rolling-origin). Feature models use FEATURES and normalised zone demand; statistical model uses only zone targets and daily slots. Selected by aggregate-by-timestamp dev OOF MAE. Ensemble weights use that same OOF data, not nested CV or test data. Production remains LightGBM, regardless of selection. Test metrics are uncorrected network totals. LightGBM bootstrap wins: 1,000 paired whole Cairo-day resamples, seed 731; ties are not wins (self=0). This win share is not a p-value; ten test days give limited evidence. Fit seconds sum full-dev and five fold fits; ensemble excludes component fits; statistical timing includes prediction."
+  "comparisonNote": "Same dev/test split and five blocked folds; train on other dev blocks, including later blocks (not rolling-origin). Feature models use FEATURES and normalised zone demand; statistical model uses only zone targets and daily slots. Selected by aggregate-by-timestamp dev OOF MAE. Ensemble weights use that same OOF data, not nested CV or test data. Production remains LightGBM, regardless of selection. Test metrics are uncorrected network totals. LightGBM bootstrap wins: 1,000 paired whole Cairo-day resamples, seed 731; ties are not wins (self=0). This win share is not a p-value; ten test days give limited evidence. Fit seconds sum full-dev and five fold fits; ensemble excludes component fits; statistical timing includes prediction.",
+  "byDayType": [
+    {
+      "name": "Working day",
+      "days": 125,
+      "mape": 3.53
+    },
+    {
+      "name": "Weekend (Friday, Saturday)",
+      "days": 50,
+      "mape": 3.13
+    },
+    {
+      "name": "Holiday on a working day",
+      "days": 48,
+      "mape": 4.08
+    },
+    {
+      "name": "Holiday on a weekend day",
+      "days": 19,
+      "mape": 4.28
+    },
+    {
+      "name": "Heat wave",
+      "days": 52,
+      "mape": 4.08
+    }
+  ],
+  "reliability": {
+    "label": "reliable",
+    "checks": [
+      {
+        "name": "Better than the best simple baseline",
+        "status": "ok",
+        "detail": "It removes 65% of the error of the best baseline (ok from 25%)."
+      },
+      {
+        "name": "Band holds the share it promises",
+        "status": "ok",
+        "detail": "The band held 95% of real values against 80% intended, wider than needed but safe."
+      },
+      {
+        "name": "No kind of day is much worse than the average",
+        "status": "ok",
+        "detail": "The worst is holiday on a weekend day at 4.3% against 2.5% overall (ok up to 5.0%)."
+      }
+    ]
+  }
 }

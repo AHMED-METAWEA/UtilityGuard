@@ -5,6 +5,16 @@
 .comparison-table th:first-child { width: 24%; }
 .comparison-table tr[data-live="true"] { background: var(--hover); }
 .comparison-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.reliability-checks { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 12px; }
+.reliability-checks li { display: flex; align-items: flex-start; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+.reliability-checks .chip { flex: none; }
+.reliability-checks p { margin: 4px 0 0; }
+.reliability-table { table-layout: fixed; }
+.reliability-table caption { text-align: start; color: var(--text-2); margin-bottom: 6px; }
+.reliability-table th:first-child { width: 60%; }
+.reliability-table th, .reliability-table td { padding: 8px 4px; overflow-wrap: anywhere; }
+.reliability-table tr[data-worst="true"] { background: var(--warn-soft); }
+.reliability-worst { display: flex; align-items: center; gap: 4px; color: var(--warn-text); font-size: 12px; }
 @media (max-width: 720px) {
   .forecast-page .card-body > .row { flex-wrap: wrap; }
   .forecast-page .chip { max-width: 100%; height: auto; min-height: 22px; white-space: normal; }

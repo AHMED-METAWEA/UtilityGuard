@@ -53,3 +53,24 @@ def test_a_scale_word_cannot_hide_a_figure(tmp_path):
     k = round(rec.cost.expected_saving / 1000)
     text = f"A saving of about {k}k EGP."  # the rounding an LLM naturally does still passes
     assert check(text, allowed) == (text, [])
+
+
+def test_arabic_digits_and_separators_cannot_hide_a_figure(tmp_path):
+    allowed = allowed_numbers(record(tmp_path))
+    out, removed = check("التكلفة ٩٨٧٦٥ جنيه، وبعد ۱٬۲۳۴٬۵۶۷ جنيه أخرى، و٣٫٧٥ ملايين.", allowed)
+    assert removed == ["٩٨٧٦٥", "۱٬۲۳۴٬۵۶۷", "٣٫٧٥ ملايين"] and out.count(REMOVED) == 3
+    rec = record(tmp_path)
+    eastern = str(round(rec.cost.act_now)).translate(str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩"))
+    assert check(f"تكلفة التحرك الآن {eastern} جنيه", allowed_numbers(rec)) == (f"تكلفة التحرك الآن {eastern} جنيه", [])
+
+
+def test_a_spelled_out_number_cannot_hide_a_figure(tmp_path):
+    allowed = allowed_numbers(record(tmp_path))
+    text = "It costs fifty thousand EGP, or two hundred and fifty thousand, or a million, with one of the pumps and 3 agents."
+    out, removed = check(text, allowed)
+    assert [r.lower() for r in removed] == ["fifty thousand", "two hundred and fifty thousand", "a million"]
+    assert out.endswith("with one of the pumps and 3 agents.") and out.count(REMOVED) == 3
+
+
+def test_a_spelled_out_number_that_matches_the_data_passes(tmp_path):
+    assert check("The leak is one hundred and forty m3/h.", {140.0}) == ("The leak is one hundred and forty m3/h.", [])
