@@ -9,6 +9,9 @@ detector, and the real cost engine with the default assumptions. Nothing here is
 - `scenarios.csv`        one row per failed asset: what the detector measured, and the cost and its P10/P50/P90 range.
 - `scenario_zones.csv`   one row per (failed asset, district it affects): the share of the incident that district carries.
 - `district_risk.csv`    one row per district of the healthcare project (`district_key` 1001..1015), joined through `integration/health/zone_mapping.csv`.
+- `hospital_exposure.csv` one row per (failed asset, district with hospitals the failure reaches): how many hospitals, and how sure the match to our zones is.
+- `joint_decision.csv`   one row per district: the twin's outage cost, their environmental stress and their hospitals side by side, and which of four groups the
+                         district falls in. Nothing from the two projects is added together.
 - `reliability_packages.csv`  ranked improvement packages (same shape as the healthcare project's package comparison), from `integration/health/packages.csv`.
 - `MANIFEST.json`        seed, time, commit, assumptions used, SHA-256 of every file.
 - `README.md`            what each column means and how to join.
@@ -136,6 +139,92 @@ def district_risk(mapping: list[dict], scenarios: list[dict], zones: list[dict])
     return out
 
 
+HEALTH_DATA = REPO / "integration" / "health" / "data"
+BAND_LOW, BAND_HIGH = 20.0, 35.0  # their Environmental Stress Index bands: below 20 low, 20 to under 35 moderate, 35 and above high
+
+
+def read_facility_counts() -> dict[str, dict]:
+    """Hospitals, clinics and specialists per district_key, from their facilities file (copied unchanged into integration/health/data)."""
+    counts: dict[str, dict] = {}
+    with (HEALTH_DATA / "healthcare_facilities.csv").open(encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            c = counts.setdefault(row["district_key"], {"hospitals": 0, "clinics": 0, "specialists": 0})
+            c[{"hospital": "hospitals", "clinic": "clinics", "doctors": "specialists"}[row["fclass"]]] += 1
+    return counts
+
+
+def read_environment() -> tuple[str, dict[str, dict]]:
+    """Their stress scores per district_key for the latest month of their panel, as they wrote them."""
+    with (HEALTH_DATA / "environment_monthly.csv").open(encoding="utf-8-sig") as f:
+        rows = list(csv.DictReader(f))
+    month = max(row["month"] for row in rows)
+    return month[:7], {row["district_key"]: row for row in rows if row["month"] == month}
+
+
+def hospital_exposure(mapping: list[dict], scenarios: list[dict], counts: dict[str, dict]) -> list[dict]:
+    """Which hospitals a failure can reach. A hospital is placed by the district of their file it belongs to, and that district by `zone_mapping.csv`, so the
+    placement is only as good as the mapping: `all_matched_zones` means every zone the district is matched to is hit (always so for a direct district),
+    `some_matched_zones` means only some are, so the district may or may not be affected and the count is an upper bound. The twin has no link from a hospital
+    to a substation, pump or plant, only from a zone to them."""
+    out = []
+    for s in scenarios:
+        if not s["detected"] or not s["affected_zones"]:
+            continue
+        hit_zones = set(s["affected_zones"].split(";"))
+        for m in mapping:
+            c = counts.get(m["district_key"], {"hospitals": 0, "clinics": 0, "specialists": 0})
+            hit = [z for z in m["zones"] if z in hit_zones]
+            if not c["hospitals"] or not hit:
+                continue
+            out.append({"scenario_id": s["scenario_id"], "kind": s["kind"], "asset_id": s["asset_id"], "district_key": m["district_key"],
+                        "district_code": m["district_code"], "match_kind": m["match_kind"], "matched_zones": ";".join(m["zones"]), "zones_hit": ";".join(hit),
+                        "certainty": "all_matched_zones" if len(hit) == len(m["zones"]) else "some_matched_zones", "hospitals": c["hospitals"],
+                        "clinics": c["clinics"], "specialists": c["specialists"]})
+    return out
+
+
+def _median(values: list[float]) -> float:
+    v = sorted(values)
+    n = len(v)
+    return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
+
+
+def joint_decision(mapping: list[dict], risk: list[dict], exposure: list[dict], counts: dict[str, dict], env: dict[str, dict], env_month: str) -> list[dict]:
+    """One row per district with the two sides next to each other and no combined number. The group says whether each side is above or below the median of
+    the districts that have it (a relative reading: both ranges are narrow, and no threshold of ours is invented)."""
+    risk_by = {x["district_key"]: x for x in risk}
+    rows = []
+    for m in mapping:
+        k = m["district_key"]
+        c = counts.get(k, {"hospitals": 0, "clinics": 0, "specialists": 0})
+        e = env[k]
+        x = risk_by[k]
+        mine = [h for h in exposure if h["district_key"] == k]
+        scores = {n: float(e[f"esi_{n}"]) for n in ("air", "waste", "water", "heat")}
+        overall = float(e["environmental_stress_index"])
+        rows.append({"district_key": k, "district_code": m["district_code"], "district_name_ar": m["district_name_ar"], "match_kind": m["match_kind"],
+                     "our_zone_ids": m["our_zone_ids"], "hospitals": c["hospitals"], "clinics": c["clinics"], "specialists": c["specialists"],
+                     "scenarios_affecting": x["scenarios_affecting"], "worst_zone_cost_of_delay_egp": x["worst_zone_cost_of_delay_egp"],
+                     "worst_zone_unserved_mw": x["worst_zone_unserved_mw"], "worst_scenario_id": x["worst_scenario_id"],
+                     "scenarios_reaching_hospitals_sure": sum(h["certainty"] == "all_matched_zones" for h in mine),
+                     "scenarios_reaching_hospitals_possible": sum(h["certainty"] == "some_matched_zones" for h in mine),
+                     "env_month": env_month, "esi_overall": overall, "esi_air": scores["air"], "esi_waste": scores["waste"], "esi_water": scores["water"],
+                     "esi_heat": scores["heat"], "esi_band": "high" if overall >= BAND_HIGH else "moderate" if overall >= BAND_LOW else "low",
+                     "highest_score": max(scores, key=scores.get)})
+    cost_med = _median([r["worst_zone_cost_of_delay_egp"] for r in rows if r["worst_zone_cost_of_delay_egp"] is not None])
+    env_med = _median([r["esi_overall"] for r in rows])
+    for r_ in rows:
+        if r_["worst_zone_cost_of_delay_egp"] is None:
+            r_["outage_cost_vs_median"], r_["group"] = "", "no_outage_data"
+            r_["environment_vs_median"] = "higher" if r_["esi_overall"] > env_med else "lower"
+            continue
+        o = "higher" if r_["worst_zone_cost_of_delay_egp"] > cost_med else "lower"
+        v = "higher" if r_["esi_overall"] > env_med else "lower"
+        r_["outage_cost_vs_median"], r_["environment_vs_median"] = o, v
+        r_["group"] = {("higher", "higher"): "both_higher", ("higher", "lower"): "outage_higher", ("lower", "higher"): "environment_higher", ("lower", "lower"): "both_lower"}[(o, v)]
+    return rows
+
+
 PACKAGES = REPO / "integration" / "health" / "packages.csv"
 DEFAULT_BUDGET_M_EGP = 15.0
 
@@ -228,8 +317,14 @@ def main() -> None:
     mapping = read_mapping()
     risk = district_risk(mapping, scenarios, zones)
     ranked = rank_packages(kept, kept["A"], read_packages(), mapping, args.budget)
+    counts = read_facility_counts()
+    exposure = hospital_exposure(mapping, scenarios, counts)
+    env_month, env = read_environment()
+    joint = joint_decision(mapping, risk, exposure, counts, env, env_month)
     meta["budget_m_egp"] = args.budget
-    files = {"scenarios.csv": scenarios, "scenario_zones.csv": zones, "district_risk.csv": risk, "reliability_packages.csv": ranked}
+    meta["environment_month"] = env_month
+    files = {"scenarios.csv": scenarios, "scenario_zones.csv": zones, "district_risk.csv": risk, "hospital_exposure.csv": exposure, "joint_decision.csv": joint,
+             "reliability_packages.csv": ranked}
     for name, rows in files.items():
         write_csv(out / name, rows)
     (out / "zone_mapping.csv").write_bytes(MAPPING.read_bytes())
@@ -239,7 +334,7 @@ def main() -> None:
                 "files": {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in files.items()} | {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in (("zone_mapping.csv", mapping), ("packages.csv", read_packages()))}}
     (out / "MANIFEST.json").write_text(json.dumps(manifest, indent=1))
     (out / "README.md").write_text(README)
-    print(f"wrote {len(scenarios)} scenarios, {len(zones)} scenario-zone rows, {len(risk)} districts, {len(ranked)} ranked packages to {out}")
+    print(f"wrote {len(scenarios)} scenarios, {len(zones)} scenario-zone rows, {len(risk)} districts, {len(exposure)} hospital exposures, {len(ranked)} ranked packages to {out}")
     assert all(not (isinstance(v, float) and math.isnan(v)) for row in scenarios for v in row.values())
 
 
@@ -283,6 +378,21 @@ work there). Costs shared by the whole incident (repair, water lost, cooling, se
 `scenarios_affecting`: how many of the failed-asset scenarios touch the district (an average over the zones when `match_kind` is `type`).
 `worst_zone_cost_of_delay_egp` and `worst_zone_unserved_mw`: the largest of the zone's values over all scenarios (averaged over zones for `type`).
 `worst_scenario_id`: which scenario it was (only for `direct`).
+
+## hospital_exposure.csv (one row per failed asset and district with hospitals that it reaches)
+
+Their hospitals are placed by the district of their file, and the district by `zone_mapping.csv`; the twin links a zone, not a hospital, to its substation, pump
+and plant. `certainty` says how far to trust a row: `all_matched_zones` (every zone the district is matched to is hit; always so for a `direct` district) or
+`some_matched_zones` (only some are, so the district may not be affected at all: read `hospitals` as an upper bound). `hospitals`, `clinics`, `specialists` are
+the counts of the district in their facilities file.
+
+## joint_decision.csv (one row per district_key)
+
+The twin's side and their side next to each other, never added together: `worst_zone_cost_of_delay_egp`, `worst_zone_unserved_mw`, `scenarios_affecting` and the two
+`scenarios_reaching_hospitals_*` counts are ours; `esi_*` (their 0 to 100 stress scores for `env_month`, with their bands: below 20 low, 20 to under 35 moderate,
+35 and above high) and the facility counts are theirs. `outage_cost_vs_median` and `environment_vs_median` say whether the district is above or below the median of
+the districts that have the figure (a relative reading: no threshold of ours is invented, and all overall scores sit in one band). `group` is `both_higher`,
+`outage_higher`, `environment_higher`, `both_lower`, or `no_outage_data` (no counterpart in the twin).
 
 ## reliability_packages.csv (ranked improvement packages)
 

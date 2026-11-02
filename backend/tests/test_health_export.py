@@ -167,3 +167,68 @@ def test_changing_a_package_effect_changes_the_result(ranked):
     rows = ex.rank_packages(kept, kept["A"], pkgs, ex.read_mapping(), budget_m_egp=10.0)
     p1 = next(x for x in rows if x["package_id"] == "P1")
     assert p1["avoided_per_event_egp"] == 0 and p1["break_even_events_5yr"] is None and p1["rank"] == len(rows)
+
+
+# ---------- hospital exposure and the joint decision table ----------
+def _map(key, kind, zones):
+    return {"district_key": key, "district_code": f"NAC-{key}", "district_name_ar": key, "match_kind": kind, "our_zone_ids": ";".join(zones), "zones": zones}
+
+
+def _scn(sid, zones):
+    return {"scenario_id": sid, "kind": "substation_trip", "asset_id": sid.split(":")[1], "detected": True, "affected_zones": ";".join(zones)}
+
+
+def test_the_facility_counts_are_the_ones_in_their_file():
+    counts = ex.read_facility_counts()
+    assert sum(c["hospitals"] for c in counts.values()) == 30 and sum(c["hospitals"] + c["clinics"] + c["specialists"] for c in counts.values()) == 81
+    assert counts["1013"]["hospitals"] == 8 and set(counts) == {str(k) for k in range(1001, 1016)}
+
+
+def test_exposure_says_how_sure_each_row_is_and_skips_what_is_not_reached():
+    mapping = [_map("1", "direct", ["zone-a"]), _map("2", "type", ["zone-a", "zone-b"]), _map("3", "type", ["zone-a"]), _map("4", "direct", ["zone-c"]), _map("5", "none", [])]
+    counts = {k: {"hospitals": 2, "clinics": 1, "specialists": 0} for k in "12345"} | {"3": {"hospitals": 0, "clinics": 4, "specialists": 0}}
+    rows = ex.hospital_exposure(mapping, [_scn("substation_trip:s1", ["zone-a"]), {**_scn("pump_failure:p1", ["zone-a"]), "detected": False}], counts)
+    got = {r["district_key"]: r for r in rows}
+    assert set(got) == {"1", "2"}  # 3 has no hospital, 4 is not hit, 5 has no zone, and an undetected scenario gives nothing
+    assert got["1"]["certainty"] == "all_matched_zones" and got["2"]["certainty"] == "some_matched_zones" and got["2"]["zones_hit"] == "zone-a"
+    assert all(r["scenario_id"] == "substation_trip:s1" and r["hospitals"] == 2 for r in rows)
+
+
+def test_exposure_marks_a_type_district_sure_only_when_every_matched_zone_is_hit():
+    mapping = [_map("2", "type", ["zone-a", "zone-b"])]
+    counts = {"2": {"hospitals": 3, "clinics": 0, "specialists": 0}}
+    both = ex.hospital_exposure(mapping, [_scn("substation_trip:s", ["zone-a", "zone-b", "zone-c"])], counts)
+    assert both[0]["certainty"] == "all_matched_zones"
+
+
+def _risk(key, cost):
+    return {"district_key": key, "scenarios_affecting": 1.0, "worst_zone_cost_of_delay_egp": cost, "worst_zone_unserved_mw": 1.0, "worst_scenario_id": ""}
+
+
+def _env(overall):
+    return {"environmental_stress_index": str(overall), "esi_air": "10", "esi_waste": "30", "esi_water": "5", "esi_heat": "24"}
+
+
+def test_the_joint_table_puts_the_two_sides_next_to_each_other_and_combines_nothing():
+    mapping = [_map(str(i), "direct", [f"z{i}"]) for i in range(1, 5)] + [_map("9", "none", [])]
+    risk = [_risk("1", 100.0), _risk("2", 100.0), _risk("3", 500.0), _risk("4", 500.0), _risk("9", None)]
+    env = {"1": _env(10), "2": _env(30), "3": _env(10), "4": _env(36), "9": _env(10)}
+    counts = {k: {"hospitals": 1, "clinics": 0, "specialists": 0} for k in env}
+    rows = {r["district_key"]: r for r in ex.joint_decision(mapping, risk, [], counts, env, "2026-09")}
+    assert [rows[k]["group"] for k in "1234"] == ["both_lower", "environment_higher", "outage_higher", "both_higher"]
+    assert rows["9"]["group"] == "no_outage_data" and rows["9"]["worst_zone_cost_of_delay_egp"] is None
+    assert rows["4"]["esi_band"] == "high" and rows["2"]["esi_band"] == "moderate" and rows["1"]["esi_band"] == "low"  # their bands, at 20 and 35
+    assert rows["1"]["highest_score"] == "waste" and rows["1"]["env_month"] == "2026-09"
+    assert not any("total" in k or "combined" in k or "index_x" in k for k in rows["1"])  # no number made from both sides
+
+
+def test_the_joint_table_on_the_real_files_has_a_row_per_district(tables):
+    scenarios, zones, _ = tables
+    mapping = ex.read_mapping()
+    counts = ex.read_facility_counts()
+    month, env = ex.read_environment()
+    rows = ex.joint_decision(mapping, ex.district_risk(mapping, scenarios, zones), ex.hospital_exposure(mapping, scenarios, counts), counts, env, month)
+    assert [r["district_key"] for r in rows] == [str(k) for k in range(1001, 1016)] and month == "2026-09"
+    assert {r["group"] for r in rows} <= {"both_higher", "outage_higher", "environment_higher", "both_lower", "no_outage_data"}
+    assert next(r for r in rows if r["district_key"] == "1015")["group"] == "no_outage_data"
+    assert next(r for r in rows if r["district_key"] == "1013")["hospitals"] == 8

@@ -27,3 +27,16 @@ export function useCityDistricts(enabled: boolean, month: string | null): Fetche
 export function useCityFacilities(enabled: boolean): Fetched<CityFacility[]> {
   return useFetch<CityFacility[]>(enabled ? '/city/facilities' : null);
 }
+
+export type DecisionGroup = 'both_higher' | 'outage_higher' | 'environment_higher' | 'both_lower' | 'no_outage_data';
+/** One district with the twin's outage figures and their environment and hospitals side by side (contract 4.22). Nothing from the two sides is added together. */
+export interface DecisionRow {
+  districtKey: string; districtCode: string; nameAr: string; matchKind: MatchKind; ourZoneIds: string[]; hospitals: number; clinics: number; specialists: number;
+  scenariosAffecting?: number; worstCostOfDelayEgp?: number; worstUnservedMw?: number; worstScenarioId?: string; hospitalScenariosSure: number; hospitalScenariosPossible: number;
+  esiOverall: number; esiAir: number; esiWaste: number; esiWater: number; esiHeat: number; esiBand: 'low' | 'moderate' | 'high'; highestScore: 'air' | 'waste' | 'water' | 'heat';
+  outageVsMedian?: 'higher' | 'lower'; environmentVsMedian: 'higher' | 'lower'; group: DecisionGroup;
+}
+export interface CityDecision { envMonth: string; source: string; simulated: boolean; medianCostOfDelayEgp: number; medianEsiOverall: number; rows: DecisionRow[] }
+export function useCityDecision(): Fetched<CityDecision> {
+  return useFetch<CityDecision>('/city/decision');
+}

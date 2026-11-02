@@ -13,6 +13,7 @@ import { Forecast } from './pages/Forecast';
 import { Lab } from './pages/Lab';
 import { Audit } from './pages/Audit';
 import { Executive } from './pages/Executive';
+import { Healthcare } from './pages/Healthcare';
 import { ScenarioLab } from './panels/ScenarioLab';
 import { ChatDock } from './panels/ChatDock';
 import { AssetDrawer, AssumptionsDrawer, CalcDrawer } from './panels/Drawers';
@@ -77,6 +78,7 @@ export default function App() {
         {route.page === 'forecast' && <Forecast />}
         {route.page === 'lab' && <Lab />}
         {route.page === 'executive' && <Executive />}
+        {route.page === 'healthcare' && <Healthcare />}
         {route.page === 'audit' && <Audit id={route.id} />}
       </main>
       <ChatDock />

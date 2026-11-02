@@ -23,7 +23,7 @@ from app import dashboard, decision as decision_mod, extras, savings as savings_
 from app.agents import guardrail
 from app.agents.service import AgentService
 from app.briefing import BriefingService
-from app.city import CityData, CityError
+from app.city import CityData, CityError, read_decision
 from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
 from app.lab.live import live_localization
 from app.lab.quality import live_quality
@@ -381,6 +381,14 @@ city_data = CityData(zone_centers={z.id: z.center for z in runtime.engine.g.topo
 def city_districts(month: str | None = None) -> dict:
     try:
         return out(city_data.districts(month))
+    except CityError as e:
+        raise ApiError(e.status, e.code, e.message) from e
+
+
+@api.get("/city/decision")
+def city_decision() -> dict:
+    try:
+        return out(read_decision())
     except CityError as e:
         raise ApiError(e.status, e.code, e.message) from e
 

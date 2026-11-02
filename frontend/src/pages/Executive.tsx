@@ -7,6 +7,7 @@ import { Card, Meter, NetIcon, Skeleton, StatusChip } from '../ui';
 import { KpiStrip } from '../ui/parts';
 import { EarlyWarningsOverview } from '../ui/EarlyWarning';
 import { BriefingCard } from '../ui/Briefing';
+import { CityDecisionCard } from '../ui/CityDecision';
 import { compact, fmt } from '../lib/format';
 import { go } from '../lib/route';
 import { healthRef, kpiRef, riskRef, savingRef } from '../lib/why';
@@ -63,6 +64,8 @@ export function Executive() {
         <Card title="What could fail next" sub="Highest risk score over 30 days. A model ranking from simulated wear, not a calibrated chance of failure.">
           {risky.length ? <div className="stack" style={{ gap: 12 }}>{risky.map((a) => <div key={a.assetId}><div className="row spread" style={{ marginBottom: 4 }}><span>{name(a.assetId)} <span className="muted" style={{ fontSize: 12 }}>health <Why refId={healthRef(a.assetId)}>{fmt(a.healthScore)}</Why></span></span><b className="num"><Why refId={riskRef(a.assetId)}>{fmt((a.failureProbability ?? 0) * 100)}%</Why></b></div><Meter value={a.failureProbability ?? 0} color={(a.failureProbability ?? 0) > 0.3 ? 'var(--warn)' : 'var(--accent)'} label={name(a.assetId)} /></div>)}</div> : <Skeleton h={180} />}
         </Card>
+
+        <CityDecisionCard />
 
         <Card title="Districts" sub="Worst asset status and average health" style={{ gridColumn: '1 / -1' }}>
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 12 }}>

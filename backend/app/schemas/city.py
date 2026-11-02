@@ -101,3 +101,43 @@ class CityFacility(Model):
     district_key: str
     position: LatLng = Field(description="As in their file")
     placed_at: LatLng | None = Field(default=None, description="Their offset from their district's centre, moved onto where that district is drawn. Absent when the district has no match")
+
+
+Group = Literal["both_higher", "outage_higher", "environment_higher", "both_lower", "no_outage_data"]
+
+
+class DecisionRow(Model):
+    """One district with the twin's outage figures and the healthcare team's environment and hospitals side by side. Nothing from the two sides is added together."""
+    district_key: str
+    district_code: str
+    name_ar: str
+    match_kind: MatchKind
+    our_zone_ids: list[str]
+    hospitals: int
+    clinics: int
+    specialists: int
+    scenarios_affecting: float | None = Field(default=None, description="How many failed-asset scenarios touch it (an average over the zones when match_kind is type)")
+    worst_cost_of_delay_egp: float | None = Field(default=None, description="The twin's largest cost of delay among the scenarios that touch it. Absent when it has no counterpart")
+    worst_unserved_mw: float | None = None
+    worst_scenario_id: str | None = None
+    hospital_scenarios_sure: int = Field(description="Scenarios that hit every zone the district is matched to, so its hospitals are reached")
+    hospital_scenarios_possible: int = Field(description="Scenarios that hit only some of its matched zones: an upper bound, the district may not be affected")
+    esi_overall: float = Field(description="Their score, 0 to 100")
+    esi_air: float
+    esi_waste: float
+    esi_water: float
+    esi_heat: float
+    esi_band: Literal["low", "moderate", "high"] = Field(description="Their bands: below 20 low, 20 to under 35 moderate, 35 and above high")
+    highest_score: Literal["air", "waste", "water", "heat"]
+    outage_vs_median: Literal["higher", "lower"] | None = None
+    environment_vs_median: Literal["higher", "lower"]
+    group: Group
+
+
+class Decision(Model):
+    env_month: str
+    source: str = Field(description="Where the table comes from and how it was made")
+    simulated: bool
+    median_cost_of_delay_egp: float
+    median_esi_overall: float
+    rows: list[DecisionRow]

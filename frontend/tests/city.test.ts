@@ -1,12 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import type { CityDistricts, CityFacility } from '../src/api/city';
-import { CITY_LAYERS, band, cityBounds, detailLines, drawnAt, facilityLine, isCityDistricts, matchNote, monthLabel, radiusFor, scoreOf } from '../src/lib/city';
+import type { CityDecision, CityDistricts, CityFacility } from '../src/api/city';
+import { embedUrl, healthUrl } from '../src/lib/health';
+import { CITY_LAYERS, band, cityBounds, detailLines, drawnAt, facilityLine, GROUPS, groupCounts, hospitalLine, isCityDecision, isCityDistricts, sortDecision, matchNote, monthLabel, radiusFor, scoreOf } from '../src/lib/city';
 
 const fixture = async (name: string) => JSON.parse(await readFile(new URL(`../../fixtures/rest/${name}.json`, import.meta.url), 'utf8'));
 const city = await fixture('city_districts') as CityDistricts;
 const facilities = await fixture('city_facilities') as CityFacility[];
+const decision = await fixture('city_decision') as CityDecision;
 
 test('the real fixture is the shape the map reads: 15 districts, 21 months, a source with a hash', () => {
   assert.ok(isCityDistricts(city));
@@ -86,4 +88,44 @@ test('a district is drawn on the zone it is matched to, and not at all when it h
   assert.equal(drawnAt(park), null); // no counterpart: not drawn
   assert.ok(city.districts.filter((d) => d.matchKind !== 'none').every((d) => d.placedAt));
   assert.ok(facilities.filter((f) => city.districts.find((d) => d.districtKey === f.districtKey)?.placedAt).every((f) => f.placedAt));
+});
+
+test('the joint table has a row per district and every group is one of the four plus no counterpart', () => {
+  assert.ok(isCityDecision(decision));
+  assert.equal(decision.rows.length, 15);
+  assert.equal(Object.values(groupCounts(decision)).reduce((a, b) => a + b, 0), 15);
+  assert.equal(decision.rows.find((r) => r.districtKey === '1015')!.group, 'no_outage_data');
+  assert.equal(decision.rows.find((r) => r.districtKey === '1015')!.worstCostOfDelayEgp, undefined);
+});
+
+test('the groups follow the medians and are listed most pressing first, costlier outage first inside a group', () => {
+  for (const r of decision.rows.filter((x) => x.worstCostOfDelayEgp !== undefined)) {
+    assert.equal(r.worstCostOfDelayEgp! > decision.medianCostOfDelayEgp, r.outageVsMedian === 'higher');
+    assert.equal(r.esiOverall > decision.medianEsiOverall, r.environmentVsMedian === 'higher');
+  }
+  const sorted = sortDecision(decision.rows);
+  const order = GROUPS.map((g) => g.id);
+  for (let i = 1; i < sorted.length; i++) {
+    const a = sorted[i - 1], b = sorted[i];
+    assert.ok(order.indexOf(a.group) <= order.indexOf(b.group));
+    if (a.group === b.group) assert.ok((a.worstCostOfDelayEgp ?? 0) >= (b.worstCostOfDelayEgp ?? 0));
+  }
+  assert.equal(sorted.length, decision.rows.length);
+});
+
+test('the hospital column says how sure the reach is', () => {
+  const row = (over: object) => ({ ...decision.rows[0], ...over });
+  assert.equal(hospitalLine(row({ hospitals: 0 })), 'No hospital');
+  assert.equal(hospitalLine(row({ hospitals: 2, hospitalScenariosSure: 0, hospitalScenariosPossible: 0 })), 'Not reached by any failure');
+  assert.equal(hospitalLine(row({ hospitals: 2, hospitalScenariosSure: 1, hospitalScenariosPossible: 0 })), '1 failure reaches them');
+  assert.equal(hospitalLine(row({ hospitals: 2, hospitalScenariosSure: 4, hospitalScenariosPossible: 11 })), '4 failures reach them, 11 may reach them');
+});
+
+test('the healthcare dashboard is found on port 8501 of the host the twin is opened from, unless told otherwise', () => {
+  assert.equal(healthUrl({ protocol: 'http:', hostname: 'localhost' }), 'http://localhost:8501');
+  assert.equal(healthUrl({ protocol: 'http:', hostname: '192.168.1.20' }), 'http://192.168.1.20:8501');
+  assert.equal(healthUrl({ protocol: 'https:', hostname: 'twin.example' }), 'https://twin.example:8501');
+  assert.equal(healthUrl({ protocol: 'http:', hostname: 'localhost' }, ' https://health.example/ '), 'https://health.example');
+  assert.equal(healthUrl({ protocol: 'http:', hostname: '' }), 'http://localhost:8501');
+  assert.equal(embedUrl('http://localhost:8501'), 'http://localhost:8501/?embed=true');
 });

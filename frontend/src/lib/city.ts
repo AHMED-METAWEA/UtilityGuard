@@ -1,4 +1,4 @@
-import type { CityDistrict, CityDistricts, CityFacility, CityStress } from '../api/city';
+import type { CityDecision, CityDistrict, CityDistricts, CityFacility, CityStress, DecisionGroup, DecisionRow } from '../api/city';
 
 /** What the district layer can be coloured by. All five are the healthcare team's own 0..100 stress scores (100 is the worst case). */
 export type CityLayer = 'overall' | 'air' | 'waste' | 'water' | 'heat';
@@ -81,4 +81,42 @@ export function isCityDistricts(v: unknown): v is CityDistricts {
   return !!o && typeof o.month === 'string' && Array.isArray(o.months) && Array.isArray(o.districts) && o.districts.every((d) =>
     typeof d.districtKey === 'string' && typeof d.position?.lat === 'number' && typeof d.position?.lng === 'number' &&
     ['direct', 'type', 'none'].includes(d.matchKind) && typeof d.metrics?.stress?.overall === 'number' && typeof d.facilities?.hospitals === 'number');
+}
+
+/** The four groups of the joint table, most pressing first. Both sides are compared with the median of the districts, so a group is a relative reading, not a verdict. */
+export const GROUPS: { id: DecisionGroup; label: string; tone: 'crit' | 'warn' | 'ok' | 'muted'; meaning: string }[] = [
+  { id: 'both_higher', label: 'Outage and environment higher', tone: 'crit', meaning: 'Both the cost of an outage and the environmental stress are above the median' },
+  { id: 'outage_higher', label: 'Outage cost higher', tone: 'warn', meaning: 'An outage would cost more than the median district; the environment is at or below it' },
+  { id: 'environment_higher', label: 'Environment higher', tone: 'warn', meaning: 'The environmental stress is above the median; an outage would cost the median or less' },
+  { id: 'both_lower', label: 'Both lower', tone: 'ok', meaning: 'Both are at or below the median' },
+  { id: 'no_outage_data', label: 'No counterpart in the twin', tone: 'muted', meaning: 'The twin has no zone for it, so there is no outage cost' },
+];
+
+export function groupCounts(d: CityDecision): Record<DecisionGroup, number> {
+  const c: Record<DecisionGroup, number> = { both_higher: 0, outage_higher: 0, environment_higher: 0, both_lower: 0, no_outage_data: 0 };
+  for (const r of d.rows) c[r.group] += 1;
+  return c;
+}
+
+/** Rows grouped most pressing first; inside a group the costlier outage comes first. */
+export function sortDecision(rows: DecisionRow[]): DecisionRow[] {
+  const order = new Map(GROUPS.map((g, i) => [g.id, i]));
+  return [...rows].sort((a, b) => (order.get(a.group)! - order.get(b.group)!) || ((b.worstCostOfDelayEgp ?? 0) - (a.worstCostOfDelayEgp ?? 0)) || a.districtKey.localeCompare(b.districtKey));
+}
+
+/** What the hospital columns say, in words: how many of the district's hospitals a failure reaches for sure, and how many scenarios only possibly reach them. */
+export function hospitalLine(r: DecisionRow): string {
+  if (r.hospitals === 0) return 'No hospital';
+  const sure = r.hospitalScenariosSure, maybe = r.hospitalScenariosPossible;
+  if (sure === 0 && maybe === 0) return 'Not reached by any failure';
+  const parts = [];
+  if (sure > 0) parts.push(sure === 1 ? '1 failure reaches them' : `${sure} failures reach them`);
+  if (maybe > 0) parts.push(`${maybe} may reach them`);
+  return parts.join(', ');
+}
+
+export function isCityDecision(v: unknown): v is CityDecision {
+  const o = v as CityDecision | null;
+  return !!o && typeof o.envMonth === 'string' && typeof o.medianCostOfDelayEgp === 'number' && Array.isArray(o.rows) && o.rows.every((r) =>
+    typeof r.districtKey === 'string' && typeof r.esiOverall === 'number' && typeof r.hospitals === 'number' && GROUPS.some((g) => g.id === r.group));
 }

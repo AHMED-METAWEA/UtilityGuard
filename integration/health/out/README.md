@@ -39,6 +39,21 @@ work there). Costs shared by the whole incident (repair, water lost, cooling, se
 `worst_zone_cost_of_delay_egp` and `worst_zone_unserved_mw`: the largest of the zone's values over all scenarios (averaged over zones for `type`).
 `worst_scenario_id`: which scenario it was (only for `direct`).
 
+## hospital_exposure.csv (one row per failed asset and district with hospitals that it reaches)
+
+Their hospitals are placed by the district of their file, and the district by `zone_mapping.csv`; the twin links a zone, not a hospital, to its substation, pump
+and plant. `certainty` says how far to trust a row: `all_matched_zones` (every zone the district is matched to is hit; always so for a `direct` district) or
+`some_matched_zones` (only some are, so the district may not be affected at all: read `hospitals` as an upper bound). `hospitals`, `clinics`, `specialists` are
+the counts of the district in their facilities file.
+
+## joint_decision.csv (one row per district_key)
+
+The twin's side and their side next to each other, never added together: `worst_zone_cost_of_delay_egp`, `worst_zone_unserved_mw`, `scenarios_affecting` and the two
+`scenarios_reaching_hospitals_*` counts are ours; `esi_*` (their 0 to 100 stress scores for `env_month`, with their bands: below 20 low, 20 to under 35 moderate,
+35 and above high) and the facility counts are theirs. `outage_cost_vs_median` and `environment_vs_median` say whether the district is above or below the median of
+the districts that have the figure (a relative reading: no threshold of ours is invented, and all overall scores sit in one band). `group` is `both_higher`,
+`outage_higher`, `environment_higher`, `both_lower`, or `no_outage_data` (no counterpart in the twin).
+
 ## reliability_packages.csv (ranked improvement packages)
 
 Same idea as the package comparison of the healthcare dashboard: one row per (package, asset it protects), best first.

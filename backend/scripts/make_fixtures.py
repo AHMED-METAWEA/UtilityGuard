@@ -402,9 +402,10 @@ with TemporaryDirectory() as _tmp:
     write("rest/briefing_ar.json", _bsvc.compose("ar", now=_now).dump())
     write("rest/briefing_channels.json", [c.dump() for c in _bsvc.channels()])
 # ---------- the healthcare team's districts, facilities and environment (read-only copy, latest month) ----------
-from app.city import CityData  # noqa: E402
+from app.city import CityData, read_decision  # noqa: E402
 
 _city = CityData(zone_centers={z.id: z.center for z in topo.zones})
 write("rest/city_districts.json", _city.districts().dump())
 write("rest/city_facilities.json", [f.dump() for f in _city.facilities()])
+write("rest/city_decision.json", read_decision().dump())
 print(f"fixtures written to {ROOT}")

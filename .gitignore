@@ -228,3 +228,6 @@ backend/data/audit.jsonl.head*
 backend/data/stress/
 backend/data/briefing_state.json
 backend/data/exports/
+
+# the healthcare team's project, cloned by run_all.sh and never committed here
+integration/health/their-app/

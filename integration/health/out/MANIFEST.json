@@ -5,8 +5,9 @@
  "assets": 24,
  "assumptions": "registered defaults (backend/app/cost/__init__.py DEFAULTS), no saved override",
  "budget_m_egp": 15.0,
- "written_at": "2026-11-02T12:59:03.328927+00:00",
- "git_commit": "d3ba46d",
+ "environment_month": "2026-09",
+ "written_at": "2026-11-02T19:46:30.563620+00:00",
+ "git_commit": "8958eb1",
  "simulated": true,
  "files": {
   "scenarios.csv": {
@@ -20,6 +21,14 @@
   "district_risk.csv": {
    "rows": 15,
    "sha256": "94e54ddf9f33a19cc95417a9943c9d61db621dc1cb630fc4c3376cef2bfb7c87"
+  },
+  "hospital_exposure.csv": {
+   "rows": 95,
+   "sha256": "94e979ddd867d201f2e86fd4ad090f2c7368619a983e3bd5444edb0b554e346a"
+  },
+  "joint_decision.csv": {
+   "rows": 15,
+   "sha256": "13ce34573481e53ba3e22f339c4884e66fb75082825da69eac150d7db0da1bc8"
   },
   "reliability_packages.csv": {
    "rows": 24,

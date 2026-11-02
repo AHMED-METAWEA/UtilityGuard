@@ -1,0 +1,44 @@
+import { useCityDecision } from '../api/city';
+import { BAND_LABEL, BAND_VAR, GROUPS, groupCounts, hospitalLine, sortDecision } from '../lib/city';
+import { compact, fmt } from '../lib/format';
+import { Card, Skeleton } from '.';
+
+/** The twin's outage cost, the healthcare team's environmental stress and their hospitals, district by district and side by side. Nothing from the two sides is
+ * added together: the group only says whether each side is above or below the median of the districts. */
+export function CityDecisionCard() {
+  const { data, error } = useCityDecision();
+  if (error) return null; // the joint table is an add-on: without it the page is the same as before
+  const counts = data ? groupCounts(data) : null;
+  return (
+    <Card title="Outage cost beside environmental stress" sub="Our figures come from the twin; the environment and the hospitals come from the healthcare team. Each side is compared with the median district; the two are never added together." pad={false} style={{ gridColumn: '1 / -1' }}>
+      {!data ? <div className="card-body"><Skeleton h={220} /></div> : <>
+        <div className="row wrap" style={{ gap: 8, padding: '12px 16px 4px' }}>
+          {GROUPS.filter((g) => counts![g.id] > 0).map((g) => <span key={g.id} className={`chip ${g.tone === 'muted' ? '' : g.tone}`} title={g.meaning}>{g.label}: <b className="num">{counts![g.id]}</b></span>)}
+        </div>
+        <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
+          <table className="table">
+            <thead><tr><th>District</th><th className="r">Outage cost of delay (twin)</th><th className="r">Environmental stress (theirs, {data.envMonth})</th><th>Hospitals</th><th>Group</th></tr></thead>
+            <tbody>
+              {sortDecision(data.rows).map((r) => {
+                const g = GROUPS.find((x) => x.id === r.group)!;
+                return (
+                  <tr key={r.districtKey}>
+                    <td><span dir="auto">{r.nameAr}</span> <span className="muted">{r.districtCode}</span>{r.matchKind !== 'direct' && <div className="muted" style={{ fontSize: 11.5 }}>{r.matchKind === 'type' ? 'Same kind of district, not the same one' : 'No counterpart in the twin'}</div>}</td>
+                    <td className="r num">{r.worstCostOfDelayEgp === undefined ? <span className="muted">–</span> : <>{compact(r.worstCostOfDelayEgp)} <span className="muted">EGP</span><div className="muted" style={{ fontSize: 11.5 }}>{r.outageVsMedian} than median</div></>}</td>
+                    <td className="r num"><span className="row" style={{ gap: 6, justifyContent: 'flex-end' }}><i className="dot" style={{ color: `var(${BAND_VAR[r.esiBand]})` }} /><b>{fmt(r.esiOverall, 1)}</b> <span className="muted">{BAND_LABEL[r.esiBand]}</span></span><div className="muted" style={{ fontSize: 11.5 }}>highest: {r.highestScore} {fmt(r[`esi${r.highestScore[0].toUpperCase()}${r.highestScore.slice(1)}` as 'esiAir'], 1)}</div></td>
+                    <td>{r.hospitals} hospital{r.hospitals === 1 ? '' : 's'} <span className="muted">of {r.hospitals + r.clinics + r.specialists} facilities</span><div className="muted" style={{ fontSize: 11.5 }}>{hospitalLine(r)}</div></td>
+                    <td><span className={`chip ${g.tone === 'muted' ? '' : g.tone}`} title={g.meaning}>{g.label}</span></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className="muted" style={{ fontSize: 11.5, padding: '10px 16px 14px', lineHeight: 1.5 }}>
+          Cost of delay is the twin's largest figure among the failures that touch the district (median {compact(data.medianCostOfDelayEgp)} EGP); stress is their 0 to 100 score (median {fmt(data.medianEsiOverall, 1)}, bands: under 20 low, 20 to 35 moderate, 35 and over high).
+          Hospitals are placed by the district of their file and the district by name and kind, so a count marked "may reach" is an upper bound. Both projects' data are simulated; the cost uses planning assumptions. Source: {data.source}.
+        </div>
+      </>}
+    </Card>
+  );
+}

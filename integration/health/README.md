@@ -16,14 +16,14 @@ when they fail.* Nothing in either project is edited by the other: UtilityGuard 
 | `packages.csv` | The editable placeholders for the improvement packages: cost, and the effect they have on a failure |
 | `data/` | The healthcare team's districts, health facilities and environment as copied from their files, with `SOURCE.json` (their repository, commit and the SHA-256 of their panel). The twin's map shows them as read-only layers |
 | `extract_environment.py` | Re-makes `data/environment_monthly.csv` from their `master_panel.csv` (read only; standard library) |
-| `out/` | The tables written by `backend/scripts/export_for_health.py` (see `out/README.md` for every column) |
+| `out/` | The tables written by `backend/scripts/export_for_health.py` (see `out/README.md` for every column), among them `hospital_exposure.csv` and `joint_decision.csv` (outage cost beside environmental stress and hospitals, shown on the Executive page) |
 | `streamlit_example.py` | A ready page for the Streamlit dashboard that reads `out/` |
 
 ## Run it
 
 ```bash
 cd backend
-PYTHONPATH=. .venv/bin/python scripts/export_for_health.py            # writes integration/health/out/ (about 10 seconds, no network, no language model)
+PYTHONPATH=. .venv/bin/python scripts/export_for_health.py            # writes integration/health/out/ (a few minutes, no network, no language model)
 PYTHONPATH=. .venv/bin/python scripts/export_for_health.py --budget 30 # change the budget of the Funded / Over budget column (M EGP)
 ```
 

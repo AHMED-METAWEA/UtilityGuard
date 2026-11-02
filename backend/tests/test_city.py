@@ -8,9 +8,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import schemas as S
-from app.city import CityData, CityError, DEFAULT_DIR
+from app.city import CityData, CityError, DEFAULT_DIR, read_decision
 from app.main import app
-from app.schemas.city import CityDistricts, CityFacility
+from app.schemas.city import CityDistricts, CityFacility, Decision
 
 
 @pytest.fixture(scope="module")
@@ -127,3 +127,33 @@ def test_facilities_keep_their_spread_around_their_district(city):
 def test_without_the_zones_nothing_is_placed():
     c = CityData()
     assert all(x.placed_at is None for x in c.districts().districts) and all(f.placed_at is None for f in c.facilities())
+
+
+def test_the_decision_table_is_the_exported_file_served_as_it_is():
+    import csv
+
+    d = read_decision()
+    with (DEFAULT_DIR.parent / "out" / "joint_decision.csv").open(encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    assert len(d.rows) == len(rows) == 15 and d.env_month == "2026-09" and d.simulated
+    for r, row in zip(d.rows, rows):
+        assert r.district_key == row["district_key"] and r.esi_overall == float(row["esi_overall"]) and r.hospitals == int(row["hospitals"])
+        assert (r.worst_cost_of_delay_egp is None) == (row["worst_zone_cost_of_delay_egp"] == "") and r.group == row["group"]
+    priced = sorted(r.worst_cost_of_delay_egp for r in d.rows if r.worst_cost_of_delay_egp is not None)
+    assert priced[len(priced) // 2 - 1] <= d.median_cost_of_delay_egp <= priced[len(priced) // 2]  # 14 priced districts: the median sits between the middle two
+    for r in d.rows:  # the group follows the two medians
+        if r.group == "no_outage_data":
+            assert r.worst_cost_of_delay_egp is None
+            continue
+        assert (r.worst_cost_of_delay_egp > d.median_cost_of_delay_egp) == (r.outage_vs_median == "higher")
+        assert (r.esi_overall > d.median_esi_overall) == (r.environment_vs_median == "higher")
+
+
+def test_the_decision_endpoint_validates_and_is_off_without_the_file(tmp_path):
+    with TestClient(app) as c:
+        d = Decision.model_validate(c.get("/api/v1/city/decision").json())
+        assert len(d.rows) == 15 and "joint_decision.csv" in d.source
+        assert "worstCostOfDelayEgp" in c.get("/api/v1/city/decision").json()["rows"][0]
+    with pytest.raises(CityError) as e:
+        read_decision(tmp_path)
+    assert e.value.status == 404 and e.value.code == "no_decision_table"

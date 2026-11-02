@@ -15,10 +15,11 @@ from datetime import date
 from pathlib import Path
 
 from app.schemas import LatLng
-from app.schemas.city import CityDistrict, CityDistricts, CityFacility, CityMetrics, CitySource, CityStress, FacilityCounts
+from app.schemas.city import CityDistrict, Decision, DecisionRow, CityDistricts, CityFacility, CityMetrics, CitySource, CityStress, FacilityCounts
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_DIR = REPO / "integration" / "health" / "data"
+DEFAULT_OUT = REPO / "integration" / "health" / "out"
 RING_DEG = 0.005  # about 550 m: where districts that share a zone of the twin sit around that zone's centre
 KIND = {"hospital": "hospitals", "clinic": "clinics", "doctors": "doctors"}
 
@@ -162,3 +163,37 @@ class CityData:
             lat0, lng0 = centre[f.district_key]  # keep the facility's offset from its own district's centre, moved onto where that district is drawn
             out.append(f.model_copy(update={"placed_at": LatLng(lat=a.lat + f.position.lat - lat0, lng=a.lng + f.position.lng - lng0)}))
         return out
+
+
+def _num(v: str) -> float | None:
+    return float(v) if v not in ("", None) else None
+
+
+def read_decision(out: Path | str | None = None) -> Decision:
+    """The joint table written by `backend/scripts/export_for_health.py`, served as it is (its figures were made by the cost engine and copied from their files)."""
+    folder = Path(out or os.getenv("CITY_OUT_DIR") or DEFAULT_OUT)
+    try:
+        rows = _rows(folder / "joint_decision.csv")
+        manifest = json.loads((folder / "MANIFEST.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError) as e:
+        raise CityError(404, "no_decision_table", "The joint table is not generated: run backend/scripts/export_for_health.py.") from e
+    if not rows:
+        raise CityError(404, "no_decision_table", "The joint table is empty.")
+    costs = sorted(c for c in (_num(r["worst_zone_cost_of_delay_egp"]) for r in rows) if c is not None)
+    esi = sorted(float(r["esi_overall"]) for r in rows)
+
+    def median(v: list[float]) -> float:
+        n = len(v)
+        return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
+
+    out_rows = [DecisionRow(district_key=r["district_key"], district_code=r["district_code"], name_ar=r["district_name_ar"], match_kind=r["match_kind"],
+                            our_zone_ids=[z for z in r["our_zone_ids"].split(";") if z], hospitals=int(r["hospitals"]), clinics=int(r["clinics"]),
+                            specialists=int(r["specialists"]), scenarios_affecting=_num(r["scenarios_affecting"]),
+                            worst_cost_of_delay_egp=_num(r["worst_zone_cost_of_delay_egp"]), worst_unserved_mw=_num(r["worst_zone_unserved_mw"]),
+                            worst_scenario_id=r["worst_scenario_id"] or None, hospital_scenarios_sure=int(r["scenarios_reaching_hospitals_sure"]),
+                            hospital_scenarios_possible=int(r["scenarios_reaching_hospitals_possible"]), esi_overall=float(r["esi_overall"]),
+                            esi_air=float(r["esi_air"]), esi_waste=float(r["esi_waste"]), esi_water=float(r["esi_water"]), esi_heat=float(r["esi_heat"]),
+                            esi_band=r["esi_band"], highest_score=r["highest_score"], outage_vs_median=r["outage_cost_vs_median"] or None,
+                            environment_vs_median=r["environment_vs_median"], group=r["group"]) for r in rows]  # type: ignore[arg-type]
+    return Decision(env_month=manifest["environment_month"], source=f"integration/health/out/joint_decision.csv, written {manifest['written_at'][:10]} from commit {manifest['git_commit']}",
+                    simulated=bool(manifest.get("simulated", True)), median_cost_of_delay_egp=median(costs), median_esi_overall=median(esi), rows=out_rows)
