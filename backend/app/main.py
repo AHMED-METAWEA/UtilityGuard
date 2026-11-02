@@ -23,6 +23,7 @@ from app import dashboard, decision as decision_mod, extras, savings as savings_
 from app.agents import guardrail
 from app.agents.service import AgentService
 from app.briefing import BriefingService
+from app.city import CityData, CityError
 from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
 from app.lab.live import live_localization
 from app.lab.quality import live_quality
@@ -371,6 +372,25 @@ def briefing(lang: str = "ar", forSend: bool = False) -> dict:  # noqa: N803
     if lang not in ("en", "ar"):
         raise ApiError(422, "bad_language", "lang must be en or ar.")
     return out(briefing_service.compose(lang, suppress_repeats=forSend))  # type: ignore[arg-type]
+
+
+city_data = CityData(zone_centers={z.id: z.center for z in runtime.engine.g.topology.zones})  # the healthcare team's districts, facilities and environment, read-only; the feature is off when the folder is missing
+
+
+@api.get("/city/districts")
+def city_districts(month: str | None = None) -> dict:
+    try:
+        return out(city_data.districts(month))
+    except CityError as e:
+        raise ApiError(e.status, e.code, e.message) from e
+
+
+@api.get("/city/facilities")
+def city_facilities() -> list:
+    try:
+        return out(city_data.facilities())
+    except CityError as e:
+        raise ApiError(e.status, e.code, e.message) from e
 
 
 @api.get("/briefing/channels")

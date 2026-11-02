@@ -39,6 +39,8 @@ def write(rel: str, data) -> None:
         return
     if "--approval-only" in sys.argv and rel not in ("rest/board_decision_executing.json", "rest/audit.json", "ws/audit_entry.json", "rest/board_session.json", "ws/board_decision.json"):
         return
+    if "--city-only" in sys.argv and not rel.startswith("rest/city_"):
+        return
     if "--insight-only" in sys.argv and rel not in ("rest/warnings.json", "ws/early_warning.json", "rest/why_kpi.json", "rest/why_warning.json", "rest/guardrail_probe.json", "rest/briefing.json", "rest/briefing_ar.json", "rest/briefing_channels.json"):
         return
     p = ROOT / rel
@@ -399,4 +401,10 @@ with TemporaryDirectory() as _tmp:
     write("rest/briefing.json", _bsvc.compose("en", now=_now).dump())
     write("rest/briefing_ar.json", _bsvc.compose("ar", now=_now).dump())
     write("rest/briefing_channels.json", [c.dump() for c in _bsvc.channels()])
+# ---------- the healthcare team's districts, facilities and environment (read-only copy, latest month) ----------
+from app.city import CityData  # noqa: E402
+
+_city = CityData(zone_centers={z.id: z.center for z in topo.zones})
+write("rest/city_districts.json", _city.districts().dump())
+write("rest/city_facilities.json", [f.dump() for f in _city.facilities()])
 print(f"fixtures written to {ROOT}")

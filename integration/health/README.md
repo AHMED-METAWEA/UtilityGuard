@@ -14,6 +14,8 @@ when they fail.* Nothing in either project is edited by the other: UtilityGuard 
 | --- | --- |
 | `zone_mapping.csv` | Which UtilityGuard zone each healthcare district corresponds to, and how good the match is (`direct`, `type`, `none`) |
 | `packages.csv` | The editable placeholders for the improvement packages: cost, and the effect they have on a failure |
+| `data/` | The healthcare team's districts, health facilities and environment as copied from their files, with `SOURCE.json` (their repository, commit and the SHA-256 of their panel). The twin's map shows them as read-only layers |
+| `extract_environment.py` | Re-makes `data/environment_monthly.csv` from their `master_panel.csv` (read only; standard library) |
 | `out/` | The tables written by `backend/scripts/export_for_health.py` (see `out/README.md` for every column) |
 | `streamlit_example.py` | A ready page for the Streamlit dashboard that reads `out/` |
 
@@ -47,3 +49,17 @@ No failure rate is assumed. The table says how many failures are needed, and the
 
 Copy `streamlit_example.py` next to your `app.py` and point `DATA` at the `out/` folder (or call `render()` from one of your views). It needs only pandas and streamlit, reads the CSV files,
 and never touches `master_panel.csv`. If you would rather keep the tables out of your repository, copy the `out/` folder somewhere you control.
+
+## The map
+
+Switch on **Healthcare districts** and **Health facilities** on the live map to see their 15 districts and 81 hospitals, clinics and specialists beside the twin's own zones. Districts are
+coloured by their own stress scores (overall, air, waste, water pollution, heat) in their bands and sized by residents; the month can be changed. Their file has a centroid and an area per
+district but no boundary, so each district is a symbol, not an outline. The match to our zones is by name and kind. Their coordinates are approximate (their government district is about 5 km from ours), so the map draws each district on the centre of
+the zone it is matched to (a small ring when several share one) and each facility at its offset from its district; the tooltip says the position is approximate. Their original coordinates
+are kept in the data, and a district with no counterpart (the park) is not drawn. The values are theirs and simulated; the twin did not generate any of them. See `docs/contract.md` section 4.22.
+
+To refresh the copy from a newer version of their panel:
+
+```bash
+python integration/health/extract_environment.py --source path/to/master_panel.csv --commit <their git commit>
+```

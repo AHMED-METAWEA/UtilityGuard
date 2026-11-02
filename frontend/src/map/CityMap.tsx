@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl, { type GeoJSONSource, type Map as MLMap, type MapLayerMouseEvent } from 'maplibre-gl';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Droplets, Gauge, Maximize2, Minus, Plus, Snowflake, Waves, Zap } from 'lucide-react';
+import { Droplets, Gauge, Hospital, MapPinned, Maximize2, Minus, Plus, Snowflake, Waves, Zap } from 'lucide-react';
 import type { Asset, Network } from '../api/types';
 import { useStore } from '../store';
 import { useTheme } from '../lib/theme';
 import { NET } from '../ui';
+import { useCityDistricts, useCityFacilities, type CityDistrict } from '../api/city';
+import { BAND_LABEL, BAND_VAR, CITY_LAYERS, band, cityBounds, detailLines, drawnAt, facilityLine, matchNote, monthLabel, radiusFor, scoreOf, type CityLayer } from '../lib/city';
 
 const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const EMPTY = { type: 'FeatureCollection', features: [] } as GeoJSON.FeatureCollection;
@@ -47,6 +49,18 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
   const [tip, setTip] = useState<{ id: string; x: number; y: number } | null>(null);
   const { theme } = useTheme();
 
+  // The healthcare team's districts and facilities (read-only), drawn beside the twin's own networks. Off until asked for, and not on small maps.
+  const cityControls = interactive && !compact;
+  const [cityOn, setCityOn] = useState(false);
+  const [facOn, setFacOn] = useState(false);
+  const [cityLayer, setCityLayer] = useState<CityLayer>('overall');
+  const [month, setMonth] = useState<string | null>(null);
+  const cityData = useCityDistricts(cityControls && cityOn, month).data;
+  const facData = useCityFacilities(cityControls && facOn).data;
+  const cityEls = useRef<Map<string, HTMLElement>>(new Map());
+  const [cityTip, setCityTip] = useState<{ key: string; x: number; y: number } | null>(null);
+  const [facTip, setFacTip] = useState<{ x: number; y: number; name: string; kind: string } | null>(null);
+
   const topology = useStore((s) => s.topology.data);
   const assets = useStore((s) => s.assets);
   const alerts = useStore((s) => s.alerts.data);
@@ -66,6 +80,7 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
   // ---- create the map once the topology is known ----
   useEffect(() => {
     if (!host.current || !topology || !bounds || mapRef.current) return;
+    cityEls.current = new Map(); // a new map starts without the old district symbols
     const map = new maplibregl.Map({
       container: host.current, attributionControl: false, interactive, bounds, fitBoundsOptions: { padding: compact ? 24 : 48 }, minZoom: 11, maxZoom: 18,
       style: { version: 8, sources: {}, layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#0b1322' } }] },
@@ -82,7 +97,7 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
       const src = (id: string, data: string | GeoJSON.FeatureCollection) => map.addSource(id, { type: 'geojson', data });
       src('parks', '/geo/parks.geojson'); src('water', '/geo/water.geojson'); src('river', '/geo/green-river.geojson');
       src('roads', '/geo/roads.geojson'); src('buildings', '/geo/buildings.geojson');
-      src('zones', EMPTY); src('nets', EMPTY);
+      src('zones', EMPTY); src('nets', EMPTY); src('city-fac', EMPTY);
       const add = (l: maplibregl.LayerSpecification) => map.addLayer(l);
       add({ id: 'parks', type: 'fill', source: 'parks', paint: { 'fill-color': '#000', 'fill-opacity': 0.9 } });
       add({ id: 'water', type: 'fill', source: 'water', paint: { 'fill-color': '#000' } });
@@ -110,6 +125,14 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
         map.on('mouseenter', `net-${n}`, () => { map.getCanvas().style.cursor = 'pointer'; });
         map.on('mouseleave', `net-${n}`, () => { map.getCanvas().style.cursor = ''; });
       }
+      add({ id: 'city-fac', type: 'circle', source: 'city-fac', layout: { visibility: 'none' }, paint: {
+        'circle-radius': ['match', ['get', 'kind'], 'hospital', 4.6, 'clinic', 3.2, 2.4], 'circle-opacity': 0.92, 'circle-color': '#000', 'circle-stroke-color': '#000', 'circle-stroke-width': 1.5 } });
+      map.on('mousemove', 'city-fac', (e: MapLayerMouseEvent) => {
+        const f = e.features?.[0]; if (!f) return;
+        map.getCanvas().style.cursor = 'help';
+        setFacTip({ x: e.point.x, y: e.point.y, name: String(f.properties?.name ?? ''), kind: String(f.properties?.kind ?? '') });
+      });
+      map.on('mouseleave', 'city-fac', () => { map.getCanvas().style.cursor = ''; setFacTip(null); });
       setReady(map);
     });
     return () => { alive = false; map.remove(); mapRef.current = null; markers.current.clear(); zoneLabels.current.clear(); landmarkEls.current = []; setReady(null); };
@@ -128,6 +151,8 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
     map.setPaintProperty('bldg', 'fill-color', ['match', ['get', 'k'], 'gov', css('--map-bldg-gov'), 'cbd', css('--map-bldg-cbd'), css('--map-bldg')]);
     map.setPaintProperty('zone-fill', 'fill-color', css('--zone-fill'));
     map.setPaintProperty('zone-line', 'line-color', css('--zone-line'));
+    map.setPaintProperty('city-fac', 'circle-color', css('--text'));
+    map.setPaintProperty('city-fac', 'circle-stroke-color', css('--map-bg'));
     map.setPaintProperty('suspect-alt', 'line-color', css('--text-2'));
     map.setPaintProperty('suspect-halo', 'line-color', css('--crit'));
     map.setPaintProperty('suspect-top', 'line-color', css('--crit'));
@@ -213,6 +238,54 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
   }, [assets, selectedAsset, ready]);
   useEffect(() => { zoneLabels.current.forEach((el, id) => el.classList.toggle('alert', openZones.has(id))); }, [openZones, ready]);
 
+  // ---- the healthcare team's districts: one symbol per district (their file has a centroid and an area, no boundary), coloured by their own stress score ----
+  const maxResidents = useMemo(() => Math.max(0, ...(cityData?.districts.map((d) => d.metrics.residents) ?? [0])), [cityData]);
+  useEffect(() => {
+    const map = ready; if (!map) return;
+    const have = cityEls.current;
+    if (!cityData) { have.forEach((el) => { el.style.display = 'none'; }); return; }
+    for (const d of cityData.districts) {
+      const at = drawnAt(d);
+      if (!at) { have.get(d.districtKey)?.style.setProperty('display', 'none'); continue; }
+      let el = have.get(d.districtKey);
+      if (!el) {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'city-dot'; btn.setAttribute('aria-label', d.nameAr);
+        btn.addEventListener('mouseenter', () => { const r = btn.getBoundingClientRect(), w = wrap.current!.getBoundingClientRect(); setCityTip({ key: d.districtKey, x: r.left - w.left + r.width / 2, y: r.top - w.top }); });
+        btn.addEventListener('mouseleave', () => setCityTip(null));
+        btn.addEventListener('focus', () => { const r = btn.getBoundingClientRect(), w = wrap.current!.getBoundingClientRect(); setCityTip({ key: d.districtKey, x: r.left - w.left + r.width / 2, y: r.top - w.top }); });
+        btn.addEventListener('blur', () => setCityTip(null));
+        new maplibregl.Marker({ element: btn }).setLngLat([at.lng, at.lat]).addTo(map);
+        have.set(d.districtKey, btn); el = btn;
+      }
+      el.dataset.band = band(scoreOf(d, cityLayer));
+      el.style.setProperty('--r', `${radiusFor(d.metrics.residents, maxResidents)}px`);
+      el.style.display = '';
+      el.textContent = d.code.replace(/^NAC-/, '');
+    }
+  }, [ready, cityData, cityLayer, maxResidents]);
+  useEffect(() => { if (!cityOn) { cityEls.current.forEach((el) => { el.style.display = 'none'; }); setCityTip(null); } }, [cityOn]);
+
+  useEffect(() => {
+    const map = ready; if (!map) return;
+    map.setLayoutProperty('city-fac', 'visibility', facOn && facData ? 'visible' : 'none');
+    (map.getSource('city-fac') as GeoJSONSource | undefined)?.setData(!facData ? EMPTY : {
+      type: 'FeatureCollection',
+      features: facData.filter((f) => drawnAt(f)).map((f) => ({ type: 'Feature', properties: { kind: f.kind, name: f.nameAr }, geometry: { type: 'Point', coordinates: [f.placedAt!.lng, f.placedAt!.lat] } })),
+    });
+    if (!facOn) setFacTip(null);
+  }, [ready, facOn, facData]);
+
+  // Show both projects' places at once the first time a city layer is switched on.
+  const cityShown = `${cityOn && cityData ? 'd' : ''}${facOn && facData ? 'f' : ''}`;
+  useEffect(() => {
+    const map = ready; if (!map || !cityShown || !bounds) return;
+    const b = cityBounds(cityOn && cityData ? cityData.districts : [], facOn && facData ? facData : []); if (!b) return;
+    const all = new maplibregl.LngLatBounds(bounds.getSouthWest(), bounds.getNorthEast()).extend([b[0], b[1]]).extend([b[2], b[3]]);
+    map.fitBounds(all, { padding: 60, duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 900 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, cityShown]);
+
   // ---- fly to focus ----
   useEffect(() => {
     const map = ready; if (!map || !focus) return;
@@ -245,6 +318,7 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
     ro.observe(wrap.current); return () => ro.disconnect();
   }, []);
 
+  const cityDistrict: CityDistrict | undefined = cityTip ? cityData?.districts.find((d) => d.districtKey === cityTip.key) : undefined;
   const tipAsset = tip ? markers.current.get(tip.id)?.asset : null;
   const tipState = tip ? assets[tip.id] : null;
   return (
@@ -256,6 +330,21 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
           <button key={n} className="layer-btn" aria-pressed={layers[n]} onClick={() => setLayers((l) => ({ ...l, [n]: !l[n] }))}>
             <I size={15} color={NET[n].color} strokeWidth={2.4} aria-hidden />{n === 'water' ? 'Water' : n === 'electricity' ? 'Electricity' : 'Cooling'}
           </button>); })}
+      </div>}
+      {cityControls && <div className="map-city">
+        <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+          <button className="layer-btn" aria-pressed={cityOn} onClick={() => setCityOn((v) => !v)}><MapPinned size={15} aria-hidden />Healthcare districts</button>
+          <button className="layer-btn" aria-pressed={facOn} onClick={() => setFacOn((v) => !v)}><Hospital size={15} aria-hidden />Health facilities</button>
+        </div>
+        {cityOn && <div className="map-city-panel">
+          <div className="seg" role="group" aria-label="What the districts are coloured by">
+            {CITY_LAYERS.map((l) => <button key={l.id} type="button" aria-pressed={cityLayer === l.id} title={l.label} onClick={() => setCityLayer(l.id)}>{l.short}</button>)}
+          </div>
+          {cityData && <label className="row" style={{ gap: 6, fontSize: 12 }}><span className="muted">Month</span>
+            <select value={cityData.month} aria-label="Month of the environment data" onChange={(e) => setMonth(e.target.value === cityData.months[cityData.months.length - 1] ? null : e.target.value)}>
+              {[...cityData.months].reverse().map((m) => <option key={m} value={m}>{monthLabel(m)}</option>)}
+            </select></label>}
+        </div>}
       </div>}
       {interactive && <div className="map-tools">
         <button className="btn icon sm" aria-label="Zoom in" onClick={() => mapRef.current?.zoomIn()}><Plus size={16} /></button>
@@ -273,10 +362,28 @@ export function CityMap({ onSelectAsset, selectedAsset, focus, height = 560, int
           <span className="row" style={{ gap: 6 }}><i className="dot" style={{ color: 'var(--warn)' }} />Warning</span>
           <span className="row" style={{ gap: 6 }}><i className="dot" style={{ color: 'var(--crit)' }} />Fault</span>
         </div>
+        {cityControls && cityOn && <div className="map-legend-city">
+          <div className="muted" style={{ fontSize: 11.5 }}>{CITY_LAYERS.find((l) => l.id === cityLayer)?.label}: stress score 0 to 100 (their definition){cityData ? `, ${monthLabel(cityData.month)}` : ''}</div>
+          <div className="row" style={{ gap: 12 }}>
+            {(['low', 'moderate', 'high'] as const).map((b) => <span key={b} className="row" style={{ gap: 6 }}><i className="dot" style={{ color: `var(${BAND_VAR[b]})` }} />{BAND_LABEL[b]} {b === 'low' ? '(under 20)' : b === 'moderate' ? '(20 to 35)' : '(35 and over)'}</span>)}
+          </div>
+          <div className="muted" style={{ fontSize: 11 }}>Circle size is registered residents. Healthcare team's data, simulated; the twin did not generate it.</div>
+        </div>}
       </div>}
       {tip && tipAsset && <div className="tooltip" style={{ left: tip.x, top: tip.y - 8, transform: 'translate(-50%, -100%)', minWidth: 160 }}>
         <div className="row" style={{ gap: 6 }}><b>{tipAsset.name}</b><span className="muted">{tipAsset.kind}</span></div>
         <div className="muted">{tipState ? `${tipState.status}, health ${Math.round(tipState.healthScore)}` : 'normal'}{tipState?.failureProbability !== undefined ? `, failure risk ${Math.round(tipState.failureProbability * 100)}%` : ''}</div>
+      </div>}
+      {cityTip && cityDistrict && <div className="tooltip city-tip" style={{ left: cityTip.x, top: cityTip.y - 8, transform: 'translate(-50%, -100%)', minWidth: 220 }}>
+        <div className="row" style={{ gap: 6 }}><b dir="auto">{cityDistrict.nameAr}</b><span className="muted">{cityDistrict.code}</span></div>
+        <div className="row" style={{ gap: 6 }}><i className="dot" style={{ color: `var(${BAND_VAR[band(scoreOf(cityDistrict, cityLayer))]})` }} />
+          <span>{BAND_LABEL[band(scoreOf(cityDistrict, cityLayer))]}, score <b className="num">{scoreOf(cityDistrict, cityLayer).toFixed(1)}</b></span></div>
+        {detailLines(cityDistrict, cityLayer).map((l) => <div key={l.label} className="row spread" style={{ gap: 12 }}><span className="muted">{l.label}</span><span className="num">{l.value}</span></div>)}
+        <div className="muted" style={{ marginTop: 4 }}>{facilityLine(cityDistrict)}</div>
+        <div className="muted">{matchNote(cityDistrict)}</div>
+      </div>}
+      {facTip && <div className="tooltip" style={{ left: facTip.x, top: facTip.y - 10, transform: 'translate(-50%, -100%)' }}>
+        <b dir="auto">{facTip.name}</b> <span className="muted">{facTip.kind}</span>
       </div>}
     </div>
   );

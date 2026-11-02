@@ -28,13 +28,13 @@ Keyboard: `Cmd/Ctrl+K` command palette (includes assumptions), `S` Scenario Lab,
 
 | Folder | Contents |
 | --- | --- |
-| `api/` | `client.ts` (fetch with a typed error), `ws.ts` (WebSocket client with runtime validation of every message and reconnect), `types.ts` (hand-written mirror of the Pydantic schemas), `dash.ts`, `lab.ts`, `warnings.ts` (early warnings), `why.ts` (explanations), `briefing.ts` (briefing, channels, send). |
+| `api/` | `client.ts` (fetch with a typed error), `ws.ts` (WebSocket client with runtime validation of every message and reconnect), `types.ts` (hand-written mirror of the Pydantic schemas), `dash.ts`, `lab.ts`, `warnings.ts` (early warnings), `why.ts` (explanations), `briefing.ts` (briefing, channels, send), `city.ts` (the healthcare team's districts and facilities, read-only). |
 | `store/` | Zustand slices: readings and history, alerts, incidents, findings (stored newest-first, read with `latestFinding`), board sessions, the decision log, UI state. |
 | `ui/` | Shared components (`Card`, `Meter`, `StatusChip`…), `Decision.tsx` and `Provenance.tsx` (evidence tags, calculation view), `Board.tsx` (transcript, crew timeline, decision card) `DecisionControl.tsx` (approve, change the order, reject, execution progress), `EarlyWarning.tsx`, `Guardrail.tsx` (try to fool the AI) and `Why.tsx` (the `Why?` control) and `Briefing.tsx` (the morning briefing card, with `briefing.css`). |
 | `pages/`, `panels/` | The pages above and the drawers (including `WhyDrawer.tsx`), palette, chat dock and Scenario Lab. |
 | `charts/` | `TimeChart`, `Columns`, `LeakCurve`, `Sparkline`, `ModelBars`, `gantt.ts` (crew timeline layout), `scale.ts`. |
 | `map/CityMap.tsx` | The map, asset markers, leak suspects layers. `window.__map` exists in dev builds only. |
-| `lib/` | Pure helpers: formatting, route parsing, `present.ts` (what to show for a finding), `decision.ts` (approval helpers and error texts), `audit.ts` (grouping and labels for the log), `why.ts`, `warning.ts` and `guardrail.ts` (helpers for the three insight features), `briefing.ts` (validator and display helpers) and `reliability.ts` (the forecast verdict and the worst kind of day). |
+| `lib/` | Pure helpers: formatting, route parsing, `present.ts` (what to show for a finding), `decision.ts` (approval helpers and error texts), `audit.ts` (grouping and labels for the log), `why.ts`, `warning.ts` and `guardrail.ts` (helpers for the three insight features), `briefing.ts` (validator and display helpers) `reliability.ts` (the forecast verdict and the worst kind of day) and `city.ts` (bands, symbol sizes, tooltip lines for the healthcare districts layer). |
 | `i18n/` | English copy lives in the code as default values; `ar.json` is a partial Arabic stub (navigation and top bar only) with RTL layout. |
 
 ## Brand assets
@@ -50,7 +50,7 @@ Keyboard: `Cmd/Ctrl+K` command palette (includes assumptions), `S` Scenario Lab,
 
 ## Tests
 
-`npm test` runs Node's test runner over `tests/*.test.ts|mjs` (70 tests): fixture parsing, per-sensor ordering, reconnect hydration, alert counting, same-id finding replacement, burst sequence rehearsals, chat routing, assumptions serialization, lab keys, board state, approval and audit helpers, the forecast comparison helpers, the why, early-warning and guardrail helpers, and the forecast reliability and briefing helpers. These are state-level tests; they do not measure frame rate or visual correctness. Visual checks are done in the browser at desktop width and at 390 px (no horizontal overflow).
+`npm test` runs Node's test runner over `tests/*.test.ts|mjs` (78 tests; `mock.test.mjs` is timing-sensitive and can fail once when the machine is busy): fixture parsing, per-sensor ordering, reconnect hydration, alert counting, same-id finding replacement, burst sequence rehearsals, chat routing, assumptions serialization, lab keys, board state, approval and audit helpers, the forecast comparison helpers, the why, early-warning and guardrail helpers, the forecast reliability and briefing helpers, and the healthcare districts layer helpers. These are state-level tests; they do not measure frame rate or visual correctness. Visual checks are done in the browser at desktop width and at 390 px (no horizontal overflow).
 
 ## Mock server
 

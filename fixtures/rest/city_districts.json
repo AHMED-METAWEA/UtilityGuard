@@ -1,0 +1,937 @@
+{
+  "month": "2026-09",
+  "months": [
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09"
+  ],
+  "source": {
+    "repository": "https://github.com/Gehan3/utilization-Environmental-measurements-Healthcare_Investment_Planning",
+    "commit": "64059cf510b061bf07d940f87eb4053e5b7efa1e",
+    "sha256": "cff9180167a4f1981dae4afe0fecfa19e94c17dab99d3277ac6a8f303f910a43",
+    "simulated": true,
+    "note": "Copied unchanged from the healthcare team's master_panel.csv. The twin did not generate these values."
+  },
+  "districts": [
+    {
+      "districtKey": "1001",
+      "code": "NAC-R1",
+      "nameAr": "الحي السكني الأول R1",
+      "kind": "residential_district",
+      "areaKm2": 14.2,
+      "position": {
+        "lat": 30.015,
+        "lng": 31.685
+      },
+      "placedAt": {
+        "lat": 30.0245,
+        "lng": 31.669
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-res-2",
+        "zone-res-n",
+        "zone-res-ne",
+        "zone-res-far"
+      ],
+      "facilities": {
+        "hospitals": 4,
+        "clinics": 0,
+        "doctors": 1
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 27959,
+        "aqiMean": 92.24,
+        "aqiMax": 103.0,
+        "pm25Ugm3": 31.16,
+        "pm10Ugm3": 68.8,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 39.63,
+        "binHoursOver85Pct": 3.99,
+        "overflowIncidents": 607.0,
+        "collectionEfficiencyPct": 93.61,
+        "uncollectedTons": 53.0,
+        "odorPestRisk": 30.76,
+        "waterPollutionIndex": 14.0,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.381,
+        "turbidityNtu": 0.51,
+        "supplyInterruptionHours": 6.45,
+        "leakIncidents": 7.0,
+        "nonRevenueWaterPct": 21.44,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 28.16,
+          "waste": 30.76,
+          "water": 14.0,
+          "heat": 24.0,
+          "overall": 24.23
+        },
+        "visitsDemand": 7530.0,
+        "respiratoryVisits": 1055.0,
+        "waterborneVisits": 270.0,
+        "heatRelatedVisits": 19.0
+      }
+    },
+    {
+      "districtKey": "1002",
+      "code": "NAC-R2",
+      "nameAr": "الحي السكني الثاني R2",
+      "kind": "residential_district",
+      "areaKm2": 12.8,
+      "position": {
+        "lat": 30.018,
+        "lng": 31.701
+      },
+      "placedAt": {
+        "lat": 30.017,
+        "lng": 31.674000982957416
+      },
+      "matchKind": "direct",
+      "ourZoneIds": [
+        "zone-res-2"
+      ],
+      "facilities": {
+        "hospitals": 1,
+        "clinics": 4,
+        "doctors": 0
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 18172,
+        "aqiMean": 90.14,
+        "aqiMax": 99.0,
+        "pm25Ugm3": 30.11,
+        "pm10Ugm3": 65.88,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 38.19,
+        "binHoursOver85Pct": 3.31,
+        "overflowIncidents": 318.0,
+        "collectionEfficiencyPct": 93.91,
+        "uncollectedTons": 33.1,
+        "odorPestRisk": 28.48,
+        "waterPollutionIndex": 14.08,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.439,
+        "turbidityNtu": 0.62,
+        "supplyInterruptionHours": 8.95,
+        "leakIncidents": 10.0,
+        "nonRevenueWaterPct": 24.76,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 26.76,
+          "waste": 28.48,
+          "water": 14.08,
+          "heat": 24.0,
+          "overall": 23.33
+        },
+        "visitsDemand": 5030.0,
+        "respiratoryVisits": 717.0,
+        "waterborneVisits": 230.0,
+        "heatRelatedVisits": 13.0
+      }
+    },
+    {
+      "districtKey": "1003",
+      "code": "NAC-R3",
+      "nameAr": "الحي السكني الثالث R3 (كابيتال ريزيدنس)",
+      "kind": "residential_district",
+      "areaKm2": 18.5,
+      "position": {
+        "lat": 30.021,
+        "lng": 31.715
+      },
+      "placedAt": {
+        "lat": 30.041,
+        "lng": 31.7385
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-res-2",
+        "zone-res-n",
+        "zone-res-ne",
+        "zone-res-far"
+      ],
+      "facilities": {
+        "hospitals": 2,
+        "clinics": 2,
+        "doctors": 0
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 57244,
+        "aqiMean": 89.76,
+        "aqiMax": 100.0,
+        "pm25Ugm3": 29.9,
+        "pm10Ugm3": 65.91,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 50.19,
+        "binHoursOver85Pct": 10.77,
+        "overflowIncidents": 3624.0,
+        "collectionEfficiencyPct": 94.39,
+        "uncollectedTons": 101.1,
+        "odorPestRisk": 41.99,
+        "waterPollutionIndex": 10.81,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.54,
+        "turbidityNtu": 0.77,
+        "supplyInterruptionHours": 4.43,
+        "leakIncidents": 5.0,
+        "nonRevenueWaterPct": 15.27,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 26.507,
+          "waste": 41.99,
+          "water": 10.81,
+          "heat": 24.0,
+          "overall": 25.827
+        },
+        "visitsDemand": 15355.0,
+        "respiratoryVisits": 2132.0,
+        "waterborneVisits": 605.0,
+        "heatRelatedVisits": 36.0
+      }
+    },
+    {
+      "districtKey": "1004",
+      "code": "NAC-R4",
+      "nameAr": "الحي السكني الرابع R4",
+      "kind": "residential_district",
+      "areaKm2": 15.1,
+      "position": {
+        "lat": 30.024,
+        "lng": 31.73
+      },
+      "placedAt": {
+        "lat": 30.041,
+        "lng": 31.774
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-res-2",
+        "zone-res-n",
+        "zone-res-ne",
+        "zone-res-far"
+      ],
+      "facilities": {
+        "hospitals": 1,
+        "clinics": 3,
+        "doctors": 1
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 19767,
+        "aqiMean": 91.39,
+        "aqiMax": 99.0,
+        "pm25Ugm3": 30.78,
+        "pm10Ugm3": 68.11,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 39.11,
+        "binHoursOver85Pct": 3.74,
+        "overflowIncidents": 406.0,
+        "collectionEfficiencyPct": 92.89,
+        "uncollectedTons": 43.3,
+        "odorPestRisk": 32.39,
+        "waterPollutionIndex": 26.56,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.367,
+        "turbidityNtu": 0.98,
+        "supplyInterruptionHours": 13.78,
+        "leakIncidents": 12.0,
+        "nonRevenueWaterPct": 26.11,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 27.593,
+          "waste": 32.39,
+          "water": 26.56,
+          "heat": 24.0,
+          "overall": 27.636
+        },
+        "visitsDemand": 5308.0,
+        "respiratoryVisits": 731.0,
+        "waterborneVisits": 232.0,
+        "heatRelatedVisits": 17.0
+      }
+    },
+    {
+      "districtKey": "1005",
+      "code": "NAC-R5",
+      "nameAr": "الحي السكني الخامس R5 (جاردن سيتي العاصمة)",
+      "kind": "residential_district",
+      "areaKm2": 21.4,
+      "position": {
+        "lat": 30.028,
+        "lng": 31.745
+      },
+      "placedAt": {
+        "lat": 30.053,
+        "lng": 31.78
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-res-2",
+        "zone-res-n",
+        "zone-res-ne",
+        "zone-res-far"
+      ],
+      "facilities": {
+        "hospitals": 1,
+        "clinics": 3,
+        "doctors": 1
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 44955,
+        "aqiMean": 86.07,
+        "aqiMax": 92.0,
+        "pm25Ugm3": 27.92,
+        "pm10Ugm3": 61.3,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 43.97,
+        "binHoursOver85Pct": 6.49,
+        "overflowIncidents": 1713.0,
+        "collectionEfficiencyPct": 94.81,
+        "uncollectedTons": 75.0,
+        "odorPestRisk": 32.14,
+        "waterPollutionIndex": 10.97,
+        "ecoliPositivePct": 4.0,
+        "chlorineResidualMgL": 0.467,
+        "turbidityNtu": 0.61,
+        "supplyInterruptionHours": 14.38,
+        "leakIncidents": 16.0,
+        "nonRevenueWaterPct": 19.73,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 24.047,
+          "waste": 32.14,
+          "water": 10.97,
+          "heat": 24.0,
+          "overall": 22.789
+        },
+        "visitsDemand": 11947.0,
+        "respiratoryVisits": 1683.0,
+        "waterborneVisits": 530.0,
+        "heatRelatedVisits": 30.0
+      }
+    },
+    {
+      "districtKey": "1006",
+      "code": "NAC-R6",
+      "nameAr": "الحي السكني السادس R6",
+      "kind": "residential_district",
+      "areaKm2": 16.3,
+      "position": {
+        "lat": 30.031,
+        "lng": 31.76
+      },
+      "placedAt": {
+        "lat": 30.017,
+        "lng": 31.663999017042585
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-res-2",
+        "zone-res-n",
+        "zone-res-ne",
+        "zone-res-far"
+      ],
+      "facilities": {
+        "hospitals": 2,
+        "clinics": 2,
+        "doctors": 0
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 17679,
+        "aqiMean": 91.59,
+        "aqiMax": 103.0,
+        "pm25Ugm3": 30.84,
+        "pm10Ugm3": 69.64,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 41.36,
+        "binHoursOver85Pct": 4.89,
+        "overflowIncidents": 455.0,
+        "collectionEfficiencyPct": 92.98,
+        "uncollectedTons": 38.4,
+        "odorPestRisk": 34.43,
+        "waterPollutionIndex": 13.51,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.401,
+        "turbidityNtu": 0.53,
+        "supplyInterruptionHours": 7.83,
+        "leakIncidents": 9.0,
+        "nonRevenueWaterPct": 23.17,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 27.727,
+          "waste": 34.43,
+          "water": 13.51,
+          "heat": 24.0,
+          "overall": 24.917
+        },
+        "visitsDemand": 4790.0,
+        "respiratoryVisits": 680.0,
+        "waterborneVisits": 178.0,
+        "heatRelatedVisits": 5.0
+      }
+    },
+    {
+      "districtKey": "1007",
+      "code": "NAC-R7",
+      "nameAr": "الحي السكني السابع R7",
+      "kind": "residential_district",
+      "areaKm2": 25.0,
+      "position": {
+        "lat": 29.985,
+        "lng": 31.725
+      },
+      "placedAt": {
+        "lat": 30.031000000000002,
+        "lng": 31.7385
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-res-2",
+        "zone-res-n",
+        "zone-res-ne",
+        "zone-res-far"
+      ],
+      "facilities": {
+        "hospitals": 0,
+        "clinics": 1,
+        "doctors": 2
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 2810,
+        "aqiMean": 93.12,
+        "aqiMax": 105.0,
+        "pm25Ugm3": 31.67,
+        "pm10Ugm3": 76.6,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 27.25,
+        "binHoursOver85Pct": 0.66,
+        "overflowIncidents": 18.0,
+        "collectionEfficiencyPct": 89.54,
+        "uncollectedTons": 15.8,
+        "odorPestRisk": 34.92,
+        "waterPollutionIndex": 27.82,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.327,
+        "turbidityNtu": 1.03,
+        "supplyInterruptionHours": 21.57,
+        "leakIncidents": 25.0,
+        "nonRevenueWaterPct": 29.02,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 28.747,
+          "waste": 34.92,
+          "water": 27.82,
+          "heat": 24.0,
+          "overall": 28.872
+        },
+        "visitsDemand": 782.0,
+        "respiratoryVisits": 105.0,
+        "waterborneVisits": 48.0,
+        "heatRelatedVisits": 1.0
+      }
+    },
+    {
+      "districtKey": "1008",
+      "code": "NAC-R8",
+      "nameAr": "الحي السكني الثامن R8",
+      "kind": "residential_district",
+      "areaKm2": 22.5,
+      "position": {
+        "lat": 29.982,
+        "lng": 31.74
+      },
+      "placedAt": {
+        "lat": 30.031000000000002,
+        "lng": 31.774
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-res-2",
+        "zone-res-n",
+        "zone-res-ne",
+        "zone-res-far"
+      ],
+      "facilities": {
+        "hospitals": 2,
+        "clinics": 3,
+        "doctors": 0
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 4490,
+        "aqiMean": 93.32,
+        "aqiMax": 102.0,
+        "pm25Ugm3": 31.79,
+        "pm10Ugm3": 76.48,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 32.06,
+        "binHoursOver85Pct": 1.43,
+        "overflowIncidents": 51.0,
+        "collectionEfficiencyPct": 89.16,
+        "uncollectedTons": 20.6,
+        "odorPestRisk": 36.45,
+        "waterPollutionIndex": 16.44,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.351,
+        "turbidityNtu": 0.61,
+        "supplyInterruptionHours": 18.97,
+        "leakIncidents": 15.0,
+        "nonRevenueWaterPct": 26.09,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 28.88,
+          "waste": 36.45,
+          "water": 16.44,
+          "heat": 24.0,
+          "overall": 26.442
+        },
+        "visitsDemand": 1237.0,
+        "respiratoryVisits": 182.0,
+        "waterborneVisits": 52.0,
+        "heatRelatedVisits": 3.0
+      }
+    },
+    {
+      "districtKey": "1009",
+      "code": "NAC-CBD",
+      "nameAr": "حي المال والأعمال CBD",
+      "kind": "commercial_district",
+      "areaKm2": 1.95,
+      "position": {
+        "lat": 30.005,
+        "lng": 31.71
+      },
+      "placedAt": {
+        "lat": 30.01125,
+        "lng": 31.6965
+      },
+      "matchKind": "direct",
+      "ourZoneIds": [
+        "zone-cbd"
+      ],
+      "facilities": {
+        "hospitals": 2,
+        "clinics": 4,
+        "doctors": 2
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 1574,
+        "aqiMean": 102.06,
+        "aqiMax": 123.0,
+        "pm25Ugm3": 35.73,
+        "pm10Ugm3": 78.84,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 43.42,
+        "binHoursOver85Pct": 6.14,
+        "overflowIncidents": 559.0,
+        "collectionEfficiencyPct": 95.76,
+        "uncollectedTons": 22.8,
+        "odorPestRisk": 28.59,
+        "waterPollutionIndex": 16.01,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.614,
+        "turbidityNtu": 0.88,
+        "supplyInterruptionHours": 5.3,
+        "leakIncidents": 3.0,
+        "nonRevenueWaterPct": 26.87,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 34.707,
+          "waste": 28.59,
+          "water": 16.01,
+          "heat": 24.0,
+          "overall": 25.827
+        },
+        "visitsDemand": 3117.0,
+        "respiratoryVisits": 442.0,
+        "waterborneVisits": 107.0,
+        "heatRelatedVisits": 6.0
+      }
+    },
+    {
+      "districtKey": "1010",
+      "code": "NAC-GOV",
+      "nameAr": "الحي الحكومي والوزارات",
+      "kind": "government_district",
+      "areaKm2": 5.5,
+      "position": {
+        "lat": 30.01,
+        "lng": 31.7
+      },
+      "placedAt": {
+        "lat": 30.019,
+        "lng": 31.752
+      },
+      "matchKind": "direct",
+      "ourZoneIds": [
+        "zone-gov"
+      ],
+      "facilities": {
+        "hospitals": 3,
+        "clinics": 4,
+        "doctors": 0
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 1170,
+        "aqiMean": 94.59,
+        "aqiMax": 102.0,
+        "pm25Ugm3": 32.46,
+        "pm10Ugm3": 71.49,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 41.1,
+        "binHoursOver85Pct": 4.74,
+        "overflowIncidents": 518.0,
+        "collectionEfficiencyPct": 95.62,
+        "uncollectedTons": 25.3,
+        "odorPestRisk": 26.22,
+        "waterPollutionIndex": 4.06,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.633,
+        "turbidityNtu": 0.46,
+        "supplyInterruptionHours": 1.38,
+        "leakIncidents": 2.0,
+        "nonRevenueWaterPct": 19.0,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 29.727,
+          "waste": 26.22,
+          "water": 4.06,
+          "heat": 24.0,
+          "overall": 21.002
+        },
+        "visitsDemand": 3463.0,
+        "respiratoryVisits": 508.0,
+        "waterborneVisits": 100.0,
+        "heatRelatedVisits": 5.0
+      }
+    },
+    {
+      "districtKey": "1011",
+      "code": "NAC-DIP",
+      "nameAr": "حي السفارات (الحي الدبلوماسي)",
+      "kind": "diplomatic_district",
+      "areaKm2": 6.8,
+      "position": {
+        "lat": 29.995,
+        "lng": 31.72
+      },
+      "placedAt": {
+        "lat": 30.009,
+        "lng": 31.752
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-gov",
+        "zone-pres",
+        "zone-just"
+      ],
+      "facilities": {
+        "hospitals": 1,
+        "clinics": 1,
+        "doctors": 0
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 2495,
+        "aqiMean": 85.02,
+        "aqiMax": 92.0,
+        "pm25Ugm3": 27.36,
+        "pm10Ugm3": 60.02,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 33.51,
+        "binHoursOver85Pct": 1.75,
+        "overflowIncidents": 55.0,
+        "collectionEfficiencyPct": 94.23,
+        "uncollectedTons": 9.3,
+        "odorPestRisk": 24.43,
+        "waterPollutionIndex": 14.57,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.512,
+        "turbidityNtu": 0.96,
+        "supplyInterruptionHours": 6.37,
+        "leakIncidents": 5.0,
+        "nonRevenueWaterPct": 17.31,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 23.347,
+          "waste": 24.43,
+          "water": 14.57,
+          "heat": 24.0,
+          "overall": 21.587
+        },
+        "visitsDemand": 1048.0,
+        "respiratoryVisits": 157.0,
+        "waterborneVisits": 37.0,
+        "heatRelatedVisits": 1.0
+      }
+    },
+    {
+      "districtKey": "1012",
+      "code": "NAC-CULT",
+      "nameAr": "مدينة الفنون والثقافة",
+      "kind": "cultural_district",
+      "areaKm2": 0.52,
+      "position": {
+        "lat": 30.002,
+        "lng": 31.695
+      },
+      "placedAt": {
+        "lat": 30.016,
+        "lng": 31.726
+      },
+      "matchKind": "direct",
+      "ourZoneIds": [
+        "zone-cult"
+      ],
+      "facilities": {
+        "hospitals": 0,
+        "clinics": 2,
+        "doctors": 2
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 413,
+        "aqiMean": 87.4,
+        "aqiMax": 96.0,
+        "pm25Ugm3": 28.64,
+        "pm10Ugm3": 63.15,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 35.12,
+        "binHoursOver85Pct": 2.2,
+        "overflowIncidents": 43.0,
+        "collectionEfficiencyPct": 94.22,
+        "uncollectedTons": 5.6,
+        "odorPestRisk": 25.34,
+        "waterPollutionIndex": 18.88,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.568,
+        "turbidityNtu": 1.08,
+        "supplyInterruptionHours": 0.77,
+        "leakIncidents": 1.0,
+        "nonRevenueWaterPct": 32.52,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 24.933,
+          "waste": 25.34,
+          "water": 18.88,
+          "heat": 24.0,
+          "overall": 23.288
+        },
+        "visitsDemand": 619.0,
+        "respiratoryVisits": 86.0,
+        "waterborneVisits": 18.0,
+        "heatRelatedVisits": 1.0
+      }
+    },
+    {
+      "districtKey": "1013",
+      "code": "NAC-MED",
+      "nameAr": "المدينة الطبية",
+      "kind": "medical_district",
+      "areaKm2": 2.3,
+      "position": {
+        "lat": 30.008,
+        "lng": 31.735
+      },
+      "placedAt": {
+        "lat": 30.008499999999998,
+        "lng": 31.731000554370073
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-cult"
+      ],
+      "facilities": {
+        "hospitals": 8,
+        "clinics": 8,
+        "doctors": 2
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 1240,
+        "aqiMean": 91.48,
+        "aqiMax": 107.0,
+        "pm25Ugm3": 30.79,
+        "pm10Ugm3": 68.23,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 38.95,
+        "binHoursOver85Pct": 3.66,
+        "overflowIncidents": 177.0,
+        "collectionEfficiencyPct": 95.42,
+        "uncollectedTons": 12.6,
+        "odorPestRisk": 24.67,
+        "waterPollutionIndex": 4.66,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.545,
+        "turbidityNtu": 0.49,
+        "supplyInterruptionHours": 1.0,
+        "leakIncidents": 1.0,
+        "nonRevenueWaterPct": 17.8,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 27.653,
+          "waste": 24.67,
+          "water": 4.66,
+          "heat": 24.0,
+          "overall": 20.246
+        },
+        "visitsDemand": 1718.0,
+        "respiratoryVisits": 243.0,
+        "waterborneVisits": 52.0,
+        "heatRelatedVisits": 5.0
+      }
+    },
+    {
+      "districtKey": "1014",
+      "code": "NAC-KNOW",
+      "nameAr": "مدينة المعرفة والمعاهد",
+      "kind": "knowledge_district",
+      "areaKm2": 1.22,
+      "position": {
+        "lat": 30.012,
+        "lng": 31.75
+      },
+      "placedAt": {
+        "lat": 30.008499999999998,
+        "lng": 31.720999445629925
+      },
+      "matchKind": "type",
+      "ourZoneIds": [
+        "zone-cult"
+      ],
+      "facilities": {
+        "hospitals": 2,
+        "clinics": 2,
+        "doctors": 0
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 4202,
+        "aqiMean": 91.03,
+        "aqiMax": 108.0,
+        "pm25Ugm3": 30.54,
+        "pm10Ugm3": 68.26,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 32.35,
+        "binHoursOver85Pct": 1.49,
+        "overflowIncidents": 84.0,
+        "collectionEfficiencyPct": 93.19,
+        "uncollectedTons": 22.8,
+        "odorPestRisk": 27.02,
+        "waterPollutionIndex": 9.45,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.61,
+        "turbidityNtu": 0.64,
+        "supplyInterruptionHours": 0.88,
+        "leakIncidents": 1.0,
+        "nonRevenueWaterPct": 24.01,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 27.353,
+          "waste": 27.02,
+          "water": 9.45,
+          "heat": 24.0,
+          "overall": 21.956
+        },
+        "visitsDemand": 2306.0,
+        "respiratoryVisits": 311.0,
+        "waterborneVisits": 63.0,
+        "heatRelatedVisits": 7.0
+      }
+    },
+    {
+      "districtKey": "1015",
+      "code": "NAC-PARK",
+      "nameAr": "النهر الأخضر (الحديقة المركزية)",
+      "kind": "green_belt",
+      "areaKm2": 10.0,
+      "position": {
+        "lat": 30.01,
+        "lng": 31.718
+      },
+      "matchKind": "none",
+      "ourZoneIds": [],
+      "facilities": {
+        "hospitals": 1,
+        "clinics": 0,
+        "doctors": 1
+      },
+      "metrics": {
+        "month": "2026-09",
+        "residents": 89,
+        "aqiMean": 85.0,
+        "aqiMax": 93.0,
+        "pm25Ugm3": 27.35,
+        "pm10Ugm3": 59.74,
+        "daysAqiOver150": 0.0,
+        "binFillPct": 44.25,
+        "binHoursOver85Pct": 6.66,
+        "overflowIncidents": 87.0,
+        "collectionEfficiencyPct": 90.93,
+        "uncollectedTons": 7.8,
+        "odorPestRisk": 44.14,
+        "waterPollutionIndex": 5.5,
+        "ecoliPositivePct": 0.0,
+        "chlorineResidualMgL": 0.564,
+        "turbidityNtu": 0.51,
+        "supplyInterruptionHours": 4.89,
+        "leakIncidents": 5.0,
+        "nonRevenueWaterPct": 30.74,
+        "avgTempC": 26.8,
+        "heatDays": 2.0,
+        "stress": {
+          "air": 23.333,
+          "waste": 44.14,
+          "water": 5.5,
+          "heat": 24.0,
+          "overall": 24.243
+        },
+        "visitsDemand": 336.0,
+        "respiratoryVisits": 37.0,
+        "waterborneVisits": 11.0,
+        "heatRelatedVisits": 1.0
+      }
+    }
+  ]
+}

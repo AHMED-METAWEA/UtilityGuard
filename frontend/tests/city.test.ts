@@ -1,0 +1,89 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import type { CityDistricts, CityFacility } from '../src/api/city';
+import { CITY_LAYERS, band, cityBounds, detailLines, drawnAt, facilityLine, isCityDistricts, matchNote, monthLabel, radiusFor, scoreOf } from '../src/lib/city';
+
+const fixture = async (name: string) => JSON.parse(await readFile(new URL(`../../fixtures/rest/${name}.json`, import.meta.url), 'utf8'));
+const city = await fixture('city_districts') as CityDistricts;
+const facilities = await fixture('city_facilities') as CityFacility[];
+
+test('the real fixture is the shape the map reads: 15 districts, 21 months, a source with a hash', () => {
+  assert.ok(isCityDistricts(city));
+  assert.equal(city.districts.length, 15);
+  assert.equal(city.months.length, 21);
+  assert.equal(city.month, city.months[city.months.length - 1]);
+  assert.match(city.source.sha256, /^[0-9a-f]{64}$/);
+  assert.equal(city.source.simulated, true);
+  assert.ok(!isCityDistricts({ ...city, districts: [{ ...city.districts[0], matchKind: 'near' }] }));
+  assert.ok(!isCityDistricts(null));
+});
+
+test('bands follow the healthcare team\'s stress index: under 20 low, 20 to under 35 moderate, 35 and over high', () => {
+  assert.equal(band(0), 'low'); assert.equal(band(19.99), 'low');
+  assert.equal(band(20), 'moderate'); assert.equal(band(34.99), 'moderate');
+  assert.equal(band(35), 'high'); assert.equal(band(89), 'high');
+});
+
+test('every layer reads a 0 to 100 score from every district', () => {
+  for (const layer of CITY_LAYERS) for (const d of city.districts) {
+    const v = scoreOf(d, layer.id);
+    assert.ok(Number.isFinite(v) && v >= 0 && v <= 100, `${layer.id} ${d.districtKey} ${v}`);
+  }
+});
+
+test('circle size grows with residents, stays readable for a tiny district and survives zero', () => {
+  const max = Math.max(...city.districts.map((d) => d.metrics.residents));
+  const sizes = city.districts.map((d) => radiusFor(d.metrics.residents, max));
+  assert.equal(radiusFor(max, max), 22);
+  assert.ok(Math.min(...sizes) >= 7 && Math.max(...sizes) <= 22);
+  assert.ok(radiusFor(40000, 40000) > radiusFor(10000, 40000));
+  assert.equal(radiusFor(0, 0), 8);
+  assert.equal(radiusFor(-5, 100), 7);
+});
+
+test('months read as words and a bad month is left alone rather than shown wrong', () => {
+  assert.equal(monthLabel('2026-09'), 'Sep 2026');
+  assert.equal(monthLabel('2025-01'), 'Jan 2025');
+  assert.equal(monthLabel('nonsense'), 'nonsense');
+  assert.equal(monthLabel('2026-13'), '2026-13');
+});
+
+test('tooltips show real figures with units and never NaN or undefined', () => {
+  for (const d of city.districts) for (const layer of CITY_LAYERS) {
+    const lines = detailLines(d, layer.id);
+    assert.ok(lines.length >= 3);
+    for (const l of lines) assert.ok(!/NaN|undefined|null/.test(l.value), `${d.districtKey} ${layer.id} ${l.label} ${l.value}`);
+  }
+  const cbd = city.districts.find((d) => d.districtKey === '1009')!;
+  assert.match(detailLines(cbd, 'air')[1].value, /µg\/m³$/);
+  assert.equal(matchNote(cbd), 'Matched to zone-cbd by name and kind; drawn on that zone, position approximate');
+  assert.match(matchNote(city.districts.find((d) => d.districtKey === '1005')!), /^No zone of the twin has this name; read as the same kind of district \(zone-res-2, /);
+  assert.equal(matchNote(city.districts.find((d) => d.districtKey === '1015')!), 'No counterpart in the twin');
+  assert.match(facilityLine(city.districts.find((d) => d.districtKey === '1013')!), /^8 hospitals, \d+ clinics, \d+ specialists$/);
+  assert.equal(facilityLine(city.districts.find((d) => d.districtKey === '1011')!), '1 hospital, 1 clinic, 0 specialists');
+});
+
+test('the facility counts on the districts add up to the facilities the map draws', () => {
+  assert.equal(facilities.length, 81);
+  const total = city.districts.reduce((s, d) => s + d.facilities.hospitals + d.facilities.clinics + d.facilities.doctors, 0);
+  assert.equal(total, facilities.length);
+  for (const d of city.districts) assert.equal(facilities.filter((f) => f.districtKey === d.districtKey && f.kind === 'hospital').length, d.facilities.hospitals);
+});
+
+test('the bounds hold every district and facility', () => {
+  const b = cityBounds(city.districts, facilities)!;
+  for (const p of [...city.districts.map(drawnAt), ...facilities.map(drawnAt)].filter((p) => p !== null)) {
+    assert.ok(p.lng >= b[0] && p.lng <= b[2] && p.lat >= b[1] && p.lat <= b[3]);
+  }
+  assert.equal(cityBounds([], []), null);
+});
+
+test('a district is drawn on the zone it is matched to, and not at all when it has no match', () => {
+  const gov = city.districts.find((d) => d.districtKey === '1010')!, park = city.districts.find((d) => d.districtKey === '1015')!;
+  assert.ok(gov.placedAt && drawnAt(gov) === gov.placedAt && drawnAt(gov) !== gov.position);
+  assert.equal(park.placedAt, undefined);
+  assert.equal(drawnAt(park), null); // no counterpart: not drawn
+  assert.ok(city.districts.filter((d) => d.matchKind !== 'none').every((d) => d.placedAt));
+  assert.ok(facilities.filter((f) => city.districts.find((d) => d.districtKey === f.districtKey)?.placedAt).every((f) => f.placedAt));
+});
