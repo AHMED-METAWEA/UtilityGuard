@@ -97,3 +97,27 @@ def test_response_time_assumption_reduces_the_saving(A):
     base = compute(leak(), A, "inc-1").cost.expected_saving
     A.update({"response_hours": 3})
     assert compute(leak(), A, "inc-1").cost.expected_saving < base
+
+
+def test_assumptions_reject_values_that_would_break_the_arithmetic(tmp_path):
+    from app.cost import Assumptions
+    A = Assumptions(tmp_path / "a.json")
+    for key, bad in [("water_price", -1), ("water_price", float("nan")), ("water_price", float("inf")), ("water_price", 1e308), ("customers_zone_gov", 0),
+                     ("false_dispatch_interval", 0), ("setback_reduction", 1.5)]:
+        with pytest.raises(ValueError):
+            A.update({key: bad})
+    assert A["water_price"] == 8.0 and not (tmp_path / "a.json").exists()  # nothing was applied or saved
+    A.update({"water_price": 12.0, "response_hours": 0})  # a different price, or zero response time, is allowed
+    assert A["water_price"] == 12.0
+
+
+def test_a_damaged_assumptions_file_falls_back_to_defaults(tmp_path):
+    from app.cost import DEFAULTS, Assumptions
+    path = tmp_path / "a.json"
+    path.write_text("{not json")
+    assert Assumptions(path).values["water_price"] == DEFAULTS["water_price"]["value"]
+    path.write_text('{"water_price": {"value": 1e308}, "elec_tariff": {"value": 2.0}, "crew_callout": 5, "nope": {"value": 1}, "parts_pipe": {"value": "abc"}}')
+    A = Assumptions(path)
+    assert A["water_price"] == 8.0 and A["elec_tariff"] == 2.0 and A["crew_callout"] == DEFAULTS["crew_callout"]["value"] and A["parts_pipe"] == 15000.0
+    path.write_text("[1, 2]")
+    assert Assumptions(path).values["water_price"] == 8.0

@@ -149,6 +149,7 @@ class AuditVerification(Model):
     entries: int
     broken_at: int | None = None
     head: str | None = None
+    reason: str | None = None
 
 
 class ReviewRequest(Model):

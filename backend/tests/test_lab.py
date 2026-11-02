@@ -151,3 +151,12 @@ def test_engine_sensor_faults_touch_telemetry_only():
     span = e.g.sensor_index[sid].normal_range.max - e.g.sensor_index[sid].normal_range.min
     assert readings[sid] - r2[sid] == pytest.approx(0.01 * span * 10, abs=0.05 * span)  # 1% of range per tick for 10 ticks
     assert readings["water-pipe-03-flow-in"] is None
+
+
+def test_lab_trial_rejects_values_it_cannot_run():
+    from fastapi.testclient import TestClient
+    from app.main import app
+    with TestClient(app) as c:
+        for body in ({"seed": -1}, {"leakM3H": -5}, {"leakM3H": 1e9}, {"seed": 2 ** 40}):
+            r = c.post("/api/v1/lab/trial", json=body)
+            assert r.status_code == 422 and r.json()["code"] == "invalid_request", body

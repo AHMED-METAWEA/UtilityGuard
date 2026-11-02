@@ -145,7 +145,7 @@ export interface AuditEntry {
   seq: number; at: Timestamp; run: string; actor: string; action: string; sessionId?: string | null; subject?: string | null;
   detail: string; data: Record<string, string | number | boolean>; prevHash: string; hash: string;
 }
-export interface AuditVerification { ok: boolean; entries: number; brokenAt?: number | null; head?: string | null }
+export interface AuditVerification { ok: boolean; entries: number; brokenAt?: number | null; head?: string | null; reason?: string | null }
 export interface OrderPreview { order: string[]; steps: BoardStep[]; expectedCost: number; boardCost: number; costDelta: number; override: boolean }
 export interface ReviewRequest { operator: string; note?: string; order?: string[] | null; secondsPerHour?: number | null }
 export interface BoardDecision {

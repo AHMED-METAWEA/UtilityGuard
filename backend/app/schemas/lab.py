@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
+from pydantic import Field
+
 from app.schemas import Model
 
 DetectorKind = Literal["baseline", "statistical", "unsupervised", "supervised"]
@@ -133,9 +135,9 @@ class LabLocalization(Model):
 
 class TrialRequest(Model):
     pipe_id: str | None = None  # random when omitted
-    leak_m3h: float = 60.0
-    disabled_sensors: list[str] = []
-    seed: int | None = None
+    leak_m3h: float = Field(60.0, ge=0, le=1e6, allow_inf_nan=False)  # the lab clamps it to 10..300 m3/h
+    disabled_sensors: list[str] = Field(default_factory=list, max_length=200)
+    seed: int | None = Field(None, ge=0, le=2**32 - 1)
 
 
 class TrialDetector(Model):

@@ -99,7 +99,8 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
         asset = find_asset(q, rt)
         data, fb = await llm.json(llm.key("route", q.lower().strip()), ROUTER, q, model=MODEL_ORCH)
         try:
-            steps = [RouteStep(agent=r["agent"], reason=r["reason"]) for r in data["route"] if r["agent"] in DOMAIN]
+            # the reason is shown to the operator, and routing has no record to cite, so no figure in it can be supported
+            steps = [RouteStep(agent=r["agent"], reason=check(str(r["reason"]), set())[0]) for r in data["route"] if r["agent"] in DOMAIN]
         except Exception:  # noqa: BLE001
             steps = []
         steps = steps or rule_route(q, rt, asset)

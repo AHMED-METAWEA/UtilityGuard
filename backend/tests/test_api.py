@@ -111,6 +111,19 @@ def test_assumptions_roundtrip():
         assert next(a for a in c.get("/api/v1/assumptions").json() if a["key"] == "water_price")["value"] == 8
 
 
+def test_awkward_assumptions_and_networks_get_a_clear_error_not_a_500():
+    with TestClient(app) as c:
+        for bad in ({"water_price": -5}, {"water_price": 1e308}, {"customers_zone_gov": 0}, {"setback_reduction": 2}):
+            r = c.put("/api/v1/assumptions", json=bad)
+            assert r.status_code == 422 and r.json()["code"] == "invalid_assumption", bad
+        for path in ("kpis", "savings", "briefing"):
+            assert c.get(f"/api/v1/{path}").status_code == 200
+        assert next(a for a in c.get("/api/v1/assumptions").json() if a["key"] == "water_price")["value"] == 8
+        for q in ("network=-1", "network=gas&zoneId=zone-gov", "network=%E2%80%AE&zoneId=x"):
+            r = c.get(f"/api/v1/forecast?{q}")
+            assert r.status_code == 404 and r.json()["code"] == "no_forecast", q
+
+
 def test_extras_validate():
     with TestClient(app) as c:
         import time

@@ -219,6 +219,8 @@ async def put_assumptions(changes: dict[str, float]) -> dict:
         service.A.update(changes)
     except KeyError as e:
         raise ApiError(422, "unknown_assumption", f"Unknown assumption {e.args[0]}.") from e
+    except ValueError as e:
+        raise ApiError(422, "invalid_assumption", str(e)) from e
     n = await service.recompute()
     return {"assumptions": out(service.A.all()), "recomputed": n}
 
@@ -227,7 +229,7 @@ async def put_assumptions(changes: dict[str, float]) -> dict:
 def forecast(network: str = "water", zoneId: str = "zone-gov", horizonHours: int = 24) -> dict:  # noqa: N803
     try:
         return out(ml_service.forecast(network, zoneId, max(1, min(horizonHours, 72))))
-    except KeyError as e:
+    except (KeyError, ValueError) as e:
         raise ApiError(404, "no_forecast", f"No forecast for {network} in {zoneId}.") from e
 
 

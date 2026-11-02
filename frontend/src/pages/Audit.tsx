@@ -89,10 +89,11 @@ export function Audit({ id }: { id?: string }) {
     <Card title="Log verification" right={<button className="btn sm" type="button" disabled={verifying || loading} onClick={() => void verify()}>{verifying ? 'Verifying…' : 'Verify now'}</button>}>
       {verification ? <div className={`audit-verification ${verification.ok ? 'audit-intact' : 'audit-broken'}`} role="status">
         {verification.ok ? <ShieldCheck size={22} aria-hidden /> : <ShieldAlert size={22} aria-hidden />}<div><b>{verification.ok ? `Chain intact: ${fmt(verification.entries)} entries` : `Broken at entry #${verification.brokenAt ?? '?'}`}</b>
+          {!verification.ok && verification.reason && <p className="sub">{verification.reason}.</p>}
           {verification.head && <div>Head <code title={verification.head}>{shortHash(verification.head)}</code></div>}
           {latestSeq > verification.entries && <p className="sub">New entries arrived since this check. Verify now to include them.</p>}
         </div></div> : loading ? <Skeleton h={36} /> : <p className="sub">Verification has not been loaded. Use Verify now to check the chain.</p>}
-      <p className="muted" style={{ fontSize: 12, marginBottom: 0 }}>Each entry fingerprints the previous one. Verification checks that stored chain for changes.</p>
+      <p className="muted" style={{ fontSize: 12, marginBottom: 0 }}>Each entry fingerprints the previous one. Verification checks that stored chain for changes, and that the end of the file was not cut off.</p>
       {verifyError && <p className="audit-error" role="alert">{verifyError}</p>}
     </Card>
     <div className="audit-filters stack" style={{ gap: 12 }}>

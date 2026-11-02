@@ -11,6 +11,7 @@ import hashlib
 import json
 import logging
 import os
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -39,11 +40,14 @@ class AuditLog:
     def __init__(self, path: Path | str | None = None):
         env = os.getenv("AUDIT_PATH")
         self.path = Path(path or env) if (path or env) else DEFAULT_PATH
+        self.anchor = self.path.with_name(self.path.name + ".head")  # the newest seq and hash, so cutting the end off the log is noticed
         self.rows: list[dict] = []
+        self._lock = threading.Lock()  # request handlers run on a thread pool: two appends at once must not read the same previous hash
         self._load()
 
     def _load(self) -> None:
         if not self.path.exists():
+            self.anchor.unlink(missing_ok=True)  # no log file is a fresh start; a log that exists but got shorter is what verify() reports
             return
         for line in self.path.read_text().splitlines():
             if line.strip():
@@ -55,6 +59,10 @@ class AuditLog:
 
     def append(self, *, run: str, actor: str, action: str, detail: str, session_id: str | None = None, subject: str | None = None,
                data: dict | None = None, at: datetime | None = None) -> AuditEntry:
+        with self._lock:
+            return self._append(run, actor, action, detail, session_id, subject, data, at)
+
+    def _append(self, run, actor, action, detail, session_id, subject, data, at) -> AuditEntry:
         prev = self.rows[-1].get("hash", GENESIS) if self.rows else GENESIS
         clean = {k: (round(v, 4) if isinstance(v, float) else v) for k, v in (data or {}).items() if v is not None}
         row = {"seq": (self.rows[-1].get("seq", 0) + 1) if self.rows else 1,
@@ -66,6 +74,9 @@ class AuditLog:
             self.path.parent.mkdir(parents=True, exist_ok=True)
             with self.path.open("a") as f:
                 f.write(json.dumps(row, sort_keys=True) + "\n")
+            tmp = self.anchor.with_name(self.anchor.name + ".tmp")
+            tmp.write_text(json.dumps({"seq": row["seq"], "hash": row["hash"]}))
+            tmp.replace(self.anchor)
         except OSError:
             log.exception("could not write the audit log to %s", self.path)
         return AuditEntry(**row)
@@ -80,9 +91,20 @@ class AuditLog:
         prev = GENESIS
         for i, r in enumerate(self.rows):
             if r.get("unreadable") or r.get("prev_hash") != prev or r.get("hash") != digest(r) or r.get("seq") != i + 1:
-                return AuditVerification(ok=False, entries=len(self.rows), broken_at=i + 1, head=prev)
+                return AuditVerification(ok=False, entries=len(self.rows), broken_at=i + 1, head=prev, reason="a line was changed, removed or added")
             prev = r["hash"]
+        noted = self._noted_head()
+        if noted and (len(self.rows) < noted["seq"] or self.rows[noted["seq"] - 1]["hash"] != noted["hash"]):
+            return AuditVerification(ok=False, entries=len(self.rows), broken_at=len(self.rows) + 1, head=prev if self.rows else None,
+                                     reason=f"the log has {len(self.rows)} lines but line {noted['seq']} was recorded: the end of the file was cut off")
         return AuditVerification(ok=True, entries=len(self.rows), head=prev if self.rows else None)
+
+    def _noted_head(self) -> dict | None:
+        try:
+            noted = json.loads(self.anchor.read_text())
+            return noted if isinstance(noted.get("seq"), int) and noted["seq"] > 0 and isinstance(noted.get("hash"), str) else None
+        except (OSError, ValueError):
+            return None
 
     def csv(self) -> str:
         import csv

@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.board.analysis import analyse, calculation_record, decision_object
-from app.board.audit import GENESIS, AuditLog
+from app.board.audit import GENESIS, AuditLog, digest
 from app.board.dispatch import DecisionError
 from app.board.plan import tasks_from_alerts
 from app.board.session import Board
@@ -255,6 +255,58 @@ def test_the_file_log_detects_an_edit_made_on_disk(tmp_path):
     path.write_text("\n".join(lines) + "\n")
     v = AuditLog(path).verify()
     assert not v.ok and v.broken_at == 2
+
+
+def test_cutting_lines_off_the_end_of_the_log_is_noticed(tmp_path):
+    path = tmp_path / "a.jsonl"
+    log = AuditLog(path)
+    for k in range(6):
+        log.append(run="r", actor="a", action="x", detail=str(k))
+    lines = path.read_text().splitlines()
+    path.write_text("\n".join(lines[:-2]) + "\n")
+    v = AuditLog(path).verify()
+    assert not v.ok and v.broken_at == 5 and "cut off" in v.reason
+    path.write_text("")
+    assert not AuditLog(path).verify().ok
+
+
+def test_a_forger_who_recomputes_every_later_hash_is_still_caught_by_the_noted_head(tmp_path):
+    path = tmp_path / "a.jsonl"
+    log = AuditLog(path)
+    for k in range(5):
+        log.append(run="r", actor="a", action="x", detail=str(k), data={"v": k})
+    rows = [json.loads(x) for x in path.read_text().splitlines()]
+    rows[2]["data"]["v"] = 99
+    for i in range(2, 5):
+        rows[i]["prev_hash"] = rows[i - 1]["hash"]
+        rows[i]["hash"] = digest(rows[i])
+    path.write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in rows))
+    assert not AuditLog(path).verify().ok
+
+
+def test_a_missing_log_file_is_a_fresh_log_not_an_alarm(tmp_path):
+    path = tmp_path / "a.jsonl"
+    log = AuditLog(path)
+    log.append(run="r", actor="a", action="x", detail="1")
+    path.unlink()
+    fresh = AuditLog(path)
+    assert fresh.verify().ok and fresh.rows == []
+    fresh.append(run="r", actor="a", action="x", detail="2")
+    assert AuditLog(path).verify().ok
+
+
+def test_appends_from_many_threads_keep_one_unbroken_chain(tmp_path):
+    import threading
+    log = AuditLog(tmp_path / "a.jsonl")
+
+    def writer(k):
+        for j in range(25):
+            log.append(run="r", actor=f"t{k}", action="x", detail=str(j))
+
+    threads = [threading.Thread(target=writer, args=(k,)) for k in range(8)]
+    [t.start() for t in threads]
+    [t.join() for t in threads]
+    assert [r["seq"] for r in log.rows] == list(range(1, 201)) and AuditLog(tmp_path / "a.jsonl").verify().ok
 
 
 def test_export_does_not_let_typed_text_become_a_spreadsheet_formula(tmp_path):

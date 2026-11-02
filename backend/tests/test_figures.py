@@ -93,3 +93,22 @@ def _fake_runtime():
     rt = Runtime(42)
     rt.alerts = {}
     return rt
+
+
+def test_a_figure_in_the_models_routing_reason_is_removed(tmp_path, monkeypatch):
+    from app.agents import orchestrator as orch
+    rt = _fake_runtime()
+    graph = orch.build_orchestrator(rt, Assumptions(tmp_path / "a.json"))
+    seen = []
+
+    async def fake(key, system, user, **kw):
+        if system is orch.ROUTER:
+            return {"route": [{"agent": "water", "reason": "This costs 9,999,999 EGP so the water agent should look"}]}, False
+        return {}, True
+
+    async def on_route(steps):
+        seen.extend(steps)
+
+    monkeypatch.setattr(orch.llm, "json", fake)
+    asyncio.run(graph.ainvoke({"question": "what is wrong with the water network", "incident_id": None, "on_route": on_route}))
+    assert seen and "9,999,999" not in seen[0].reason

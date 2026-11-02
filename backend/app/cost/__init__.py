@@ -14,6 +14,7 @@ import dataclasses
 import itertools
 import json
 import math
+import logging
 import zlib
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -27,6 +28,7 @@ from app.schemas import (
 from app.cost.references import NOT_FOUND, REFERENCES, evidence
 from app.sim.topology import ZONE_CUSTOMERS
 
+log = logging.getLogger("utilityguard.cost")
 DATA = Path(__file__).resolve().parents[2] / "data"
 ASSUMPTIONS_FILE = DATA / "assumptions.json"
 REVIEWED = "2026-10-29"
@@ -151,10 +153,36 @@ class Assumptions:
         self.values = {k: d["value"] for k, d in DEFAULTS.items()}
         self.changed: dict[str, str] = {}
         if path.exists():
-            saved = json.loads(path.read_text())
-            for k, item in saved.items():
-                if k in self.values:
-                    self.values[k], self.changed[k] = float(item["value"]), item.get("source", "user")
+            try:
+                saved = json.loads(path.read_text())
+            except ValueError:
+                log.warning("%s is not valid JSON; using the default assumptions", path)
+                saved = {}
+            for k, item in saved.items() if isinstance(saved, dict) else []:
+                try:
+                    value = float(item["value"])
+                    if k in self.values:
+                        self.check(k, value)
+                        self.values[k], self.changed[k] = value, str(item.get("source", "user"))
+                except (KeyError, TypeError, ValueError):
+                    log.warning("ignoring the saved value of %s: not a usable number", k)
+
+    # Strictly positive: a divisor somewhere, or a count that must be at least something.
+    POSITIVE_UNITS = {"h/dispatch", "customers", "crews"}
+
+    @staticmethod
+    def check(k: str, v: float) -> None:
+        """A price can be wrong, but it cannot be negative, infinite or so large it overflows the arithmetic. Raises ValueError with the reason."""
+        d = DEFAULTS[k]
+        if not math.isfinite(v):
+            raise ValueError(f"{d['name']} must be a finite number.")
+        if v < 0 or (d["unit"] in Assumptions.POSITIVE_UNITS and v <= 0):
+            raise ValueError(f"{d['name']} must be {'greater than' if d['unit'] in Assumptions.POSITIVE_UNITS else 'at least'} zero.")
+        if d["unit"] == "fraction" and v > 1:
+            raise ValueError(f"{d['name']} is a fraction and cannot be above 1.")
+        ceiling = 1000 * max(d["high"], d["value"], 1.0)
+        if v > ceiling:
+            raise ValueError(f"{d['name']} of {v:g} is more than 1000 times its registered range (up to {d['high']:g} {d['unit']}); check the unit.")
 
     def __getitem__(self, k: str) -> float:
         return self.values[k]
@@ -163,8 +191,7 @@ class Assumptions:
         for k, v in changes.items():
             if k not in self.values:
                 raise KeyError(k)
-            if not math.isfinite(float(v)):
-                raise ValueError("Assumptions must be finite")
+            self.check(k, float(v))
         for k, v in changes.items():
             self.values[k] = float(v)
             self.changed[k] = f"{source} {datetime.now(timezone.utc).date().isoformat()}"

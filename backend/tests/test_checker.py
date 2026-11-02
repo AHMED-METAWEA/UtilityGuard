@@ -74,3 +74,4 @@ def test_a_spelled_out_number_cannot_hide_a_figure(tmp_path):
 
 def test_a_spelled_out_number_that_matches_the_data_passes(tmp_path):
     assert check("The leak is one hundred and forty m3/h.", {140.0}) == ("The leak is one hundred and forty m3/h.", [])
+
