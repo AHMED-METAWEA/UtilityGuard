@@ -1,0 +1,16 @@
+district_key,district_code,match_kind,our_zone_ids,scenarios_affecting,worst_zone_cost_of_delay_egp,worst_zone_unserved_mw,worst_scenario_id
+1001,NAC-R1,type,zone-res-2;zone-res-n;zone-res-ne;zone-res-far,3.0,1228340.82,15.3045,
+1002,NAC-R2,direct,zone-res-2,3.0,2089262.41,26.0558,substation_trip:elec-sub-01
+1003,NAC-R3,type,zone-res-2;zone-res-n;zone-res-ne;zone-res-far,3.0,1228340.82,15.3045,
+1004,NAC-R4,type,zone-res-2;zone-res-n;zone-res-ne;zone-res-far,3.0,1228340.82,15.3045,
+1005,NAC-R5,type,zone-res-2;zone-res-n;zone-res-ne;zone-res-far,3.0,1228340.82,15.3045,
+1006,NAC-R6,type,zone-res-2;zone-res-n;zone-res-ne;zone-res-far,3.0,1228340.82,15.3045,
+1007,NAC-R7,type,zone-res-2;zone-res-n;zone-res-ne;zone-res-far,3.0,1228340.82,15.3045,
+1008,NAC-R8,type,zone-res-2;zone-res-n;zone-res-ne;zone-res-far,3.0,1228340.82,15.3045,
+1009,NAC-CBD,direct,zone-cbd,4.0,950008.09,3.9084,substation_trip:elec-sub-01
+1010,NAC-GOV,direct,zone-gov,4.0,2945810.12,16.3101,substation_trip:elec-sub-02
+1011,NAC-DIP,type,zone-gov;zone-pres;zone-just,3.67,1037036.92,5.7261,
+1012,NAC-CULT,direct,zone-cult,4.0,2945410.12,9.786,substation_trip:elec-sub-02
+1013,NAC-MED,type,zone-cult,4.0,2945410.12,9.786,
+1014,NAC-KNOW,type,zone-cult,4.0,2945410.12,9.786,
+1015,NAC-PARK,none,,,,,

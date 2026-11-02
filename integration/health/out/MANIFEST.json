@@ -1,0 +1,37 @@
+{
+ "seed": 42,
+ "at": "2026-11-01T08:00:00+00:00",
+ "warm_ticks": 60,
+ "assets": 24,
+ "assumptions": "registered defaults (backend/app/cost/__init__.py DEFAULTS), no saved override",
+ "budget_m_egp": 15.0,
+ "written_at": "2026-11-02T12:59:03.328927+00:00",
+ "git_commit": "d3ba46d",
+ "simulated": true,
+ "files": {
+  "scenarios.csv": {
+   "rows": 24,
+   "sha256": "a14e84741b6283c3842d581cb9ecd88f12c90aa0fcf2279d923f69a8a687f2a0"
+  },
+  "scenario_zones.csv": {
+   "rows": 31,
+   "sha256": "300b2e31e2ae3c8adf3958e516700a8609266b78612f55da70a5d06e604cc1aa"
+  },
+  "district_risk.csv": {
+   "rows": 15,
+   "sha256": "94e54ddf9f33a19cc95417a9943c9d61db621dc1cb630fc4c3376cef2bfb7c87"
+  },
+  "reliability_packages.csv": {
+   "rows": 24,
+   "sha256": "d69690cf8814b846de27ca8ddd6784b551141ce861388883a06db1d020d96d74"
+  },
+  "zone_mapping.csv": {
+   "rows": 15,
+   "sha256": "9dd50422269f73afaeaf52a81a01423b39aa325f8217002fc589ef7b10ae7348"
+  },
+  "packages.csv": {
+   "rows": 4,
+   "sha256": "a416a7c20e486d927751a3d25aed6f71b59972823c49241487069180dc1f9e01"
+  }
+ }
+}

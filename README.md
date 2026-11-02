@@ -179,8 +179,9 @@ cd backend && PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1   # t
 
 ```
 backend/app/        sim, detection, ml, cost, agents, board, lab, schemas, main (API), runtime
-backend/scripts/    demo_check.py, make_fixtures.py
-backend/tests/      291 tests
+backend/scripts/    demo_check.py, make_fixtures.py, export_for_health.py, stress/ (measurement and stress scripts)
+integration/health/ the tables and mapping shared with the healthcare-investment project (see its README)
+backend/tests/      313 tests
 backend/data/       assumptions.json, fallback_cache.json, models.pkl, lab_benchmark.json, audit.jsonl (all git-ignored)
 frontend/src/       pages, ui, panels, charts, map, store, api, lib, i18n, design
 frontend/public/geo OpenStreetMap layers (ODbL, see ATTRIBUTION.txt)
@@ -197,6 +198,7 @@ docs/               spec, contract, cost model, decisions, design system, showca
 | [docs/showcase.md](docs/showcase.md) | Arabic: the features and numbers that will impress the committee, expected questions and a demo script. |
 | [docs/contract.md](docs/contract.md) | The API and message contract, section by section. |
 | [docs/cost-model.md](docs/cost-model.md) | Every formula, worked examples, the public price check and the assumption table. |
+| [integration/health/README.md](integration/health/README.md) | The CSV tables written for the healthcare-investment project: zone mapping, failure scenarios, ranked reliability packages. |
 | [docs/wow-ideas.md](docs/wow-ideas.md) | Ranked ideas with their status. |
 | [docs/design-system.md](docs/design-system.md) | Visual language and components. |
 | [docs/spec.md](docs/spec.md), [docs/plan.md](docs/plan.md), [docs/decisions.md](docs/decisions.md) | The original specification, build plan and decision log (written early; see the status document for what has changed since). |

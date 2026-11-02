@@ -1,0 +1,25 @@
+scenario_id,kind,asset_id,asset_name,detected,affected_zones,leak_m3h,unserved_mw,excess_mw,cooling_deficit_tons,secondary_mw,pumps_stopped,delay_hours,response_hours,cost_per_hour_egp,act_now_egp,cost_of_delay_egp,saving_egp,saving_p10_egp,saving_p50_egp,saving_p90_egp,needs_review
+substation_trip:elec-sub-01,substation_trip,elec-sub-01,SS-01,True,zone-res-2;zone-cbd,0.0,29.9641,0.0,0.0,0.66,2,4.0,1.0,760873.62,790273.62,3080244.5,2289970.88,1371500.87,2146827.79,3342767.65,False
+substation_trip:elec-sub-02,substation_trip,elec-sub-02,SS-02,True,zone-gov;zone-cult,0.0,26.0961,0.0,0.0,0.66,2,4.0,1.0,1473861.06,1503261.06,5932194.24,4428933.18,2778112.94,4280603.88,6401522.6,False
+substation_trip:elec-sub-03,substation_trip,elec-sub-03,SS-03,True,zone-pres;zone-res-n,0.0,15.6469,0.0,0.0,0.16,2,4.0,1.0,326108.94,355508.94,1341185.77,985676.83,551113.1,909881.62,1483994.67,False
+substation_trip:elec-sub-04,substation_trip,elec-sub-04,SS-04,True,zone-just;zone-res-ne;zone-res-far,0.0,20.384,0.0,0.0,0.24,3,4.0,1.0,421881.43,451281.43,1724275.72,1272994.29,703855.63,1193403.41,1943694.94,False
+cooling_fault:cool-plant-01,cooling_fault,cool-plant-01,DCP-01,True,zone-gov;zone-pres,0.0,0.0,0.0,1593.0,0.0,0,10.0,1.0,5889.5,67289.5,150995.0,83705.5,62288.95,81641.37,105630.52,False
+cooling_fault:cool-plant-02,cooling_fault,cool-plant-02,DCP-02,True,zone-cbd;zone-cult,0.0,0.0,0.0,1300.0,0.0,0,10.0,1.0,7350.0,68750.0,165600.0,96850.0,73818.82,95417.51,120677.84,False
+pump_failure:water-pump-01,pump_failure,water-pump-01,P-01,True,zone-gov,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,2500.0,47900.0,83560.0,35660.0,24807.6,34671.37,45932.68,False
+pump_failure:water-pump-02,pump_failure,water-pump-02,P-02,True,zone-cult,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,2400.0,47800.0,82760.0,34960.0,24292.99,33948.44,45010.67,False
+pump_failure:water-pump-03,pump_failure,water-pump-03,P-03,True,zone-cbd,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,3000.0,48400.0,87560.0,39160.0,27181.21,37989.15,50571.05,False
+pump_failure:water-pump-04,pump_failure,water-pump-04,P-04,True,zone-res-2,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,1200.0,46600.0,73160.0,26560.0,17983.26,25997.61,34973.94,False
+pump_failure:water-pump-05,pump_failure,water-pump-05,P-05,True,zone-just,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,1250.0,46650.0,73560.0,26910.0,18316.7,26286.97,35494.69,False
+pump_failure:water-pump-06,pump_failure,water-pump-06,P-06,True,zone-pres,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,1000.0,46400.0,71560.0,25160.0,16867.45,24805.34,33103.19,False
+pump_failure:water-pump-07,pump_failure,water-pump-07,P-07,True,zone-res-n,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,1050.0,46450.0,71960.0,25510.0,17230.01,25121.23,33581.35,False
+pump_failure:water-pump-08,pump_failure,water-pump-08,P-08,True,zone-res-ne,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,900.0,46300.0,70760.0,24460.0,16279.44,24167.09,32383.66,False
+pump_failure:water-pump-09,pump_failure,water-pump-09,P-09,True,zone-res-far,0.0,0.0,0.0,0.0,0.0,1,8.0,1.0,825.0,46225.0,70160.0,23935.0,15817.96,23612.3,31841.87,False
+pipe_burst:water-pipe-01,pipe_burst,water-pipe-01,Main WP-GOV-01,True,zone-gov,150.0,0.0,0.0,0.0,0.35,0,6.0,1.0,4260.0,22660.0,56840.0,34180.0,26012.41,33431.58,42531.28,False
+pipe_burst:water-pipe-02,pipe_burst,water-pipe-02,Main WP-CULT-02,True,zone-cult,113.0,0.0,0.0,0.0,0.13,0,6.0,1.0,3512.0,21912.0,52352.0,30440.0,22954.42,29751.29,38092.74,False
+pipe_burst:water-pipe-03,pipe_burst,water-pipe-03,Main WP-CBD-03,True,zone-cbd,108.0,0.0,0.0,0.0,0.09,0,6.0,1.0,4008.0,22408.0,55328.0,32920.0,24486.12,32085.41,41903.42,False
+pipe_burst:water-pipe-04,pipe_burst,water-pipe-04,Main WP-RES-2-04,True,zone-res-2,113.0,0.0,0.0,0.0,0.023,0,6.0,1.0,2140.8,20540.8,44124.8,23584.0,18310.28,23146.23,28840.36,False
+pipe_burst:water-pipe-05,pipe_burst,water-pipe-05,Main WP-JUST-05,True,zone-just,116.0,0.0,0.0,0.0,0.04,0,6.0,1.0,2242.0,20642.0,44732.0,24090.0,18676.78,23635.68,29586.48,False
+pipe_burst:water-pipe-06,pipe_burst,water-pipe-06,Main WP-PRES-06,True,zone-pres,115.0,0.0,0.0,0.0,0.095,0,6.0,1.0,2072.0,20472.0,43712.0,23240.0,18203.21,22825.96,28373.36,False
+pipe_burst:water-pipe-07,pipe_burst,water-pipe-07,Main WP-RES-N-07,True,zone-res-n,114.0,0.0,0.0,0.0,0.021,0,6.0,1.0,1995.6,20395.6,43253.6,22858.0,17804.81,22426.42,27799.23,False
+pipe_burst:water-pipe-08,pipe_burst,water-pipe-08,Main WP-RES-NE-08,True,zone-res-ne,114.0,0.0,0.0,0.0,0.037,0,6.0,1.0,1871.2,20271.2,42507.2,22236.0,17417.77,21904.26,27136.72,False
+pipe_burst:water-pipe-09,pipe_burst,water-pipe-09,Main WP-RES-FAR-09,True,zone-res-far,114.0,0.0,0.0,0.0,0.018,0,6.0,1.0,1765.8,20165.8,41874.8,21709.0,17034.15,21376.57,26425.44,False
