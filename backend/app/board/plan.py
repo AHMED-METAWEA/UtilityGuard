@@ -232,6 +232,14 @@ def flips(tasks: list[Task], p: Params, chosen: Plan, perms: np.ndarray) -> list
     base = signature(chosen)
     for i, t in enumerate(tasks):
         best = None
+
+        def changed(scale: float) -> bool:
+            rate = p.rate.copy()
+            rate[i] *= scale
+            q = dataclasses.replace(p, rate=rate)
+            order = [int(x) for x in perms[int(np.argmin(evaluate(perms, q)))]]
+            return signature(plan_for(order, q)) != base
+
         for s in sorted({round(x, 3) for x in np.concatenate([np.linspace(0.0, 1.0, 41), np.linspace(1.0, 6.0, 51)])}, key=lambda x: abs(x - 1.0)):
             if s == 1.0:
                 continue
@@ -243,6 +251,12 @@ def flips(tasks: list[Task], p: Params, chosen: Plan, perms: np.ndarray) -> list
             if signature(plan_for(order, q)) != base:
                 best = s
                 break
+        if best is not None:  # the grid says the plan changes somewhere between 1.0 and `best`: bisect to the point where it does, so the figure quoted is the boundary and not the next grid step
+            lo, hi = 1.0, best
+            for _ in range(24):
+                mid = (lo + hi) / 2
+                lo, hi = (lo, mid) if changed(mid) else (mid, hi)
+            best = hi
         if best is not None and p.rate[i] * best > 0.5:  # a threshold at zero only says the task keeps its place however cheap it gets
             out.append(dict(task=t, current=float(p.rate[i]), threshold=float(p.rate[i] * best), direction="below" if best < 1 else "above", scale=best))
     out.sort(key=lambda f: abs(f["scale"] - 1.0))

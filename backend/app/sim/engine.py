@@ -72,6 +72,7 @@ class Engine:
     def __init__(self, seed: int = 42):
         self.seed = seed
         self.g = build()
+        self._nonnegative = [x.id for x in self.g.topology.sensors if x.kind in ("flow", "pressure", "load", "voltage")]
         self.reset()
         calibrate(self)
 
@@ -341,6 +342,9 @@ class Engine:
         for ev in self._active("sensor_drift"):  # telemetry only: the truth is untouched
             rng_ = self.g.sensor_index[ev.target].normal_range
             readings[ev.target] += ev.severity * 0.01 * (rng_.max - rng_.min) * (self.tick - ev.started_tick)
+        for sid in self._nonnegative:  # a flow, a pressure, a load or a voltage cannot read below zero: noise around a dead feeder is shown as zero, not as -0.01 kV
+            if readings[sid] is not None and readings[sid] < 0:
+                readings[sid] = 0.0
         for ev in self._active("sensor_dropout"):
             readings[ev.target] = None
         self.tick += 1

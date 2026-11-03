@@ -32,7 +32,7 @@ export type DecisionGroup = 'both_higher' | 'outage_higher' | 'environment_highe
 /** One district with the twin's outage figures and their environment and hospitals side by side (contract 4.22). Nothing from the two sides is added together. */
 export interface DecisionRow {
   districtKey: string; districtCode: string; nameAr: string; matchKind: MatchKind; ourZoneIds: string[]; hospitals: number; clinics: number; specialists: number;
-  scenariosAffecting?: number; worstCostOfDelayEgp?: number; worstUnservedMw?: number; worstScenarioId?: string; hospitalScenariosSure: number; hospitalScenariosPossible: number;
+  scenariosAffecting?: number; worstCostOfDelayEgp?: number; worstUnservedMw?: number; worstScenarioId?: string; electricityWorstCostEgp?: number; waterWorstCostEgp?: number; coolingWorstCostEgp?: number; hospitalScenariosSure: number; hospitalScenariosPossible: number;
   esiOverall: number; esiAir: number; esiWaste: number; esiWater: number; esiHeat: number; esiBand: 'low' | 'moderate' | 'high'; highestScore: 'air' | 'waste' | 'water' | 'heat';
   pressureBaseline?: number; overCapacity?: boolean; pressureGrowthOnly?: number; bestPackage?: string; bestPackagePressure?: number; bestPackageCostMEgp?: number;
   outageVsMedian?: 'higher' | 'lower'; environmentVsMedian: 'higher' | 'lower'; group: DecisionGroup;
@@ -40,4 +40,18 @@ export interface DecisionRow {
 export interface CityDecision { envMonth: string; source: string; simulated: boolean; medianCostOfDelayEgp: number; medianEsiOverall: number; rows: DecisionRow[] }
 export function useCityDecision(): Fetched<CityDecision> {
   return useFetch<CityDecision>('/city/decision');
+}
+
+export type CostNetwork = 'any' | 'electricity' | 'water' | 'cooling';
+export interface CostLine { label: string; cause: string; amount: number }
+export interface CostStep { name: string; formula: string; inputs: { name: string; value: number; unit: string }[]; result: number; unit: string }
+export interface CostPart {
+  zoneId: string; scenarioId: string; assetName: string; kind: string; delayHours: number; responseHours: number; zoneCostOfDelayEgp: number; incidentCostOfDelayEgp: number;
+  ownLines: CostLine[]; sharedLines: CostLine[]; otherZonesEgp: number; ownSteps: CostStep[]; sharedSteps: CostStep[]; totalStep?: CostStep;
+  assumptions: { name: string; key: string; value: number; unit: string; status: string; basis: string }[];
+}
+/** How one figure of the joint table was made, from the cost engine's own record of the scenario (contract 4.22). */
+export interface DecisionCost { districtKey: string; network: CostNetwork; matchKind: MatchKind; figureEgp?: number; how: string; parts: CostPart[] }
+export function useDecisionCost(districtKey: string | null, network: CostNetwork): Fetched<DecisionCost> {
+  return useFetch<DecisionCost>(districtKey ? `/city/decision/${districtKey}/cost?network=${network}` : null);
 }

@@ -38,6 +38,20 @@ work there). Costs shared by the whole incident (repair, water lost, cooling, se
 `scenarios_affecting`: how many of the failed-asset scenarios touch the district (an average over the zones when `match_kind` is `type`).
 `worst_zone_cost_of_delay_egp` and `worst_zone_unserved_mw`: the largest of the zone's values over all scenarios (averaged over zones for `type`).
 `worst_scenario_id`: which scenario it was (only for `direct`).
+`electricity_worst_cost_of_delay_egp`, `water_worst_cost_of_delay_egp`, `cooling_worst_cost_of_delay_egp`: the same figure for one network only (a substation trip; a district
+pump or main; a cooling plant), never added together. A `type` district averages over the matched zones that have a scenario of that network; empty when none has.
+Read the water figure with care: the cost engine prices a water failure by the notification and support work, the repair and the water lost, and has no value of
+lost water, so the district's own part of it is small next to a power cut. And the three are not additive: a substation trip stops the pumps it feeds, so the water
+effect is already inside the electricity scenario (see `backend/scripts/stress/combined_outage.py`, which runs everything that reaches a zone at once: the
+detector raises the substation incident and prices it as alone; only a cooling plant fed from another substation comes up as a second incident).
+
+## district_zone_worst.csv and cost_explanations.json (how a figure was made)
+
+`district_zone_worst.csv`: for every zone and network (`any` = all), the scenario whose cost lines belonging to that zone are largest, with that cost.
+`cost_explanations.json`: for every scenario, the cost engine's own record: each cost line with its cause, the formula and inputs of the line, and the assumptions
+behind the inputs. The app serves a district's explanation at `GET /api/v1/city/decision/{district_key}/cost?network=any|electricity|water|cooling`: the lines of
+the district's own zone add up to the figure, the other zones' lines and the lines shared by the whole incident (repair, water lost, cooling, knock-on) are shown
+apart, and the three add up to the whole incident.
 
 ## districts_on_twin_map.csv
 

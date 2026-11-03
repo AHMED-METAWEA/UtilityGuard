@@ -8,9 +8,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import schemas as S
-from app.city import CityData, CityError, DEFAULT_DIR, read_decision
+from app.city import CityData, CityError, DEFAULT_DIR, read_decision, read_decision_cost
 from app.main import app
-from app.schemas.city import CityDistricts, CityFacility, Decision
+from app.schemas.city import CityDistricts, CityFacility, Decision, DecisionCost
 
 
 @pytest.fixture(scope="module")
@@ -157,3 +157,36 @@ def test_the_decision_endpoint_validates_and_is_off_without_the_file(tmp_path):
     with pytest.raises(CityError) as e:
         read_decision(tmp_path)
     assert e.value.status == 404 and e.value.code == "no_decision_table"
+
+
+def test_every_figure_of_the_table_is_explained_by_cost_lines_that_add_up_to_it():
+    """The committee can ask "how did you get this number" for any cell: the lines under it, taken from the cost engine's own record, must add up to the figure."""
+    d = read_decision()
+    checked = 0
+    for r in d.rows:
+        for net, figure in (("any", r.worst_cost_of_delay_egp), ("electricity", r.electricity_worst_cost_egp), ("water", r.water_worst_cost_egp), ("cooling", r.cooling_worst_cost_egp)):
+            c = read_decision_cost(r.district_key, net)
+            assert c.figure_egp == figure
+            if figure is None:
+                assert not c.parts
+                continue
+            assert sum(p.zone_cost_of_delay_egp for p in c.parts) / len(c.parts) == pytest.approx(figure, abs=0.02)  # a district of a kind is the mean over its zones
+            for p in c.parts:
+                assert p.zone_cost_of_delay_egp == pytest.approx(sum(l.amount for l in p.own_lines), abs=0.01)
+                assert p.zone_cost_of_delay_egp + p.other_zones_egp + sum(l.amount for l in p.shared_lines) == pytest.approx(p.incident_cost_of_delay_egp, abs=0.05)  # the three parts are the whole incident
+                assert p.own_steps and all(k.result and k.formula and k.inputs for k in p.own_steps) and p.assumptions
+                for k in p.own_steps:  # a step's amount is the line it explains
+                    assert any(abs(k.result - l.amount) <= 0.01 for l in p.own_lines)
+            checked += 1
+    assert checked >= 40
+
+
+def test_the_cost_explanation_endpoint_validates_and_refuses_bad_input():
+    with TestClient(app) as c:
+        x = DecisionCost.model_validate(c.get("/api/v1/city/decision/1009/cost").json())
+        assert x.figure_egp and x.parts[0].scenario_id.startswith("substation_trip") and "same district" in x.how
+        t = DecisionCost.model_validate(c.get("/api/v1/city/decision/1001/cost?network=water").json())
+        assert len(t.parts) > 1 and "average" in t.how
+        assert c.get("/api/v1/city/decision/9999/cost").status_code == 404
+        assert c.get("/api/v1/city/decision/1009/cost?network=gas").status_code == 400
+        assert DecisionCost.model_validate(c.get("/api/v1/city/decision/1015/cost").json()).parts == []

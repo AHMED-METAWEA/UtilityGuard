@@ -174,3 +174,28 @@ def test_a_fault_that_comes_back_reopens_its_incident():
     assert len(rt.incidents) == 1, [(i.id, i.state, i.title) for i in rt.incidents.values()]
     inc = next(iter(rt.incidents.values()))
     assert inc.state == "open" and len(inc.alert_ids) == 2
+
+
+def test_a_substation_trip_still_says_what_the_voltage_fell_from_long_after_the_trip():
+    """The reason is rebuilt on every tick the trip lasts. It once took the highest of the last 30 readings, which after a minute is the tripped reading: "fell from 0.0 kV to -0.0 kV"."""
+    import asyncio
+    from app.detection import Detector
+    from app.runtime import Runtime
+    from app.scenarios import events_for
+
+    async def go():
+        rt = Runtime(42)
+        det = Detector(rt)
+        rt.detector = det
+        rt.tick_hooks.append(det.tick)
+        t0 = datetime(2026, 10, 28, 8, 0, tzinfo=timezone.utc)
+        for i in range(30):
+            await rt.tick_once(t0 + timedelta(seconds=2 * i))
+        for ev in events_for("scn-substation-trip", {}, "r"):
+            rt.add_event(ev)
+        for i in range(30, 150):  # four minutes of trip: well past the 30-reading window
+            await rt.tick_once(t0 + timedelta(seconds=2 * i))
+        text = next(r.text for i in rt.incidents for r in det.facts_for(i)[0].reasons if "voltage" in r.text)
+        assert "fell from 2" in text and "kV to 0.0 kV" in text and "-" not in text.split("to")[-1]
+
+    asyncio.run(go())

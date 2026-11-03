@@ -23,7 +23,7 @@ from app import dashboard, decision as decision_mod, extras, savings as savings_
 from app.agents import guardrail
 from app.agents.service import AgentService
 from app.briefing import BriefingService
-from app.city import CityData, CityError, read_decision
+from app.city import CityData, CityError, read_decision, read_decision_cost
 from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
 from app.lab.live import live_localization
 from app.lab.quality import live_quality
@@ -31,6 +31,7 @@ from app.board.dispatch import DecisionError
 from app.schemas.board import ConveneRequest, PreviewRequest, ReviewRequest
 from app.schemas.briefing import BriefingSendRequest, BriefingSendResult
 from app.schemas.lab import QualityFlagItem, QualityNow, TrialRequest
+from app.alerts import TelegramAlerts
 from app.ml.service import MLService
 from app.runtime import runtime
 from app.why import Why
@@ -66,6 +67,8 @@ lab_cache = LabCache(runtime.seed)
 _savings_cache: dict = {}
 
 
+alerts_service = TelegramAlerts(runtime, ml_service)  # a Telegram message with every detail when a problem opens, grows or is resolved
+runtime.tick_hooks.append(alerts_service.tick)
 briefing_service = BriefingService(runtime, service.board, ml_service, history, lambda: get_savings().total_monthly)
 
 
@@ -389,6 +392,26 @@ def city_districts(month: str | None = None) -> dict:
 def city_decision() -> dict:
     try:
         return out(read_decision())
+    except CityError as e:
+        raise ApiError(e.status, e.code, e.message) from e
+
+
+@api.get("/alerts/telegram")
+def alerts_status() -> dict:
+    return out(alerts_service.status())
+
+
+@api.post("/alerts/telegram/test")
+async def alerts_test() -> dict:
+    if not alerts_service.configured():
+        raise ApiError(409, "telegram_not_configured", "Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID first.")
+    return out(await alerts_service.send_test())
+
+
+@api.get("/city/decision/{district_key}/cost")
+def city_decision_cost(district_key: str, network: str = "any") -> dict:
+    try:
+        return out(read_decision_cost(district_key, network))
     except CityError as e:
         raise ApiError(e.status, e.code, e.message) from e
 

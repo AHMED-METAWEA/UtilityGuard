@@ -77,6 +77,7 @@ class DetectionState:
     pending: dict[str, int] = field(default_factory=dict)
     sub_was_on: dict[str, bool] = field(default_factory=dict)
     restored_at: dict[str, int] = field(default_factory=dict)  # substation -> tick it came back; readings take a moment to settle
+    healthy_kv: dict[str, float] = field(default_factory=dict)  # substation -> its last voltage while it was healthy, so "fell from" stays true after the window slides past the trip
     closed: dict[str, tuple[str, int]] = field(default_factory=dict)  # alert key -> (incident id, tick) of the alert that closed last
 
 
@@ -105,6 +106,16 @@ class Detector:
         d.on_incident, d.on_incident_update = [], []
         d.anomaly_scores = deque(maxlen=300)
         return d
+
+    def _voltage_text(self, name: str, sub: str, now: float) -> str:
+        """What the voltage did, in words that stay true: it fell from the last healthy reading (not from the highest of a sliding window, which turns into
+        the tripped reading a minute after the trip) to what it reads now, and a reading below zero is sensor noise around zero, so it is shown as zero."""
+        now = max(0.0, float(now))
+        before = self.state.healthy_kv.get(sub)
+        if before is None:
+            top = self.g.sensor_index[f"{sub}-voltage"].normal_range.max
+            return f"{name} voltage reads {now:.1f} kV against a normal range up to {top:.1f} kV"
+        return f"{name} voltage fell from {before:.1f} kV to {now:.1f} kV"
 
     def _networks(self, asset_ids: list[str]) -> list[str]:
         return [self.g.asset_index[a].network for a in asset_ids if a in self.g.asset_index]
@@ -161,6 +172,8 @@ class Detector:
         # substation trip: voltage collapse
         for sub in SUBSTATION_BACKUP:
             v = H.get(f"{sub}-voltage", [])
+            if v and v[-1] >= 15:
+                self.state.healthy_kv[sub] = float(v[-1])
             if len(v) >= 2 and v[-1] < 15:
                 zones = [z for z, s in ZONE_SUBSTATION.items() if s == sub]
                 lost = sum(eng.zone_demand[z][1] for z in zones) * 0.45  # backup sheds ~45%
@@ -168,7 +181,7 @@ class Detector:
                 plants = [a.id for a in g.topology.assets if a.kind == "plant" and g.asset_index[a.id].zone_id in zones]
                 backup = SUBSTATION_BACKUP[sub]
                 reasons = [
-                    Reason(text=f"{name(sub)} voltage fell from {float(np.nanmax(v[-30:])):.1f} kV to {v[-1]:.1f} kV", evidence_type="measured", evidence_ref=f"{sub}-voltage"),
+                    Reason(text=self._voltage_text(name(sub), sub, v[-1]), evidence_type="measured", evidence_ref=f"{sub}-voltage"),
                     Reason(text=f"{len(pumps)} pumps powered by {name(sub)} stopped and their pressure is falling", evidence_type="measured", evidence_ref=f"{pumps[0]}-pressure"),
                     Reason(text=f"{name(backup)} picked up priority load, now {_mean(H[f'{backup}-load'], 3):.1f} MW", evidence_type="measured", evidence_ref=f"{backup}-load"),
                     Reason(text=f"About {lost:.1f} MW of non-priority load is shed", evidence_type="rule", evidence_ref="rule:backup-sheds-45pct"),

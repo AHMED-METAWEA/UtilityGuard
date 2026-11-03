@@ -115,7 +115,7 @@ export function CalcView({ cost, explanation, heading }: { cost: Cost; explanati
           ))}
         </tbody></table>
       </div>
-      <div className="muted" style={{ fontSize: 12 }}>Confidence {fmt(explanation.confidence * 100)}%. Every figure is computed by the cost model; the AI only explains it.</div>
+      <div className="muted" style={{ fontSize: 12 }}><span title="A rating the rule sets from the size of the signal. It is not a measured probability.">Rule rating {fmt(explanation.confidence * 100)}%</span>. Every figure is computed by the cost model; the AI only explains it.</div>
     </div>
   );
 }

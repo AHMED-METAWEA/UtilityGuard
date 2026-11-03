@@ -190,7 +190,7 @@
     "renderDetail": "Reload to restore the connection and request a fresh snapshot."
   },
   "decision": {
-    "confidence": "Confidence",
+    "confidence": "Rule rating",
     "agent": "{{agent}} agent",
     "why": "Why this decision",
     "calculations": "Calculations",

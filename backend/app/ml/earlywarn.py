@@ -6,8 +6,11 @@ How it works, in four steps, all in code:
    temperature. That score is a ranking, not a calibrated probability: the model is trained on a synthetic hazard.
 2. The same score is computed again with the two condition signals (deviation, variability) set to the median of the other assets of the
    same kind. The difference is the part of the risk that the asset's own condition explains and its age and load do not: the *excess*.
-3. A warning opens when the excess stays above `EXCESS` for `CONSECUTIVE` samples in a row, while the asset is still running. It closes
-   when the excess falls back below `CLEAR` for as long.
+3. A warning opens when the excess, measured in log-odds so that a young pump and an old one are judged alike, stays above `EXCESS` for
+   `CONSECUTIVE` samples in a row (and is at least `MIN_POINTS` of risk), while the asset is still running. It closes when the excess falls
+   back below `CLEAR` for as long. A difference in probability points would never be reached by a young pump, whose risk starts near 1%.
+   No warning opens for an asset whose age and load alone already give a risk of `MAX_BASE` or more (it needs its load relieved, and a small drift reads as a large relative one),
+   nor for assets in a zone an open incident covers (the incident explains them).
 4. The warning prices the choice with the cost model: planned maintenance now against an unplanned failure. Maintenance pays when the
    chance of failing is above `planned / unplanned`, so the warning shows that break-even next to the risk score instead of a promise.
 
@@ -32,8 +35,10 @@ from app.schemas.insight import RiskPoint, WarningCost, WarningSignal
 log = logging.getLogger("utilityguard.earlywarn")
 
 KINDS = ("pump", "transformer")
-EXCESS = 0.15  # risk score above what age and load explain
-CLEAR = 0.07
+EXCESS = 1.0  # log-odds of the risk score above the log-odds of what age and load explain (clean runs peak near 0.7, a wearing pump passes 1.0 minutes before it stops)
+CLEAR = 0.5
+MIN_POINTS = 0.01  # and at least this much risk in absolute terms, so a tiny difference is never called a warning
+MAX_BASE = 0.6  # no new warning for an asset whose age and load alone already give this risk: it needs its load relieved, not a wear warning (a storm puts a transformer at 0.88 and any small drift reads as a large relative one)
 SETTLE = 6  # samples ignored after an asset comes back (about two minutes)
 CONSECUTIVE = 3  # samples in a row (about a minute at one sample every 20 s)
 KEEP = 90  # samples kept per asset for the chart (about half an hour)
@@ -47,6 +52,11 @@ class _Track:
     calm: int = 0
     warning_id: str | None = None
     hold: int = 0  # samples to ignore after the asset restarts: a pump coming back after a power cut is noisy
+
+
+def logit(p: float) -> float:
+    p = min(max(p, 1e-6), 1 - 1e-6)
+    return float(np.log(p / (1 - p)))
 
 
 class EarlyWarnings:
@@ -94,7 +104,8 @@ class EarlyWarnings:
             tr.series.append((now, risk, peer))
             status = self.rt.asset_status.get(aid)
             running = bool(status) and status.status in ("normal", "warning")
-            excess = risk - peer
+            excess = logit(risk) - logit(peer)
+            points = risk - peer
             if not running:
                 tr.hold = SETTLE
             elif tr.hold > 0:
@@ -108,7 +119,7 @@ class EarlyWarnings:
                     await self._failed(aid, warning, now)
                     tr.streak = tr.calm = 0
                     continue
-                tr.calm = tr.calm + 1 if excess < CLEAR else 0
+                tr.calm = tr.calm + 1 if excess < CLEAR or points < MIN_POINTS / 2 else 0
                 if tr.calm >= CONSECUTIVE:
                     await self._publish(self._refresh(warning, tr, feats[n], peers[aid], now, state="cleared"))
                     tr.streak = tr.calm = 0
@@ -116,9 +127,14 @@ class EarlyWarnings:
                 else:
                     await self._publish(self._refresh(warning, tr, feats[n], peers[aid], now))
                 continue
-            tr.streak = tr.streak + 1 if (running and excess >= EXCESS and aid not in explained) else 0
+            tr.streak = tr.streak + 1 if (running and excess >= EXCESS and points >= MIN_POINTS and peer < MAX_BASE and aid not in explained) else 0
             if tr.streak >= CONSECUTIVE and self.A is not None:
-                w = self._open(aid, tr, feats[n], peers[aid], now)
+                try:
+                    w = self._open(aid, tr, feats[n], peers[aid], now)
+                except Exception:  # noqa: BLE001 - one asset that cannot be priced must not stop the check of the others
+                    log.exception("early warning on %s could not be opened", aid)
+                    tr.streak = 0
+                    continue
                 self.warnings[w.id] = w
                 tr.warning_id = w.id
                 log.info("early warning %s on %s: risk %.2f, peers %.2f", w.id, aid, risk, peer)
@@ -130,10 +146,14 @@ class EarlyWarnings:
         if det is None:
             return set()
         reach: set[str] = set()
+        zones: set[str] = set()
         for iid, radius in det.state.incident_roots.items():
             inc = self.rt.incidents.get(iid)
             if inc and inc.state != "resolved":
                 reach |= radius
+                zones |= set(inc.zone_ids)
+        # whatever stands in a zone the incident covers is explained by it too: a transformer heating under an overloaded substation, a pump pushing more for a district in a storm
+        reach |= {a.id for a in self.rt.engine.g.topology.assets if a.zone_id in zones}
         return reach
 
     async def _failed(self, aid: str, w: EarlyWarning, now: datetime) -> None:
@@ -153,7 +173,13 @@ class EarlyWarnings:
         from app.savings import _failure_facts  # imported late: savings imports the runtime
         asset = self.rt.engine.g.asset_index[aid]
         A = self.A
-        n = _summary(_failure_facts(self.rt, asset, A), A)
+        facts = _failure_facts(self.rt, asset, A)
+        if facts is None and asset.kind == "transformer":  # a transformer failure takes its zone's feeder out: priced as that zone losing a share of its load, like the substation proxy
+            from app.cost import IncidentFacts
+            g = self.rt.engine.g
+            facts = IncidentFacts(kind="substation_trip", zone_types={asset.zone_id: g.zone_index[asset.zone_id].type}, unserved_mw=A["maintenance_unserved_fraction"] * self.rt.engine.zone_demand[asset.zone_id][1],
+                                  input_source="assumed", input_basis="Future failure planning proxy: the zone loses the registered share of its electricity demand. Verify against the asset contingency study.")
+        n = _summary(facts, A)
         unplanned, planned, risk = round(float(n["cost_of_delay"]), 2), round(float(n["repair_now"] * A["planned_factor"]), 2), round(risk, 3)
         gain = risk * unplanned - planned  # from the rounded figures, so the numbers on screen reproduce it exactly
         return WarningCost(unplanned=unplanned, planned=planned, break_even=round(planned / unplanned, 4) if unplanned else 1.0,

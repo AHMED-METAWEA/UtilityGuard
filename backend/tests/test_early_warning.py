@@ -8,7 +8,7 @@ import pytest
 
 from app.cost import Assumptions
 from app.detection import Detector
-from app.ml.earlywarn import CONSECUTIVE, EXCESS
+from app.ml.earlywarn import CONSECUTIVE, MIN_POINTS, logit
 from app.ml.service import MLService
 from app.runtime import Runtime
 from app.scenarios import events_for
@@ -70,7 +70,7 @@ def test_the_warning_prices_the_choice_with_the_cost_model(wear):
     assert 0 < c.planned < c.unplanned and c.break_even == pytest.approx(c.planned / c.unplanned, abs=1e-4)
     assert c.expected_saving == pytest.approx(c.risk * c.unplanned - c.planned, abs=0.05)
     assert (c.verdict == "maintain_now") == (c.expected_saving > 0)
-    assert w.excess >= EXCESS - 0.05 and len(w.series) >= CONSECUTIVE and w.signals[1].value > w.signals[1].peer_value
+    assert w.excess >= MIN_POINTS and logit(w.risk) - logit(w.peer_risk) > 0.5 and len(w.series) >= CONSECUTIVE and w.signals[1].value > w.signals[1].peer_value
 
 
 def test_every_figure_in_the_warning_text_is_one_of_its_numbers(wear):

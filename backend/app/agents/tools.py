@@ -23,6 +23,16 @@ PLAYBOOKS = {
     "energy_waste": ("operations", "within_hours", "Pre-cool buildings off-peak and shift flexible load to other substations"),
     "sensor_fault": ("instrumentation", "scheduled", "Mark the sensor as suspect, use its neighbours, and schedule recalibration"),
 }
+# What usually lies behind each kind of fault. The data cannot always say which one it is, so these are hypotheses for the crew to confirm, never findings: a cause is where the
+# fault comes from, not what it does (pumps stopping, load moving to a backup substation, pressure falling are consequences and never go in this list).
+CAUSES = {
+    "leak": ["A joint or section of the main has ruptured: pressure fell while more water goes in than comes out", "Third-party damage or ground movement at the section (to be confirmed on site)"],
+    "pump_failure": ["Wear of the bearings or the impeller (to be confirmed on site)", "Blocked suction or cavitation at the pump (to be confirmed on site)"],
+    "substation_trip": ["A protection trip on the substation, for example overcurrent or an earth fault (to be confirmed by the crew)", "Loss of the upstream supply or a planned cut by the grid operator (to be confirmed with the operator)"],
+    "cooling_fault": ["A chiller has tripped or lost capacity while its substation is energised (to be confirmed on site)", "Fouling or low refrigerant reducing its output (to be confirmed on site)"],
+    "energy_waste": ["Cooling load concentrated on this substation at peak hours", "Flexible load not shifted to the other substations"],
+    "sensor_fault": ["The sensor is drifting, stuck or failing, so its reading is not the truth (its neighbours disagree)"],
+}
 AGENT_FOR_KIND = {"leak": "water", "pump_failure": "water", "substation_trip": "electricity",
                   "cooling_fault": "cooling", "energy_waste": "electricity", "sensor_fault": "water"}
 

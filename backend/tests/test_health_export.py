@@ -283,3 +283,17 @@ def test_a_file_can_be_written_with_the_line_endings_of_the_original(tmp_path):
     ex.write_csv(tmp_path / "a.csv", [{"x": "1", "y": "2"}], "\n")
     ex.write_csv(tmp_path / "b.csv", [{"x": "1", "y": "2"}])
     assert (tmp_path / "a.csv").read_bytes() == b"x,y\n1,2\n" and (tmp_path / "b.csv").read_bytes() == b"x,y\r\n1,2\r\n"
+
+
+def test_the_worst_failure_is_also_given_per_network_and_the_networks_are_never_added():
+    import csv
+
+    with (ex.DEFAULT_OUT / "district_risk.csv").open(encoding="utf-8") as f:  # the full export, since the small fixture has only a few assets
+        risk = {r["district_key"]: r for r in csv.DictReader(f)}
+    cbd = risk["1009"]  # the direct district of zone-cbd: a substation, a cooling plant, a pump and a main reach it
+    assert cbd["electricity_worst_scenario_id"].startswith("substation_trip") and cbd["water_worst_scenario_id"].startswith("pump_failure") and cbd["cooling_worst_scenario_id"].startswith("cooling_fault")
+    nets = [float(cbd[f"{n}_worst_cost_of_delay_egp"]) for n in ex.NETWORKS]
+    assert float(cbd["worst_zone_cost_of_delay_egp"]) == max(nets)  # the headline is the worst network, not a sum
+    assert nets[0] > 10 * nets[1]
+    assert risk["1002"]["cooling_worst_cost_of_delay_egp"] == ""  # no cooling plant serves R2
+    assert risk["1015"]["electricity_worst_cost_of_delay_egp"] == "" and risk["1015"]["match_kind"] == "none"

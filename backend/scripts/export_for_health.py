@@ -66,7 +66,7 @@ def assets_to_run(g) -> list[str]:
     return [a for k in ("substation", "plant", "pump", "pipe") for a in sorted(by_kind[k])]
 
 
-async def build(seed: int, at: datetime = AT, assets: list[str] | None = None, keep: dict | None = None) -> tuple[list[dict], list[dict], dict]:
+async def build(seed: int, at: datetime = AT, assets: list[str] | None = None, keep: dict | None = None, explain: dict | None = None) -> tuple[list[dict], list[dict], dict]:
     from app.agents.tools import what_if
     from app.cost import Assumptions, customer_key
     from app.detection import Detector
@@ -103,6 +103,8 @@ async def build(seed: int, at: datetime = AT, assets: list[str] | None = None, k
                           "cost_per_hour_egp": r(c.delay_per_hour, 2), "act_now_egp": r(c.act_now, 2), "cost_of_delay_egp": r(c.cost_of_delay, 2),
                           "saving_egp": r(c.expected_saving, 2), "saving_p10_egp": r(c.saving_range.p10, 2), "saving_p50_egp": r(c.saving_range.p50, 2),
                           "saving_p90_egp": r(c.saving_range.p90, 2), "needs_review": c.review})
+        if explain is not None:
+            explain[row["scenario_id"]] = explanation_of(row, c)
         customers = {z: A[customer_key(z)] for z in facts.zone_types}
         total = sum(customers.values())
         for z in facts.zone_types:
@@ -117,6 +119,38 @@ async def build(seed: int, at: datetime = AT, assets: list[str] | None = None, k
     return scenarios, zones, meta
 
 
+def explanation_of(row: dict, c) -> dict:
+    """How the cost engine got to one scenario's cost of delay, as the engine wrote it: every cost line, the formula and the inputs of each, and the assumptions
+    behind the inputs. Nothing is recomputed here."""
+    ex = c.explanation
+    shown = [k for k in (ex.calculations if ex else []) if k.name.startswith("Delayed cost:") or k.name == "Cost of delay"]
+    return {"scenario_id": row["scenario_id"], "kind": row["kind"], "asset_id": row["asset_id"], "asset_name": row["asset_name"], "delay_hours": c.delay_hours,
+            "response_hours": c.response_hours, "cost_of_delay_egp": r(c.cost_of_delay, 2),
+            "lines": [{"group": i.group, "label": i.label, "cause": i.cause, "amount": r(i.amount, 2)} for i in c.breakdown],
+            "calculations": [{"name": k.name, "formula": k.formula, "inputs": [{"name": i.name, "value": r(i.value, 4), "unit": i.unit} for i in k.inputs],
+                              "result": r(k.result, 2), "unit": k.unit} for k in shown],
+            "assumptions": [{"name": a.name, "key": a.key, "value": a.value, "unit": a.unit, "status": a.status, "basis": a.basis} for a in (ex.assumptions if ex else [])]}
+
+
+NETWORK = {"substation_trip": "electricity", "pump_failure": "water", "pipe_burst": "water", "cooling_fault": "cooling"}
+NETWORKS = ("electricity", "water", "cooling")
+
+
+def zone_worst(zones: list[dict]) -> list[dict]:
+    """For every zone and network (and `any`, all networks), the scenario of the largest cost that belongs to that zone. `scenario_zones.csv` holds the cost terms of
+    one zone only, so the figure is that zone's own part of the incident."""
+    out = []
+    for zone in sorted({z["zone_id"] for z in zones}):
+        hits = [z for z in zones if z["zone_id"] == zone]
+        for net in ("any",) + NETWORKS:
+            pool = hits if net == "any" else [z for z in hits if NETWORK[z["kind"]] == net]
+            if not pool:
+                continue
+            w = max(pool, key=lambda z: z["zone_cost_of_delay_egp"] or 0)
+            out.append({"zone_id": zone, "network": net, "scenario_id": w["scenario_id"], "zone_cost_of_delay_egp": w["zone_cost_of_delay_egp"], "unserved_mw": w["unserved_mw"]})
+    return out
+
+
 def district_risk(mapping: list[dict], scenarios: list[dict], zones: list[dict]) -> list[dict]:
     """One row per district of the healthcare project. A direct district takes its own zone's numbers. A type district takes the average over the
     zones of that type (each zone first, then the mean). A district with no counterpart is written with empty numbers and match_kind none."""
@@ -126,10 +160,17 @@ def district_risk(mapping: list[dict], scenarios: list[dict], zones: list[dict])
         return {"n": len(hits), "cost": worst["zone_cost_of_delay_egp"] if worst else 0.0, "mw": max((z["unserved_mw"] or 0 for z in hits), default=0.0),
                 "scenario": worst["scenario_id"] if worst and worst["zone_cost_of_delay_egp"] else ""}
 
+    worst = {(w["zone_id"], w["network"]): w for w in zone_worst(zones)}
     out = []
     for m in mapping:
         row = {"district_key": m["district_key"], "district_code": m["district_code"], "match_kind": m["match_kind"], "our_zone_ids": m["our_zone_ids"],
-               "scenarios_affecting": None, "worst_zone_cost_of_delay_egp": None, "worst_zone_unserved_mw": None, "worst_scenario_id": None}
+               "scenarios_affecting": None, "worst_zone_cost_of_delay_egp": None, "worst_zone_unserved_mw": None, "worst_scenario_id": None,
+               **{f"{n}_worst_cost_of_delay_egp": None for n in NETWORKS}, **{f"{n}_worst_scenario_id": None for n in NETWORKS}}
+        for n in NETWORKS:  # per network the same way: the zone's worst, averaged over the matched zones that have a scenario of that network
+            have = [worst[(z, n)] for z in m["zones"] if (z, n) in worst]
+            if have:
+                row[f"{n}_worst_cost_of_delay_egp"] = r(sum(h["zone_cost_of_delay_egp"] for h in have) / len(have), 2)
+                row[f"{n}_worst_scenario_id"] = have[0]["scenario_id"] if m["match_kind"] == "direct" else ""
         if m["zones"]:
             parts = [per_zone(z) for z in m["zones"]]
             row["scenarios_affecting"] = r(sum(p["n"] for p in parts) / len(parts), 2)
@@ -248,6 +289,7 @@ def joint_decision(mapping: list[dict], risk: list[dict], exposure: list[dict], 
                      "our_zone_ids": m["our_zone_ids"], "hospitals": c["hospitals"], "clinics": c["clinics"], "specialists": c["specialists"],
                      "scenarios_affecting": x["scenarios_affecting"], "worst_zone_cost_of_delay_egp": x["worst_zone_cost_of_delay_egp"],
                      "worst_zone_unserved_mw": x["worst_zone_unserved_mw"], "worst_scenario_id": x["worst_scenario_id"],
+                     **{f"{n}_worst_cost_of_delay_egp": x.get(f"{n}_worst_cost_of_delay_egp") for n in NETWORKS},
                      "scenarios_reaching_hospitals_sure": sum(h["certainty"] == "all_matched_zones" for h in mine),
                      "scenarios_reaching_hospitals_possible": sum(h["certainty"] == "some_matched_zones" for h in mine),
                      "env_month": env_month, "esi_overall": overall, "esi_air": scores["air"], "esi_waste": scores["waste"], "esi_water": scores["water"],
@@ -355,7 +397,8 @@ def main() -> None:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     kept: dict = {}
-    scenarios, zones, meta = asyncio.run(build(args.seed, keep=kept))
+    explained: dict = {}
+    scenarios, zones, meta = asyncio.run(build(args.seed, keep=kept, explain=explained))
     mapping = read_mapping()
     risk = district_risk(mapping, scenarios, zones)
     ranked = rank_packages(kept, kept["A"], read_packages(), mapping, args.budget)
@@ -370,16 +413,17 @@ def main() -> None:
     meta["budget_m_egp"] = args.budget
     meta["environment_month"] = env_month
     files = {"scenarios.csv": scenarios, "scenario_zones.csv": zones, "district_risk.csv": risk, "hospital_exposure.csv": exposure, "joint_decision.csv": joint, "districts_on_twin_map.csv": on_map,
-             "reliability_packages.csv": ranked}
+             "reliability_packages.csv": ranked, "district_zone_worst.csv": zone_worst(zones)}
     for name, rows in files.items():
         write_csv(out / name, rows, "\n" if name == "districts_on_twin_map.csv" else "\r\n")  # a copy of their file keeps its line endings
+    (out / "cost_explanations.json").write_text(json.dumps(explained, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     (out / "zone_mapping.csv").write_bytes(MAPPING.read_bytes())
     (out / "packages.csv").write_bytes(PACKAGES.read_bytes())
     if theirs:
         (out / "their_packages.csv").write_bytes((HEALTH_DATA / "their_packages.csv").read_bytes())
     commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip() or "unknown"
     manifest = {**meta, "written_at": datetime.now(timezone.utc).isoformat(), "git_commit": commit, "simulated": True,
-                "files": {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in files.items()} | {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in (("zone_mapping.csv", mapping), ("packages.csv", read_packages())) + ((("their_packages.csv", list(theirs)),) if theirs else ())}}
+                "files": {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in files.items()} | {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in (("zone_mapping.csv", mapping), ("packages.csv", read_packages()), ("cost_explanations.json", list(explained))) + ((("their_packages.csv", list(theirs)),) if theirs else ())}}
     (out / "MANIFEST.json").write_text(json.dumps(manifest, indent=1))
     (out / "README.md").write_text(README)
     print(f"wrote {len(scenarios)} scenarios, {len(zones)} scenario-zone rows, {len(risk)} districts, {len(exposure)} hospital exposures, {len(ranked)} ranked packages to {out}")
@@ -426,6 +470,20 @@ work there). Costs shared by the whole incident (repair, water lost, cooling, se
 `scenarios_affecting`: how many of the failed-asset scenarios touch the district (an average over the zones when `match_kind` is `type`).
 `worst_zone_cost_of_delay_egp` and `worst_zone_unserved_mw`: the largest of the zone's values over all scenarios (averaged over zones for `type`).
 `worst_scenario_id`: which scenario it was (only for `direct`).
+`electricity_worst_cost_of_delay_egp`, `water_worst_cost_of_delay_egp`, `cooling_worst_cost_of_delay_egp`: the same figure for one network only (a substation trip; a district
+pump or main; a cooling plant), never added together. A `type` district averages over the matched zones that have a scenario of that network; empty when none has.
+Read the water figure with care: the cost engine prices a water failure by the notification and support work, the repair and the water lost, and has no value of
+lost water, so the district's own part of it is small next to a power cut. And the three are not additive: a substation trip stops the pumps it feeds, so the water
+effect is already inside the electricity scenario (see `backend/scripts/stress/combined_outage.py`, which runs everything that reaches a zone at once: the
+detector raises the substation incident and prices it as alone; only a cooling plant fed from another substation comes up as a second incident).
+
+## district_zone_worst.csv and cost_explanations.json (how a figure was made)
+
+`district_zone_worst.csv`: for every zone and network (`any` = all), the scenario whose cost lines belonging to that zone are largest, with that cost.
+`cost_explanations.json`: for every scenario, the cost engine's own record: each cost line with its cause, the formula and inputs of the line, and the assumptions
+behind the inputs. The app serves a district's explanation at `GET /api/v1/city/decision/{district_key}/cost?network=any|electricity|water|cooling`: the lines of
+the district's own zone add up to the figure, the other zones' lines and the lines shared by the whole incident (repair, water lost, cooling, knock-on) are shown
+apart, and the three add up to the whole incident.
 
 ## districts_on_twin_map.csv
 

@@ -6,8 +6,8 @@
  "assumptions": "registered defaults (backend/app/cost/__init__.py DEFAULTS), no saved override",
  "budget_m_egp": 15.0,
  "environment_month": "2026-09",
- "written_at": "2026-11-02T21:39:18.772895+00:00",
- "git_commit": "5afe64d",
+ "written_at": "2026-11-03T12:55:33.879057+00:00",
+ "git_commit": "5031c1b",
  "simulated": true,
  "files": {
   "scenarios.csv": {
@@ -20,7 +20,7 @@
   },
   "district_risk.csv": {
    "rows": 15,
-   "sha256": "94e54ddf9f33a19cc95417a9943c9d61db621dc1cb630fc4c3376cef2bfb7c87"
+   "sha256": "37f05ae2a45598eec2bc4c42bc3f93214bd5b63bd7cfc8d0eb9fa5c3f17ce280"
   },
   "hospital_exposure.csv": {
    "rows": 95,
@@ -28,7 +28,7 @@
   },
   "joint_decision.csv": {
    "rows": 15,
-   "sha256": "68b7e70e89db3256c86c56fa8f29a760872f2d8eab8886f2c26d43a2229c484d"
+   "sha256": "703bf017a0b7e6cdb8973a088418817bedf67de5692dc3292190ab8f7173269e"
   },
   "districts_on_twin_map.csv": {
    "rows": 15,
@@ -38,6 +38,10 @@
    "rows": 24,
    "sha256": "d69690cf8814b846de27ca8ddd6784b551141ce861388883a06db1d020d96d74"
   },
+  "district_zone_worst.csv": {
+   "rows": 31,
+   "sha256": "b6243ed10b3cf055052bb85ea4c1b43aa5013594f120888f602a3fb865b6d170"
+  },
   "zone_mapping.csv": {
    "rows": 15,
    "sha256": "9dd50422269f73afaeaf52a81a01423b39aa325f8217002fc589ef7b10ae7348"
@@ -45,6 +49,10 @@
   "packages.csv": {
    "rows": 4,
    "sha256": "a416a7c20e486d927751a3d25aed6f71b59972823c49241487069180dc1f9e01"
+  },
+  "cost_explanations.json": {
+   "rows": 24,
+   "sha256": "92069376ca1aa3131b27ec4ac7714dd515d601e3f129e12d5ed6ccbcc5cc0395"
   },
   "their_packages.csv": {
    "rows": 15,

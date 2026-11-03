@@ -277,3 +277,34 @@ def test_a_single_job_says_so_instead_of_claiming_an_order_was_chosen(monkeypatc
     decision = next(d for d in bs.compose(a) if d.kind == "decision")
     assert "single job" in decision.template and "tried every order" not in decision.template
     assert not a.conflict
+
+
+@pytest.mark.parametrize("seed", [11, 12, 13, 14, 15, 16])
+def test_what_would_change_the_boards_mind_is_the_exact_boundary_not_the_next_grid_step(seed):
+    """"The order would change if X cost per hour were below 3,200" has to be true at 3,200 and false just above it: the figure is quoted to the EGP."""
+    from types import SimpleNamespace
+    from app.board.plan import flips, best_order, signature
+
+    p = make_params(4, 2, seed)
+    perms = all_orders(4)
+    order, _ = best_order(p, 4, perms)
+    chosen = plan_for(order, p)
+    tasks = [SimpleNamespace(id=f"t{i}") for i in range(4)]
+    found = flips(tasks, p, chosen, perms)
+    assert found
+    for fl in found:
+        i = int(fl["task"].id[1:])
+        for scale, expect_change in ((1.01, fl["direction"] == "above"), (0.99, fl["direction"] == "below")):
+            for side, sign in ((0, -1), (1, 1)):  # just short of the boundary and just past it
+                threshold_scale = fl["threshold"] / p.rate[i]
+                tried = threshold_scale * (1 + sign * 0.002)
+                if (fl["direction"] == "above") != (sign > 0):  # the changed side is above the boundary for "above" and below it for "below"
+                    want_change = False
+                else:
+                    want_change = True
+                rate = p.rate.copy()
+                rate[i] = p.rate[i] * tried
+                q = Params(rate=rate, repair=p.repair, hours=p.hours, late=p.late, delay=p.delay, cap=p.cap, response=p.response, switch=p.switch, crews=p.crews, relieved=p.relieved)
+                o, _ = best_order(q, 4, perms)
+                assert (signature(plan_for(o, q)) != signature(chosen)) == want_change, (fl, tried)
+            break

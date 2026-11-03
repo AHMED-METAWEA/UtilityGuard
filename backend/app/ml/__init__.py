@@ -25,7 +25,8 @@ from pathlib import Path
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
@@ -36,7 +37,7 @@ from app.sim.topology import ZONE_BASE
 
 log = logging.getLogger("utilityguard.ml")
 MODELS = Path(__file__).resolve().parents[2] / "data" / "models.pkl"
-MODEL_VERSION = 7  # 7: the test slice is the same dates whatever the history length; 6: the scenario calendar includes weekend days
+MODEL_VERSION = 8  # 8: the failure model is monotonic in every feature; 7: the test slice is the same dates whatever the history length; 6: the scenario calendar includes weekend days
 HISTORY_DAYS = int(os.getenv("FORECAST_HISTORY_DAYS", "270"))  # days of history; 270 beat 75 by about a quarter of the error on identical test days (docs/measurements/forecast-history-length.md). The window always ends at the start of today, so the model has seen the latest weather
 FOLDS = 5  # blocked cross-validation folds over the development window
 TEST_DAYS = 10
@@ -119,7 +120,7 @@ class Models:
     band: dict = field(default_factory=dict)  # (network, zone or "all", "normal", "heat" or "holiday") -> (low, high) relative error quantiles
     anchor_tau: dict = field(default_factory=dict)  # network -> hours a live correction lasts (0 = none)
     evidence: dict = field(default_factory=dict)  # network -> everything the accuracy page shows
-    failure: GradientBoostingClassifier | None = None
+    failure: HistGradientBoostingClassifier | None = None
     failure_auc: float = 0.0
     detection: dict = field(default_factory=dict)
     last_run: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -306,9 +307,15 @@ def _train_failure(seed: int, capture: dict | None = None):
     if capture is not None:
         capture["failure"] = pd.DataFrame(X, columns=FAIL_FEATURES).assign(hazard=failure_hazard(X), failed=y)
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.25, random_state=seed)
-    clf = GradientBoostingClassifier(n_estimators=150, max_depth=3, random_state=seed).fit(Xtr, ytr)
+    # monotonic in every feature: the hazard rises with each of them, so wear, hours, deviation, variability, load and heat can never lower the score
+    # (an unconstrained boosted model did, by up to 0.68, in `scripts/stress/failure_model.py`)
+    clf = HistGradientBoostingClassifier(max_iter=400, learning_rate=0.05, max_depth=3, min_samples_leaf=40, l2_regularization=1.0,
+                                         monotonic_cst=[1] * len(FAIL_FEATURES), early_stopping=False, random_state=seed).fit(Xtr, ytr)
     auc = float(roc_auc_score(yte, clf.predict_proba(Xte)[:, 1]))
-    fi = sorted(zip(FAIL_FEATURES, map(float, clf.feature_importances_)), key=lambda kv: -kv[1])
+    imp = permutation_importance(clf, Xte, yte, scoring="roc_auc", n_repeats=5, random_state=seed).importances_mean
+    imp = np.maximum(imp, 0)
+    imp = imp / imp.sum() if imp.sum() > 0 else imp
+    fi = sorted(zip(FAIL_FEATURES, map(float, imp)), key=lambda kv: -kv[1])  # permutation importance: how much the AUC falls when a feature is shuffled
     return clf, auc, fi
 
 

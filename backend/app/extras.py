@@ -50,7 +50,7 @@ def incident_pdf(rt: "Runtime", incident_id: str) -> bytes:
 
     p = lambda x: Paragraph(str(x), ss["BodyText"])  # noqa: E731
     st += [Paragraph("Alerts", ss["Heading2"]),
-           table([["Alert", "Severity", "Title", "Detected", "Confidence"]] +
+           table([["Alert", "Severity", "Title", "Detected", "Rule rating"]] +
                  [[a.id, a.severity, p(a.title), f"{a.detected_at:%H:%M:%S}", f"{a.confidence:.0%}"] for a in (rt.alerts[x] for x in inc.alert_ids)],
                  [24 * mm, 20 * mm, 80 * mm, 24 * mm, 22 * mm])]
     for fid in inc.finding_ids:
@@ -61,7 +61,7 @@ def incident_pdf(rt: "Runtime", incident_id: str) -> bytes:
                Paragraph("Why this decision", ss["Heading3"])]
         st += [p(f"{i}. {r.text} <font color='#667'>({r.evidence_type})</font>") for i, r in enumerate(e.reasons, 1)]
         st += [Paragraph("Cost: act now versus delay", ss["Heading3"]),
-               table([["Act now", f"Delay {c.delay_hours:g} h", "Saving", "Confidence"],
+               table([["Act now", f"Delay {c.delay_hours:g} h", "Saving", "Rule rating"],
                       [f"{c.act_now:,.0f} EGP", f"{c.cost_of_delay:,.0f} EGP", f"{c.expected_saving:,.0f} EGP", f"{e.confidence:.0%}"]],
                      [42 * mm] * 4),
                Paragraph("Calculations", ss["Heading3"]),

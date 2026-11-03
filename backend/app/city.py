@@ -15,7 +15,7 @@ from datetime import date
 from pathlib import Path
 
 from app.schemas import LatLng
-from app.schemas.city import CityDistrict, Decision, DecisionRow, CityDistricts, CityFacility, CityMetrics, CitySource, CityStress, FacilityCounts
+from app.schemas.city import CityDistrict, CostAssumption, CostInput, CostLine, CostPart, CostStep, Decision, DecisionCost, DecisionRow, CityDistricts, CityFacility, CityMetrics, CitySource, CityStress, FacilityCounts
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_DIR = REPO / "integration" / "health" / "data"
@@ -194,7 +194,9 @@ def read_decision(out: Path | str | None = None) -> Decision:
                             our_zone_ids=[z for z in r["our_zone_ids"].split(";") if z], hospitals=int(r["hospitals"]), clinics=int(r["clinics"]),
                             specialists=int(r["specialists"]), scenarios_affecting=_num(r["scenarios_affecting"]),
                             worst_cost_of_delay_egp=_num(r["worst_zone_cost_of_delay_egp"]), worst_unserved_mw=_num(r["worst_zone_unserved_mw"]),
-                            worst_scenario_id=r["worst_scenario_id"] or None, hospital_scenarios_sure=int(r["scenarios_reaching_hospitals_sure"]),
+                            worst_scenario_id=r["worst_scenario_id"] or None, electricity_worst_cost_egp=_num(r.get("electricity_worst_cost_of_delay_egp", "")),
+                            water_worst_cost_egp=_num(r.get("water_worst_cost_of_delay_egp", "")), cooling_worst_cost_egp=_num(r.get("cooling_worst_cost_of_delay_egp", "")),
+                            hospital_scenarios_sure=int(r["scenarios_reaching_hospitals_sure"]),
                             hospital_scenarios_possible=int(r["scenarios_reaching_hospitals_possible"]), esi_overall=float(r["esi_overall"]),
                             esi_air=float(r["esi_air"]), esi_waste=float(r["esi_waste"]), esi_water=float(r["esi_water"]), esi_heat=float(r["esi_heat"]),
                             esi_band=r["esi_band"], highest_score=r["highest_score"], pressure_baseline=_num(r.get("their_pressure_baseline", "")),
@@ -204,3 +206,56 @@ def read_decision(out: Path | str | None = None) -> Decision:
                             environment_vs_median=r["environment_vs_median"], group=r["group"]) for r in rows]  # type: ignore[arg-type]
     return Decision(env_month=manifest["environment_month"], source=f"integration/health/out/joint_decision.csv, written {manifest['written_at'][:10]} from commit {manifest['git_commit']}",
                     simulated=bool(manifest.get("simulated", True)), median_cost_of_delay_egp=median(costs), median_esi_overall=median(esi), rows=out_rows)
+
+
+NETWORK_NAME = {"any": "the worst failure of any network", "electricity": "the worst substation trip", "water": "the worst water failure", "cooling": "the worst cooling-plant fault"}
+FIGURE = {"any": "worst_zone_cost_of_delay_egp", "electricity": "electricity_worst_cost_of_delay_egp", "water": "water_worst_cost_of_delay_egp", "cooling": "cooling_worst_cost_of_delay_egp"}
+
+
+def _step(k: dict) -> CostStep:
+    return CostStep(name=k["name"], formula=k["formula"], inputs=[CostInput(**i) for i in k["inputs"]], result=k["result"], unit=k["unit"])
+
+
+def read_decision_cost(district_key: str, network: str = "any", out: Path | str | None = None) -> DecisionCost:
+    """How the figure of one district (and network) of the joint table was made: for each zone the district is matched to, the worst scenario, the cost lines
+    that belong to the zone with the formula and inputs of each, the lines the whole incident shares, and the assumptions behind them. All of it is the cost
+    engine's record written by `export_for_health.py`; this only picks and arranges it."""
+    folder = Path(out or os.getenv("CITY_OUT_DIR") or DEFAULT_OUT)
+    if network not in FIGURE:
+        raise CityError(400, "bad_network", "network must be any, electricity, water or cooling.")
+    try:
+        row = next((r for r in _rows(folder / "joint_decision.csv") if r["district_key"] == district_key), None)
+        worst = {(w["zone_id"], w["network"]): w for w in _rows(folder / "district_zone_worst.csv")}
+        explained = json.loads((folder / "cost_explanations.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError) as e:
+        raise CityError(404, "no_decision_table", "The joint table is not generated: run backend/scripts/export_for_health.py.") from e
+    if row is None:
+        raise CityError(404, "unknown_district", f"No district {district_key}.")
+    zones = [z for z in row["our_zone_ids"].split(";") if z]
+    parts: list[CostPart] = []
+    for zone in zones:
+        w = worst.get((zone, network))
+        if w is None:
+            continue
+        ex = explained[w["scenario_id"]]
+        own_lines = [CostLine(label=i["label"], cause=i["cause"], amount=i["amount"]) for i in ex["lines"] if i["group"].endswith(f":{zone}")]
+        shared_lines = [CostLine(label=i["label"], cause=i["cause"], amount=i["amount"]) for i in ex["lines"] if not i["group"].endswith(f":{zone}") and ":zone-" not in i["group"]]
+        other = round(sum(i["amount"] for i in ex["lines"] if ":zone-" in i["group"] and not i["group"].endswith(f":{zone}")), 2)
+        own_steps = [_step(k) for k in ex["calculations"] if k["name"].startswith("Delayed cost:") and k["name"].endswith(f", {zone}")]
+        shared_steps = [_step(k) for k in ex["calculations"] if k["name"].startswith("Delayed cost:") and ", zone-" not in k["name"]]
+        total = next((_step(k) for k in ex["calculations"] if k["name"] == "Cost of delay"), None)
+        parts.append(CostPart(zone_id=zone, scenario_id=w["scenario_id"], asset_name=ex["asset_name"], kind=ex["kind"], delay_hours=ex["delay_hours"],
+                              response_hours=ex["response_hours"], zone_cost_of_delay_egp=sum(l.amount for l in own_lines), incident_cost_of_delay_egp=ex["cost_of_delay_egp"],
+                              own_lines=own_lines, shared_lines=shared_lines, other_zones_egp=other, own_steps=own_steps, shared_steps=shared_steps, total_step=total,
+                              assumptions=[CostAssumption(**a) for a in ex["assumptions"]]))
+    figure = _num(row[FIGURE[network]])
+    if not parts:
+        how = "No scenario of this network reaches the district, so there is no figure." if zones else "This district has no counterpart in the twin, so there is no figure."
+    elif row["match_kind"] == "direct":
+        how = (f"This district is the same district in both projects. The figure is {NETWORK_NAME[network]} that reaches it, counting only the cost lines that belong to the district "
+               f"(the energy not served there, when the failure cuts power, and the notification and support work there); the repair and the other shared lines belong to the whole incident and are listed below it.")
+    else:
+        zl = ", ".join(f"{p.zone_id} {p.zone_cost_of_delay_egp:,.0f}" for p in parts)
+        how = (f"This district has no equal district in the twin, so the figure is the average of the twin's zones of the same kind ({len(parts)}): {zl}. For each zone it is {NETWORK_NAME[network]} "
+               f"that reaches it, counting only the cost lines that belong to that zone. Read it as \"a district of this kind\", not as this district.")
+    return DecisionCost(district_key=district_key, network=network, match_kind=row["match_kind"], figure_egp=figure, how=how, parts=parts)  # type: ignore[arg-type]

@@ -17,7 +17,7 @@ from langgraph.graph import END, StateGraph
 from app.agents.checker import allowed_numbers, check
 from app.agents.figures import TOKEN, FigureSet, for_record, for_sensors
 from app.agents.llm import MODEL_FAST, llm
-from app.agents.tools import PLAYBOOKS, impacted, read_sensors
+from app.agents.tools import CAUSES, PLAYBOOKS, impacted, read_sensors
 from app.cost import Assumptions, IncidentFacts, compute
 from app.schemas import AgentFinding, CalculationRecord, Incident, PredictedImpact, RecommendedAction
 
@@ -41,6 +41,9 @@ Rules:
 - Asset names such as SS-02 and counts below ten may be written as they are. Any other number you type must appear in the data, quoted exactly. Never invent or estimate a number.
 - If something is not in the data, say it is not available.
 - Plain language for a business owner. Short.
+- `probableCauses` are where the fault comes from, never what it does. Do not list a consequence (pumps stopping, load moving to a backup substation, load shed, pressure falling, a flow
+  imbalance) or an observation restated as a cause. Choose from `usualCauses` and say which the data supports; if the data does not show it, say the cause is not determined from the data and
+  has to be confirmed on site. Never state a cause as certain when the data does not show it.
 Return JSON: {{"headline": str (max 12 words), "explanation": str (2 sentences), "probableCauses": [str, str],
 "impact": str (1 sentence), "action": str (1 imperative sentence)}}"""
 
@@ -69,6 +72,13 @@ def _step(s: SState, msg: str) -> list[str]:
 
 def build_specialist(rt: "Runtime", A: Assumptions):
     g = rt.engine.g
+    seq = [0]
+    rt.reset_hooks.append(lambda: seq.__setitem__(0, 0))
+
+    def next_finding_id() -> str:
+        """Findings are numbered as they are made. Counting the stored ones (`len(findings) + 1`) gave two findings finished in the same instant the same id, and the second replaced the first."""
+        seq[0] = max(seq[0], len(rt.findings)) + 1
+        return f"find-{seq[0]:04d}"
 
     def gather(s: SState) -> SState:
         inc = s["incident"]
@@ -88,14 +98,14 @@ def build_specialist(rt: "Runtime", A: Assumptions):
     async def reason(s: SState) -> SState:
         rec, f = s["record"], s["facts"]
         crew, urgency, action = PLAYBOOKS[f.kind]
-        figs = for_record(rec).merge(for_sensors(s["sensors"][:8]))
+        figs = for_record(rec).merge(for_sensors(s["sensors"][:8])).named({z.id: z.name for z in g.topology.zones})
         data = {
             "incident": s["incident"].title, "kind": f.kind, "reasons": [r.text for r in f.reasons],
             "sensors": [{"sensor": x["sensor"], "kind": x["kind"], "unit": x["unit"], "normal": x["normal"], "quality": x["quality"]} for x in s["sensors"][:8]],
             "dependencies": s["impact"], "figures": figs.table(),
-            "playbook": {"crew": crew, "action": action},
+            "playbook": {"crew": crew, "action": action}, "usualCauses": CAUSES[f.kind],
         }
-        key = llm.key("finding", s["agent"], f.kind, s["root"])
+        key = llm.key("finding2", s["agent"], f.kind, s["root"])  # 2: the causes rule changed, so answers recorded under the old rule are not replayed
         out, fb = await llm.json(key, SYSTEM.format(agent=s["agent"], domain=DOMAIN[s["agent"]]),
                                  json.dumps(data, default=str), model=MODEL_FAST)
         if not out:
@@ -124,7 +134,7 @@ def build_specialist(rt: "Runtime", A: Assumptions):
         crew, urgency, action = PLAYBOOKS[f.kind]
         elapsed = time.time() - s["t0"]
         finding = AgentFinding(
-            id=f"find-{len(rt.findings) + 1:04d}", incident_id=s["incident"].id, agent=s["agent"],
+            id=next_finding_id(), incident_id=s["incident"].id, agent=s["agent"],
             headline=t.get("headline") or s["incident"].title, explanation=t.get("explanation", ""),
             probable_causes=t.get("probableCauses") or ["Not available"],
             predicted_impact=PredictedImpact(text=t.get("impact", ""), zone_ids=list(f.zone_types)),
@@ -171,7 +181,7 @@ def template(s: SState) -> dict:
         "headline": s["incident"].title,
         "explanation": f"{first}. Acting now costs {rec.cost.act_now:,.0f} EGP; waiting {rec.cost.delay_hours:g} h costs "
                        f"{rec.cost.cost_of_delay:,.0f} EGP.",
-        "probableCauses": [r.text for r in f.reasons[:2]],
+        "probableCauses": CAUSES[f.kind][:2],
         "impact": f"Affects {', '.join(f.zone_types)}.",
         "action": action,
     }

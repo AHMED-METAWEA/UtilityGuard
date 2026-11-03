@@ -111,6 +111,8 @@ def _small_count(x: float, after: str) -> bool:
 def _match(x: float, allowed: Labeled) -> tuple[float, str] | None:
     for a, label in allowed:
         if a == 0:
+            if x == 0:  # a reading of exactly zero (a dead feeder) is a figure too; but nothing small is rounded to zero
+                return a, label
             continue
         # allow the rounding an LLM naturally does: 36,020 -> 36,000 or 36k, 1.43 -> 1.4
         if abs(x - a) <= max(0.011 * abs(a), 0.051) or (abs(a) >= 1000 and abs(x * 1000 - a) <= 0.011 * abs(a)):

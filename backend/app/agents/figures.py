@@ -40,6 +40,15 @@ class FigureSet:
             return
         self.items[key] = Figure(key, float(value), display, label)
 
+    def named(self, zone_names: dict[str, str]) -> "FigureSet":
+        """The same figures with a zone id in a label replaced by the district's name ("Energy not served, zone-cult" -> "... Arts and Culture City"), so a model reads a district
+        and does not guess what `cult` or `pres` stands for."""
+        out = FigureSet()
+        for f in self.items.values():
+            label = re.sub(r"zone-[a-z0-9-]+", lambda m: zone_names.get(m.group(0), m.group(0)), f.label)
+            out.items[f.key] = Figure(f.key, f.value, f.display, label)
+        return out
+
     def merge(self, other: "FigureSet") -> "FigureSet":
         for f in other.items.values():
             self.add(f.key, f.value, f.display, f.label)
@@ -129,6 +138,13 @@ def for_sensors(sensors: list[dict]) -> FigureSet:
 def for_findings(findings: list) -> FigureSet:
     fs = FigureSet()
     for f in findings:
-        fs.add(f"{slug(f.id)}_act_now", f.cost.act_now, money(f.cost.act_now), f"{f.agent} finding {f.id}: cost of acting now")
-        fs.add(f"{slug(f.id)}_saving", f.cost.expected_saving, money(f.cost.expected_saving), f"{f.agent} finding {f.id}: expected saving")
+        k = slug(f.id)
+        fs.add(f"{k}_act_now", f.cost.act_now, money(f.cost.act_now), f"{f.agent} finding {f.id}: cost of acting now")
+        fs.add(f"{k}_saving", f.cost.expected_saving, money(f.cost.expected_saving), f"{f.agent} finding {f.id}: expected saving")
+        if getattr(f.cost, "delay_per_hour", None) is not None:
+            fs.add(f"{k}_delay_per_hour", f.cost.delay_per_hour, money(f.cost.delay_per_hour), f"{f.agent} finding {f.id}: cost of each hour it stays open")
+        if getattr(f.cost, "cost_of_delay", None) is not None:
+            fs.add(f"{k}_cost_of_delay", f.cost.cost_of_delay, money(f.cost.cost_of_delay), f"{f.agent} finding {f.id}: total cost of waiting its own delay horizon")
+        if getattr(f.cost, "delay_hours", None) is not None:
+            fs.add(f"{k}_delay_hours", f.cost.delay_hours, f"{f.cost.delay_hours:g} h", f"{f.agent} finding {f.id}: the delay horizon the cost model uses for this kind of fault")
     return fs

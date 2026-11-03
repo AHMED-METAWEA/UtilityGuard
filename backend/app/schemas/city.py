@@ -120,6 +120,9 @@ class DecisionRow(Model):
     worst_cost_of_delay_egp: float | None = Field(default=None, description="The twin's largest cost of delay among the scenarios that touch it. Absent when it has no counterpart")
     worst_unserved_mw: float | None = None
     worst_scenario_id: str | None = None
+    electricity_worst_cost_egp: float | None = Field(default=None, description="The district's own part of the worst substation trip that reaches it, by the same rule as worst_cost_of_delay_egp")
+    water_worst_cost_egp: float | None = Field(default=None, description="The same for the worst water failure (a district pump or main). Only the cost lines that belong to the district; the water lost and the repair are shared by the incident")
+    cooling_worst_cost_egp: float | None = Field(default=None, description="The same for the worst cooling-plant fault. Absent when no cooling plant serves the district")
     hospital_scenarios_sure: int = Field(description="Scenarios that hit every zone the district is matched to, so its hospitals are reached")
     hospital_scenarios_possible: int = Field(description="Scenarios that hit only some of its matched zones: an upper bound, the district may not be affected")
     esi_overall: float = Field(description="Their score, 0 to 100")
@@ -147,3 +150,64 @@ class Decision(Model):
     median_cost_of_delay_egp: float
     median_esi_overall: float
     rows: list[DecisionRow]
+
+
+Network = Literal["any", "electricity", "water", "cooling"]
+
+
+class CostLine(Model):
+    label: str
+    cause: str
+    amount: float
+
+
+class CostInput(Model):
+    name: str
+    value: float
+    unit: str
+
+
+class CostStep(Model):
+    name: str
+    formula: str
+    inputs: list[CostInput]
+    result: float
+    unit: str
+
+
+class CostAssumption(Model):
+    name: str
+    key: str
+    value: float
+    unit: str
+    status: Literal["official", "benchmark", "engineering", "planning"]
+    basis: str
+
+
+class CostPart(Model):
+    """One matched zone of the district: the worst failure that reaches it and how the cost engine priced it."""
+    zone_id: str
+    scenario_id: str
+    asset_name: str
+    kind: str
+    delay_hours: float
+    response_hours: float
+    zone_cost_of_delay_egp: float = Field(description="The cost lines that belong to this zone: the district's own part of the incident. It is the sum of own_lines")
+    incident_cost_of_delay_egp: float = Field(description="The whole incident, with the lines shared by every zone it reaches (repair, water lost, cooling, knock-on)")
+    own_lines: list[CostLine]
+    shared_lines: list[CostLine]
+    other_zones_egp: float = Field(description="The cost lines of the other zones the same incident reaches. own lines + other zones + shared lines = the whole incident")
+    own_steps: list[CostStep]
+    shared_steps: list[CostStep]
+    total_step: CostStep | None = None
+    assumptions: list[CostAssumption]
+
+
+class DecisionCost(Model):
+    """How one figure of the joint table was made, from the cost engine's own record of the scenario (nothing here is recomputed)."""
+    district_key: str
+    network: Network
+    match_kind: MatchKind
+    figure_egp: float | None = None
+    how: str
+    parts: list[CostPart]

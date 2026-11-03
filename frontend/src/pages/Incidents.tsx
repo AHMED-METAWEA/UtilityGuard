@@ -81,7 +81,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
     catch (e) { notify((e as Error).message); } finally { setBusy(false); }
   };
   const timeline = [
-    ...alerts.map((a) => ({ t: a.detectedAt, text: `Alert raised: ${a.title}`, who: `${Math.round(a.confidence * 100)}% confidence` })),
+    ...alerts.map((a) => ({ t: a.detectedAt, text: `Alert raised: ${a.title}`, who: `rule rating ${Math.round(a.confidence * 100)}%` })),
     ...(finding ? [{ t: finding.createdAt, text: `${finding.agent[0].toUpperCase() + finding.agent.slice(1)} agent finished its analysis`, who: finding.numberCheck === 'passed' ? 'every figure verified' : 'figures corrected' }] : []),
   ].sort((a, b) => a.t.localeCompare(b.t));
 
@@ -140,7 +140,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
               <p className="sub" style={{ margin: '0 0 10px' }}>{money(finding.explanation)}</p>
               <details><summary className="sub" style={{ cursor: 'pointer' }}>What the agent did</summary><div style={{ marginTop: 8 }}><Steps finding={finding} /></div></details>
             </Step>
-            <Step n={2} title="Why we are sure" right={<span className="num muted">confidence {fmt(finding.explain.confidence * 100)}%</span>}>
+            <Step n={2} title="Why we are sure" right={<span className="num muted" title="A rating the rule sets from the size of the signal. It is not a measured probability: measured detection results are in the AI lab.">rule rating {fmt(finding.explain.confidence * 100)}%</span>}>
               <Reasons reasons={finding.explain.reasons} />
               {finding.probableCauses.length > 0 && <div className="muted" style={{ fontSize: 12, marginTop: 10 }}>Probable causes: {finding.probableCauses.join('; ')}</div>}
             </Step>

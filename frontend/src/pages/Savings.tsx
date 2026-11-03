@@ -76,7 +76,7 @@ export function Savings({ id }: { id?: string }) {
         {error && !data && <Empty title="Could not load the savings advisor">{error}</Empty>}
         <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
           <table className="table" style={{ minWidth: 940 }}>
-            <thead><tr><th style={{ width: 28 }} /><th>Opportunity</th><th>EGP / month <EvidenceTag e="assumed" /></th><th>Likely range</th><th className="r">Investment</th><th className="r">Payback</th><th className="r">3-year value</th><th className="r">Confidence</th></tr></thead>
+            <thead><tr><th style={{ width: 28 }} /><th>Opportunity</th><th>EGP / month <EvidenceTag e="assumed" /></th><th>Likely range</th><th className="r">Investment</th><th className="r">Payback</th><th className="r">3-year value</th><th className="r" title="A rating set by the estimate, not a measured probability">Rule rating</th></tr></thead>
             <tbody>
               {!data && [0, 1, 2, 3].map((i) => <tr key={i}><td colSpan={8}><Skeleton h={34} /></td></tr>)}
               {data?.opportunities.map((o) => {
