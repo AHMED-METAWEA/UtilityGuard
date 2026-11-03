@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import type { CityDecision, CityDistricts, CityFacility } from '../src/api/city';
 import { embedUrl, healthUrl } from '../src/lib/health';
-import { CITY_LAYERS, band, cityBounds, detailLines, drawnAt, facilityLine, GROUPS, groupCounts, hospitalLine, isCityDecision, isCityDistricts, sortDecision, matchNote, monthLabel, radiusFor, scoreOf } from '../src/lib/city';
+import { CITY_LAYERS, band, cityBounds, detailLines, drawnAt, facilityLine, GROUPS, groupCounts, hospitalLine, isCityDecision, pressureLine, isCityDistricts, sortDecision, matchNote, monthLabel, radiusFor, scoreOf } from '../src/lib/city';
 
 const fixture = async (name: string) => JSON.parse(await readFile(new URL(`../../fixtures/rest/${name}.json`, import.meta.url), 'utf8'));
 const city = await fixture('city_districts') as CityDistricts;
@@ -128,4 +128,12 @@ test('the healthcare dashboard is found on port 8501 of the host the twin is ope
   assert.equal(healthUrl({ protocol: 'http:', hostname: 'localhost' }, ' https://health.example/ '), 'https://health.example');
   assert.equal(healthUrl({ protocol: 'http:', hostname: '' }), 'http://localhost:8501');
   assert.equal(embedUrl('http://localhost:8501'), 'http://localhost:8501/?embed=true');
+});
+
+test('their hospital pressure reads as a ratio with the best package, and is absent when their engine figures are not there', () => {
+  const row = (over: object) => ({ ...decision.rows[0], ...over });
+  assert.deepEqual(pressureLine(row({ pressureBaseline: 1.2271, overCapacity: true, bestPackage: 'A New center + prevention', bestPackagePressure: 0.9766, bestPackageCostMEgp: 40.5 })),
+    { main: '1.23 over capacity', sub: 'best: A New center + prevention, leaves 0.98 for 40.5 M EGP' });
+  assert.deepEqual(pressureLine(row({ pressureBaseline: 0.75, overCapacity: false, bestPackage: undefined })), { main: '0.75', sub: '' });
+  assert.equal(pressureLine(row({ pressureBaseline: undefined })), null);
 });

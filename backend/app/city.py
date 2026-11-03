@@ -169,6 +169,10 @@ def _num(v: str) -> float | None:
     return float(v) if v not in ("", None) else None
 
 
+def _flag(v: str) -> bool | None:
+    return None if v in ("", None) else v == "True"
+
+
 def read_decision(out: Path | str | None = None) -> Decision:
     """The joint table written by `backend/scripts/export_for_health.py`, served as it is (its figures were made by the cost engine and copied from their files)."""
     folder = Path(out or os.getenv("CITY_OUT_DIR") or DEFAULT_OUT)
@@ -193,7 +197,10 @@ def read_decision(out: Path | str | None = None) -> Decision:
                             worst_scenario_id=r["worst_scenario_id"] or None, hospital_scenarios_sure=int(r["scenarios_reaching_hospitals_sure"]),
                             hospital_scenarios_possible=int(r["scenarios_reaching_hospitals_possible"]), esi_overall=float(r["esi_overall"]),
                             esi_air=float(r["esi_air"]), esi_waste=float(r["esi_waste"]), esi_water=float(r["esi_water"]), esi_heat=float(r["esi_heat"]),
-                            esi_band=r["esi_band"], highest_score=r["highest_score"], outage_vs_median=r["outage_cost_vs_median"] or None,
+                            esi_band=r["esi_band"], highest_score=r["highest_score"], pressure_baseline=_num(r.get("their_pressure_baseline", "")),
+                            over_capacity=_flag(r.get("their_over_capacity", "")), pressure_growth_only=_num(r.get("their_pressure_growth_only", "")),
+                            best_package=r.get("their_best_package") or None, best_package_pressure=_num(r.get("their_best_package_pressure", "")),
+                            best_package_cost_m_egp=_num(r.get("their_best_package_cost_m_egp", "")), outage_vs_median=r["outage_cost_vs_median"] or None,
                             environment_vs_median=r["environment_vs_median"], group=r["group"]) for r in rows]  # type: ignore[arg-type]
     return Decision(env_month=manifest["environment_month"], source=f"integration/health/out/joint_decision.csv, written {manifest['written_at'][:10]} from commit {manifest['git_commit']}",
                     simulated=bool(manifest.get("simulated", True)), median_cost_of_delay_egp=median(costs), median_esi_overall=median(esi), rows=out_rows)

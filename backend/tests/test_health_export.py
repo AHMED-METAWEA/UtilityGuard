@@ -232,3 +232,54 @@ def test_the_joint_table_on_the_real_files_has_a_row_per_district(tables):
     assert {r["group"] for r in rows} <= {"both_higher", "outage_higher", "environment_higher", "both_lower", "no_outage_data"}
     assert next(r for r in rows if r["district_key"] == "1015")["group"] == "no_outage_data"
     assert next(r for r in rows if r["district_key"] == "1013")["hospitals"] == 8
+
+
+def test_their_engine_figures_are_read_as_extracted_and_the_best_package_is_the_lowest_pressure():
+    theirs = ex.read_their_packages()
+    assert set(theirs) == {str(k) for k in range(1001, 1016)}
+    t = theirs["1001"]
+    assert t["pressure_baseline"] == pytest.approx(1.2271, abs=1e-4) and t["center_prevention_pressure"] == pytest.approx(0.9766, abs=1e-4)  # what their dashboard shows for R1
+    assert t["center_prevention_cost_m_egp"] == 40.5 and t["capacity_cost_m_egp"] == 9.0 and t["access_cost_m_egp"] == 16.0 and t["prevention_cost_m_egp"] == 7.5
+    side = ex.their_side(t)
+    assert side["their_over_capacity"] is True and side["their_best_package"] == "A New center + prevention" and side["their_best_package_pressure"] == t["center_prevention_pressure"]
+    assert ex.their_side(None)["their_best_package"] is None and ex.their_side({})["their_pressure_baseline"] is None
+
+
+def test_the_best_package_on_a_tie_is_the_cheaper_one():
+    t = {"pressure_baseline": 0.8, "pressure_growth_only": 0.9, "center_prevention_pressure": 0.7, "center_prevention_cost_m_egp": 40.5, "capacity_pressure": 0.7,
+         "capacity_cost_m_egp": 9.0, "access_pressure": 0.85, "access_cost_m_egp": 16.0, "prevention_pressure": 0.88, "prevention_cost_m_egp": 7.5}
+    assert ex.their_side(t)["their_best_package"] == "B Expand existing capacity" and ex.their_side(t)["their_over_capacity"] is False
+
+
+def test_the_joint_table_carries_their_pressure_when_the_extract_is_there_and_leaves_it_empty_otherwise():
+    mapping = [_map("1001", "direct", ["z1"])]
+    base = dict(risk=[_risk("1001", 100.0)], exposure=[], counts={"1001": {"hospitals": 1, "clinics": 0, "specialists": 0}}, env={"1001": _env(20)}, env_month="2026-09")
+    with_t = ex.joint_decision(mapping, **base, theirs=ex.read_their_packages())[0]
+    without = ex.joint_decision(mapping, **base)[0]
+    assert with_t["their_pressure_baseline"] == pytest.approx(1.2271, abs=1e-4) and with_t["their_best_package"].startswith("A ")
+    assert without["their_pressure_baseline"] is None and without["their_best_package"] is None
+
+
+def test_the_districts_file_for_the_other_team_changes_only_the_coordinates():
+    import csv as _csv
+    from app.sim.topology import build as _build
+
+    zones = {z.id: z.center for z in _build().topology.zones}
+    new = ex.districts_on_twin_map(zones)
+    with (ex.HEALTH_DATA / "districts.csv").open(encoding="utf-8-sig", newline="") as f:
+        old = list(_csv.DictReader(f))
+    assert [list(r) for r in new] == [list(r) for r in old] and len(new) == 15  # same columns, same order
+    for a, b in zip(old, new):
+        assert {k: v for k, v in a.items() if k not in ("centroid_lon", "centroid_lat")} == {k: v for k, v in b.items() if k not in ("centroid_lon", "centroid_lat")}
+    park = next(r for r in new if r["code"] == "NAC-PARK")
+    assert (park["centroid_lon"], park["centroid_lat"]) == ("31.718", "30.01")  # no counterpart: unchanged
+    moved = [(a, b) for a, b in zip(old, new) if a["code"] != "NAC-PARK"]
+    assert all((a["centroid_lon"], a["centroid_lat"]) != (b["centroid_lon"], b["centroid_lat"]) for a, b in moved)
+    assert len({(b["centroid_lon"], b["centroid_lat"]) for _, b in moved}) == 14  # no two districts on the same point
+    assert next(r for r in new if r["code"] == "NAC-GOV")["centroid_lat"] != "30.01"
+
+
+def test_a_file_can_be_written_with_the_line_endings_of_the_original(tmp_path):
+    ex.write_csv(tmp_path / "a.csv", [{"x": "1", "y": "2"}], "\n")
+    ex.write_csv(tmp_path / "b.csv", [{"x": "1", "y": "2"}])
+    assert (tmp_path / "a.csv").read_bytes() == b"x,y\n1,2\n" and (tmp_path / "b.csv").read_bytes() == b"x,y\r\n1,2\r\n"

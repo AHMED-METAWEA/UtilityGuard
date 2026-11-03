@@ -120,3 +120,13 @@ export function isCityDecision(v: unknown): v is CityDecision {
   return !!o && typeof o.envMonth === 'string' && typeof o.medianCostOfDelayEgp === 'number' && Array.isArray(o.rows) && o.rows.every((r) =>
     typeof r.districtKey === 'string' && typeof r.esiOverall === 'number' && typeof r.hospitals === 'number' && GROUPS.some((g) => g.id === r.group));
 }
+
+/** Their hospital pressure for a district in words: the ratio of demand to capacity, whether it is over capacity, and what their best package leaves of it. Empty when
+ * their engine's figures are not in the table. */
+export function pressureLine(r: DecisionRow): { main: string; sub: string } | null {
+  if (r.pressureBaseline === undefined) return null;
+  const main = `${r.pressureBaseline.toFixed(2)}${r.overCapacity ? ' over capacity' : ''}`;
+  const sub = r.bestPackage === undefined || r.bestPackagePressure === undefined || r.bestPackageCostMEgp === undefined
+    ? '' : `best: ${r.bestPackage}, leaves ${r.bestPackagePressure.toFixed(2)} for ${r.bestPackageCostMEgp.toFixed(1)} M EGP`;
+  return { main, sub };
+}

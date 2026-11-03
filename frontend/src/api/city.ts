@@ -34,6 +34,7 @@ export interface DecisionRow {
   districtKey: string; districtCode: string; nameAr: string; matchKind: MatchKind; ourZoneIds: string[]; hospitals: number; clinics: number; specialists: number;
   scenariosAffecting?: number; worstCostOfDelayEgp?: number; worstUnservedMw?: number; worstScenarioId?: string; hospitalScenariosSure: number; hospitalScenariosPossible: number;
   esiOverall: number; esiAir: number; esiWaste: number; esiWater: number; esiHeat: number; esiBand: 'low' | 'moderate' | 'high'; highestScore: 'air' | 'waste' | 'water' | 'heat';
+  pressureBaseline?: number; overCapacity?: boolean; pressureGrowthOnly?: number; bestPackage?: string; bestPackagePressure?: number; bestPackageCostMEgp?: number;
   outageVsMedian?: 'higher' | 'lower'; environmentVsMedian: 'higher' | 'lower'; group: DecisionGroup;
 }
 export interface CityDecision { envMonth: string; source: string; simulated: boolean; medianCostOfDelayEgp: number; medianEsiOverall: number; rows: DecisionRow[] }

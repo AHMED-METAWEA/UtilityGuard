@@ -1,0 +1,31 @@
+{
+ "what": "Output of the healthcare team's own what-if engine (dashboard/simulation_engine.py), called unchanged once per district with that district as the only target.",
+ "source_commit": "64059cf510b061bf07d940f87eb4053e5b7efa1e",
+ "capacity_view": "Peak-surge / stress-calibrated capacity",
+ "settings": {
+  "population_growth_pct": 20.0,
+  "capacity_expansion_pct": 15.0,
+  "prevention_reach_pct": 10.0,
+  "access_improvement_minutes": -5.0,
+  "budget_limit_m_egp": 45.0
+ },
+ "package_labels": {
+  "A — New center + prevention": "center_prevention",
+  "B — Expand existing capacity": "capacity",
+  "C — Transport + triage access": "access",
+  "D — Prevention only": "prevention"
+ },
+ "columns": {
+  "pressure_baseline": "demand over capacity in their default stress-calibrated view; above 1.0 the district is over capacity",
+  "pressure_growth_only": "the same district after the population growth of the settings and no package",
+  "<package>_pressure": "after the package (and the growth)",
+  "<package>_cost_m_egp": "their 5-year cost of the package, a placeholder of their config"
+ },
+ "files_sha256": {
+  "Data/Processed/master_panel.csv": "cff9180167a4f1981dae4afe0fecfa19e94c17dab99d3277ac6a8f303f910a43",
+  "dashboard/simulation_engine.py": "fd32989ead61d527140bcaa1262ccd2cf277205aee5e8d3c13ec7570d4c655a1",
+  "dashboard/config.py": "74ecbd6411e93577c1dfe534ae7a699bca0887dc23490bc425caf08afe7a9a60"
+ },
+ "extracted_at": "2026-11-02T21:34:05.664201+00:00",
+ "simulated": true
+}

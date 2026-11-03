@@ -39,6 +39,13 @@ work there). Costs shared by the whole incident (repair, water lost, cooling, se
 `worst_zone_cost_of_delay_egp` and `worst_zone_unserved_mw`: the largest of the zone's values over all scenarios (averaged over zones for `type`).
 `worst_scenario_id`: which scenario it was (only for `direct`).
 
+## districts_on_twin_map.csv
+
+Your `districts.csv` with the same columns, the same order and the same names, codes and areas. Only `centroid_lon` and `centroid_lat` differ: they are where the twin's map
+draws each district, which is the centre of the zone of the twin the district is matched to by name and kind (`zone_mapping.csv`), or a point on a small ring (about
+550 m) around it when several districts share one zone. They are drawing positions to put both projects on one map, **not measured centroids or boundaries** of your
+districts. `NAC-PARK` has no counterpart in the twin, so it keeps the centroid of your file.
+
 ## hospital_exposure.csv (one row per failed asset and district with hospitals that it reaches)
 
 Their hospitals are placed by the district of their file, and the district by `zone_mapping.csv`; the twin links a zone, not a hospital, to its substation, pump
@@ -53,6 +60,15 @@ The twin's side and their side next to each other, never added together: `worst_
 35 and above high) and the facility counts are theirs. `outage_cost_vs_median` and `environment_vs_median` say whether the district is above or below the median of
 the districts that have the figure (a relative reading: no threshold of ours is invented, and all overall scores sit in one band). `group` is `both_higher`,
 `outage_higher`, `environment_higher`, `both_lower`, or `no_outage_data` (no counterpart in the twin).
+
+## their side of joint_decision.csv, and their_packages.csv
+
+`their_pressure_baseline` is the pressure ratio (demand over capacity) of the district in **their** what-if engine in its default stress-calibrated view; above 1.0
+(`their_over_capacity`) the district is over capacity. `their_pressure_growth_only` is the same district after their default population growth with no package, and
+`their_best_package` is the one of their four packages that leaves the lowest pressure (the cheaper on a tie), with its pressure and its 5-year cost
+(`their_best_package_pressure`, `their_best_package_cost_m_egp`). All of it is their engine's output, called unchanged once per district with that district as
+the only target; `their_packages.csv` has the figures of every package, and `integration/health/data/PACKAGES_SOURCE.json` the settings, their commit and the
+SHA-256 of their files. Their package costs are placeholders of their own configuration. These columns are empty when the extract is not there.
 
 ## reliability_packages.csv (ranked improvement packages)
 

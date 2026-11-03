@@ -6,8 +6,8 @@
  "assumptions": "registered defaults (backend/app/cost/__init__.py DEFAULTS), no saved override",
  "budget_m_egp": 15.0,
  "environment_month": "2026-09",
- "written_at": "2026-11-02T19:46:30.563620+00:00",
- "git_commit": "8958eb1",
+ "written_at": "2026-11-02T21:39:18.772895+00:00",
+ "git_commit": "5afe64d",
  "simulated": true,
  "files": {
   "scenarios.csv": {
@@ -28,7 +28,11 @@
   },
   "joint_decision.csv": {
    "rows": 15,
-   "sha256": "13ce34573481e53ba3e22f339c4884e66fb75082825da69eac150d7db0da1bc8"
+   "sha256": "68b7e70e89db3256c86c56fa8f29a760872f2d8eab8886f2c26d43a2229c484d"
+  },
+  "districts_on_twin_map.csv": {
+   "rows": 15,
+   "sha256": "67885eb8ff4920ac4746cf07d358dd50cbebe6541af71903ab5a9976b9dbac51"
   },
   "reliability_packages.csv": {
    "rows": 24,
@@ -41,6 +45,10 @@
   "packages.csv": {
    "rows": 4,
    "sha256": "a416a7c20e486d927751a3d25aed6f71b59972823c49241487069180dc1f9e01"
+  },
+  "their_packages.csv": {
+   "rows": 15,
+   "sha256": "4268c2b613dc0846f514ddecb0f878acc6deb8ff7d628c59e13505f21db330dd"
   }
  }
 }

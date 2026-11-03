@@ -1,5 +1,5 @@
 import { useCityDecision } from '../api/city';
-import { BAND_LABEL, BAND_VAR, GROUPS, groupCounts, hospitalLine, sortDecision } from '../lib/city';
+import { BAND_LABEL, BAND_VAR, GROUPS, groupCounts, hospitalLine, pressureLine, sortDecision } from '../lib/city';
 import { compact, fmt } from '../lib/format';
 import { Card, Skeleton } from '.';
 
@@ -17,7 +17,7 @@ export function CityDecisionCard() {
         </div>
         <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
           <table className="table">
-            <thead><tr><th>District</th><th className="r">Outage cost of delay (twin)</th><th className="r">Environmental stress (theirs, {data.envMonth})</th><th>Hospitals</th><th>Group</th></tr></thead>
+            <thead><tr><th>District</th><th className="r">Outage cost of delay (twin)</th><th className="r">Environmental stress (theirs, {data.envMonth})</th><th>Hospitals</th><th>Hospital pressure (theirs)</th><th>Group</th></tr></thead>
             <tbody>
               {sortDecision(data.rows).map((r) => {
                 const g = GROUPS.find((x) => x.id === r.group)!;
@@ -27,6 +27,7 @@ export function CityDecisionCard() {
                     <td className="r num">{r.worstCostOfDelayEgp === undefined ? <span className="muted">–</span> : <>{compact(r.worstCostOfDelayEgp)} <span className="muted">EGP</span><div className="muted" style={{ fontSize: 11.5 }}>{r.outageVsMedian} than median</div></>}</td>
                     <td className="r num"><span className="row" style={{ gap: 6, justifyContent: 'flex-end' }}><i className="dot" style={{ color: `var(${BAND_VAR[r.esiBand]})` }} /><b>{fmt(r.esiOverall, 1)}</b> <span className="muted">{BAND_LABEL[r.esiBand]}</span></span><div className="muted" style={{ fontSize: 11.5 }}>highest: {r.highestScore} {fmt(r[`esi${r.highestScore[0].toUpperCase()}${r.highestScore.slice(1)}` as 'esiAir'], 1)}</div></td>
                     <td>{r.hospitals} hospital{r.hospitals === 1 ? '' : 's'} <span className="muted">of {r.hospitals + r.clinics + r.specialists} facilities</span><div className="muted" style={{ fontSize: 11.5 }}>{hospitalLine(r)}</div></td>
+                    <td>{(() => { const p = pressureLine(r); return p ? <><b className="num" style={{ color: r.overCapacity ? 'var(--warn-text)' : undefined }}>{p.main}</b>{p.sub && <div className="muted" style={{ fontSize: 11.5 }}>{p.sub}</div>}</> : <span className="muted">–</span>; })()}</td>
                     <td><span className={`chip ${g.tone === 'muted' ? '' : g.tone}`} title={g.meaning}>{g.label}</span></td>
                   </tr>
                 );
@@ -36,7 +37,7 @@ export function CityDecisionCard() {
         </div>
         <div className="muted" style={{ fontSize: 11.5, padding: '10px 16px 14px', lineHeight: 1.5 }}>
           Cost of delay is the twin's largest figure among the failures that touch the district (median {compact(data.medianCostOfDelayEgp)} EGP); stress is their 0 to 100 score (median {fmt(data.medianEsiOverall, 1)}, bands: under 20 low, 20 to 35 moderate, 35 and over high).
-          Hospitals are placed by the district of their file and the district by name and kind, so a count marked "may reach" is an upper bound. Both projects' data are simulated; the cost uses planning assumptions. Source: {data.source}.
+          Hospital pressure is demand over capacity from their what-if engine, run unchanged with their default settings and that district as the only target (their package costs are placeholders of their own configuration). Hospitals are placed by the district of their file and the district by name and kind, so a count marked "may reach" is an upper bound. Both projects' data are simulated; the cost uses planning assumptions. Source: {data.source}.
         </div>
       </>}
     </Card>

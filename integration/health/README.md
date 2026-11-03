@@ -58,6 +58,12 @@ district but no boundary, so each district is a symbol, not an outline. The matc
 the zone it is matched to (a small ring when several share one) and each facility at its offset from its district; the tooltip says the position is approximate. Their original coordinates
 are kept in the data, and a district with no counterpart (the park) is not drawn. The values are theirs and simulated; the twin did not generate any of them. See `docs/contract.md` section 4.22.
 
+**Their what-if engine.** `extract_packages.py` runs their own `dashboard/simulation_engine.py`, unchanged and read-only, once per district with their default settings and
+that district as the only target, and writes `data/their_packages.csv` (pressure ratio before and after each of their four packages, and the package costs) with
+`data/PACKAGES_SOURCE.json` (settings, their commit, SHA-256 of their files). Run it with the Python that has their requirements, for example
+`integration/health/their-app/.venv/bin/python integration/health/extract_packages.py --app integration/health/their-app`. Their package costs are placeholders of their own
+configuration. The joint table on the Executive page shows the pressure and their best package next to the twin's outage cost.
+
 To refresh the copy from a newer version of their panel:
 
 ```bash

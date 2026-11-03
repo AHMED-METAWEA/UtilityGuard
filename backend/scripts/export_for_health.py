@@ -10,6 +10,7 @@ detector, and the real cost engine with the default assumptions. Nothing here is
 - `scenario_zones.csv`   one row per (failed asset, district it affects): the share of the incident that district carries.
 - `district_risk.csv`    one row per district of the healthcare project (`district_key` 1001..1015), joined through `integration/health/zone_mapping.csv`.
 - `hospital_exposure.csv` one row per (failed asset, district with hospitals the failure reaches): how many hospitals, and how sure the match to our zones is.
+- `districts_on_twin_map.csv` their `districts.csv` with the centroids moved to where the twin's map draws each district (same columns, names and areas).
 - `joint_decision.csv`   one row per district: the twin's outage cost, their environmental stress and their hospitals side by side, and which of four groups the
                          district falls in. Nothing from the two projects is added together.
 - `reliability_packages.csv`  ranked improvement packages (same shape as the healthcare project's package comparison), from `integration/health/packages.csv`.
@@ -161,6 +162,46 @@ def read_environment() -> tuple[str, dict[str, dict]]:
     return month[:7], {row["district_key"]: row for row in rows if row["month"] == month}
 
 
+PACKAGE_LABELS = {"center_prevention": "A New center + prevention", "capacity": "B Expand existing capacity", "access": "C Transport + triage access", "prevention": "D Prevention only"}
+
+
+def read_their_packages() -> dict[str, dict]:
+    """Their what-if engine's figures per district (see integration/health/extract_packages.py), as extracted. Empty when the extract is not there."""
+    path = HEALTH_DATA / "their_packages.csv"
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8") as f:
+        return {row["district_key"]: {k: float(v) for k, v in row.items() if k != "district_key"} for row in csv.DictReader(f)}
+
+
+def their_side(t: dict | None) -> dict:
+    """The hospital pressure of a district in their engine and its best package: the one that leaves the lowest pressure (the cheaper one on a tie), which is how
+    their own ranking orders the packages when one district is the target. Nothing is computed here beyond picking the lowest of their own figures."""
+    cols = ("their_pressure_baseline", "their_over_capacity", "their_pressure_growth_only", "their_best_package", "their_best_package_pressure", "their_best_package_cost_m_egp")
+    if not t:
+        return dict.fromkeys(cols)
+    best = min(PACKAGE_LABELS, key=lambda p: (round(t[f"{p}_pressure"], 6), t[f"{p}_cost_m_egp"]))
+    return {"their_pressure_baseline": t["pressure_baseline"], "their_over_capacity": t["pressure_baseline"] > 1.0, "their_pressure_growth_only": t["pressure_growth_only"],
+            "their_best_package": PACKAGE_LABELS[best], "their_best_package_pressure": t[f"{best}_pressure"], "their_best_package_cost_m_egp": t[f"{best}_cost_m_egp"]}
+
+
+def districts_on_twin_map(zone_centers: dict) -> list[dict]:
+    """Their `districts.csv` as they sent it (same columns, same order, same names and areas) with the centroid replaced by where the twin's map draws the district:
+    the centre of the zone it is matched to, or a point of a small ring around it when several districts share a zone (see app/city.py). A district with no
+    counterpart in the twin (the park) has no place on our map, so it keeps the centroid of their own file."""
+    from app.city import CityData
+
+    city = CityData(zone_centers=zone_centers)
+    placed = {d.district_key: d.placed_at for d in city.districts().districts}
+    with (HEALTH_DATA / "districts.csv").open(encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+    for row in rows:
+        at = placed.get(row["district_key"])
+        if at is not None:
+            row["centroid_lon"], row["centroid_lat"] = f"{at.lng:.6f}", f"{at.lat:.6f}"
+    return rows
+
+
 def hospital_exposure(mapping: list[dict], scenarios: list[dict], counts: dict[str, dict]) -> list[dict]:
     """Which hospitals a failure can reach. A hospital is placed by the district of their file it belongs to, and that district by `zone_mapping.csv`, so the
     placement is only as good as the mapping: `all_matched_zones` means every zone the district is matched to is hit (always so for a direct district),
@@ -189,7 +230,8 @@ def _median(values: list[float]) -> float:
     return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
 
 
-def joint_decision(mapping: list[dict], risk: list[dict], exposure: list[dict], counts: dict[str, dict], env: dict[str, dict], env_month: str) -> list[dict]:
+def joint_decision(mapping: list[dict], risk: list[dict], exposure: list[dict], counts: dict[str, dict], env: dict[str, dict], env_month: str,
+                   theirs: dict[str, dict] | None = None) -> list[dict]:
     """One row per district with the two sides next to each other and no combined number. The group says whether each side is above or below the median of
     the districts that have it (a relative reading: both ranges are narrow, and no threshold of ours is invented)."""
     risk_by = {x["district_key"]: x for x in risk}
@@ -210,7 +252,7 @@ def joint_decision(mapping: list[dict], risk: list[dict], exposure: list[dict], 
                      "scenarios_reaching_hospitals_possible": sum(h["certainty"] == "some_matched_zones" for h in mine),
                      "env_month": env_month, "esi_overall": overall, "esi_air": scores["air"], "esi_waste": scores["waste"], "esi_water": scores["water"],
                      "esi_heat": scores["heat"], "esi_band": "high" if overall >= BAND_HIGH else "moderate" if overall >= BAND_LOW else "low",
-                     "highest_score": max(scores, key=scores.get)})
+                     "highest_score": max(scores, key=scores.get), **their_side((theirs or {}).get(k))})
     cost_med = _median([r["worst_zone_cost_of_delay_egp"] for r in rows if r["worst_zone_cost_of_delay_egp"] is not None])
     env_med = _median([r["esi_overall"] for r in rows])
     for r_ in rows:
@@ -292,9 +334,9 @@ def rank_packages(facts_by_scenario: dict, A, packages: list[dict], mapping: lis
     return [{k: row[k] for k in order} for row in rows]
 
 
-def write_csv(path: Path, rows: list[dict]) -> None:
+def write_csv(path: Path, rows: list[dict], lineterminator: str = "\r\n") -> None:
     with path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator=lineterminator)
         w.writeheader()
         for row in rows:
             w.writerow({k: ("" if v is None else v) for k, v in row.items()})
@@ -320,18 +362,24 @@ def main() -> None:
     counts = read_facility_counts()
     exposure = hospital_exposure(mapping, scenarios, counts)
     env_month, env = read_environment()
-    joint = joint_decision(mapping, risk, exposure, counts, env, env_month)
+    theirs = read_their_packages()
+    joint = joint_decision(mapping, risk, exposure, counts, env, env_month, theirs)
+    from app.sim.topology import build as build_topology
+
+    on_map = districts_on_twin_map({z.id: z.center for z in build_topology().topology.zones})
     meta["budget_m_egp"] = args.budget
     meta["environment_month"] = env_month
-    files = {"scenarios.csv": scenarios, "scenario_zones.csv": zones, "district_risk.csv": risk, "hospital_exposure.csv": exposure, "joint_decision.csv": joint,
+    files = {"scenarios.csv": scenarios, "scenario_zones.csv": zones, "district_risk.csv": risk, "hospital_exposure.csv": exposure, "joint_decision.csv": joint, "districts_on_twin_map.csv": on_map,
              "reliability_packages.csv": ranked}
     for name, rows in files.items():
-        write_csv(out / name, rows)
+        write_csv(out / name, rows, "\n" if name == "districts_on_twin_map.csv" else "\r\n")  # a copy of their file keeps its line endings
     (out / "zone_mapping.csv").write_bytes(MAPPING.read_bytes())
     (out / "packages.csv").write_bytes(PACKAGES.read_bytes())
+    if theirs:
+        (out / "their_packages.csv").write_bytes((HEALTH_DATA / "their_packages.csv").read_bytes())
     commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip() or "unknown"
     manifest = {**meta, "written_at": datetime.now(timezone.utc).isoformat(), "git_commit": commit, "simulated": True,
-                "files": {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in files.items()} | {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in (("zone_mapping.csv", mapping), ("packages.csv", read_packages()))}}
+                "files": {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in files.items()} | {n: {"rows": len(rows), "sha256": sha(out / n)} for n, rows in (("zone_mapping.csv", mapping), ("packages.csv", read_packages())) + ((("their_packages.csv", list(theirs)),) if theirs else ())}}
     (out / "MANIFEST.json").write_text(json.dumps(manifest, indent=1))
     (out / "README.md").write_text(README)
     print(f"wrote {len(scenarios)} scenarios, {len(zones)} scenario-zone rows, {len(risk)} districts, {len(exposure)} hospital exposures, {len(ranked)} ranked packages to {out}")
@@ -379,6 +427,13 @@ work there). Costs shared by the whole incident (repair, water lost, cooling, se
 `worst_zone_cost_of_delay_egp` and `worst_zone_unserved_mw`: the largest of the zone's values over all scenarios (averaged over zones for `type`).
 `worst_scenario_id`: which scenario it was (only for `direct`).
 
+## districts_on_twin_map.csv
+
+Your `districts.csv` with the same columns, the same order and the same names, codes and areas. Only `centroid_lon` and `centroid_lat` differ: they are where the twin's map
+draws each district, which is the centre of the zone of the twin the district is matched to by name and kind (`zone_mapping.csv`), or a point on a small ring (about
+550 m) around it when several districts share one zone. They are drawing positions to put both projects on one map, **not measured centroids or boundaries** of your
+districts. `NAC-PARK` has no counterpart in the twin, so it keeps the centroid of your file.
+
 ## hospital_exposure.csv (one row per failed asset and district with hospitals that it reaches)
 
 Their hospitals are placed by the district of their file, and the district by `zone_mapping.csv`; the twin links a zone, not a hospital, to its substation, pump
@@ -393,6 +448,15 @@ The twin's side and their side next to each other, never added together: `worst_
 35 and above high) and the facility counts are theirs. `outage_cost_vs_median` and `environment_vs_median` say whether the district is above or below the median of
 the districts that have the figure (a relative reading: no threshold of ours is invented, and all overall scores sit in one band). `group` is `both_higher`,
 `outage_higher`, `environment_higher`, `both_lower`, or `no_outage_data` (no counterpart in the twin).
+
+## their side of joint_decision.csv, and their_packages.csv
+
+`their_pressure_baseline` is the pressure ratio (demand over capacity) of the district in **their** what-if engine in its default stress-calibrated view; above 1.0
+(`their_over_capacity`) the district is over capacity. `their_pressure_growth_only` is the same district after their default population growth with no package, and
+`their_best_package` is the one of their four packages that leaves the lowest pressure (the cheaper on a tie), with its pressure and its 5-year cost
+(`their_best_package_pressure`, `their_best_package_cost_m_egp`). All of it is their engine's output, called unchanged once per district with that district as
+the only target; `their_packages.csv` has the figures of every package, and `integration/health/data/PACKAGES_SOURCE.json` the settings, their commit and the
+SHA-256 of their files. Their package costs are placeholders of their own configuration. These columns are empty when the extract is not there.
 
 ## reliability_packages.csv (ranked improvement packages)
 
