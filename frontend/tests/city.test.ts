@@ -133,7 +133,7 @@ test('the healthcare dashboard is found on port 8501 of the host the twin is ope
 test('their hospital pressure reads as a ratio with the best package, and is absent when their engine figures are not there', () => {
   const row = (over: object) => ({ ...decision.rows[0], ...over });
   assert.deepEqual(pressureLine(row({ pressureBaseline: 1.2271, overCapacity: true, bestPackage: 'A New center + prevention', bestPackagePressure: 0.9766, bestPackageCostMEgp: 40.5 })),
-    { main: '1.23 over capacity', sub: 'best: A New center + prevention, leaves 0.98 for 40.5 M EGP' });
+    { main: '1.23, above 1.0', sub: 'best: A New center + prevention, leaves 0.98 for 40.5 M EGP' });
   assert.deepEqual(pressureLine(row({ pressureBaseline: 0.75, overCapacity: false, bestPackage: undefined })), { main: '0.75', sub: '' });
   assert.equal(pressureLine(row({ pressureBaseline: undefined })), null);
 });

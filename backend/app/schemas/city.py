@@ -129,7 +129,7 @@ class DecisionRow(Model):
     esi_heat: float
     esi_band: Literal["low", "moderate", "high"] = Field(description="Their bands: below 20 low, 20 to under 35 moderate, 35 and above high")
     highest_score: Literal["air", "waste", "water", "heat"]
-    pressure_baseline: float | None = Field(default=None, description="Their hospital pressure ratio (demand over capacity) in their engine's default stress-calibrated view; above 1 the district is over capacity")
+    pressure_baseline: float | None = Field(default=None, description="Their hospital pressure ratio (demand over capacity) in their engine's default stress-calibrated view; above 1 the district is over 1.0 in that view; their app calls this view a scenario visualization, not observed utilization")
     over_capacity: bool | None = None
     pressure_growth_only: float | None = Field(default=None, description="The same district after their default population growth and no package")
     best_package: str | None = Field(default=None, description="The one of their four packages that leaves the lowest pressure when this district is the only target")

@@ -37,7 +37,7 @@ export function CityDecisionCard() {
         </div>
         <div className="muted" style={{ fontSize: 11.5, padding: '10px 16px 14px', lineHeight: 1.5 }}>
           Cost of delay is the twin's largest figure among the failures that touch the district (median {compact(data.medianCostOfDelayEgp)} EGP); stress is their 0 to 100 score (median {fmt(data.medianEsiOverall, 1)}, bands: under 20 low, 20 to 35 moderate, 35 and over high).
-          Hospital pressure is demand over capacity from their what-if engine, run unchanged with their default settings and that district as the only target (their package costs are placeholders of their own configuration). Hospitals are placed by the district of their file and the district by name and kind, so a count marked "may reach" is an upper bound. Both projects' data are simulated; the cost uses planning assumptions. Source: {data.source}.
+          Hospital pressure is demand over capacity from their what-if engine in its default stress-calibrated view (which they describe as a scenario visualization, not observed utilization), run unchanged with their default settings and that district as the only target (their package costs are placeholders of their own configuration). Hospitals are placed by the district of their file and the district by name and kind, so a count marked "may reach" is an upper bound. Both projects' data are simulated; the cost uses planning assumptions. Source: {data.source}.
         </div>
       </>}
     </Card>

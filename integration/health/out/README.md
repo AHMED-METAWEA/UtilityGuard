@@ -64,7 +64,7 @@ the districts that have the figure (a relative reading: no threshold of ours is 
 ## their side of joint_decision.csv, and their_packages.csv
 
 `their_pressure_baseline` is the pressure ratio (demand over capacity) of the district in **their** what-if engine in its default stress-calibrated view; above 1.0
-(`their_over_capacity`) the district is over capacity. `their_pressure_growth_only` is the same district after their default population growth with no package, and
+(`their_over_capacity`) the district is over 1.0 in that view, which their app describes as a scenario visualization, not observed utilization. `their_pressure_growth_only` is the same district after their default population growth with no package, and
 `their_best_package` is the one of their four packages that leaves the lowest pressure (the cheaper on a tie), with its pressure and its 5-year cost
 (`their_best_package_pressure`, `their_best_package_cost_m_egp`). All of it is their engine's output, called unchanged once per district with that district as
 the only target; `their_packages.csv` has the figures of every package, and `integration/health/data/PACKAGES_SOURCE.json` the settings, their commit and the
