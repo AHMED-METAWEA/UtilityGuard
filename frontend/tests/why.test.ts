@@ -41,7 +41,7 @@ test('real KPI and warning fixtures validate as WhyRecords with their provenance
   assert.equal(records[0].ref, kpiRef('nrw'));
   assert.equal(records[0].value, 10.3);
   assert.equal(records[1].ref, warningRef('warn-0001'));
-  assert.equal(records[1].value, 10235.68);
+  assert.equal(records[1].value, 7083.52);
   assert.ok(records[1].inputs.some((input) => input.source === 'assumed' && input.key === 'planned_factor' && input.status === 'planning' && input.basis.length));
   assert.ok(records[1].notes.some((note) => /synthetic/.test(note)));
   for (const record of records) {

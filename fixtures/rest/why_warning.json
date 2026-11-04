@@ -1,25 +1,28 @@
 {
   "ref": "warning:warn-0001",
   "title": "Early warning: P-03",
-  "value": 10235.68,
+  "value": 7083.52,
   "unit": "EGP",
   "evidence": "calculated",
   "formula": "risk × cost if it fails − cost of planned maintenance; maintenance pays when the risk is above planned ÷ unplanned",
   "steps": [
-    "0.428 × 87,560 − 27,240 = 10,236 EGP",
-    "break-even risk = 27,240 ÷ 87,560 = 0.311"
+    "0.392 × 87,560 − 27,240 = 7,084 EGP",
+    "break-even risk = 27,240 ÷ 87,560 = 0.311",
+    "gap to the peers = 0.392 − 0.175 = 0.217",
+    "Signal variability is 0.94 against 0.11 for its peers (as a share of the normal range). It explains 20.9 of the 21.7 points by which the risk score exceeds what age and load alone give.",
+    "Deviation from the twin is 0.14 against 0.05 for its peers (as a share of the normal range). It explains 0.8 of the 21.7 points by which the risk score exceeds what age and load alone give."
   ],
   "inputs": [
     {
       "name": "Risk score now",
-      "value": 0.428,
+      "value": 0.392,
       "unit": "score",
       "source": "forecast",
-      "basis": "The failure model's score for this asset (a ranking, not a calibrated probability)."
+      "basis": "The failure model's score for this asset, read against its synthetic history (not the chance of failing within a stated time)."
     },
     {
       "name": "Risk score from age and load alone",
-      "value": 0.15,
+      "value": 0.175,
       "unit": "score",
       "source": "forecast",
       "basis": "The same score with the condition signals set to the median of the other assets of the same kind."
@@ -40,17 +43,17 @@
     },
     {
       "name": "Deviation from the twin",
-      "value": 0.509,
+      "value": 0.135,
       "unit": "of normal range",
       "source": "measured",
-      "basis": "The median of the other assets of the same kind is 0.019."
+      "basis": "The median of the other assets of the same kind is 0.052."
     },
     {
       "name": "Signal variability",
-      "value": 0.597,
+      "value": 0.942,
       "unit": "of normal range",
       "source": "measured",
-      "basis": "The median of the other assets of the same kind is 0.122."
+      "basis": "The median of the other assets of the same kind is 0.107."
     },
     {
       "name": "planned_factor",
@@ -126,8 +129,10 @@
     }
   ],
   "notes": [
-    "The warning opens when the risk score exceeds what age and load explain by 0.15 for three samples in a row while the asset is still running.",
-    "The risk model is trained on a synthetic hazard: this shows the mechanism, not field accuracy."
+    "The warning opens when the risk score exceeds what age and load explain by 1.0 in log-odds, held for three readings in a row (about a minute), while the asset is still running and is not inside an open incident.",
+    "The score was checked against the history the model learned from: on 1,500 held-out assets its mean error against the true rate in that history is 4.6 points (Brier 0.154; 0.150 is the best any score can reach). That history has no time window and a failure is recorded for 50% of its assets, so the score is not the chance of failing within a stated time, and its level is high by construction.",
+    "The risk model is trained on a synthetic hazard: this shows the mechanism, not field accuracy. The expected saving treats the score as the chance of failing, which is an assumption.",
+    "In 24 test runs of a pump wearing out over 5 to 20 minutes and left alone, the warning came before the pump stopped in 24 of 24, a median 114 s before it (from 12 s to 574 s). At the moment of the warning the risk score ranged from 2% to 97%, so the level alone does not say how close the stop is. A wear of 3 minutes was too fast: warned in 2 of 6. No warning was raised in 24 simulated hours without a fault (0 false). The twin makes every wear end in a stop, so this shows that the warning comes in time, not that a real pump would fail."
   ],
   "links": [
     {
@@ -135,5 +140,5 @@
       "href": "#/savings"
     }
   ],
-  "computedAt": "2026-11-01T09:09:39.401671Z"
+  "computedAt": "2026-11-04T18:33:52.434048Z"
 }

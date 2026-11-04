@@ -23,7 +23,7 @@ from app.schemas import (
 )
 from app.sim.engine import Engine
 
-log = logging.getLogger("utilityguard.ml.service")
+log = logging.getLogger("caregrid.ml.service")
 
 
 def outside_loop(fn):

@@ -25,7 +25,7 @@ from app.sim.topology import COOLING_PLANTS, SUBSTATION_BACKUP, ZONE_SUBSTATION
 if TYPE_CHECKING:
     from app.runtime import Runtime
 
-log = logging.getLogger("utilityguard.detection")
+log = logging.getLogger("caregrid.detection")
 
 HEAT_CAUSE_C = 38.0  # above this air temperature, overloads and cooling at capacity are one heat event
 SETTLE_AFTER_RESTORE = 15  # ticks after a substation returns during which pump and load readings are still recovering

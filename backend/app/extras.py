@@ -33,9 +33,9 @@ def incident_pdf(rt: "Runtime", incident_id: str) -> bytes:
     ss = getSampleStyleSheet()
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=16 * mm, rightMargin=16 * mm, topMargin=14 * mm, bottomMargin=14 * mm,
-                            title=f"UtilityGuard incident {inc.id}")
+                            title=f"Care Grid incident {inc.id}")
     navy, line = colors.HexColor("#0B1630"), colors.HexColor("#C9D2E3")
-    st = [Paragraph("UtilityGuard Twin, incident report", ss["Title"]),
+    st = [Paragraph("Care Grid Twin, incident report", ss["Title"]),
           Paragraph(f"<b>{inc.title}</b> ({inc.id}). Severity {inc.severity}, state {inc.state}. Opened {inc.opened_at:%Y-%m-%d %H:%M} UTC. "
                     f"Networks: {', '.join(inc.networks)}. Zones: {', '.join(rt.engine.g.zone_index[z].name for z in inc.zone_ids)}.", ss["Normal"]),
           Spacer(1, 6)]
@@ -75,7 +75,7 @@ def incident_pdf(rt: "Runtime", incident_id: str) -> bytes:
                p("; ".join(f"{s.input} {s.change_percent:+.0f}% gives a saving of {s.new_saving:,.0f} EGP" for s in e.sensitivity)),
                Paragraph("Agent steps", ss["Heading3"])]
         st += [p(f"{i}. {s}") for i, s in enumerate(f.reasoning_steps, 1)]
-    st += [Spacer(1, 8), Paragraph("All figures are computed by the UtilityGuard cost model from the listed formulas and assumptions. "
+    st += [Spacer(1, 8), Paragraph("All figures are computed by the Care Grid cost model from the listed formulas and assumptions. "
                                    "The network is synthetic and values are illustrative.", ss["Italic"])]
     doc.build(st)
     return buf.getvalue()

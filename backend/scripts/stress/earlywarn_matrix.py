@@ -11,6 +11,8 @@ It runs the twin in process (no server, no language model), fast-forwarded: a `R
   EW-3  No warning in a clean run of the stated length (24 hours by default) and none in a run with a power cut that stops and restarts the pumps.
   EW-4  Two pumps wearing at once are both warned about.
   EW-5  A warning is raised only for the pumps that wear: the other pumps and the transformers stay silent in every run above.
+With `--write-evidence` (a full run, not `--quick`) the figures the warning card shows about waiting (how long before the stop, the score at the warning, the hours without a false
+warning) are written to `backend/data/earlywarn_evidence.json`, so the card quotes the measurement and not a sentence typed by hand.
 Exits 1 when a criterion fails (EW-1 for 3 minutes is reported separately and does not fail the run on its own).
 """
 
@@ -18,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import sys
 from datetime import datetime, timedelta, timezone
 
@@ -62,6 +65,7 @@ async def run_case(seed: int, pumps: list[str], minutes: float, tail_ticks: int 
     for ev in extra or []:
         rt.add_event(ev)
     first_warning: dict[str, int] = {}
+    risk_open: dict[str, float] = {}
     stopped: dict[str, int] = {}
     incident_at: int | None = None
     all_warned: set[str] = set()
@@ -70,14 +74,16 @@ async def run_case(seed: int, pumps: list[str], minutes: float, tail_ticks: int 
         ts += DT
         for w in mls.warnings.warnings.values():
             all_warned.add(w.asset_id)
-            first_warning.setdefault(w.asset_id, rt.engine.tick - begin)
+            if w.asset_id not in first_warning:
+                first_warning[w.asset_id] = rt.engine.tick - begin
+                risk_open[w.asset_id] = w.risk
         for p in pumps:
             st = rt.asset_status.get(p)
             if st and st.status in ("offline", "fault") and p not in stopped:
                 stopped[p] = rt.engine.tick - begin
         if incident_at is None and any(a.title.lower().startswith("pump") for a in rt.alerts.values()):
             incident_at = rt.engine.tick - begin
-    return {"first_warning": first_warning, "stopped": stopped, "incident_at": incident_at, "warned": all_warned}
+    return {"first_warning": first_warning, "risk_open": risk_open, "stopped": stopped, "incident_at": incident_at, "warned": all_warned}
 
 
 async def main_async(args) -> None:
@@ -94,7 +100,7 @@ async def main_async(args) -> None:
                 r = await run_case(seed, [pump], minutes)
                 w, s = r["first_warning"].get(pump), r["stopped"].get(pump)
                 lead = None if w is None or s is None else (s - w) * 2
-                rows.append((seed, pump, minutes, w, s, lead, r["incident_at"]))
+                rows.append((seed, pump, minutes, w, s, lead, r["incident_at"], r["risk_open"].get(pump)))
                 stray |= {a for a in r["warned"] if a != pump}
                 print(f"  seed {seed} {pump} wear {minutes:>2} min: warning at tick {w}, pump stopped at tick {s}, lead {lead} s, failure alarm at tick {r['incident_at']}", flush=True)
     long_wear = [r for r in rows if r[2] >= 5]
@@ -116,6 +122,7 @@ async def main_async(args) -> None:
     r = await run_case(42, [], 1, tail_ticks=400, extra=[cut])
     verdict("EW-3a", not r["warned"], f"power cut that stops and restarts the pumps: warnings {sorted(r['warned']) or 'none'}")
 
+    clean_warned: set[str] | None = None
     if args.clean_hours:
         rt, mls = await build(42)
         ts = START
@@ -128,12 +135,30 @@ async def main_async(args) -> None:
                 warned |= {w.asset_id for w in mls.warnings.warnings.values()}
         warned |= {w.asset_id for w in mls.warnings.warnings.values()}
         verdict("EW-3b", not warned, f"{args.clean_hours:g} simulated hours without any scenario: warnings {sorted(warned) or 'none'}")
+        clean_warned = warned
+
+    if args.write_evidence:
+        if args.quick or clean_warned is None:
+            print("--write-evidence needs a full run with --clean-hours; nothing written")
+            return
+        ok_rows = [r for r in long_wear if r[3] is not None and r[4] is not None and r[3] < r[4]]
+        leads_ok = sorted(r[5] for r in ok_rows)
+        risks = sorted(r[7] for r in ok_rows if r[7] is not None)
+        fast_ok = [r for r in short if r[3] is not None and r[4] is not None and r[3] < r[4]]
+        data = {"runs": len(long_wear), "warned": len(ok_rows), "lead_min_s": leads_ok[0], "lead_median_s": leads_ok[len(leads_ok) // 2], "lead_max_s": leads_ok[-1],
+                "risk_at_warning_min": risks[0], "risk_at_warning_max": risks[-1], "wear_minutes_min": min(r[2] for r in long_wear), "wear_minutes_max": max(r[2] for r in long_wear),
+                "fast_minutes": 3, "fast_runs": len(short), "fast_warned": len(fast_ok), "clean_hours": args.clean_hours, "false_warnings": len(clean_warned),
+                "measured_on": datetime.now(timezone.utc).strftime("%Y-%m-%d"), "seeds": seeds, "pumps": zone_pumps}
+        out = Path(__file__).resolve().parents[2] / "data" / "earlywarn_evidence.json"
+        out.write_text(json.dumps(data, indent=2) + "\n")
+        print(f"      evidence written to {out}")
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--clean-hours", type=float, default=24.0)
+    ap.add_argument("--write-evidence", action="store_true", help="write backend/data/earlywarn_evidence.json from a full run")
     args = ap.parse_args()
     asyncio.run(main_async(args))
     print(f"\n{bad} failed")

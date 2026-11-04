@@ -7,143 +7,211 @@
     "network": "water",
     "zoneId": "zone-cbd",
     "state": "active",
-    "createdAt": "2026-10-28T11:35:40Z",
-    "updatedAt": "2026-10-28T11:36:40Z",
-    "risk": 0.428,
-    "peerRisk": 0.15,
-    "excess": 0.278,
-    "risePerMinute": 0.109,
-    "minutesTo90": 4.3,
+    "createdAt": "2026-10-28T11:37:20Z",
+    "updatedAt": "2026-10-28T11:38:20Z",
+    "risk": 0.392,
+    "peerRisk": 0.175,
+    "excess": 0.217,
+    "risePerMinute": 0.0321,
     "signals": [
       {
         "label": "Deviation from the twin",
-        "value": 0.509,
-        "peerValue": 0.019,
+        "value": 0.135,
+        "peerValue": 0.052,
         "unit": "of normal range"
       },
       {
         "label": "Signal variability",
-        "value": 0.597,
-        "peerValue": 0.122,
+        "value": 0.942,
+        "peerValue": 0.107,
         "unit": "of normal range"
       }
     ],
     "series": [
       {
         "t": "2026-10-28T11:30:00Z",
-        "risk": 0.18,
-        "peer": 0.18
+        "risk": 0.114,
+        "peer": 0.114
       },
       {
         "t": "2026-10-28T11:30:20Z",
-        "risk": 0.157,
-        "peer": 0.157
+        "risk": 0.17,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:30:40Z",
-        "risk": 0.157,
-        "peer": 0.157
+        "risk": 0.175,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:31:00Z",
-        "risk": 0.157,
-        "peer": 0.157
+        "risk": 0.175,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:31:20Z",
-        "risk": 0.161,
-        "peer": 0.157
+        "risk": 0.181,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:31:40Z",
-        "risk": 0.145,
-        "peer": 0.145
+        "risk": 0.172,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:32:00Z",
-        "risk": 0.157,
-        "peer": 0.157
+        "risk": 0.175,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:32:20Z",
-        "risk": 0.161,
-        "peer": 0.157
+        "risk": 0.181,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:32:40Z",
-        "risk": 0.157,
-        "peer": 0.157
+        "risk": 0.182,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:33:00Z",
-        "risk": 0.157,
-        "peer": 0.157
+        "risk": 0.185,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:33:20Z",
-        "risk": 0.165,
-        "peer": 0.157
+        "risk": 0.188,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:33:40Z",
-        "risk": 0.181,
-        "peer": 0.157
+        "risk": 0.201,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:34:00Z",
-        "risk": 0.196,
-        "peer": 0.157
+        "risk": 0.22,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:34:20Z",
-        "risk": 0.237,
-        "peer": 0.157
+        "risk": 0.243,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:34:40Z",
-        "risk": 0.217,
-        "peer": 0.157
+        "risk": 0.235,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:35:00Z",
-        "risk": 0.389,
-        "peer": 0.157
+        "risk": 0.368,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:35:20Z",
-        "risk": 0.361,
-        "peer": 0.157
+        "risk": 0.34,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:35:40Z",
-        "risk": 0.326,
-        "peer": 0.157
+        "risk": 0.321,
+        "peer": 0.182
       },
       {
         "t": "2026-10-28T11:36:00Z",
-        "risk": 0.322,
-        "peer": 0.157
+        "risk": 0.327,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:36:20Z",
-        "risk": 0.322,
-        "peer": 0.157
+        "risk": 0.327,
+        "peer": 0.175
       },
       {
         "t": "2026-10-28T11:36:40Z",
-        "risk": 0.428,
-        "peer": 0.15
+        "risk": 0.439,
+        "peer": 0.175
+      },
+      {
+        "t": "2026-10-28T11:37:00Z",
+        "risk": 0.468,
+        "peer": 0.182
+      },
+      {
+        "t": "2026-10-28T11:37:20Z",
+        "risk": 0.487,
+        "peer": 0.182
+      },
+      {
+        "t": "2026-10-28T11:37:40Z",
+        "risk": 0.377,
+        "peer": 0.182
+      },
+      {
+        "t": "2026-10-28T11:38:00Z",
+        "risk": 0.863,
+        "peer": 0.382
+      },
+      {
+        "t": "2026-10-28T11:38:20Z",
+        "risk": 0.392,
+        "peer": 0.175
       }
     ],
     "cost": {
       "unplanned": 87560.0,
       "planned": 27240.0,
       "breakEven": 0.3111,
-      "risk": 0.428,
+      "risk": 0.392,
       "verdict": "maintain_now",
-      "expectedSaving": 10235.68
+      "expectedSaving": 7083.52
     },
-    "text": "P-03 is still running, but its signal variability is 0.60 against 0.12 for its peers, and its risk score is 43% where age and load alone would give 15%. Maintenance pays when the chance of failing is above 31.1%: 27,240 EGP planned against 87,560 EGP if it fails. At this risk score maintaining now is cheaper than waiting.",
+    "text": "P-03 is still running, but its signal variability is 0.94 against 0.11 for its peers, and its risk score is 39% where age and load alone would give 18%. Maintenance pays when the chance of failing is above 31.1%: 27,240 EGP planned against 87,560 EGP if it fails. At this risk score maintaining now is cheaper than waiting.",
+    "drivers": [
+      {
+        "text": "Signal variability is 0.94 against 0.11 for its peers (as a share of the normal range). It explains 20.9 of the 21.7 points by which the risk score exceeds what age and load alone give.",
+        "evidenceType": "measured",
+        "evidenceRef": "asset:water-pump-03",
+        "textAr": "تذبذب الإشارة قيمته 0.94 مقابل 0.11 للأصول المشابهة (كنسبة من المدى الطبيعي). بيفسّر 20.9 من 21.7 نقطة هي زيادة درجة الخطر عن اللي العمر والحمل لوحدهم بيدّوه."
+      },
+      {
+        "text": "Deviation from the twin is 0.14 against 0.05 for its peers (as a share of the normal range). It explains 0.8 of the 21.7 points by which the risk score exceeds what age and load alone give.",
+        "evidenceType": "measured",
+        "evidenceRef": "asset:water-pump-03",
+        "textAr": "الانحراف عن توقع التوأم قيمته 0.14 مقابل 0.05 للأصول المشابهة (كنسبة من المدى الطبيعي). بيفسّر 0.8 من 21.7 نقطة هي زيادة درجة الخطر عن اللي العمر والحمل لوحدهم بيدّوه."
+      },
+      {
+        "text": "Age (19.7 years), running hours (13.2 thousand) and load (0.71 of the normal range) alone give a score of 17.5%. The age and the hours are values the simulation assigns to the asset, not measurements.",
+        "evidenceType": "assumed",
+        "evidenceRef": "asset:water-pump-03",
+        "textAr": "العمر (19.7 سنة) وساعات التشغيل (13.2 ألف ساعة) والحمل (0.71 من المدى الطبيعي) لوحدهم بيدّوا درجة 17.5%. العمر والساعات قيم بيحطها المحاكي للأصل، مش قياسات."
+      },
+      {
+        "text": "A warning opens when the gap stays at or above 1.0 in log-odds for 3 readings in a row while the asset is running. Now it is 1.11.",
+        "evidenceType": "rule",
+        "evidenceRef": "rule:early-warning",
+        "textAr": "الإنذار بيتفتح لما الفرق يفضل 1.0 أو أكتر بمقياس log-odds لمدة 3 قراءات متتالية والأصل شغّال. دلوقتي 1.11."
+      }
+    ],
+    "evidence": {
+      "runs": 24,
+      "warned": 24,
+      "leadMinS": 12.0,
+      "leadMedianS": 114.0,
+      "leadMaxS": 574.0,
+      "riskAtWarningMin": 0.025,
+      "riskAtWarningMax": 0.972,
+      "wearMinutesMin": 5.0,
+      "wearMinutesMax": 20.0,
+      "fastRuns": 6,
+      "fastWarned": 2,
+      "cleanHours": 24.0,
+      "falseWarnings": 0,
+      "measuredOn": "2026-11-04",
+      "text": "In 24 test runs of a pump wearing out over 5 to 20 minutes and left alone, the warning came before the pump stopped in 24 of 24, a median 114 s before it (from 12 s to 574 s). At the moment of the warning the risk score ranged from 2% to 97%, so the level alone does not say how close the stop is. A wear of 3 minutes was too fast: warned in 2 of 6. No warning was raised in 24 simulated hours without a fault (0 false). The twin makes every wear end in a stop, so this shows that the warning comes in time, not that a real pump would fail.",
+      "textAr": "في 24 تجربة لمضخة بتتآكل على مدى 5 لـ 20 دقيقة وتُركت من غير تدخل، جه الإنذار قبل توقف المضخة في 24 من 24، بوسيط 114 ثانية قبله (من 12 لـ 574 ثانية). وقت الإنذار كانت درجة الخطر بين 2% و97%، فالمستوى لوحده ما بيقولش التوقف قريب قد إيه. التآكل في 3 دقايق كان أسرع من اللازم: اتحذّر منه في 2 من 6. وما اتفتحش أي إنذار في 24 ساعة محاكاة من غير عطل (0 كاذب). التوأم بيخلّي كل تآكل ينتهي بتوقف، فده بيثبت إن الإنذار بييجي في وقته، مش إن مضخة حقيقية هتعطل."
+    },
     "whyRef": "warning:warn-0001"
   }
 }

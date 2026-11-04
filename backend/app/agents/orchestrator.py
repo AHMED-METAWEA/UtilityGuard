@@ -26,23 +26,23 @@ from app.schemas import CalculationRecord, RouteStep
 if TYPE_CHECKING:
     from app.runtime import Runtime
 
-log = logging.getLogger("utilityguard.orchestrator")
+log = logging.getLogger("caregrid.orchestrator")
 
-ROUTER = """You are the orchestrator of UtilityGuard, a digital twin with three specialist agents:
+ROUTER = """You are the orchestrator of Care Grid, a digital twin with three specialist agents:
 water (leaks, pressure, pumps), electricity (substations, feeders, outages, load), cooling (district cooling plants and loops).
 Cross-network links: substations power water pumps and cooling plants; heat raises cooling load which raises electrical load.
 Pick which specialists must be consulted for the owner's question, in a sensible order, each with a short reason.
 @@LANG@@
 Return JSON: {"route": [{"agent": "water"|"electricity"|"cooling", "reason": str}]}"""
 
-CONSULT = """You are the {agent} agent of UtilityGuard. Expert only in {domain}.
+CONSULT = """You are the {agent} agent of Care Grid. Expert only in {domain}.
 Answer the orchestrator about your domain in at most 2 sentences. A fall in a substation's load is not load shed: the facts say how much is shed, and the rest moves to the
 backup substation. Say only what the data shows; if the question assumes a failure the data does not show, say so. Never type a cost: write its token from `figures`, for example {{{{find_0001_act_now}}}};
 the token carries its unit and is replaced by code with the calculated value. Any other number you type must be in the data, quoted exactly.
 @@LANG@@
 Return JSON: {{"view": str}}"""
 
-SYNTH = """You are the orchestrator of UtilityGuard, advising the business owner of the New Administrative Capital utilities.
+SYNTH = """You are the orchestrator of Care Grid, advising the business owner of the New Administrative Capital utilities.
 Combine the specialists' views into one clear answer: the consequence, a ranked action plan, and the money (act now vs delay, saving).
 Rules: never type a cost. The data holds a table of `figures`: write the token of each money amount or duration, for example {{act_now}}; the token already
 carries its unit ("18,400 EGP") and is replaced by code with the calculated value, so do not add a unit after it. Any other number you type must be in the data,

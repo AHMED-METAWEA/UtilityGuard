@@ -17,7 +17,7 @@ from pathlib import Path
 
 from app.schemas.board import AuditEntry, AuditVerification
 
-log = logging.getLogger("utilityguard.audit")
+log = logging.getLogger("caregrid.audit")
 
 GENESIS = "0" * 64
 DEFAULT_PATH = Path(__file__).resolve().parents[2] / "data" / "audit.jsonl"

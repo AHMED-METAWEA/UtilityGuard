@@ -3,7 +3,7 @@
 How it works, in four steps, all in code:
 
 1. The failure model scores each pump and transformer from age, running hours, deviation from the twin, signal variability, load and
-   temperature. That score is a ranking, not a calibrated probability: the model is trained on a synthetic hazard.
+   temperature. That score is read against the model's synthetic history; it is not the chance of failing within a stated time.
 2. The same score is computed again with the two condition signals (deviation, variability) set to the median of the other assets of the
    same kind. The difference is the part of the risk that the asset's own condition explains and its age and load do not: the *excess*.
 3. A warning opens when the excess, measured in log-odds so that a young pump and an old one are judged alike, stays above `EXCESS` for
@@ -20,19 +20,22 @@ When an asset that had a warning then stops, the warning becomes `failed` and re
 from __future__ import annotations
 
 import itertools
+import json
 import logging
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
+from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 
 from app import ml
 from app.cost import Assumptions, _summary
-from app.schemas import EarlyWarning
-from app.schemas.insight import RiskPoint, WarningCost, WarningSignal
+from app.schemas import EarlyWarning, Reason
+from app.schemas.insight import RiskPoint, WarningCost, WarningEvidence, WarningSignal
 
-log = logging.getLogger("utilityguard.earlywarn")
+log = logging.getLogger("caregrid.earlywarn")
 
 KINDS = ("pump", "transformer")
 EXCESS = 1.0  # log-odds of the risk score above the log-odds of what age and load explain (clean runs peak near 0.7, a wearing pump passes 1.0 minutes before it stops)
@@ -43,6 +46,30 @@ SETTLE = 6  # samples ignored after an asset comes back (about two minutes)
 CONSECUTIVE = 3  # samples in a row (about a minute at one sample every 20 s)
 KEEP = 90  # samples kept per asset for the chart (about half an hour)
 SIGNALS = {2: ("Deviation from the twin", "of normal range"), 3: ("Signal variability", "of normal range")}
+SIGNAL_AR = {"Deviation from the twin": "الانحراف عن توقع التوأم", "Signal variability": "تذبذب الإشارة"}
+EVIDENCE = Path(__file__).resolve().parents[2] / "data" / "earlywarn_evidence.json"
+
+
+@lru_cache(maxsize=1)
+def evidence() -> WarningEvidence | None:
+    """What the test runs showed about waiting, read from the file `scripts/stress/earlywarn_matrix.py --write-evidence` writes. The sentences are written here from its figures."""
+    try:
+        d = json.loads(EVIDENCE.read_text())
+        wear = f"{d['wear_minutes_min']:g} to {d['wear_minutes_max']:g}"
+        en = (f"In {d['runs']} test runs of a pump wearing out over {wear} minutes and left alone, the warning came before the pump stopped in {d['warned']} of {d['runs']}, "
+              f"a median {d['lead_median_s']:.0f} s before it (from {d['lead_min_s']:.0f} s to {d['lead_max_s']:.0f} s). At the moment of the warning the risk score ranged from "
+              f"{d['risk_at_warning_min']:.0%} to {d['risk_at_warning_max']:.0%}, so the level alone does not say how close the stop is. A wear of {d['fast_minutes']:g} minutes was too fast: "
+              f"warned in {d['fast_warned']} of {d['fast_runs']}. No warning was raised in {d['clean_hours']:g} simulated hours without a fault ({d['false_warnings']} false). "
+              "The twin makes every wear end in a stop, so this shows that the warning comes in time, not that a real pump would fail.")
+        ar = (f"في {d['runs']} تجربة لمضخة بتتآكل على مدى {d['wear_minutes_min']:g} لـ {d['wear_minutes_max']:g} دقيقة وتُركت من غير تدخل، جه الإنذار قبل توقف المضخة في {d['warned']} من {d['runs']}، "
+              f"بوسيط {d['lead_median_s']:.0f} ثانية قبله (من {d['lead_min_s']:.0f} لـ {d['lead_max_s']:.0f} ثانية). وقت الإنذار كانت درجة الخطر بين "
+              f"{d['risk_at_warning_min']:.0%} و{d['risk_at_warning_max']:.0%}، فالمستوى لوحده ما بيقولش التوقف قريب قد إيه. التآكل في {d['fast_minutes']:g} دقايق كان أسرع من اللازم: "
+              f"اتحذّر منه في {d['fast_warned']} من {d['fast_runs']}. وما اتفتحش أي إنذار في {d['clean_hours']:g} ساعة محاكاة من غير عطل ({d['false_warnings']} كاذب). "
+              "التوأم بيخلّي كل تآكل ينتهي بتوقف، فده بيثبت إن الإنذار بييجي في وقته، مش إن مضخة حقيقية هتعطل.")
+        keys = WarningEvidence.model_fields
+        return WarningEvidence(**{k: v for k, v in d.items() if k in keys}, text=en, text_ar=ar)
+    except Exception:  # noqa: BLE001 - no measurement file, or one that does not match: the warning is shown without the evidence block
+        return None
 
 
 @dataclass
@@ -185,18 +212,54 @@ class EarlyWarnings:
         return WarningCost(unplanned=unplanned, planned=planned, break_even=round(planned / unplanned, 4) if unplanned else 1.0,
                            risk=risk, verdict="maintain_now" if gain > 0 else "watch", expected_saving=round(gain, 2))
 
-    def _rates(self, tr: _Track) -> tuple[float | None, float | None]:
+    def _rate(self, tr: _Track) -> float | None:
+        """How fast the gap to the peers is widening, in probability points per minute over the last seven samples."""
         pts = list(tr.series)
         if len(pts) < 7:
-            return None, None
+            return None
         t0, r0, p0 = pts[-7]
         t1, r1, p1 = pts[-1]
         minutes = (t1 - t0).total_seconds() / 60
-        if minutes <= 0:
-            return None, None
-        rate = ((r1 - p1) - (r0 - p0)) / minutes
-        eta = (0.9 - r1) / (rate) if rate > 0.005 and r1 < 0.9 else (0.0 if r1 >= 0.9 else None)
-        return round(rate, 4), None if eta is None else round(float(eta), 1)
+        return None if minutes <= 0 else round(((r1 - p1) - (r0 - p0)) / minutes, 4)
+
+    def _drivers(self, aid: str, feat: np.ndarray, peer: np.ndarray, risk: float, peer_risk: float, signals: list[WarningSignal]) -> list[Reason]:
+        """Why the warning is open, each part computed. The score is recomputed with each condition signal put back to the peer median; a signal's share is its average
+        effect over the two orders in which they can be put back (a Shapley split), so the two shares add up to the whole gap, to the point shown."""
+        def score(dev: bool, var: bool) -> float:
+            x = feat.reshape(1, -1).copy()
+            x[0, 2] = peer[0] if dev else x[0, 2]
+            x[0, 3] = peer[1] if var else x[0, 3]
+            return float(ml.failure_probability(self.mls.models, x)[0])
+
+        full, no_dev, no_var, none = score(False, False), score(True, False), score(False, True), score(True, True)
+        part = [((full - no_dev) + (no_var - none)) / 2, ((full - no_var) + (no_dev - none)) / 2]
+        gap = round((round(risk, 3) - round(peer_risk, 3)) * 100, 1)
+        pts = [round(part[0] * 100, 1), round(part[1] * 100, 1)]
+        big = 0 if abs(pts[0]) >= abs(pts[1]) else 1
+        pts[big] = round(gap - pts[1 - big], 1)  # the larger share takes the rounding, so the shares sum to the gap shown
+        out = []
+        for k in sorted(range(2), key=lambda i: -abs(part[i])):
+            sg = signals[k]
+            how = f"It explains {pts[k]:.1f} of the {gap:.1f} points" if abs(pts[k]) >= 0.05 else f"It explains less than 0.1 of the {gap:.1f} points"
+            how_ar = f"بيفسّر {pts[k]:.1f} من {gap:.1f} نقطة" if abs(pts[k]) >= 0.05 else f"بيفسّر أقل من 0.1 من {gap:.1f} نقطة"
+            out.append(Reason(
+                text=f"{sg.label} is {sg.value:.2f} against {sg.peer_value:.2f} for its peers (as a share of the normal range). {how} by which the risk score exceeds what age and load alone give.",
+                text_ar=f"{SIGNAL_AR[sg.label]} قيمته {sg.value:.2f} مقابل {sg.peer_value:.2f} للأصول المشابهة (كنسبة من المدى الطبيعي). {how_ar} هي زيادة درجة الخطر عن اللي العمر والحمل لوحدهم بيدّوه.",
+                evidence_type="measured", evidence_ref=f"asset:{aid}"))
+        hot = f" and {feat[5]:.1f} °C above the normal maximum" if feat[5] > 0 else ""
+        hot_ar = f" و{feat[5]:.1f} °م فوق الحد الأقصى الطبيعي" if feat[5] > 0 else ""
+        out.append(Reason(
+            text=f"Age ({feat[0]:.1f} years), running hours ({feat[1]:.1f} thousand) and load ({feat[4]:.2f} of the normal range){hot} alone give a score of {peer_risk:.1%}. "
+                 "The age and the hours are values the simulation assigns to the asset, not measurements.",
+            text_ar=f"العمر ({feat[0]:.1f} سنة) وساعات التشغيل ({feat[1]:.1f} ألف ساعة) والحمل ({feat[4]:.2f} من المدى الطبيعي){hot_ar} لوحدهم بيدّوا درجة {peer_risk:.1%}. "
+                    "العمر والساعات قيم بيحطها المحاكي للأصل، مش قياسات.",
+            evidence_type="assumed", evidence_ref=f"asset:{aid}"))
+        g = logit(risk) - logit(peer_risk)
+        out.append(Reason(
+            text=f"A warning opens when the gap stays at or above {EXCESS:.1f} in log-odds for {CONSECUTIVE} readings in a row while the asset is running. Now it is {g:.2f}.",
+            text_ar=f"الإنذار بيتفتح لما الفرق يفضل {EXCESS:.1f} أو أكتر بمقياس log-odds لمدة {CONSECUTIVE} قراءات متتالية والأصل شغّال. دلوقتي {g:.2f}.",
+            evidence_type="rule", evidence_ref="rule:early-warning"))
+        return out
 
     def _text(self, name: str, w_risk: float, peer: float, cost: WarningCost, signals: list[WarningSignal]) -> str:
         sig = signals[1]
@@ -217,10 +280,9 @@ class EarlyWarnings:
         _, risk, pr = tr.series[-1]
         signals = self._signals(feat, peer)
         cost = self._cost(w.asset_id, risk)
-        rate, eta = self._rates(tr)
         out = w.model_copy(update=dict(
-            state=state or w.state, updated_at=now, risk=round(risk, 3), peer_risk=round(pr, 3), excess=round(risk - pr, 3), rise_per_minute=rate, minutes_to_90=eta,
-            signals=signals, cost=cost, text=self._text(w.asset_name, risk, pr, cost, signals),
+            state=state or w.state, updated_at=now, risk=round(risk, 3), peer_risk=round(pr, 3), excess=round(round(risk, 3) - round(pr, 3), 3), rise_per_minute=self._rate(tr),
+            signals=signals, cost=cost, text=self._text(w.asset_name, risk, pr, cost, signals), drivers=self._drivers(w.asset_id, feat, peer, risk, pr, signals), evidence=evidence(),
             series=[RiskPoint(t=t, risk=round(r, 3), peer=round(p, 3)) for t, r, p in tr.series]))
         self.warnings[out.id] = out
         return out

@@ -180,10 +180,15 @@ export type WsEnvelope = { [T in keyof WsPayloads]: { type: T; payload: WsPayloa
 export interface WarningSignal { label: string; value: number; peerValue: number; unit: string }
 export interface WarningCost { unplanned: number; planned: number; breakEven: number; risk: number; verdict: 'maintain_now' | 'watch'; expectedSaving: number }
 export interface RiskPoint { t: string; risk: number; peer: number }
+/** What the twin's test runs showed when a wearing pump was left alone; the sentences are written by the server from these figures. */
+export interface WarningEvidence {
+  runs: number; warned: number; leadMinS: number; leadMedianS: number; leadMaxS: number; riskAtWarningMin: number; riskAtWarningMax: number; wearMinutesMin: number; wearMinutesMax: number;
+  fastRuns: number; fastWarned: number; cleanHours: number; falseWarnings: number; measuredOn: string; text: string; textAr: string;
+}
 export interface EarlyWarning {
   id: string; assetId: string; assetName: string; network: Network; zoneId: string; state: 'active' | 'cleared' | 'failed';
-  createdAt: string; updatedAt: string; risk: number; peerRisk: number; excess: number; risePerMinute?: number; minutesTo90?: number;
-  signals: WarningSignal[]; series: RiskPoint[]; cost: WarningCost; text: string; leadTimeSeconds?: number; whyRef: string;
+  createdAt: string; updatedAt: string; risk: number; peerRisk: number; excess: number; risePerMinute?: number;
+  signals: WarningSignal[]; series: RiskPoint[]; cost: WarningCost; text: string; drivers?: Reason[]; evidence?: WarningEvidence; leadTimeSeconds?: number; whyRef: string;
 }
 export interface WhyInput { name: string; value: number; unit: string; source: 'measured' | 'forecast' | 'rule' | 'assumed'; key?: string; basis: string; status?: string }
 export interface WhyRecord {

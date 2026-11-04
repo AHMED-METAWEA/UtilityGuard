@@ -1,10 +1,10 @@
-# UtilityGuard: the whole project in one page
+# Care Grid: the whole project in one page
 
 *A live digital twin of the water, electricity and cooling networks of the New Administrative Capital (NAC), Egypt, and its link to a healthcare-investment project. Read this first; every section points to the file that has the detail.*
 
 ## 1. What it is
 
-UtilityGuard is a software model of a city district's three utility networks (**water, electricity and district cooling**) that runs live in a browser. It simulates the networks on the real map of the capital, detects faults, prices what each fault costs per hour, and proposes **which repair crew should go where first**. A person approves the plan, and the approved plan runs inside the model.
+Care Grid is a software model of a city district's three utility networks (**water, electricity and district cooling**) that runs live in a browser. It simulates the networks on the real map of the capital, detects faults, prices what each fault costs per hour, and proposes **which repair crew should go where first**. A person approves the plan, and the approved plan runs inside the model.
 
 It is built from the point of view of the **operator** of the city's utilities: the person who has to keep services running and spend repair money well.
 
@@ -16,7 +16,7 @@ It is built from the point of view of the **operator** of the city's utilities: 
 
 ## 2. The problem it answers
 
-An operator with a few crews and several things breaking at once has three questions: *what is happening, what does waiting cost, and what do I do first?* UtilityGuard answers them with numbers that can be checked:
+An operator with a few crews and several things breaking at once has three questions: *what is happening, what does waiting cost, and what do I do first?* Care Grid answers them with numbers that can be checked:
 
 1. **Detect.** Readings arrive every 2 seconds from 89 sensors on 48 assets; detectors turn them into alerts, and one root cause becomes one incident.
 2. **Price.** A cost model turns each incident into EGP per hour of delay, with a P10 / P50 / P90 range from 800 runs over the registered assumption ranges.
@@ -54,7 +54,7 @@ An operator with a few crews and several things breaking at once has three quest
 - **Measured, not claimed.** Detection, forecast accuracy and the detector benchmark are measured by running the twin (matched pairs: same seed with and without the fault) and published with intervals under `docs/measurements`.
 - **Reproducible.** The simulator is seeded; the same seed gives the same run, and the cost engine's results are re-derived by an independent script in the stress tests.
 - **Tamper-evident log.** Each line carries the SHA-256 of the line before it plus a separate head anchor; changing, deleting or truncating the log is detected.
-- **Tests.** 397 backend and 84 frontend tests pass; the shared JSON fixtures are validated against the schemas and parsed by the frontend.
+- **Tests.** 403 backend and 84 frontend tests pass; the shared JSON fixtures are validated against the schemas and parsed by the frontend.
 
 ## 5. Architecture
 
@@ -79,7 +79,7 @@ Backend: simulation, detection, ML (LightGBM forecast, failure risk), cost, agen
 
 The doctor combined this project with another team's: *AI-powered utilization of environmental measurements on healthcare investment planning* (a Streamlit dashboard, simulated data, 15 districts, January 2025 to September 2026). The two answer different questions about the same city:
 
-| | UtilityGuard | Healthcare-investment project |
+| | Care Grid | Healthcare-investment project |
 | --- | --- | --- |
 | Point of view | The **operator** who keeps utilities running | The **investor** deciding where to put healthcare capital |
 | Question | What breaks, what does a delay cost, who goes first? | Where is health demand highest, where is capacity short, which package should be funded? |

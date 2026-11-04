@@ -56,7 +56,7 @@ async def lifespan(_: FastAPI):
     await runtime.stop()
 
 
-app = FastAPI(title="UtilityGuard Twin", lifespan=lifespan)
+app = FastAPI(title="Care Grid Twin", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 api = APIRouter(prefix="/api/v1")
 _run_ids = itertools.count(1)
@@ -366,7 +366,7 @@ def audit_verify() -> dict:
 
 @api.get("/audit/export")
 def audit_export() -> Response:
-    return Response(service.board.audit.csv(), media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="utilityguard-decision-log.csv"'})
+    return Response(service.board.audit.csv(), media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="caregrid-decision-log.csv"'})
 
 
 @api.get("/warnings")
@@ -502,7 +502,7 @@ def report(incident_id: str, lang: str | None = None) -> Response:
         raise ApiError(422, "bad_language", "lang must be en or ar.")
     pdf = report_ar.incident_pdf_ar(runtime, incident_id) if lang == "ar" else extras.incident_pdf(runtime, incident_id)
     return Response(pdf, media_type="application/pdf",
-                    headers={"Content-Disposition": f'attachment; filename="utilityguard-{incident_id}-{lang}.pdf"'})
+                    headers={"Content-Disposition": f'attachment; filename="caregrid-{incident_id}-{lang}.pdf"'})
 
 
 @api.get("/compare")

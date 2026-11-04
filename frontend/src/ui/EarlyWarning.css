@@ -12,6 +12,11 @@
 .warning-costs small { font-size: 12px; font-weight: 400; color: var(--text-3); }
 .warning-text { margin: 14px 0 8px; }
 .warning-limit { font-size: 12px; margin: 8px 0 12px; }
+.warning-why, .warning-wait { margin: 12px 0; padding: 10px 12px; border-radius: var(--r-card); background: var(--surface-2); }
+.warning-why h4, .warning-wait h4 { margin: 0 0 6px; font-size: 13px; }
+.warning-why ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; }
+.warning-why li .tag, .warning-why li .evidence { margin-inline-start: 6px; }
+.warning-wait p { margin: 0 0 4px; }
 .warning-more summary { cursor: pointer; color: var(--text-2); margin-bottom: 12px; }
 .warning-overview { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
 .warning-overview li { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }

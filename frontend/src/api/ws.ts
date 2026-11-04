@@ -34,9 +34,11 @@ export const isEarlyWarning = (v: unknown): v is EarlyWarning => record(v)
   && ['id', 'assetId', 'assetName', 'zoneId', 'text', 'whyRef'].every((key) => text(v[key]))
   && network(v.network) && ['active', 'cleared', 'failed'].includes(String(v.state))
   && timestamp(v.createdAt) && timestamp(v.updatedAt) && score(v.risk) && score(v.peerRisk) && number(v.excess)
-  && optionalNumber(v.risePerMinute) && optionalNumber(v.minutesTo90) && optionalNumber(v.leadTimeSeconds)
+  && optionalNumber(v.risePerMinute) && optionalNumber(v.leadTimeSeconds)
   && list(v.signals) && v.signals.every((s) => record(s) && text(s.label) && number(s.value) && number(s.peerValue) && text(s.unit))
   && list(v.series) && v.series.every((p) => record(p) && timestamp(p.t) && score(p.risk) && score(p.peer))
+  && (v.drivers === undefined || (list(v.drivers) && v.drivers.every((d) => record(d) && text(d.text) && optionalText(d.textAr))))
+  && (v.evidence === undefined || (record(v.evidence) && text(v.evidence.text) && optionalText(v.evidence.textAr) && ['runs', 'warned', 'leadMedianS'].every((key) => number((v.evidence as Record<string, unknown>)[key]))))
   && warningCost(v.cost);
 
 /** Narrow known messages; additive fields never invalidate an otherwise known envelope. */

@@ -1,7 +1,7 @@
-"""Example Streamlit page: utility reliability for one district, from the UtilityGuard tables.
+"""Example Streamlit page: utility reliability for one district, from the Care Grid tables.
 
 Copy this file next to your `app.py` (or into `dashboard/views/`) and run it with `streamlit run streamlit_example.py`, or call `render()` from your own
-view. It only READS the CSV files written by UtilityGuard's `export_for_health.py`; it never touches `master_panel.csv` or any of your files.
+view. It only READS the CSV files written by Care Grid's `export_for_health.py`; it never touches `master_panel.csv` or any of your files.
 
     DATA = Path("path/to/integration/health/out")      # the folder with scenarios.csv, scenario_zones.csv, district_risk.csv, zone_mapping.csv
 
@@ -37,7 +37,7 @@ def render(folder: Path = DATA) -> None:
 
     tables = load_tables(folder)
     st.title("Utility reliability")
-    st.caption("From the UtilityGuard digital twin of the New Administrative Capital. Simulated data and planning cost assumptions, not field measurements.")
+    st.caption("From the Care Grid digital twin of the New Administrative Capital. Simulated data and planning cost assumptions, not field measurements.")
     keys = tables["zone_mapping"]["district_key"].tolist()
     names = dict(zip(tables["zone_mapping"]["district_key"], tables["zone_mapping"]["district_name_ar"]))
     key = st.sidebar.selectbox("District", keys, format_func=lambda k: f"{k} {names[k]}")

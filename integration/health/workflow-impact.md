@@ -1,6 +1,6 @@
 # How the twin's three pillars reach your KPI workflow
 
-For the healthcare-investment team. The twin (UtilityGuard) has three pillars: **Water**, **Electricity** and **Cooling**. This page says where each one enters your five-level
+For the healthcare-investment team. The twin (Care Grid) has three pillars: **Water**, **Electricity** and **Cooling**. This page says where each one enters your five-level
 KPI workflow (pillar KPIs, sub-indices, outcomes, scores, city KPIs), what the twin can give you today, and what we need you to decide. Every link below is **structural**
 (which district, which hospital, which KPI), not statistical: your correlations (r) are measured on your data and we do not claim any for ours. Both datasets are simulated.
 

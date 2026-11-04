@@ -8,7 +8,7 @@ import { fmt } from '../lib/format';
 import { href } from '../lib/route';
 import { useStore } from '../store';
 
-const OPERATOR_KEY = 'utilityguard.operator';
+const OPERATOR_KEY = 'caregrid.operator';
 const rememberedOperator = () => { try { return (localStorage.getItem(OPERATOR_KEY) ?? '').slice(0, 60); } catch { return ''; } };
 
 export function DecisionControl({ decision, onLatest }: { decision: BoardDecision; onLatest: () => void }) {

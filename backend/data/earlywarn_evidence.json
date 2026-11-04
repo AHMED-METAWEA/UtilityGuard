@@ -1,0 +1,26 @@
+{
+  "runs": 24,
+  "warned": 24,
+  "lead_min_s": 12,
+  "lead_median_s": 114,
+  "lead_max_s": 574,
+  "risk_at_warning_min": 0.025,
+  "risk_at_warning_max": 0.972,
+  "wear_minutes_min": 5,
+  "wear_minutes_max": 20,
+  "fast_minutes": 3,
+  "fast_runs": 6,
+  "fast_warned": 2,
+  "clean_hours": 24.0,
+  "false_warnings": 0,
+  "measured_on": "2026-11-04",
+  "seeds": [
+    42,
+    7
+  ],
+  "pumps": [
+    "water-pump-03",
+    "water-pump-01",
+    "water-pump-07"
+  ]
+}

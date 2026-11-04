@@ -11,7 +11,7 @@ import numpy as np
 from app.ml import detection_metrics
 from app.scenarios import events_for
 
-log = logging.getLogger("utilityguard.ml.eval")
+log = logging.getLogger("caregrid.ml.eval")
 
 CASES = {
     "scn-pipe-burst": ("leak", "targetAsset", ["water-pipe-04", "water-pipe-05", "water-pipe-08", "water-pipe-02"]),

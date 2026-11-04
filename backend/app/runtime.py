@@ -20,7 +20,7 @@ from app.schemas import (
 )
 from app.sim.engine import TICK_SECONDS, Engine, Event
 
-log = logging.getLogger("utilityguard.runtime")
+log = logging.getLogger("caregrid.runtime")
 
 TickHook = Callable[["Runtime"], Awaitable[None]]
 

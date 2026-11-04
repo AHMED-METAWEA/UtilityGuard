@@ -26,7 +26,7 @@ from app import i18n
 from app.schemas import envelope
 from app.schemas.board import BoardFact, BoardMessage, BoardSession, BoardState
 
-log = logging.getLogger("utilityguard.board")
+log = logging.getLogger("caregrid.board")
 
 PACE = 0.9  # seconds between messages on screen
 NUM = re.compile(r"(?<![A-Za-z0-9_-])(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)(?!\d)")

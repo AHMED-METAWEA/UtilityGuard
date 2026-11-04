@@ -1,18 +1,18 @@
-# UtilityGuard x Healthcare Investment Planning
+# Care Grid x Healthcare Investment Planning
 
 This folder is the only point of contact between two projects:
 
-- **UtilityGuard**, a live digital twin of the New Administrative Capital's water, electricity and cooling networks (this repository).
+- **Care Grid**, a live digital twin of the New Administrative Capital's water, electricity and cooling networks (this repository).
 - **Healthcare Investment Planning**, a Streamlit dashboard that forecasts healthcare demand per district and ranks investment packages (a separate repository, `master_panel.csv` keyed by `district_key` 1001..1015).
 
 The idea in one line: *they decide where a clinic or hospital should be built; the twin says how reliable the water, electricity and cooling will be there, and what it costs
-when they fail.* Nothing in either project is edited by the other: UtilityGuard writes the CSV files in `out/`, and the healthcare dashboard may read them.
+when they fail.* Nothing in either project is edited by the other: Care Grid writes the CSV files in `out/`, and the healthcare dashboard may read them.
 
 ## What is in here
 
 | File | What it is |
 | --- | --- |
-| `zone_mapping.csv` | Which UtilityGuard zone each healthcare district corresponds to, and how good the match is (`direct`, `type`, `none`) |
+| `zone_mapping.csv` | Which Care Grid zone each healthcare district corresponds to, and how good the match is (`direct`, `type`, `none`) |
 | `packages.csv` | The editable placeholders for the improvement packages: cost, and the effect they have on a failure |
 | `data/` | The healthcare team's districts, health facilities and environment as copied from their files, with `SOURCE.json` (their repository, commit and the SHA-256 of their panel). The twin's map shows them as read-only layers |
 | `extract_environment.py` | Re-makes `data/environment_monthly.csv` from their `master_panel.csv` (read only; standard library) |

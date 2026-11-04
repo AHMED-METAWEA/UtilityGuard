@@ -35,7 +35,7 @@ from app.schemas import FeatureImportance, Forecast, ForecastMetrics, ForecastPo
 from app.sim.engine import CAIRO, Engine, Event, ambient_temp
 from app.sim.topology import ZONE_BASE
 
-log = logging.getLogger("utilityguard.ml")
+log = logging.getLogger("caregrid.ml")
 MODELS = Path(__file__).resolve().parents[2] / "data" / "models.pkl"
 MODEL_VERSION = 8  # 8: the failure model is monotonic in every feature; 7: the test slice is the same dates whatever the history length; 6: the scenario calendar includes weekend days
 HISTORY_DAYS = int(os.getenv("FORECAST_HISTORY_DAYS", "270"))  # days of history; 270 beat 75 by about a quarter of the error on identical test days (docs/measurements/forecast-history-length.md). The window always ends at the start of today, so the model has seen the latest weather
@@ -298,12 +298,37 @@ def failure_hazard(x: np.ndarray) -> np.ndarray:
     return 1 / (1 + np.exp(-z))
 
 
-def _train_failure(seed: int, capture: dict | None = None):
+def _failure_data(seed: int):
+    """The synthetic maintenance history the failure model is trained on: assets with the six inputs, and whether a failure was recorded (drawn from `failure_hazard`)."""
     rng = np.random.default_rng(seed + 3)
     n = 6000
     X = np.column_stack([rng.uniform(0, 25, n), rng.uniform(0, 60, n), rng.gamma(1.2, 0.35, n),
                          rng.gamma(1.0, 0.3, n), rng.uniform(0.3, 1.15, n), np.maximum(rng.normal(0, 6, n), 0)])
     y = rng.uniform(size=n) < failure_hazard(X)
+    return X, y
+
+
+def failure_calibration(m: "Models", seed: int) -> dict:
+    """How far the failure score can be read as a rate: on the held-out quarter of the model's own history, the score against the share of assets with a failure recorded.
+
+    The history has no time window and about half of its assets failed, so a well calibrated score is still only a rate in that history, not a chance of failing soon.
+    Rebuilt from the seed (the data is deterministic), so nothing is stored with the model."""
+    key = (id(m.failure), seed)
+    if key not in _CALIBRATION:
+        X, y = _failure_data(seed)
+        _, Xte, _, yte = train_test_split(X, y, test_size=0.25, random_state=seed)
+        p = m.failure.predict_proba(Xte)[:, 1]
+        h = failure_hazard(Xte)
+        _CALIBRATION[key] = {"assets": int(len(yte)), "base_rate": float(y.mean()), "brier": float(np.mean((p - yte) ** 2)), "brier_best": float(np.mean((h - yte) ** 2)),
+                             "mean_gap": float(np.mean(np.abs(p - h)))}
+    return _CALIBRATION[key]
+
+
+_CALIBRATION: dict = {}
+
+
+def _train_failure(seed: int, capture: dict | None = None):
+    X, y = _failure_data(seed)
     if capture is not None:
         capture["failure"] = pd.DataFrame(X, columns=FAIL_FEATURES).assign(hazard=failure_hazard(X), failed=y)
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.25, random_state=seed)

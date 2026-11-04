@@ -33,7 +33,7 @@ from app.schemas.briefing import (
 from app.sim.engine import CAIRO
 from app.sim.topology import SUBSTATION_BACKUP
 
-log = logging.getLogger("utilityguard.briefing")
+log = logging.getLogger("caregrid.briefing")
 
 DATA = Path(__file__).resolve().parents[1] / "data"
 COOLDOWN_HOURS = float(os.getenv("BRIEFING_COOLDOWN_HOURS", "12"))
@@ -276,7 +276,7 @@ class BriefingService:
                   "outlook": ("The next 24 hours", "الـ 24 ساعة القادمة"), "money": ("Money", "المال")}
         date = now.astimezone(CAIRO)
         day = f"{date.day} {MONTHS_AR[date.month - 1]} {date.year}" if ar else date.strftime("%d %B %Y")
-        headline = f"ملخص UtilityGuard الصباحي، {day}" if ar else f"UtilityGuard morning briefing, {day}"
+        headline = f"ملخص Care Grid الصباحي، {day}" if ar else f"Care Grid morning briefing, {day}"
         out_sections = []
         for sid in ("decision", "now", "watch", "outlook", "money"):
             if not sections[sid]:

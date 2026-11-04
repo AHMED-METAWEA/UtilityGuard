@@ -28,7 +28,7 @@ from app.schemas import (
 from app.cost.references import NOT_FOUND, REFERENCES, evidence
 from app.sim.topology import ZONE_CUSTOMERS
 
-log = logging.getLogger("utilityguard.cost")
+log = logging.getLogger("caregrid.cost")
 DATA = Path(__file__).resolve().parents[2] / "data"
 ASSUMPTIONS_FILE = DATA / "assumptions.json"
 REVIEWED = "2026-10-29"

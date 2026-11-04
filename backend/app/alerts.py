@@ -32,7 +32,7 @@ from app.schemas import AgentFinding, EarlyWarning, Incident
 from app.schemas.alerts import AlertDelivery, AlertKind, AlertsStatus
 from app.sim.engine import CAIRO
 
-log = logging.getLogger("utilityguard.alerts")
+log = logging.getLogger("caregrid.alerts")
 
 TELEGRAM_LIMIT = 4096
 RANK = {"info": 0, "warning": 1, "critical": 2}
@@ -250,14 +250,19 @@ class TelegramAlerts:
         lines += [f"• {s.label}: {s.value:.2f} " + ("مقابل" if ar else "against") + f" {s.peer_value:.2f} " + ("للأصول المشابهة" if ar else "for its peers") for s in w.signals]
         if w.rise_per_minute is not None:
             lines.append((f"• معدل الارتفاع: {w.rise_per_minute:+.3f} في الدقيقة" if ar else f"• Rising by {w.rise_per_minute:+.3f} per minute"))
-        if w.minutes_to_90 is not None:
-            lines.append((f"• لو استمر على نفس المعدل يوصل 90% بعد {w.minutes_to_90:.1f} دقيقة (استقراء مش توقع)" if ar
-                          else f"• If the excess keeps rising, the score reaches 90% in {w.minutes_to_90:.1f} minutes (an extrapolation, not a forecast)"))
+        if w.drivers:
+            lines += ["", "ليه الإنذار:" if ar else "Why:"] + [f"• {(d.text_ar if ar and d.text_ar else d.text)}" for d in w.drivers[:2]]
+        ev = w.evidence
+        if ev:
+            lines += ["", (f"لو استنيت: في {ev.runs} تجربة لمضخة بتتآكل وتُركت، المضخة وقفت بعد الإنذار بوسيط {ev.lead_median_s:.0f} ثانية (من {ev.lead_min_s:.0f} لـ {ev.lead_max_s:.0f}). "
+                           "ده في التوأم، مش على مضخة حقيقية." if ar else
+                           f"If you wait: in {ev.runs} test runs of a wearing pump left alone, it stopped a median {ev.lead_median_s:.0f} s after the warning ({ev.lead_min_s:.0f} to {ev.lead_max_s:.0f} s). "
+                           "That is the twin, not a real pump.")]
         lines += ["", (f"الصيانة المخططة {money(c.planned)} جنيه مقابل {money(c.unplanned)} جنيه لو وقفت فجأة. الصيانة تدفع لما احتمال العطل يعدّي {c.break_even:.1%}." if ar
                         else f"Planned maintenance {money(c.planned)} EGP against {money(c.unplanned)} EGP if it fails. Maintenance pays when the chance of failing is above {c.break_even:.1%}."),
                   ("التقدير: " if ar else "Verdict: ") + (("صيانة الآن أرخص" if c.verdict == "maintain_now" else "الانتظار أرخص لكن راقبها") if ar
                                                        else ("maintaining now is cheaper" if c.verdict == "maintain_now" else "waiting is still cheaper, but watch it")),
-                  ("(درجة الخطر ترتيب مش احتمال معايَر: النموذج متدرّب على بيانات اصطناعية)" if ar else "(the risk score is a ranking, not a calibrated probability: the model is trained on a synthetic hazard)")]
+                  ("(درجة الخطر مقروءة قصاد تاريخ اصطناعي، مش احتمال عطل في وقت محدد)" if ar else "(the risk score is read against a synthetic history, not the chance of failing within a stated time)")]
         return "\n".join(lines + self._app("/incidents") + [FOOTER[lang]])
 
     @staticmethod
@@ -318,6 +323,6 @@ class TelegramAlerts:
     async def send_test(self) -> AlertDelivery:
         """One short message, to check the bot and the chat id. It says it is a test and carries no incident data."""
         ar = self.lang() == "ar"
-        text = ("✅ رسالة تجربة من UtilityGuard: التنبيهات متوصلة. أي مشكلة هتتبعت هنا بكل تفاصيلها." if ar
-                else "✅ Test message from UtilityGuard: alerts are connected. Any problem will be sent here with its details.")
+        text = ("✅ رسالة تجربة من Care Grid: التنبيهات متوصلة. أي مشكلة هتتبعت هنا بكل تفاصيلها." if ar
+                else "✅ Test message from Care Grid: alerts are connected. Any problem will be sent here with its details.")
         return await self._post("test", "test", "test", text, self.clock())

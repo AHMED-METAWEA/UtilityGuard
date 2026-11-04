@@ -137,11 +137,14 @@ class Why:
                  ("Temperature above normal", "°C", "measured", "How far a temperature sensor is above its normal maximum.")]
         inputs = [_a(n, round(float(v), 3), u, s, b) for (n, u, s, b), v in zip(names, f)]
         imp = ", ".join(f"{k} {v:.0%}" for k, v in self.mls.models.importances.get("failure", [])[:4])
+        cal = ml.failure_calibration(self.mls.models, self.rt.seed)
         return WhyRecord(ref=ref, title=f"Failure risk of {a.name}", value=st.failure_probability, unit="score", evidence="model",
                          formula="gradient-boosting classifier over the six inputs below (risk score between 0 and 1)",
                          steps=[f"inputs: {', '.join(f'{n} {float(v):.2f}' for (n, *_), v in zip(names, f))} → score {st.failure_probability:.2f}"], inputs=inputs,
-                         notes=["The model is trained on a synthetic failure hazard (age, hours, deviation, variability, load, temperature), so this is a ranking score, not a calibrated probability of failing."]
-                         + ([f"Inputs the model leans on most: {imp}."] if imp else []),
+                         notes=["The model is trained on a synthetic failure hazard (age, hours, deviation, variability, load, temperature), so this is a score read against that history, not the chance of failing within a stated time."]
+                         + ([f"Inputs the model leans on most: {imp}."] if imp else [])
+                         + [f"Checked on {cal['assets']:,} held-out assets of that history: mean error {cal['mean_gap'] * 100:.1f} points against the true rate (Brier {cal['brier']:.3f}; {cal['brier_best']:.3f} is the best any score can reach). "
+                            f"A failure is recorded for {cal['base_rate']:.0%} of the assets in it and it has no time window, so the level is high by construction."],
                          links=[{"label": "See what could fail next", "href": "#/executive"}], computed_at=self._now())
 
     # ---------- early warning ----------
@@ -153,19 +156,28 @@ class Why:
         A = self.A
         f = _failure_facts(self.rt, self.rt.engine.g.asset_index[w.asset_id], A)
         n = _summary(f, A)
-        inputs = [_a("Risk score now", w.cost.risk, "score", "forecast", "The failure model's score for this asset (a ranking, not a calibrated probability)."),
+        inputs = [_a("Risk score now", w.cost.risk, "score", "forecast", "The failure model's score for this asset, read against its synthetic history (not the chance of failing within a stated time)."),
                   _a("Risk score from age and load alone", w.peer_risk, "score", "forecast", "The same score with the condition signals set to the median of the other assets of the same kind."),
                   _a("Cost if it fails", w.cost.unplanned, "EGP", "rule", f"Losses until the crew works ({n['c_delay']:,.0f} EGP/h) over the delay plus a late repair; cost model pump-failure proxy."),
                   _a("Cost of planned maintenance", w.cost.planned, "EGP", "rule", "planned_factor × emergency repair cost")]
         inputs += [_a(s.label, s.value, s.unit, "measured", f"The median of the other assets of the same kind is {s.peer_value:g}.") for s in w.signals]
         inputs += [_ai(A, "planned_factor")] + [_ai(A, k) for k in assumption_keys(f, A) if k != "planned_factor"]
+        shares = [d.text for d in w.drivers[:2]]
+        steps = [f"{w.cost.risk:.3f} × {w.cost.unplanned:,.0f} − {w.cost.planned:,.0f} = {w.cost.expected_saving:,.0f} EGP",
+                 f"break-even risk = {w.cost.planned:,.0f} ÷ {w.cost.unplanned:,.0f} = {w.cost.break_even:.3f}",
+                 f"gap to the peers = {w.risk:.3f} − {w.peer_risk:.3f} = {w.excess:.3f}"] + shares
+        cal = ml.failure_calibration(self.mls.models, self.rt.seed)
+        notes = ["The warning opens when the risk score exceeds what age and load explain by 1.0 in log-odds, held for three readings in a row (about a minute), while the asset is still running "
+                 "and is not inside an open incident.",
+                 f"The score was checked against the history the model learned from: on {cal['assets']:,} held-out assets its mean error against the true rate in that history is "
+                 f"{cal['mean_gap'] * 100:.1f} points (Brier {cal['brier']:.3f}; {cal['brier_best']:.3f} is the best any score can reach). That history has no time window and a failure is "
+                 f"recorded for {cal['base_rate']:.0%} of its assets, so the score is not the chance of failing within a stated time, and its level is high by construction.",
+                 "The risk model is trained on a synthetic hazard: this shows the mechanism, not field accuracy. The expected saving treats the score as the chance of failing, which is an assumption."]
+        if w.evidence:
+            notes.append(w.evidence.text)
         return WhyRecord(ref=ref, title=f"Early warning: {w.asset_name}", value=w.cost.expected_saving, unit="EGP", evidence="calculated",
                          formula="risk × cost if it fails − cost of planned maintenance; maintenance pays when the risk is above planned ÷ unplanned",
-                         steps=[f"{w.cost.risk:.3f} × {w.cost.unplanned:,.0f} − {w.cost.planned:,.0f} = {w.cost.expected_saving:,.0f} EGP",
-                                f"break-even risk = {w.cost.planned:,.0f} ÷ {w.cost.unplanned:,.0f} = {w.cost.break_even:.3f}"], inputs=inputs,
-                         notes=["The warning opens when the risk score exceeds what age and load explain by 0.15 for three samples in a row while the asset is still running.",
-                                "The risk model is trained on a synthetic hazard: this shows the mechanism, not field accuracy."],
-                         links=[{"label": "Edit the assumptions", "href": "#/savings"}], computed_at=self._now())
+                         steps=steps, inputs=inputs, notes=notes, links=[{"label": "Edit the assumptions", "href": "#/savings"}], computed_at=self._now())
 
     # ---------- savings and forecast ----------
     def _saving(self, ref: str, key: str) -> WhyRecord:

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Care Grid workflow</title>
+<style>
+  :root {
+    --bg: #f7f5f1; --ink: #2a2926; --muted: #6d6a63; --box: #ece9e2; --line: #6b6860;
+    --gate: #fbe9d0; --gate-line: #a86a1d; --loop: #e2efe3; --loop-line: #3f7a47; --chip: #8f8c85;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body { width: 1280px; height: 720px; position: relative; overflow: hidden; color: var(--ink);
+         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  h1 { position: absolute; left: 86px; top: 62px; margin: 0; font-size: 36px; line-height: 1.1; font-weight: 700; letter-spacing: -0.2px; }
+  .sub { position: absolute; left: 86px; top: 122px; margin: 0; font-size: 17px; color: var(--muted); }
+  .box { position: absolute; width: 240px; height: 100px; border: 2px solid var(--line); border-radius: 12px; background: var(--box);
+         text-align: center; padding: 15px 14px 0; }
+  .box b { display: block; font-size: 20px; line-height: 1.2; margin-bottom: 6px; }
+  .box span { display: block; font-size: 14.5px; line-height: 1.32; color: #4a4843; }
+  .gate { background: var(--gate); border-color: var(--gate-line); }
+  .gate b { color: #4a2d07; }
+  .loop { background: var(--loop); border: 2px solid var(--loop-line); }
+  .loop b { color: #1f4d27; }
+  .r1 { top: 171px; } .r2 { top: 304px; }
+  .c1 { left: 86px; } .c2 { left: 375px; } .c3 { left: 665px; } .c4 { left: 953px; }
+  svg.arrows { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; pointer-events: none; }
+  .never { position: absolute; left: 86px; top: 443px; font-size: 15px; font-weight: 700; letter-spacing: 0.3px; color: var(--muted); }
+  .rule { position: absolute; left: 86px; top: 466px; width: 1108px; height: 1px; background: #b9b6af; }
+  .chip { position: absolute; width: 240px; height: 42px; border: 1.5px dashed var(--chip); border-radius: 9px; color: #5d5a54;
+          font-size: 16px; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .k1 { top: 488px; } .k2 { top: 544px; }
+</style>
+</head>
+<body>
+  <h1>Care Grid workflow</h1>
+  <p class="sub">Live, priced and closed-loop: every number comes from code, a person decides, and the outcome returns to the system</p>
+
+  <div class="box r1 c1"><b>1. Live readings</b><span>89 sensors on 48 assets, every 2 seconds</span></div>
+  <div class="box r1 c2"><b>2. Detect</b><span>Fault confirmed in 3 readings; one root cause, one incident</span></div>
+  <div class="box r1 c3"><b>3. Price</b><span>EGP per hour of delay, with a P10 to P90 range</span></div>
+  <div class="box r1 c4"><b>4. Explain</b><span>Agents explain it; every figure is checked against the calculation</span></div>
+
+  <div class="box r2 c4 gate"><b>5. Approval</b><span>Cheapest crew order proposed; a person decides</span></div>
+  <div class="box r2 c3"><b>6. Execute</b><span>Crews work on the demo clock; the repair ends the fault</span></div>
+  <div class="box r2 c2"><b>7. Confirm</b><span>The detector, not the crew, confirms it is gone</span></div>
+  <div class="box r2 c1 loop"><b>Closed loop</b><span>Hash-chained log; edited assumptions recompute</span></div>
+
+  <svg class="arrows" viewBox="0 0 1280 720" aria-hidden="true">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 z" fill="#6b6860"/></marker>
+      <marker id="g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 z" fill="#3f7a47"/></marker>
+    </defs>
+    <g stroke="#6b6860" stroke-width="2" fill="none" marker-end="url(#a)">
+      <line x1="332" y1="221" x2="368" y2="221"/>
+      <line x1="622" y1="221" x2="658" y2="221"/>
+      <line x1="912" y1="221" x2="946" y2="221"/>
+      <line x1="1073" y1="277" x2="1073" y2="298"/>
+      <line x1="945" y1="354" x2="912" y2="354"/>
+      <line x1="657" y1="354" x2="622" y2="354"/>
+    </g>
+    <g stroke="#3f7a47" stroke-width="2" fill="none" marker-end="url(#g)">
+      <line x1="367" y1="354" x2="334" y2="354"/>
+    </g>
+    <!-- the loop returns to the start: from the loop box up to the live readings -->
+    <path d="M206 298 L206 277" stroke="#3f7a47" stroke-width="2" fill="none" marker-end="url(#g)"/>
+  </svg>
+
+  <div class="never">ALWAYS CONSIDERED: used by every step</div>
+  <div class="rule"></div>
+  <div class="chip k1" style="left:86px">Heat waves and holidays</div>
+  <div class="chip k1" style="left:375px">Demand forecast</div>
+  <div class="chip k1" style="left:665px">Cost of waiting (EGP/h)</div>
+  <div class="chip k1" style="left:953px">Crews and their order</div>
+  <div class="chip k2" style="left:86px">Backup substations</div>
+  <div class="chip k2" style="left:375px">Sensor quality flags</div>
+  <div class="chip k2" style="left:665px">Early warning of pump wear</div>
+  <div class="chip k2" style="left:953px">Hospital districts (health link)</div>
+</body>
+</html>

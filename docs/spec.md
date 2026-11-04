@@ -1,4 +1,4 @@
-# UtilityGuard Multi-Agent Digital Twin: Project Specification
+# Care Grid Multi-Agent Digital Twin: Project Specification
 
 A live digital twin of a district of the New Administrative Capital, with specialist AI agents for water, electricity, and cooling, coordinated by an orchestrator that helps the business owner make decisions.
 

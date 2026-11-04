@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-28T11:36:40Z",
+  "generatedAt": "2026-10-28T11:38:20Z",
   "lang": "en",
-  "headline": "UtilityGuard morning briefing, 28 October 2026",
+  "headline": "Care Grid morning briefing, 28 October 2026",
   "sections": [
     {
       "id": "now",
@@ -36,13 +36,13 @@
         {
           "kind": "outlook",
           "severity": "info",
-          "text": "Water demand is forecast to peak at 5,048 m3/h around 12:00.",
+          "text": "Water demand is forecast to peak at 5,076 m3/h around 12:00.",
           "fingerprint": "outlook:water"
         },
         {
           "kind": "outlook",
           "severity": "info",
-          "text": "Electrical load is forecast to peak at 206.9 MW around 12:00, 47% of the 440.0 MW firm capacity.",
+          "text": "Electrical load is forecast to peak at 206.4 MW around 11:30, 47% of the 440.0 MW firm capacity.",
           "fingerprint": "outlook:electricity"
         },
         {
@@ -60,13 +60,13 @@
         {
           "kind": "money",
           "severity": "info",
-          "text": "Savings available: 4,398,801 EGP a month. Open the Savings page to see where.",
+          "text": "Savings available: 3,594,914 EGP a month. Open the Savings page to see where.",
           "fingerprint": "money:savings"
         }
       ]
     }
   ],
-  "text": "UtilityGuard morning briefing, 28 October 2026\nOpen incidents: 1. Every hour without action adds 3,820 EGP.\n\nHappening now\n• Pipe burst in Government District: acting now costs 22,220 EGP, and each hour of delay adds 3,820 EGP.\n\nWorth watching\n• P-03 is still running but its condition is drifting away from its peers. Planned maintenance costs 27,240 EGP against 87,560 EGP if it fails; maintenance pays above a 31.1% chance of failing.\n\nThe next 24 hours\n• Water demand is forecast to peak at 5,048 m3/h around 12:00.\n• Electrical load is forecast to peak at 206.9 MW around 12:00, 47% of the 440.0 MW firm capacity.\n• Cooling demand is forecast to peak at 57.1 MW around 12:30.\n\nMoney\n• Savings available: 4,398,801 EGP a month. Open the Savings page to see where.",
+  "text": "Care Grid morning briefing, 28 October 2026\nOpen incidents: 1. Every hour without action adds 3,820 EGP.\n\nHappening now\n• Pipe burst in Government District: acting now costs 22,220 EGP, and each hour of delay adds 3,820 EGP.\n\nWorth watching\n• P-03 is still running but its condition is drifting away from its peers. Planned maintenance costs 27,240 EGP against 87,560 EGP if it fails; maintenance pays above a 31.1% chance of failing.\n\nThe next 24 hours\n• Water demand is forecast to peak at 5,076 m3/h around 12:00.\n• Electrical load is forecast to peak at 206.4 MW around 11:30, 47% of the 440.0 MW firm capacity.\n• Cooling demand is forecast to peak at 57.1 MW around 12:30.\n\nMoney\n• Savings available: 3,594,914 EGP a month. Open the Savings page to see where.",
   "figures": [
     {
       "key": "inc_0001_act_now",
@@ -113,14 +113,14 @@
     {
       "key": "water_peak",
       "label": "forecast water demand peak",
-      "display": "5,048 m3/h",
-      "value": 5048.19
+      "display": "5,076 m3/h",
+      "value": 5075.79
     },
     {
       "key": "elec_peak",
       "label": "forecast electrical load peak",
-      "display": "206.9 MW",
-      "value": 206.87
+      "display": "206.4 MW",
+      "value": 206.36
     },
     {
       "key": "elec_cap",
@@ -132,7 +132,7 @@
       "key": "elec_share",
       "label": "forecast peak as a share of firm capacity, in percent",
       "display": "47%",
-      "value": 47.01590909090909
+      "value": 46.900000000000006
     },
     {
       "key": "cool_peak",
@@ -143,8 +143,8 @@
     {
       "key": "savings_month",
       "label": "savings opportunities available each month",
-      "display": "4,398,801 EGP",
-      "value": 4398801.0
+      "display": "3,594,914 EGP",
+      "value": 3594914.0
     }
   ],
   "repeated": 0,

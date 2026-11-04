@@ -122,7 +122,7 @@ def incident_pdf_ar(rt: "Runtime", incident_id: str) -> bytes:
     inc = rt.incidents[incident_id]
     buf = io.BytesIO()
     left = right = 16 * mm
-    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=left, rightMargin=right, topMargin=14 * mm, bottomMargin=14 * mm, title=f"UtilityGuard incident {inc.id}")
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=left, rightMargin=right, topMargin=14 * mm, bottomMargin=14 * mm, title=f"Care Grid incident {inc.id}")
     full = A4[0] - left - right
     navy, line = colors.HexColor("#0B1630"), colors.HexColor("#C9D2E3")
     st_body = ParagraphStyle("b", fontName=REG, fontSize=10.5, leading=17, alignment=TA_RIGHT)
@@ -149,7 +149,7 @@ def incident_pdf_ar(rt: "Runtime", incident_id: str) -> bytes:
         return t
 
     g = rt.engine.g
-    st = [para("تقرير الحادثة، UtilityGuard Twin", st_h1),
+    st = [para("تقرير الحادثة، Care Grid Twin", st_h1),
           para(f"{inc.title_ar or inc.title} ({inc.id}). الخطورة: {SEVERITY_AR.get(inc.severity, inc.severity)}، الحالة: {STATE_AR.get(inc.state, inc.state)}. "
                f"فُتحت في {inc.opened_at:%Y-%m-%d %H:%M} بتوقيت UTC. الشبكات: {'، '.join(NETWORK_AR.get(n, n) for n in inc.networks)}. "
                f"المناطق: {'، '.join(ZONE_AR.get(z, g.zone_index[z].name) for z in inc.zone_ids)}.", st_body),
@@ -186,6 +186,6 @@ def incident_pdf_ar(rt: "Runtime", incident_id: str) -> bytes:
                para("؛ ".join(f"{assumption_name_ar(s.input, s.input)} {s.change_percent:+.0f}% يعطي وفرًا قدره {s.new_saving:,.0f} جنيه" for s in e.sensitivity) or "—", st_body),
                para("خطوات الوكيل", st_h3)]
         st += [para(f"{i}. {x}", st_body) for i, x in enumerate((t.reasoning_steps if t else f.reasoning_steps), 1)]
-    st += [Spacer(1, 8), para("كل الأرقام محسوبة بنموذج التكلفة في UtilityGuard من المعادلات والافتراضات المذكورة. الشبكة محاكاة والقيم للتوضيح، وأسعارها افتراضات تخطيط وليست تعريفة رسمية.", st_note)]
+    st += [Spacer(1, 8), para("كل الأرقام محسوبة بنموذج التكلفة في Care Grid من المعادلات والافتراضات المذكورة. الشبكة محاكاة والقيم للتوضيح، وأسعارها افتراضات تخطيط وليست تعريفة رسمية.", st_note)]
     doc.build(st)
     return buf.getvalue()

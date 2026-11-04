@@ -1,4 +1,4 @@
-# UtilityGuard backend
+# Care Grid backend
 
 FastAPI + Pydantic v2 service that simulates the three utility networks, detects faults, prices them, runs the AI agents and the board, and streams everything over WebSocket. Python 3.12.
 
@@ -81,7 +81,7 @@ PYTHONPATH=. .venv/bin/python scripts/make_fixtures.py                 # regener
 | `test_forecast.py` | Forecast evidence, baselines, band coverage, model comparison and its bootstrap. |
 | `test_lab.py`, `test_decision.py`, `test_savings.py`, `test_checker.py` | AI lab, Decision Studio, savings advisor, the number checker. |
 | `test_board.py` | The vectorised scheduler against a slow reference, Smith's rule, relief, guards on the model's wording, the storm. |
-| `test_early_warning.py` | The warning arrives while the pump still runs and before the failure alarm (about four minutes), stays quiet on a quiet twin, a burst and a power cut, prices the choice, and every figure in its text is one of its numbers. |
+| `test_early_warning.py` | The warning arrives while the pump still runs and before the failure alarm (12 s to 574 s, median 114 s over 24 wears; see `docs/measurements/early-warning.md`), stays quiet on a quiet twin, a burst and a power cut, prices the choice, and every figure in its text is one of its numbers. |
 | `test_why_guardrail.py` | Every KPI, asset, opportunity and network has an explanation; unknown refs are a clean 404; the guardrail catches an invented figure, matches a true one, and says when a planted draft stands in. |
 | `test_figures.py` | Figure tokens: substitution, unknown tokens, a brace or unit added by the model, a recorded answer following a price change, and a specialist whose invented figures are removed. |
 | `test_briefing.py` | The briefing in both languages: every number traced to a registered figure, the Arabic month and units, a decision first, repeats counted after a send, Telegram skipped, sent, failed without leaking the token. |

@@ -1,6 +1,6 @@
 # Tables for the healthcare-investment project
 
-Made by `backend/scripts/export_for_health.py` from the UtilityGuard digital twin of the New Administrative Capital. `MANIFEST.json` says how (seed, commit,
+Made by `backend/scripts/export_for_health.py` from the Care Grid digital twin of the New Administrative Capital. `MANIFEST.json` says how (seed, commit,
 SHA-256 of every file). **The twin is simulated and the cost figures use planning assumptions, so these tables show how the method behaves, not what a real
 outage would cost.**
 

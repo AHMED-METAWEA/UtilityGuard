@@ -18,7 +18,7 @@ from typing import Any
 
 from groq import AsyncGroq
 
-log = logging.getLogger("utilityguard.llm")
+log = logging.getLogger("caregrid.llm")
 
 DATA = Path(__file__).resolve().parents[2] / "data"
 CACHE_FILE = DATA / "fallback_cache.json"

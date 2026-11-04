@@ -1,4 +1,4 @@
-/* UtilityGuard design tokens. Light and dark are two selected sets, not an inversion.
+/* Care Grid design tokens. Light and dark are two selected sets, not an inversion.
    Network hues come from the validated categorical palette (blue, yellow, aqua). */
 :root {
   --font-ui: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;

@@ -26,7 +26,7 @@ from app.schemas.lab import (
     LabQuality, LocalizationBySize, QualityKind, SensorValue, SensorValueRow, TrialDetector, TrialResult,
 )
 
-log = logging.getLogger("utilityguard.lab")
+log = logging.getLogger("caregrid.lab")
 CACHE = Path(__file__).resolve().parents[2] / "data" / "lab_benchmark.json"
 VERSION = 4
 WINDOW = TICKS - ONSET  # minutes a detector has to notice a fault in a run

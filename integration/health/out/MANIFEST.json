@@ -6,8 +6,8 @@
  "assumptions": "registered defaults (backend/app/cost/__init__.py DEFAULTS), no saved override",
  "budget_m_egp": 15.0,
  "environment_month": "2026-09",
- "written_at": "2026-11-03T22:10:56.721685+00:00",
- "git_commit": "f2cbe9a",
+ "written_at": "2026-11-04T18:32:23.611378+00:00",
+ "git_commit": "bffb98f",
  "simulated": true,
  "files": {
   "scenarios.csv": {

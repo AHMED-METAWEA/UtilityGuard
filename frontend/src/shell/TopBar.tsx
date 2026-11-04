@@ -40,7 +40,7 @@ export function TopBar() {
       <a className="brand" href={href('live')} style={{ textDecoration: 'none', color: 'inherit' }}>
         <img className="brand-mark" src="/brand/icon-192.png" alt="" width={32} height={32} />
         <span className="brand-text">
-          <img className="brand-logo brand-logo-light" src="/brand/wordmark-light.png" alt={t('app.name', 'UtilityGuard')} height={26} />
+          <img className="brand-logo brand-logo-light" src="/brand/wordmark-light.png" alt={t('app.name', 'Care Grid')} height={26} />
           <img className="brand-logo brand-logo-dark" src="/brand/wordmark-dark.png" alt="" aria-hidden height={26} />
           <div className="brand-sub">{t('app.sub', 'New Administrative Capital')}</div>
         </span>

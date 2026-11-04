@@ -17,7 +17,7 @@ from app.detection import Detector
 from app.runtime import Runtime
 from app.schemas import ChatChunk, ChatDone, ChatRoute, Incident
 
-log = logging.getLogger("utilityguard.service")
+log = logging.getLogger("caregrid.service")
 
 
 class AgentService:

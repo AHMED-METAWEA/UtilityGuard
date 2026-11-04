@@ -1,9 +1,9 @@
 {
   "nav": { "audit": "Decision log" },
   "app": {
-    "name": "UtilityGuard",
+    "name": "Care Grid",
     "subtitle": "DISTRICT INTELLIGENCE",
-    "title": "UtilityGuard · District intelligence",
+    "title": "Care Grid · District intelligence",
     "region": "New Administrative Capital",
     "regionShort": "NAC · EGYPT",
     "workspace": "Operations workspace",

@@ -25,7 +25,7 @@ test('malformed warning fields, signals, chart points and costs are rejected', (
   for (const patch of [
     { state: 'broken' }, { assetName: 3 }, { network: 'gas' }, { whyRef: null },
     { risk: 'high' }, { risk: 1.1 }, { peerRisk: -1 }, { createdAt: 'not-a-date' },
-    { risePerMinute: 'soon' }, { minutesTo90: false }, { leadTimeSeconds: 'four' },
+    { risePerMinute: 'soon' }, { drivers: [{}] }, { evidence: { text: 3 } }, { leadTimeSeconds: 'four' },
     { signals: [{}] }, { signals: [{ ...warning.signals[0], peerValue: 'low' }] },
     { series: [{ ...warning.series[0], peer: 'low' }] }, { series: [{ ...warning.series[0], t: 'invalid' }] },
     { cost: { ...warning.cost, verdict: 'schedule' } }, { cost: { ...warning.cost, planned: 'free' } },

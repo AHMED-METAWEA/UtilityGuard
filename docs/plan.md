@@ -1,4 +1,4 @@
-# UtilityGuard Build Plan
+# Care Grid Build Plan
 
 Sources of truth: [spec.md](spec.md) and [contract.md](contract.md). Decisions: [decisions.md](decisions.md).
 Owners: **CC** = Claude Code (backend, AI, review). **CX** = Codex (frontend, bulk work).

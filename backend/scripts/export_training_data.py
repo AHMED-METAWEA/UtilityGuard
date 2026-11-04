@@ -104,7 +104,7 @@ def main() -> None:
 
 README = """# Training data copy
 
-A copy of the data UtilityGuard's models were trained and scored on, made by `scripts/export_training_data.py`. `MANIFEST.json` says how: seed, window, the
+A copy of the data Care Grid's models were trained and scored on, made by `scripts/export_training_data.py`. `MANIFEST.json` says how: seed, window, the
 calendar of heat and holiday days, the hyper-parameters, the git commit, and a SHA-256 for every file. **The data is simulated by the twin (seeded), so this is a
 copy of the simulation and not of any real network.**
 

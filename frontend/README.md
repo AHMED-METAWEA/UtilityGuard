@@ -1,4 +1,4 @@
-# UtilityGuard frontend
+# Care Grid frontend
 
 React 18 + TypeScript + Vite. State in Zustand, the map in MapLibre GL (no remote tiles: the buildings, roads, parks and the Green River are local GeoJSON in `public/geo`), charts are hand-written SVG, colours and spacing come from CSS variables in `src/design/theme.css` (light and dark).
 
@@ -39,7 +39,7 @@ Keyboard: `Cmd/Ctrl+K` command palette (includes assumptions), `S` Scenario Lab,
 
 ## Brand assets
 
-`public/brand/` holds the logo: `wordmark-light.png` and `wordmark-dark.png` (transparent, the top bar switches between them with the theme), `icon-192.png` (the mark on a white tile, shown instead of the wordmark below 560 px), `favicon-32.png`, `favicon-64.png`, `apple-touch-icon.png`, `icon-512.png`, and `utilityguard-hero.jpg` (the full artwork, for the README, the title slide and the report cover). The wordmark and icons were cut from the hero artwork; the dark wordmark has the navy letters turned pale.
+`public/brand/` holds the logo: `wordmark-light.png` and `wordmark-dark.png` (transparent, the top bar switches between them with the theme), `icon-192.png` (the mark on a white tile, shown instead of the wordmark below 560 px), `favicon-32.png`, `favicon-64.png`, `apple-touch-icon.png`, `icon-512.png`, and `caregrid-hero.jpg` (the full artwork, for the README, the title slide and the report cover). The wordmark and icons were cut from the hero artwork; the dark wordmark has the navy letters turned pale.
 
 ## Rules
 

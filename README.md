@@ -1,6 +1,6 @@
-<p align="center"><img src="frontend/public/brand/utilityguard-hero.jpg" alt="UtilityGuard: multi-agent digital twin for smart utilities in the New Administrative Capital" width="760"></p>
+<p align="center"><img src="frontend/public/brand/caregrid-hero.jpg" alt="Care Grid: multi-agent digital twin for smart utilities in the New Administrative Capital" width="760"></p>
 
-# UtilityGuard: Multi-Agent Digital Twin
+# Care Grid: Multi-Agent Digital Twin
 
 A live 2D digital twin of a district of the New Administrative Capital (Egypt) with three utility networks: **water, electricity and district cooling**. Specialist AI agents watch the networks, an orchestrator coordinates them, and a **board of agents** proposes who gets a repair crew first. A person approves, and the approved plan runs inside the twin.
 
@@ -30,7 +30,7 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | **Crew dispatch** | The approved plan runs in the twin on a demo clock. When a crew finishes, the fault ends and the detector, not the crew, confirms the alert is clear. |
 | **Arabic or English** | Choose the language the agents speak in the top bar (`EN | عربي`): findings, reasons, chat answers, the board meeting and Telegram alerts come in it, with the same figures and the same number checks. The incident report downloads as a PDF in either language (the Arabic one reads right to left). Contract 4.24. |
 | **Build here** | Put a hospital, an expansion, a clinic or a custom load in a zone and read the water, electricity and cooling networks with and without it (ordinary day, heat wave, loss of a substation), the share of simulated days in breach, and the cost with the utility upgrades it needs (`POST /siting/evaluate`, contract 4.23). |
-| **Early warning** | A pump that is wearing out is flagged while it still runs, one to two minutes before it fails in the eight-minute demo wear (measured over 24 wears of 5 to 20 minutes on three pumps and two seeds: 12 s to 574 s ahead, median 114 s; a wear of 3 minutes is warned in only some cases): its condition signals drift away from its peers, and the warning prices planned maintenance against an unplanned failure with a break-even risk. Nothing is raised in the other scenarios (checked). |
+| **Early warning** | A pump that is wearing out is flagged while it still runs, one to two minutes before it fails in the eight-minute demo wear (measured over 24 wears of 5 to 20 minutes on three pumps and two seeds: 12 s to 574 s ahead, median 114 s; a wear of 3 minutes is warned in only some cases): its condition signals drift away from its peers, and the warning prices planned maintenance against an unplanned failure with a break-even risk. The card says why it opened (each signal's share of the gap to its peers, computed) and quotes what the twin's own test runs showed about waiting; the risk score is read against a synthetic history, not as the chance of failing within a stated time. Nothing is raised in the other scenarios (checked). |
 | **Problem alerts on Telegram** | When a problem opens, grows or is resolved, and for every early warning, a message with every detail goes to the same Telegram chat: where, what the sensors show, probable cause, impact, the cost per hour, acting now against waiting, the recommended action. Composed by code from the same figures as the Incidents page (no model in the path), once per problem, with an hourly limit. `ALERTS_ENABLED=0` turns it off. |
 | **Morning briefing** | What needs attention today, composed by code in English and Arabic (no model in the path): a board decision waiting for approval first, open incidents ranked by what an hour of delay costs, early warnings, the next 24 hours of demand against capacity, savings. Sent to Telegram once a day; a problem already reported is counted, not repeated. |
 | **Why this number?** | Every dashboard tile, asset health and risk score, savings opportunity and forecast accuracy opens an explanation: formula, worked substitution, inputs with their source, and the assumptions you can edit. A test fails if one of these numbers has no explanation. |
@@ -167,7 +167,7 @@ WebSocket messages: `snapshot`, `reading`, `asset_status`, `alert`, `incident`, 
 ## Tests and checks
 
 ```bash
-cd backend && PYTHONPATH=. .venv/bin/python -m pytest -q          # 397 tests, about 30 minutes
+cd backend && PYTHONPATH=. .venv/bin/python -m pytest -q          # 403 tests, about 12 minutes
 cd frontend && npm run lint && npm test && npm run build          # 84 tests
 cd backend && PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1   # the whole demo path against a running server
 ```
@@ -185,7 +185,7 @@ backend/app/        sim, detection, ml, cost, agents, board, lab, schemas, main 
 backend/scripts/    demo_check.py, make_fixtures.py, export_for_health.py, stress/ (measurement and stress scripts)
 integration/health/ the link with the healthcare-investment project: mapping, copies of their data, generated tables (see its README)
 run_all.sh          starts the twin and their Streamlit dashboard together (Healthcare tab)
-backend/tests/      397 tests
+backend/tests/      403 tests
 backend/data/       assumptions.json, fallback_cache.json, models.pkl, lab_benchmark.json, audit.jsonl (all git-ignored)
 frontend/src/       pages, ui, panels, charts, map, store, api, lib, i18n, design
 frontend/public/geo OpenStreetMap layers (ODbL, see ATTRIBUTION.txt)
@@ -198,6 +198,8 @@ docs/               spec, contract, cost model, decisions, design system, showca
 | File | What it is |
 | --- | --- |
 | [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) | The whole project in one page, including the link with the healthcare-investment project. **Start here if you are new.** |
+| [docs/architecture.md](docs/architecture.md) | Arabic: the architecture, the per-tick pipeline and the workflow from a fault to an approved, executed and confirmed repair, with diagrams. |
+| [docs/models-used.md](docs/models-used.md) | Arabic: every model (machine learning, language model, and the computing engines that are not models), what it is used for, what it outputs and its measured accuracy. |
 | [docs/status.md](docs/status.md) | What was built, what is measured, what still needs review, and the roadmap. **Start here for the current state of the work.** |
 | [docs/stress-test.md](docs/stress-test.md) | Arabic: the full review and stress-test plan (every model, number, endpoint, page and document), with pass criteria and a results log. |
 | [docs/showcase.md](docs/showcase.md) | Arabic: the features and numbers that will impress the committee, expected questions and a demo script. |

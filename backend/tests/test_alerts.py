@@ -207,7 +207,7 @@ def test_more_than_the_hourly_limit_is_held_back_with_one_notice(monkeypatch):
 
 def _warning(state="active", lead=None) -> EarlyWarning:
     return EarlyWarning(id="warn-0001", asset_id="water-pump-03", asset_name="P-03", network="water", zone_id="zone-cbd", state=state, created_at=T0, updated_at=T0,
-                        risk=0.31, peer_risk=0.08, excess=0.23, rise_per_minute=0.012, minutes_to_90=14.2,
+                        risk=0.31, peer_risk=0.08, excess=0.23, rise_per_minute=0.012,
                         signals=[WarningSignal(label="Deviation from the twin", value=1.9, peer_value=0.4, unit="of normal range"), WarningSignal(label="Signal variability", value=2.2, peer_value=0.5)],
                         series=[RiskPoint(t=T0, risk=0.31, peer=0.08)], cost=WarningCost(unplanned=87560.0, planned=21000.0, break_even=0.2398, risk=0.31, verdict="maintain_now", expected_saving=6143.6),
                         text="x", lead_time_seconds=lead, why_ref="warning:warn-0001")
@@ -233,7 +233,7 @@ def test_an_early_warning_is_sent_with_its_signals_and_prices_and_again_when_the
         assert len(bot.sent) == 2
         first, second = bot.texts
         assert "EARLY WARNING" in first and "P-03" in first and "31%" in first and "8%" in first and "1.90" in first and "0.40" in first
-        assert "87,560 EGP" in first and "21,000 EGP" in first and "24.0%" in first and "an extrapolation, not a forecast" in first and "ranking, not a calibrated probability" in first
+        assert "87,560 EGP" in first and "21,000 EGP" in first and "24.0%" in first and "the chance of failing within a stated time" in first
         assert "failed 2.3 minutes after its early warning" in second
 
     asyncio.run(go())

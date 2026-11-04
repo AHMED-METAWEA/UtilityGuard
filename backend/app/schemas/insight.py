@@ -7,7 +7,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from app.schemas import CalcInput, Model, Network
+from app.schemas import CalcInput, Model, Network, Reason
 
 
 class RiskPoint(Model):
@@ -32,10 +32,31 @@ class WarningCost(Model):
     expected_saving: float = Field(description="risk x unplanned - planned, EGP; positive favours maintaining now")
 
 
+class WarningEvidence(Model):
+    """What the twin's own test runs showed when a wearing pump was left alone (`scripts/stress/earlywarn_matrix.py --write-evidence`). The text is written by code from these figures."""
+    runs: int = Field(description="Wears of `wear_minutes_min` minutes or more that were run")
+    warned: int = Field(description="Of those, the wears the warning came for before the pump stopped")
+    lead_min_s: float
+    lead_median_s: float
+    lead_max_s: float
+    risk_at_warning_min: float = Field(description="The risk score at the moment the warning opened, lowest over the runs")
+    risk_at_warning_max: float
+    wear_minutes_min: float
+    wear_minutes_max: float
+    fast_runs: int = Field(description="Wears shorter than `wear_minutes_min` (3 minutes), which the warning is too slow for")
+    fast_warned: int
+    clean_hours: float = Field(description="Simulated hours without any fault in which no warning was raised")
+    false_warnings: int
+    measured_on: str
+    text: str
+    text_ar: str
+
+
 class EarlyWarning(Model):
     """A condition signal drifting away from its peers, raised while the asset is still delivering.
 
-    The risk model is trained on a synthetic hazard, so `risk` is a ranking score, not a calibrated probability."""
+    The risk model is trained on a synthetic hazard, so `risk` is a score read against that history, not the chance of failing within a stated time.
+    `drivers` says why the warning opened and `evidence` what the test runs showed about waiting."""
     id: str
     asset_id: str
     asset_name: str
@@ -48,11 +69,12 @@ class EarlyWarning(Model):
     peer_risk: float
     excess: float = Field(description="risk - peer_risk")
     rise_per_minute: float | None = Field(default=None, description="Change of the excess per minute over the last two minutes")
-    minutes_to_90: float | None = Field(default=None, description="If the excess keeps rising at this rate, minutes until the risk score reaches 0.9. An extrapolation, not a forecast")
     signals: list[WarningSignal]
     series: list[RiskPoint]
     cost: WarningCost
     text: str
+    drivers: list[Reason] = Field(default=[], description="Why it opened, largest first: how many points of the gap each condition signal explains, and what age and load alone give")
+    evidence: WarningEvidence | None = Field(default=None, description="What the twin's test runs showed about waiting; absent when the measurement file is missing")
     lead_time_seconds: float | None = Field(default=None, description="Set when it failed: seconds between the warning and the failure alarm")
     why_ref: str
 

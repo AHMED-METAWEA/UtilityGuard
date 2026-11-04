@@ -3,6 +3,7 @@
 | # | Decision | Reason |
 | --- | --- | --- |
 | D1 | Repo is `AHMED-METAWEA/UtilityGuard` (not `UtilityGuard-Twin` as in the kickoff). Work on `dev`. | The owner created this repo. |
+| D1a | The product is now called **Care Grid** (renamed 4 November 2026). The GitHub repository and the local folder keep the name `UtilityGuard`, so links and clones keep working; the `UG_SETTINGS` variable keeps its prefix. | Renaming a repository breaks every existing link; the product name is what the committee sees. |
 | D2 | No `freebuff/` folder exists, so everything is built from scratch. | The repo only has a README and .gitignore. |
 | D3 | The concept image [reference/concept-view.png](reference/concept-view.png) is a mood and layout reference, not a pixel spec. We model the capital's real layout: the Government, Presidential and Diplomatic districts in the north, the Green River running east-west, the CBD below it, residential districts R2 to R8 and Medical City. Zone polygons sit on the real coordinates (about 30.02 N, 31.75 E) over a dark OSM basemap (CARTO Dark Matter, no key needed). The overall feel is taken from the image (dark glass panels, glowing network lines, a finding card with numbered reasons and the formula, act now / delay / saving tiles, chat with routing chips), but the detailed design is our own. | The owner confirmed the image only shows the feel of a slice of the capital. |
 | D4 | Python deps are managed with `venv` + `pip` (`requirements.txt`). | `uv` is not installed and pip is enough. |

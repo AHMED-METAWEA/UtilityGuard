@@ -23,7 +23,7 @@ from app.board.plan import plan_for, signature
 from app.schemas.board import BoardDecision, BoardStep, ExecutionStep, OrderPreview, PreviewRequest, Review, ReviewRequest
 from app.sim.engine import TICK_SECONDS
 
-log = logging.getLogger("utilityguard.dispatch")
+log = logging.getLogger("caregrid.dispatch")
 
 DEFAULT_SECONDS_PER_HOUR = float(os.getenv("DISPATCH_SECONDS_PER_HOUR", "20"))
 CONFIRM_WINDOW_TICKS = 300  # how long after the work the detector is given to clear the alert before we stop waiting

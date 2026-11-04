@@ -25,7 +25,7 @@ from app.schemas import AgentFinding, CalculationRecord, FindingText, Incident, 
 if TYPE_CHECKING:
     from app.runtime import Runtime
 
-log = logging.getLogger("utilityguard.agents")
+log = logging.getLogger("caregrid.agents")
 
 DOMAIN = {
     "water": "the water network: leaks, pressure, pumps, water loss",
@@ -33,7 +33,7 @@ DOMAIN = {
     "cooling": "district cooling: chillers, supply temperature, chilled water loops, cooling energy",
 }
 
-SYSTEM = """You are the {agent} agent of UtilityGuard, a digital twin of the New Administrative Capital.
+SYSTEM = """You are the {agent} agent of Care Grid, a digital twin of the New Administrative Capital.
 You are an expert only in {domain}, and you treat it as the most important thing in the system.
 You receive measured facts and a cost calculation computed by code.
 Rules:

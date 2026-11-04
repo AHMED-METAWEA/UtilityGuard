@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // Override only for isolated tests. The default is the repository's shared fixtures/.
-const defaultFixtureRoot = resolve(process.env.UTILITYGUARD_FIXTURES ?? resolve(here, '../../fixtures'));
+const defaultFixtureRoot = resolve(process.env.CAREGRID_FIXTURES ?? resolve(here, '../../fixtures'));
 const port = Number(process.env.PORT ?? 8000);
 
 export function createMockServer({ fixtureRoot = defaultFixtureRoot } = {}) {
@@ -205,7 +205,7 @@ return { app, server, wss, close };
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const mock = createMockServer();
   mock.server.on('error', (error) => { console.error(`Mock server failed: ${error.message}`); mock.close(); process.exitCode = 1; });
-  mock.server.listen(port, () => console.log(`UtilityGuard mock: http://localhost:${port} · fixtures: ${defaultFixtureRoot}`));
+  mock.server.listen(port, () => console.log(`Care Grid mock: http://localhost:${port} · fixtures: ${defaultFixtureRoot}`));
   process.on('SIGINT', () => mock.close());
   process.on('SIGTERM', () => mock.close());
 }
