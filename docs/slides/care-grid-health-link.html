@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Care Grid and healthcare link</title>
+<style>
+  :root { --bg:#f7f5f1; --ink:#2a2926; --muted:#6d6a63; --box:#ece9e2; --line:#6b6860; --navy:#0e2142; --gold:#b98a2c; --loop:#e2efe3; --loop-line:#3f7a47; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); }
+  body { width:1280px; height:720px; position:relative; overflow:hidden; color:var(--ink); font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+  h1 { position:absolute; left:86px; top:56px; margin:0; font-size:36px; line-height:1.1; font-weight:700; letter-spacing:-0.2px; }
+  .sub { position:absolute; left:86px; top:112px; margin:0; font-size:17px; color:var(--muted); }
+  .side { position:absolute; top:170px; width:350px; height:250px; border:2px solid var(--line); border-radius:12px; background:var(--box); padding:20px 24px; }
+  .side h2 { margin:0 0 4px; font-size:21px; }
+  .side .who { margin:0 0 14px; font-size:14px; color:var(--muted); }
+  .side ul { margin:0; padding-left:20px; font-size:16px; line-height:1.55; }
+  .l { left:86px; } .r { left:844px; border-color:var(--navy); }
+  .r h2 { color:var(--navy); }
+  .mid { position:absolute; left:456px; top:170px; width:368px; height:250px; display:flex; flex-direction:column; justify-content:flex-start; padding-top:92px; align-items:center; text-align:center; gap:10px; }
+  .mid .t { font-size:16px; font-weight:700; } .mid .s { font-size:14px; line-height:1.4; color:var(--muted); padding:0 14px; }
+  .join { position:absolute; left:86px; top:446px; width:1108px; height:112px; border:2px solid var(--loop-line); background:var(--loop); border-radius:12px; padding:16px 26px; }
+  .join b { display:block; font-size:19px; color:#1f4d27; margin-bottom:6px; }
+  .join span { font-size:16px; line-height:1.45; color:#2f3a2f; }
+  .ex { position:absolute; left:86px; top:586px; width:1108px; margin:0; font-size:16.5px; line-height:1.45; }
+  .ex b { color:var(--navy); }
+  .foot { position:absolute; left:86px; bottom:34px; width:1108px; margin:0; font-size:14px; color:var(--muted); }
+  svg { position:absolute; left:0; top:0; width:1280px; height:720px; pointer-events:none; }
+</style>
+</head>
+<body>
+  <h1>Care Grid and the healthcare project</h1>
+  <p class="sub">They decide where to build; the twin says whether water, power and cooling will hold there</p>
+
+  <div class="side l">
+    <h2>Healthcare Investment Planning</h2><p class="who">Gehan's project</p>
+    <ul><li>15 districts</li><li>81 hospitals, clinics and specialists</li><li>Environmental stress by month</li><li>Investment packages, ranked</li></ul>
+  </div>
+  <div class="mid">
+    <div class="t">Files only, nothing edited</div>
+    <div class="s">Their data is read-only. Our results are written as CSV files they can read, with a SHA-256 for each.</div>
+  </div>
+  <div class="side r">
+    <h2>Care Grid</h2><p class="who">The digital twin</p>
+    <ul><li>Outage cost per district, EGP/h</li><li>Which hospitals a failure reaches</li><li>Reliability packages, ranked by payback</li><li>Their districts and facilities on our map</li></ul>
+  </div>
+
+  <svg viewBox="0 0 1280 720" aria-hidden="true">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 z" fill="#6b6860"/></marker></defs>
+    <line x1="446" y1="240" x2="834" y2="240" stroke="#6b6860" stroke-width="2.4" marker-start="url(#a)" marker-end="url(#a)"/>
+  </svg>
+
+  <div class="join"><b>One table per district</b><span>Outage cost beside environmental stress and the hospitals reached, so an investment is read with its infrastructure risk. Shown on the Executive page and the Healthcare page.</span></div>
+
+  <p class="ex"><b>Example:</b> a trip of substation SS-02 reaches 13 hospitals (3 in the government district, 8 in the medical city, 2 in the knowledge city).</p>
+
+  <p class="foot">Only 4 of their 15 districts are the same district as one of ours; the rest are matched by type. The twin has no water-quality or air model. Both datasets are simulated.</p>
+</body>
+</html>

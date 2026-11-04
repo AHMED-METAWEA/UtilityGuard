@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Care Grid models</title>
+<style>
+  :root { --bg:#f7f5f1; --ink:#2a2926; --muted:#6d6a63; --navy:#0e2142; --line:#d8d3c8; --row:#fdfbf7; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); }
+  body { width:1280px; height:720px; position:relative; overflow:hidden; color:var(--ink); font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+  h1 { position:absolute; left:86px; top:48px; margin:0; font-size:36px; line-height:1.1; font-weight:700; letter-spacing:-0.2px; }
+  .sub { position:absolute; left:86px; top:102px; margin:0; font-size:17px; color:var(--muted); }
+  .foot { position:absolute; left:86px; bottom:26px; width:1108px; margin:0; font-size:13.5px; line-height:1.4; color:var(--muted); }
+  table { position:absolute; left:86px; top:142px; width:1108px; border-collapse:separate; border-spacing:0 6px; }
+  th { text-align:left; font-size:13px; font-weight:700; color:var(--muted); padding:0 14px 2px; }
+  td { background:var(--row); border-top:1.5px solid var(--line); border-bottom:1.5px solid var(--line); padding:0 14px; height:60px; font-size:15px; line-height:1.3; vertical-align:middle; }
+  td:first-child { border-left:1.5px solid var(--line); border-radius:10px 0 0 10px; width:330px; }
+  td:last-child { border-right:1.5px solid var(--line); border-radius:0 10px 10px 0; }
+  td:nth-child(2) { width:300px; color:#4a4843; }
+  td b { font-size:16px; }
+  .tag { display:inline-block; margin-left:6px; padding:1px 7px; border-radius:9px; font-size:11.5px; font-weight:700; vertical-align:2px; background:#e7ebf3; color:var(--navy); }
+  .tag.r { background:#ece9e2; color:#4a4843; } .tag.l { background:#fbe9d0; color:#4a2d07; }
+  .res { color:var(--navy); font-weight:600; }
+</style>
+</head>
+<body>
+  <h1>Models used and what they measured</h1>
+  <p class="sub">Every number is computed by code; the language model only explains</p>
+
+  <table>
+    <tr><th>Model</th><th>Used for</th><th>Result</th></tr>
+    <tr><td><b>LightGBM</b> x3<span class="tag">ML</span></td><td>Demand per district for water, electricity and cooling, 24 to 72 h ahead</td><td class="res">Error 2.8% / 1.1% / 3.3% on 10 held-out days; 59 to 83% better than the best simple method</td></tr>
+    <tr><td><b>Fault rules</b> (3 readings)<span class="tag r">Rules</span></td><td>Finds faults; one root cause becomes one incident</td><td class="res">93% of 212 injected faults, 0 false alarms in 172.5 h</td></tr>
+    <tr><td><b>Gradient boosting classifier</b><span class="tag">ML</span></td><td>Failure risk score for each pump and transformer</td><td class="res">Ranks assets; the score is a ranking, not a chance of failing by a date</td></tr>
+    <tr><td><b>Early warning</b><span class="tag r">Rule</span></td><td>Warns of pump wear while the pump still runs</td><td class="res">24 of 24 warned, median 114 s ahead (12 to 574 s); 0 warnings in 24 h without a fault</td></tr>
+    <tr><td><b>Leak localization</b><span class="tag r">Maths</span></td><td>Which pipe is leaking (constrained least squares)</td><td class="res">Right pipe ranked first in 108 of 108 runs</td></tr>
+    <tr><td><b>Cost engine + Monte Carlo</b><span class="tag r">Maths</span></td><td>Cost of waiting, in EGP per hour</td><td class="res">P10, P50, P90 from 800 runs over editable assumptions</td></tr>
+    <tr><td><b>gpt-oss-120b</b> (Groq)<span class="tag l">LLM</span></td><td>Explains incidents and the board's plan; never calculates</td><td class="res">Every figure it quotes is checked; unknown figures are removed</td></tr>
+  </table>
+
+  <p class="foot">Compared and not chosen for the forecast: Ridge, Random Forest, Seasonal smoothing, Ensemble. Random Forest and the Ensemble tie with LightGBM statistically. Simulated data throughout.</p>
+</body>
+</html>

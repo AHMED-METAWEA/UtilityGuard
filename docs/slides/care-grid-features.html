@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Care Grid features</title>
+<style>
+  :root { --bg:#f7f5f1; --ink:#2a2926; --muted:#6d6a63; --card:#fdfbf7; --line:#d8d3c8; --navy:#0e2142; --gold:#b98a2c; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); }
+  body { width:1280px; height:720px; position:relative; overflow:hidden; color:var(--ink); font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+  h1 { position:absolute; left:86px; top:56px; margin:0; font-size:36px; line-height:1.1; font-weight:700; letter-spacing:-0.2px; }
+  .sub { position:absolute; left:86px; top:112px; margin:0; font-size:17px; color:var(--muted); }
+  .foot { position:absolute; left:86px; bottom:34px; width:1108px; margin:0; font-size:14px; color:var(--muted); }
+  .card { position:absolute; width:259px; height:205px; background:var(--card); border:2px solid var(--line); border-top:7px solid var(--navy); border-radius:12px; padding:20px 20px 0; }
+  .card.g { border-top-color:var(--gold); }
+  .card h3 { margin:0 0 6px; font-size:16px; font-weight:700; color:var(--muted); }
+  .card .big { font-size:40px; line-height:1.1; font-weight:700; color:var(--navy); margin:0 0 10px; }
+  .card p { margin:0; font-size:15.5px; line-height:1.35; color:#3f3d38; }
+  .r1 { top:168px; } .r2 { top:401px; }
+  .c1 { left:86px; } .c2 { left:369px; } .c3 { left:652px; } .c4 { left:935px; }
+</style>
+</head>
+<body>
+  <h1>What Care Grid does</h1>
+  <p class="sub">A live twin of the capital's water, electricity and cooling, from the first sign of a fault to the approved fix</p>
+
+  <div class="card r1 c1"><h3>Live twin</h3><p class="big">9 · 48 · 89</p><p>districts, assets and sensors; three networks in one model</p></div>
+  <div class="card r1 c2"><h3>Finds faults</h3><p class="big">93%</p><p>of 212 injected faults, with 0 false alarms in 172.5 simulated hours</p></div>
+  <div class="card r1 c3"><h3>Forecasts demand</h3><p class="big">1 to 3%</p><p>error on 10 days the model never saw</p></div>
+  <div class="card r1 c4 g"><h3>Warns before a pump stops</h3><p class="big">24 of 24</p><p>worn pumps warned, a median 114 s ahead, and each warning says why</p></div>
+
+  <div class="card r2 c1"><h3>Prices every fault</h3><p class="big">EGP / hour</p><p>cost of waiting, with a P10 to P90 range from 800 runs</p></div>
+  <div class="card r2 c2"><h3>Orders the crews</h3><p class="big">720</p><p>crew orders tried; the cheapest is proposed and a person approves</p></div>
+  <div class="card r2 c3"><h3>Explains, and is checked</h3><p class="big">Checked</p><p>every figure an agent quotes is matched to the calculation, or removed</p></div>
+  <div class="card r2 c4 g"><h3>Answers "build here?"</h3><p class="big">300 beds</p><p>will water, power and cooling hold in a district, before the hospital is built</p></div>
+
+  <p class="foot">All data is simulated. Detection and forecast figures are measured on the twin, not on field equipment.</p>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Care Grid layers</title>
+<style>
+  :root { --bg:#f7f5f1; --ink:#2a2926; --muted:#6d6a63; --navy:#0e2142; --gold:#b98a2c; --loop:#e2efe3; --loop-line:#3f7a47; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); }
+  body { width:1280px; height:720px; position:relative; overflow:hidden; color:var(--ink); font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+  h1 { position:absolute; left:86px; top:52px; margin:0; font-size:36px; line-height:1.1; font-weight:700; letter-spacing:-0.2px; }
+  .sub { position:absolute; left:86px; top:108px; margin:0; font-size:17px; color:var(--muted); }
+  .layer { position:absolute; left:86px; width:880px; height:74px; border-radius:12px; display:flex; align-items:center; overflow:hidden; border:2px solid var(--navy); }
+  .layer .n { width:210px; height:100%; display:flex; align-items:center; padding:0 20px; font-size:20px; font-weight:700; color:#fff; background:var(--navy); }
+  .layer .d { flex:1; padding:0 20px; font-size:15.5px; line-height:1.35; background:#fdfbf7; height:100%; display:flex; align-items:center; }
+  .l1 { top:160px; } .l2 { top:244px; } .l3 { top:328px; } .l4 { top:412px; } .l5 { top:496px; } .l6 { top:580px; }
+  .l3 .n, .l2 .n { background:#1a3566; }
+  .l4 .n, .l5 .n { background:#27487f; }
+  .l6 .n { background:#34609f; }
+  .side { position:absolute; left:990px; top:160px; width:204px; height:494px; border:2px dashed var(--gold); border-radius:12px; padding:22px 18px; background:#fdf6e6; }
+  .side b { display:block; font-size:19px; color:#6b4d10; margin-bottom:10px; }
+  .side p { margin:0 0 14px; font-size:15px; line-height:1.4; color:#4a4843; }
+  .rule { position:absolute; left:86px; bottom:30px; width:1108px; margin:0; font-size:15px; color:var(--muted); }
+</style>
+</head>
+<body>
+  <h1>The layers of Care Grid</h1>
+  <p class="sub">From the screen down to the simulated networks; the language model sits above the calculations, never inside them</p>
+
+  <div class="layer l1"><div class="n">Interface</div><div class="d">Live map, incidents, forecast, savings, lab, executive, build-here, healthcare and audit pages; chat</div></div>
+  <div class="layer l2"><div class="n">Decision</div><div class="d">Board plan (720 crew orders), human approval, crew dispatch, hash-chained audit log</div></div>
+  <div class="layer l3"><div class="n">Explanation</div><div class="d">Specialist agents and chat on gpt-oss; the number checker removes any figure the calculation does not hold</div></div>
+  <div class="layer l4"><div class="n">Cost</div><div class="d">Named formulas, 800-run Monte Carlo, assumptions with a basis and a range, editable from the screen</div></div>
+  <div class="layer l5"><div class="n">Intelligence</div><div class="d">Fault detector, demand forecast (LightGBM), failure risk, early warning, leak localization</div></div>
+  <div class="layer l6"><div class="n">Simulation</div><div class="d">Physics-based engine and an expected-values twin: 9 districts, 48 assets, 89 sensors, 15 scenarios</div></div>
+
+  <div class="side">
+    <b>Healthcare link</b>
+    <p>Reads Gehan's districts and facilities, writes outage cost and hospital exposure as CSV.</p>
+    <p>Joins the Cost and Simulation layers to their investment view.</p>
+  </div>
+
+  <p class="rule">Rule of the system: code computes every number; the language model only explains it.</p>
+</body>
+</html>
