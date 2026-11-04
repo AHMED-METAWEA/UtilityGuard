@@ -36,6 +36,17 @@ NUMBERS = {
 STRESS = {"air": "esi_air", "waste": "esi_waste", "water": "esi_water", "heat": "esi_heat", "overall": "environmental_stress_index"}
 
 
+def iso_month(text: str) -> str:
+    """Their panel wrote the month as 2025-01-01 and, from commit 9179942 on, as 1/1/2025 (month/day/year); both read as the first of that month."""
+    t = text.strip()
+    m = re.fullmatch(r"(\d{4})-(\d{2})(?:-\d{2})?", t) or re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", t)
+    if m is None:
+        return t
+    a, b, *c = m.groups()
+    year, month = (a, b) if len(a) == 4 else (c[0], a.zfill(2))
+    return f"{year}-{month}-01"
+
+
 class CityError(Exception):
     def __init__(self, status: int, code: str, message: str):
         super().__init__(message)
@@ -71,7 +82,7 @@ class CityData:
         self._facilities = [CityFacility(facility_id=r["facility_id"], kind=r["fclass"], name_ar=r["facility_name"], district_key=r["district_key"],
                                          position=LatLng(lat=float(r["lat"]), lng=float(r["lon"]))) for r in _rows(d / "healthcare_facilities.csv")]
         for r in _rows(d / "environment_monthly.csv"):
-            self._env[(r["district_key"], r["month"])] = r
+            self._env[(r["district_key"], iso_month(r["month"]))] = r
         self._months = sorted({m for _, m in self._env})
         self._mapping = {r["district_key"]: r for r in _rows(d.parent / "zone_mapping.csv")}
         src = json.loads((d / "SOURCE.json").read_text(encoding="utf-8"))

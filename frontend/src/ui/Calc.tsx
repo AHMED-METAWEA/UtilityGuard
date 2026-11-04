@@ -1,3 +1,4 @@
+import { localizeReasons, useAgentLang } from '../lib/agentLang';
 import type { ReactNode } from 'react';
 import { CircleAlert, SlidersHorizontal } from 'lucide-react';
 import type { Calculation, Cost, EvidenceType, Explanation } from '../api/types';
@@ -30,7 +31,9 @@ export function RangeBar({ p10, p50, p90, runs, unit = 'EGP' }: { p10: number; p
   );
 }
 
-export function Reasons({ reasons }: { reasons: Explanation['reasons'] }) {
+export function Reasons({ reasons: raw }: { reasons: Explanation['reasons'] }) {
+  const lang = useAgentLang((s) => s.lang);
+  const reasons = localizeReasons(raw, lang);
   return (
     <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
       {reasons.map((r, i) => (

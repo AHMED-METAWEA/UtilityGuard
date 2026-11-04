@@ -12,6 +12,7 @@ import asyncio
 import itertools
 import json
 import logging
+import os
 import re
 from datetime import datetime, timezone
 
@@ -20,6 +21,8 @@ from app.board.analysis import AGENTS, NAMES, Analysis, analyse, calculation_rec
 from app.board.audit import AuditLog, decision_hash
 from app.board.dispatch import Dispatcher
 from app.board.plan import tasks_from_alerts
+from app.board.session_ar import NAMES_AR, compose_ar, summary_draft_ar
+from app import i18n
 from app.schemas import envelope
 from app.schemas.board import BoardFact, BoardMessage, BoardSession, BoardState
 
@@ -58,13 +61,19 @@ def fact(label: str, value: float, unit: str, source: str = "calculated") -> Boa
 
 
 class Draft:
-    def __init__(self, round_: int, agent: str, kind: str, facts: list[BoardFact], template: str, brief: str, names: set[str], chair: bool = False):
-        self.round, self.agent, self.kind, self.facts, self.template, self.brief, self.names, self.chair = round_, agent, kind, facts, template, brief, names, chair
+    def __init__(self, round_: int, agent: str, kind: str, facts: list[BoardFact], template: str, brief: str, names: set[str], chair: bool = False, lang: str = "en"):
+        self.round, self.agent, self.kind, self.facts, self.template, self.brief, self.names, self.chair, self.lang = round_, agent, kind, facts, template, brief, names, chair, lang
 
 
 SYSTEM = """You are the {who} in a board meeting of the New Administrative Capital's utilities, with agents for water, electricity and cooling.
 You receive a DRAFT sentence set that is already correct. REWRITE it in the first person, like a calm senior engineer, so it sounds like you talking to colleagues.
 Rules: keep EVERY number and EVERY asset name from the DRAFT exactly as written, in digits; add no number, no asset, no cause, no time and no claim that is not in the DRAFT;
+keep its meaning, including who goes first and who waits; no markdown, no lists, no emoji; about the same length as the DRAFT, never more than {limit} words.
+Return JSON: {{"text": str}}"""
+
+SYSTEM_AR = """You are the {who} in a board meeting of the New Administrative Capital's utilities, with agents for water, electricity and cooling.
+You receive a DRAFT, written in Arabic, that is already correct. REWRITE it in Arabic (Modern Standard Arabic) in the first person, like a calm senior engineer talking to colleagues.
+Rules: keep EVERY number and EVERY asset code (SS-02, P-03, DCP-01) from the DRAFT exactly as written, with Western digits; add no number, no asset, no cause, no time and no claim that is not in the DRAFT;
 keep its meaning, including who goes first and who waits; no markdown, no lists, no emoji; about the same length as the DRAFT, never more than {limit} words.
 Return JSON: {{"text": str}}"""
 
@@ -81,11 +90,16 @@ def same_figures(text: str, draft: str) -> bool:
 
 
 async def voice(d: Draft, session_id: str, i: int) -> tuple[str, str]:
-    who = "chair (the orchestrator)" if d.chair else f"{NAMES.get(d.agent, d.agent)} agent"
+    ar = d.lang == "ar"
+    if ar and os.getenv("BOARD_AR_LLM") != "1":
+        # The checks below guard figures and asset codes, not grammar, and a model's Arabic in the first person came back with errors ("أُعزل" for "أعزل"). The meeting is read
+        # by people, so by default the Arabic is the code's own sentence. BOARD_AR_LLM=1 lets the model re-voice it under the same checks.
+        return d.template, "template"
+    who = ("chair (the orchestrator)" if d.chair else f"{NAMES.get(d.agent, d.agent)} agent") if not ar else ("chair (the orchestrator)" if d.chair else f"{NAMES_AR.get(d.agent, d.agent)} agent")
     n = len(d.template.split())
     user = json.dumps({"draft": d.template, "may_name": sorted(d.names)}, ensure_ascii=False)
-    key = llm.key("board2", d.agent, d.kind, d.template)
-    data, fallback = await llm.json(key, SYSTEM.format(who=who, limit=int(n * 1.4) + 5), user, model=MODEL_ORCH if d.chair else MODEL_FAST, temperature=0.4)
+    key = llm.key("board2", d.lang, d.agent, d.kind, d.template)
+    data, fallback = await llm.json(key, (SYSTEM_AR if ar else SYSTEM).format(who=who, limit=int(n * 1.4) + 5), user, model=MODEL_ORCH if d.chair else MODEL_FAST, temperature=0.4)
     text = (data or {}).get("text") if isinstance(data, dict) else None
     if (isinstance(text, str) and 0.5 * n <= len(text.split()) <= 1.4 * n + 5 and same_figures(text, d.template) and numbers_ok(text, d.facts)
             and assets_ok(text, d.names) and "[" not in text):
@@ -333,14 +347,15 @@ class Board:
                 await rt.broadcast("board_state", BoardState(session_id=s.id, incident_id=s.incident_id, state="done", started_at=s.started_at))
                 return
             a = await asyncio.to_thread(analyse, tasks, self.service.A, s.id, self._overloads())
-            drafts = compose(a)
+            ar = i18n.settings.agent_lang == "ar"  # the language chosen for the agents when the meeting starts
+            drafts = compose_ar(a, fact, Draft) if ar else compose(a)
             for rnd in sorted({d.round for d in drafts}):
                 group = [d for d in drafts if d.round == rnd]
                 voiced = await asyncio.gather(*(voice(d, s.id, i) for i, d in enumerate(group)))
                 for d, (text, source) in zip(group, voiced):
                     await self._send(s, d, text, source)
                     await asyncio.sleep(PACE)
-            sd = summary_draft(a)
+            sd = summary_draft_ar(a, fact, Draft) if ar else summary_draft(a)
             text, source = await voice(sd, s.id, 0)
             rec = calculation_record(a, self.service.A, f"calc-board-{s.id[-4:]}")
             rt.calculations[rec.id] = rec

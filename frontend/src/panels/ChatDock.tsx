@@ -1,3 +1,4 @@
+import { useAgentLang } from '../lib/agentLang';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Bot, ChevronDown, Send, Sparkles } from 'lucide-react';
 import { post } from '../api/client';
@@ -28,7 +29,7 @@ function Bubble({ m }: { m: ChatMessage }) {
         </div>
       )}
       <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', padding: '10px 12px', borderRadius: '12px 12px 12px 4px', whiteSpace: 'pre-wrap', minHeight: 40 }}>
-        {m.text ? money(m.text) : <span className="muted">The team is working on it...</span>}
+        <span dir="auto">{m.text ? money(m.text) : <span className="muted">The team is working on it...</span>}</span>
         {!m.complete && m.text && <span className="muted"> ▍</span>}
       </div>
       {m.complete && (
@@ -56,7 +57,7 @@ export function ChatDock() {
     const message = q.trim(); if (!message || sending) return;
     setText(''); setSending(true); append(message);
     const inc = incidents.filter((i) => i.state !== 'resolved')[0];
-    try { await post<ChatAccepted>('/chat', { message, incidentId: inc?.id }); }
+    try { await post<ChatAccepted>('/chat', { message, incidentId: inc?.id, lang: useAgentLang.getState().lang }); }
     catch (e) { notify(`The team could not be reached: ${(e as Error).message}`); }
     finally { setSending(false); }
   };

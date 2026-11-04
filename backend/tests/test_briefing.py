@@ -70,8 +70,10 @@ def test_an_incident_is_reported_with_its_calculated_costs_in_arabic_and_english
         cleaned, removed = check(b.text, allowed_for(b))
         assert removed == [], (b.lang, removed)
     assert any(s.id == "now" and s.items[0].link and s.items[0].link.startswith("#/incidents/") for s in ar.sections)
-    # the same figures, whichever language reads them
-    assert {f.key: f.value for f in en.figures} == {f.key: f.value for f in ar.figures}
+    # the same figures, whichever language reads them. The twin is live: a forecast peak can move in the last digits when a tick lands between the two requests
+    en_figs, ar_figs = {f.key: f.value for f in en.figures}, {f.key: f.value for f in ar.figures}
+    assert en_figs.keys() == ar_figs.keys()
+    assert all(ar_figs[k] == pytest.approx(v, rel=1e-3, abs=1e-9) for k, v in en_figs.items())
 
 
 def test_the_arabic_text_has_arabic_month_names_and_no_english_month(client):

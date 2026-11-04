@@ -33,6 +33,24 @@ CAUSES = {
     "energy_waste": ["Cooling load concentrated on this substation at peak hours", "Flexible load not shifted to the other substations"],
     "sensor_fault": ["The sensor is drifting, stuck or failing, so its reading is not the truth (its neighbours disagree)"],
 }
+# The same playbooks and hypotheses in Arabic: same meaning, same caution ("to be confirmed"), nothing added.
+PLAYBOOK_ACTION_AR = {
+    "leak": "اعزل الجزء التالف بأقرب محابس وأرسل فريق إصلاح مواسير",
+    "pump_failure": "حوّل إلى المضخة الاحتياطية وأرسل فريقًا ميكانيكيًا لفحص المحامل والريشة",
+    "substation_trip": "أرسل فريق الكهرباء لفحص القاطع وإعادة إغلاقه، وأبقِ الأحمال الحرجة على المحطة الاحتياطية",
+    "cooling_fault": "شغّل المبرّد الاحتياطي وأرسل فريق تكييف إلى المحطة",
+    "energy_waste": "برّد المباني مسبقًا خارج ساعات الذروة وانقل الحمل المرن إلى محطات أخرى",
+    "sensor_fault": "ضع علامة اشتباه على الحساس واعتمد على قراءات جيرانه وحدّد موعدًا لإعادة معايرته",
+}
+CAUSES_AR = {
+    "leak": ["انفجار في وصلة أو في جزء من الماسورة الرئيسية: الضغط هبط بينما يدخل ماء أكثر مما يخرج", "ضرر من طرف ثالث أو حركة أرض عند الجزء (يؤكَّد في الموقع)"],
+    "pump_failure": ["تآكل المحامل أو الريشة (يؤكَّد في الموقع)", "انسداد في السحب أو تكهّف عند المضخة (يؤكَّد في الموقع)"],
+    "substation_trip": ["فصل حماية على المحطة، مثل زيادة تيار أو عطل أرضي (يؤكّده الفريق)", "فقدان التغذية من المنبع أو قطع مخطط من مشغّل الشبكة (يؤكَّد مع المشغّل)"],
+    "cooling_fault": ["فصل أحد المبرّدات أو فقد جزء من قدرته بينما محطته تعمل بالكهرباء (يؤكَّد في الموقع)", "ترسبات أو نقص في غاز التبريد يقلل الإنتاج (يؤكَّد في الموقع)"],
+    "energy_waste": ["حمل التبريد متركّز على هذه المحطة في ساعات الذروة", "الحمل المرن لم يُنقل إلى المحطات الأخرى"],
+    "sensor_fault": ["الحساس منحرف أو عالق أو معطّل، فقراءته ليست الحقيقة (جيرانه تخالفه)"],
+}
+URGENCY_TEXT_AR = {"immediate": "فوري", "within_hours": "خلال ساعات", "scheduled": "مجدول"}
 AGENT_FOR_KIND = {"leak": "water", "pump_failure": "water", "substation_trip": "electricity",
                   "cooling_fault": "cooling", "energy_waste": "electricity", "sensor_fault": "water"}
 

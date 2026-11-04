@@ -20,6 +20,7 @@ from app.agents.llm import MODEL_FAST, MODEL_ORCH, llm
 from app.agents.specialists import DOMAIN
 from app.agents.tools import AGENT_FOR_KIND, find_asset, impacted, what_if
 from app.cost import Assumptions, _summary, policy_kind
+from app.i18n import NETWORK_AR, SENSOR_AR, ZONE_AR, ar_hours, asset_ar, unit_ar
 from app.schemas import CalculationRecord, RouteStep
 
 if TYPE_CHECKING:
@@ -31,12 +32,14 @@ ROUTER = """You are the orchestrator of UtilityGuard, a digital twin with three 
 water (leaks, pressure, pumps), electricity (substations, feeders, outages, load), cooling (district cooling plants and loops).
 Cross-network links: substations power water pumps and cooling plants; heat raises cooling load which raises electrical load.
 Pick which specialists must be consulted for the owner's question, in a sensible order, each with a short reason.
+@@LANG@@
 Return JSON: {"route": [{"agent": "water"|"electricity"|"cooling", "reason": str}]}"""
 
 CONSULT = """You are the {agent} agent of UtilityGuard. Expert only in {domain}.
 Answer the orchestrator about your domain in at most 2 sentences. A fall in a substation's load is not load shed: the facts say how much is shed, and the rest moves to the
 backup substation. Say only what the data shows; if the question assumes a failure the data does not show, say so. Never type a cost: write its token from `figures`, for example {{{{find_0001_act_now}}}};
 the token carries its unit and is replaced by code with the calculated value. Any other number you type must be in the data, quoted exactly.
+@@LANG@@
 Return JSON: {{"view": str}}"""
 
 SYNTH = """You are the orchestrator of UtilityGuard, advising the business owner of the New Administrative Capital utilities.
@@ -48,10 +51,21 @@ Several incidents may be open. Each figure belongs to the incident it is listed 
 cost of an hour of delay, highest first (`situation.ranked`). When `horizon` is given the owner asked what waiting that long costs: answer with its figures, one per incident and the total.
 If `cost` is "not available" use only the figures of `situation` and `horizon`. "Saving" is money saved by acting now instead of waiting; never call it a loss. If the question assumes something that is not open or not in the data (for example a pump failure when none is open), say that first.
 Say what the data shows about a cause and no more; never state a cause as certain when the data does not show it.
-Answer in the language of the question (Arabic if the owner wrote in Arabic); keep asset names and the figure tokens as given.
+@@LANG@@ Keep asset names and the figure tokens as given.
 Style: max 100 words, plain sentences, no markdown, no emoji, no quotes around numbers. Refer to assets by their short names (SS-02, P-04, DCP-01).
 Mention only the 3 or 4 most important effects, then a numbered action plan (1. 2. 3.), then act now vs delay and the saving.
 Return JSON: {"answer": str}"""
+
+LANG_RULE = {"en": "Write in English.",
+             "ar": "Write in Arabic (Modern Standard Arabic, plain words an owner understands). Asset codes such as SS-02 and P-04 stay in Latin letters; never type a digit or a unit for a figure that has a token. "
+                   "Use these words: pipe or main = ماسورة (the main = الخط الرئيسي), burst = كسر, leak = تسريب, pump = مضخة, substation = محطة كهرباء, chiller = مبرّد, cooling plant = محطة التبريد, "
+                   "sensor = حساس, and name the districts only as: " + "; ".join(f"{k} = {v}" for k, v in ZONE_AR.items()) + "."}
+
+
+def say(prompt: str, lang: str) -> str:
+    """The prompt with the language the owner chose for the agents."""
+    return prompt.replace("@@LANG@@", LANG_RULE[lang])
+
 
 KEYWORDS = {
     "water": r"water|pipe|leak|pump|pressure|reservoir|burst|\bp-?\d",
@@ -73,23 +87,25 @@ class OState(TypedDict, total=False):
     removed: list[str]
     extra_numbers: list[float]
     on_route: Any
+    lang: str
     situation: dict
 
 
-def rule_route(q: str, rt: "Runtime", asset: str | None) -> list[RouteStep]:
+def rule_route(q: str, rt: "Runtime", asset: str | None, ar: bool = False) -> list[RouteStep]:
     ql = q.lower()
-    route = [RouteStep(agent=a, reason=f"Question mentions {a} terms") for a, pat in KEYWORDS.items() if re.search(pat, ql)]
+    nm = lambda a: asset_ar(rt.engine.g.asset_index[a].name) if ar else rt.engine.g.asset_index[a].name  # noqa: E731
+    route = [RouteStep(agent=a, reason=f"السؤال يذكر مصطلحات {NETWORK_AR[a]}" if ar else f"Question mentions {a} terms") for a, pat in KEYWORDS.items() if re.search(pat, ql)]
     if asset and asset.startswith("elec-sub"):
         imp = impacted(rt, asset)
-        route = [RouteStep(agent="electricity", reason=f"{rt.engine.g.asset_index[asset].name} trip and load transfer")]
+        route = [RouteStep(agent="electricity", reason=f"فصل {nm(asset)} وانتقال الحمل" if ar else f"{nm(asset)} trip and load transfer")]
         if imp["pumps"]:
-            route.append(RouteStep(agent="water", reason=f"{rt.engine.g.asset_index[asset].name} powers {len(imp['pumps'])} pumps"))
+            route.append(RouteStep(agent="water", reason=f"{nm(asset)} تغذّي {len(imp['pumps'])} مضخة" if ar else f"{nm(asset)} powers {len(imp['pumps'])} pumps"))
         if imp["plants"]:
-            route.append(RouteStep(agent="cooling", reason=f"{rt.engine.g.asset_index[asset].name} powers {', '.join(rt.engine.g.asset_index[p].name for p in imp['plants'])}"))
+            route.append(RouteStep(agent="cooling", reason=f"{nm(asset)} تغذّي {'، '.join(nm(p) for p in imp['plants'])}" if ar else f"{nm(asset)} powers {', '.join(nm(p) for p in imp['plants'])}"))
     if not route:
         open_kinds = {rt.detector.state.incident_kind.get(i.id) for i in rt.incidents.values() if i.state != "resolved"}
-        route = [RouteStep(agent=AGENT_FOR_KIND[k], reason="Has an open incident") for k in open_kinds if k] or \
-                [RouteStep(agent=a, reason="General status check") for a in ("water", "electricity", "cooling")]
+        route = [RouteStep(agent=AGENT_FOR_KIND[k], reason="لديه حادثة مفتوحة" if ar else "Has an open incident") for k in open_kinds if k] or \
+                [RouteStep(agent=a, reason="فحص عام للحالة" if ar else "General status check") for a in ("water", "electricity", "cooling")]
     seen, out = set(), []
     for r in route:
         if r.agent not in seen:
@@ -104,7 +120,11 @@ WAITING = re.compile(r"wait|delay|late|postpone|hold off|نستنى|نستني|�
 SHORT_NAME = re.compile(r"\b[A-Z]{1,4}-\d{1,2}\b")
 
 
-def situation(rt: "Runtime", A: Assumptions, question: str, asset: str | None, whatif_asset: str | None) -> dict:
+def _title(inc, ar: bool) -> str:
+    return (inc.title_ar or inc.title) if ar else inc.title
+
+
+def situation(rt: "Runtime", A: Assumptions, question: str, asset: str | None, whatif_asset: str | None, ar: bool = False) -> dict:
     """What is open right now, ranked by what an hour of delay costs, as figures the answer cites by token; the cost of waiting as long as the question asks, by the cost model's own
     formula; the assets an answer may name; and a signature of the situation so that a recorded answer is only replayed for the situation it was recorded in."""
     g = rt.engine.g
@@ -134,7 +154,7 @@ def situation(rt: "Runtime", A: Assumptions, question: str, asset: str | None, w
             fs.add(f"{slug(f.id)}_wait_h", n["cost_of_delay"], money(n["cost_of_delay"]), f"{f.agent} finding {f.id}: cost of waiting {h:g} h (the cost model's formula with the delay set to {h:g} h)")
             fs.add(f"{slug(f.id)}_wait_h_saving", n["cost_of_delay"] - n["act_now"], money(n["cost_of_delay"] - n["act_now"]),
                    f"{f.agent} finding {f.id}: saving of acting now instead of waiting {h:g} h")
-            rows.append({"incident": rt.incidents[f.incident_id].title, "cost": "{{" + f"{slug(f.id)}_wait_h" + "}}", "savingByActingNow": "{{" + f"{slug(f.id)}_wait_h_saving" + "}}"})
+            rows.append({"incident": _title(rt.incidents[f.incident_id], ar), "cost": "{{" + f"{slug(f.id)}_wait_h" + "}}", "savingByActingNow": "{{" + f"{slug(f.id)}_wait_h_saving" + "}}"})
         fs.add("wait_h_total", whole, money(whole), f"cost of waiting {h:g} h with all the open incidents together")
         fs.add("wait_h_saving_total", saved, money(saved), f"saving of acting now on all the open incidents instead of waiting {h:g} h")
         horizon = {"hours": h, "perIncident": rows, "total": "{{wait_h_total}}", "savingTotal": "{{wait_h_saving_total}}",
@@ -171,15 +191,15 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
     zone_names = {z.id: z.name for z in g.topology.zones}
 
     async def route(s: OState) -> OState:
-        q = s["question"]
+        q, lang = s["question"], s.get("lang", "en")
         asset = find_asset(q, rt)
-        data, fb = await llm.json(llm.key("route", q.lower().strip()), ROUTER, q, model=MODEL_ORCH)
+        data, fb = await llm.json(llm.key("route2", lang, q.lower().strip()), say(ROUTER, lang), q, model=MODEL_ORCH)
         try:
             # the reason is shown to the operator, and routing has no record to cite, so no figure in it can be supported
             steps = [RouteStep(agent=r["agent"], reason=check(str(r["reason"]), set())[0]) for r in data["route"] if r["agent"] in DOMAIN]
         except Exception:  # noqa: BLE001
             steps = []
-        steps = steps or rule_route(q, rt, asset)
+        steps = steps or rule_route(q, rt, asset, lang == "ar")
         log.info("route %s -> %s", q, [r.agent for r in steps])
         if s.get("on_route"):
             await s["on_route"](steps)
@@ -199,15 +219,17 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
             for sid, d in top:
                 sn = g.sensor_index[sid]
                 before = rt.latest[sid].value or 0.0
+                suffix = sid.removeprefix(sn.asset_id + '-').replace('-', ' ')
                 by_net.setdefault(sn.network, []).append({
-                    "what": f"{g.asset_index[sn.asset_id].name} {sid.removeprefix(sn.asset_id + '-').replace('-', ' ')}",
+                    "what": f"{g.asset_index[sn.asset_id].name} {suffix}",
+                    "whatAr": f"{SENSOR_AR.get(suffix, suffix)} {asset_ar(g.asset_index[sn.asset_id].name)}",
                     "from": round(before, 1), "to": max(0.0, round(before + d, 1)) + 0.0 if sn.kind in ("flow", "pressure", "load", "voltage") else round(before + d, 1),
                     "change": round(d, 1), "unit": sn.unit})
             summary = {n: v[:4] for n, v in by_net.items()}
-            return {"record": rec, "situation": situation(rt, A, s["question"], asset, asset),
-                    "whatif": {"asset": g.asset_index[asset].name, "simulatedSeconds": 70, "facts": [r.text for r in facts.reasons] if facts else [], "changes": summary,
+            return {"record": rec, "situation": situation(rt, A, s["question"], asset, asset, s.get("lang") == "ar"),
+                    "whatif": {"asset": g.asset_index[asset].name, "simulatedSeconds": 70, "facts": [r.text for r in facts.reasons] if facts else [], "facts_ar": [(r.text_ar or r.text) for r in facts.reasons] if facts else [], "changes": summary,
                               "note": "A fall in a substation's load is load that stopped or moved to the backup substation. Only the amount in `facts` ('... of non-priority load is shed') is not served."}}
-        sit = situation(rt, A, s["question"], asset, None)
+        sit = situation(rt, A, s["question"], asset, None, s.get("lang") == "ar")
         chosen = rt.incidents.get(s.get("incident_id") or "")
         if chosen is None and len(sit["ranked"]) == 1:
             chosen = rt.incidents.get(sit["ranked"][0].incident_id)
@@ -217,6 +239,8 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
 
     async def consult(s: OState) -> OState:
         views = {}
+        lang = s.get("lang", "en")
+        ar = lang == "ar"
         open_incs = [i for i in rt.incidents.values() if i.state != "resolved"]
         for step in s["route"]:
             a = step.agent
@@ -225,39 +249,41 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
             facts_of = [(i, rt.detector.facts_for(i.id)) for i in open_incs if a in i.networks] if getattr(rt, "detector", None) else [(i, None) for i in open_incs if a in i.networks]
             data = {
                 "question": s["question"],
-                "whatIf": {"asset": s["whatif"].get("asset"), "changes": s["whatif"].get("changes", {}).get(a, []), "facts": s["whatif"].get("facts", []),
+                "whatIf": {"asset": s["whatif"].get("asset"), "changes": s["whatif"].get("changes", {}).get(a, []), "facts": s["whatif"].get("facts_ar" if ar else "facts", []),
                            "note": s["whatif"].get("note")} if s["whatif"] else None,
-                "openIncidents": [{"title": i.title, "networks": i.networks, "zones": [zone_names.get(z, z) for z in i.zone_ids],
-                                   "whatTheDataShows": [r.text for r in got[0].reasons] if got else []} for i, got in facts_of],
-                "findings": [{"headline": f.headline, "action": f.recommended_action.text, "actNow": "{{" + f"{f.id.replace('-', '_')}_act_now" + "}}",
+                "openIncidents": [{"title": _title(i, ar), "networks": i.networks, "zones": [zone_names.get(z, z) for z in i.zone_ids],
+                                   "whatTheDataShows": [(r.text_ar or r.text) if ar else r.text for r in got[0].reasons] if got else []} for i, got in facts_of],
+                "findings": [{"headline": (f.ar.headline if ar and f.ar else f.headline), "action": (f.ar.action if ar and f.ar else f.recommended_action.text), "actNow": "{{" + f"{f.id.replace('-', '_')}_act_now" + "}}",
                               "saving": "{{" + f"{f.id.replace('-', '_')}_saving" + "}}"} for f in mine],
                 "figures": fs.table(),
             }
-            out, fb = await llm.json(llm.key("consult2", a, s["question"].lower().strip(), s["situation"]["signature"]),
-                                     CONSULT.format(agent=a, domain=DOMAIN[a]), json.dumps(data, default=str), model=MODEL_FAST)
+            out, fb = await llm.json(llm.key("consult3", lang, a, s["question"].lower().strip(), s["situation"]["signature"]),
+                                     say(CONSULT, lang).format(agent=a, domain=DOMAIN[a]), json.dumps(data, default=str, ensure_ascii=False), model=MODEL_FAST)
             rec = s.get("record")
             known = [x[k] for net in (s["whatif"] or {}).get("changes", {}).values() for x in net for k in ("from", "to", "change")]
             known += [v for f in rt.findings.values() for v in (f.cost.expected_saving, f.cost.act_now, f.cost.cost_of_delay or 0)]
             raw = (out or {}).get("view")
             if isinstance(raw, str):
-                raw, unknown = fs.render(raw)
+                raw, unknown = fs.render(raw, ar)
             else:
                 unknown = []
             view, removed = check(raw, allowed_numbers(rec, known)) if raw else ("", [])
             removed = [*unknown, *removed]
             # a specialist view with a figure we cannot trace to the data is replaced by the computed wording
-            views[a] = view if raw and not removed and names_ok(view, play_names(s)) else _template_view(a, data)
+            views[a] = view if raw and not removed and names_ok(view, play_names(s)) else _template_view(a, data, ar)
             s = {**s, "fallback": s.get("fallback") or fb or bool(removed)}
         return {"views": views, "fallback": s.get("fallback", False)}
 
     async def synthesize(s: OState) -> OState:
         rec, sit = s.get("record"), s["situation"]
+        lang = s.get("lang", "en")
+        ar = lang == "ar"
         fs = for_record(rec).merge(sit["figures"]) if rec else sit["figures"]
         fs = fs.named(zone_names)
         if sit["horizon"]:
             rec = None  # one incident's record is priced at its own delay horizon: next to the cost of waiting as long as the owner asked it would give a saving that belongs to another horizon
         tok = lambda key: "{{" + key + "}}"  # noqa: E731
-        ranked = [{"incident": rt.incidents[f.incident_id].title, "agent": f.agent, "action": f.recommended_action.text, "urgency": f.recommended_action.urgency,
+        ranked = [{"incident": _title(rt.incidents[f.incident_id], ar), "agent": f.agent, "action": (f.ar.action if ar and f.ar else f.recommended_action.text), "urgency": f.recommended_action.urgency,
                    "delayPerHour": tok(f"{slug(f.id)}_delay_per_hour"), "actNow": tok(f"{slug(f.id)}_act_now"), "saving": tok(f"{slug(f.id)}_saving"),
                    "costOfDelay": tok(f"{slug(f.id)}_cost_of_delay"), "delayHours": tok(f"{slug(f.id)}_delay_hours")} for f in sit["ranked"]]
         data = {"question": s["question"], "specialists": s["views"], "whatIf": s["whatif"] or None,
@@ -265,19 +291,21 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
                          "breakdown": [{"item": b.label, "amount": tok(item_key(i, b.label))} for i, b in enumerate(rec.cost.breakdown, 1)]} if rec else "not available",
                 "situation": {"openIncidents": len(ranked), "ranked": ranked, "allTogetherPerHour": tok("open_delay_per_hour")},
                 "horizon": sit["horizon"], "figures": fs.table()}
-        out, fb = await llm.json(llm.key("synth2", s["question"].lower().strip(), str(sorted(s["views"])), sit["signature"]), SYNTH,
-                                 json.dumps(data, default=str), model=MODEL_ORCH)
-        answer = (out or {}).get("answer") or _template_answer(s, rec)
-        answer, unknown = fs.render(answer) if isinstance(answer, str) else (answer, [])
+        out, fb = await llm.json(llm.key("synth3", lang, s["question"].lower().strip(), str(sorted(s["views"])), sit["signature"]), say(SYNTH, lang),
+                                 json.dumps(data, default=str, ensure_ascii=False), model=MODEL_ORCH)
+        answer = (out or {}).get("answer") or _template_answer(s, rec, ar)
+        answer, unknown = fs.render(answer, ar) if isinstance(answer, str) else (answer, [])
         extra = [x[k] for net in (s["whatif"] or {}).get("changes", {}).values() for x in net for k in ("from", "to", "change")]
         extra += [f.cost.expected_saving for f in rt.findings.values()] + [f.cost.act_now for f in rt.findings.values()] + sit["figures"].values()
+        if sit["horizon"]:
+            extra.append(sit["horizon"]["hours"])  # the hours the owner asked about are a figure of the question, and the answer repeats them
         extra += [float(n.replace(",", "")) for v in s["views"].values() for n in re.findall(r"\d[\d,]*\.?\d*", v)]
         allowed = allowed_numbers(rec, extra)
         cleaned, removed = check(answer, allowed)
         removed = [*unknown, *removed]
         stray = not names_ok(cleaned, play_names(s))  # an asset that is not in play: the answer is about another situation (a recorded one) or invents one
         if removed or stray:  # the wording quoted a figure that is not in the data, or named an asset that is not in play: use the computed wording
-            cleaned, _ = check(_template_answer(s, rec), allowed)
+            cleaned, _ = check(_template_answer(s, rec, ar), allowed)
             removed = removed or ["asset not in play"]
         return {"answer": cleaned, "removed": removed, "fallback": s.get("fallback") or fb or bool(removed)}
 
@@ -292,33 +320,49 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
     return sg.compile()
 
 
-def _template_view(agent: str, data: dict) -> str:
+def _template_view(agent: str, data: dict, ar: bool = False) -> str:
     if data.get("whatIf") and data["whatIf"]["changes"]:
         c = data["whatIf"]["changes"][0]
+        if ar:
+            return f"في المحاكاة، {c.get('whatAr', c['what'])} يتغير من {c['from']} إلى {c['to']} {unit_ar(c['unit'])}."
         return f"In the simulation, {c['what']} goes from {c['from']} to {c['to']} {c['unit']}."
     if data["findings"]:
         f = data["findings"][-1]
-        return f"{f['headline']}. Recommended: {f['action']}."
+        return f"{f['headline']}. المطلوب: {f['action']}." if ar else f"{f['headline']}. Recommended: {f['action']}."
     if data["openIncidents"]:
-        return f"Open incident: {data['openIncidents'][0]['title']}."
-    return f"The {agent} network is operating within its normal range."
+        return f"حادثة مفتوحة: {data['openIncidents'][0]['title']}." if ar else f"Open incident: {data['openIncidents'][0]['title']}."
+    return f"شبكة {NETWORK_AR[agent]} تعمل ضمن نطاقها الطبيعي." if ar else f"The {agent} network is operating within its normal range."
 
 
-def _template_answer(s: OState, rec: CalculationRecord | None) -> str:
+def _template_answer(s: OState, rec: CalculationRecord | None, ar: bool = False) -> str:
     """The answer written by code when the language model is out of reach or its wording could not be verified. It says what the question asked, from the same figures."""
     sit, fs = s["situation"], s["situation"]["figures"]
     h = sit["horizon"]
+    show = (lambda k: unit_ar(fs.items[k].display)) if ar else (lambda k: fs.items[k].display)
     if h:
-        lines = [f"{r['incident']}: {fs.items[r['cost'].strip('{}')].display}" for r in h["perIncident"]]
+        lines = [f"{r['incident']}: {show(r['cost'].strip('{}'))}" for r in h["perIncident"]]
+        if ar:
+            return (f"الانتظار {ar_hours(h['hours'])} قبل إرسال طاقم يكلّف، بصيغة نموذج التكلفة (تكلفة ساعة التأخير × عدد الساعات + الإصلاح بسعره المتأخر): "
+                    + "؛ ".join(lines) + f". المجموع: {show('wait_h_total')}. التصرف الآن بدل الانتظار يوفّر {show('wait_h_saving_total')} من ذلك.")
         return (f"Waiting {h['hours']:g} h before sending a crew costs, by the cost model's formula (an hour of delay times the hours, plus the repair at its later price): "
-                + "; ".join(lines) + f". Together: {fs.items['wait_h_total'].display}. Acting now instead would save {fs.items['wait_h_saving_total'].display} of that.")
+                + "; ".join(lines) + f". Together: {show('wait_h_total')}. Acting now instead would save {show('wait_h_saving_total')} of that.")
     views = " ".join(v.rstrip(".") + "." for v in s["views"].values())
     if s.get("whatif") and rec:
+        if ar:
+            return f"{views} التصرف الآن يكلّف {rec.cost.act_now:,.0f} جنيه مقابل {rec.cost.cost_of_delay:,.0f} جنيه لو تأخر {ar_hours(rec.cost.delay_hours)}، بتوفير {rec.cost.expected_saving:,.0f} جنيه."
         return f"{views} Acting now costs {rec.cost.act_now:,.0f} EGP versus {rec.cost.cost_of_delay:,.0f} EGP if delayed {rec.cost.delay_hours:g} h, a saving of {rec.cost.expected_saving:,.0f} EGP."
     if sit["ranked"]:
-        first = (f"{len(sit['ranked'])} problems are open. " if len(sit["ranked"]) > 1 else "") + "In order, the most expensive hour first. "
+        n = len(sit["ranked"])
+        if ar:
+            first = (("مشكلتان مفتوحتان. " if n == 2 else f"{n} مشكلات مفتوحة. ") if n > 1 else "") + "بالترتيب، الأغلى في الساعة أولًا. "
+            steps = " ".join(f"{k}. {(f.ar.action if f.ar else f.recommended_action.text).rstrip('.')} ({f.ar.headline if f.ar else f.headline}): "
+                             f"{f.cost.delay_per_hour:,.0f} جنيه في كل ساعة تبقى مفتوحة، و{f.cost.act_now:,.0f} جنيه للتصرف الآن، بتوفير {f.cost.expected_saving:,.0f} جنيه."
+                             for k, f in enumerate(sit["ranked"], 1))
+            tail = f" مجتمعةً تكلّف {unit_ar(money(sit['total']))} عن كل ساعة تبقى مفتوحة." if n > 1 else ""
+            return first + steps + tail
+        first = (f"{n} problems are open. " if n > 1 else "") + "In order, the most expensive hour first. "
         steps = " ".join(f"{k}. {f.recommended_action.text.rstrip('.')} ({f.headline}): {f.cost.delay_per_hour:,.0f} EGP an hour open, {f.cost.act_now:,.0f} EGP to act now, saving {f.cost.expected_saving:,.0f} EGP."
                          for k, f in enumerate(sit["ranked"], 1))
-        tail = f" All together they cost {money(sit['total'])} for each hour they stay open." if len(sit["ranked"]) > 1 else ""
+        tail = f" All together they cost {money(sit['total'])} for each hour they stay open." if n > 1 else ""
         return first + steps + tail
-    return views or "No incident is open: every network is within its normal range."
+    return views or ("لا توجد حوادث مفتوحة: كل الشبكات ضمن نطاقها الطبيعي." if ar else "No incident is open: every network is within its normal range.")

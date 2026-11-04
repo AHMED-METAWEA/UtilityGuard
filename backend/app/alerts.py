@@ -27,6 +27,7 @@ from typing import Callable
 import httpx
 
 from app.briefing import ZONE_AR
+from app.i18n import CREW_AR, asset_ar
 from app.schemas import AgentFinding, EarlyWarning, Incident
 from app.schemas.alerts import AlertDelivery, AlertKind, AlertsStatus
 from app.sim.engine import CAIRO
@@ -166,6 +167,9 @@ class TelegramAlerts:
                     ids.append(aid)
         return [self.rt.engine.g.asset_index[i].name if i in self.rt.engine.g.asset_index else i for i in ids]
 
+    def _assets_ar(self, inc: Incident) -> list[str]:
+        return [asset_ar(n) for n in self._assets(inc)]
+
     def _app(self, path: str) -> list[str]:
         url = os.getenv("APP_URL", "").rstrip("/")
         return [("🔗 " + f"{url}/#{path}")] if url else []
@@ -176,21 +180,24 @@ class TelegramAlerts:
         opened = inc.opened_at.astimezone(CAIRO).strftime("%Y-%m-%d %H:%M:%S")
         zones = "، ".join(self._zone(z, lang) for z in inc.zone_ids) if ar else ", ".join(self._zone(z, lang) for z in inc.zone_ids)
         nets = ("، " if ar else ", ").join(NETWORK[lang][n] for n in inc.networks)
-        assets = ("، " if ar else ", ").join(self._assets(inc))
-        lines = [f"{ICON[inc.severity]} {head}{SEVERITY[lang][inc.severity]} — {inc.title}",
+        assets = ("، " if ar else ", ").join(self._assets_ar(inc) if ar else self._assets(inc))
+        title = (inc.title_ar or inc.title) if ar else inc.title
+        fa = f.ar if (ar and f and f.ar) else None  # the finding's Arabic version, when it has one: the whole message is then in Arabic, not only its frame
+        lines = [f"{ICON[inc.severity]} {head}{SEVERITY[lang][inc.severity]} — {title}",
                  (f"الحادثة {inc.id} · فُتحت {opened} (توقيت القاهرة)" if ar else f"Incident {inc.id} · opened {opened} Cairo time"),
                  (f"المكان: {zones} · الشبكة: {nets}" if ar else f"Where: {zones} · network: {nets}")]
         if assets:
             lines.append((f"الأصول: {assets}" if ar else f"Assets: {assets}"))
         optional: list[list[str]] = []
         if f:
-            lines += ["", f.headline]
-            if f.probable_causes:
-                optional.append([("السبب المحتمل:" if ar else "Probable cause:")] + [f"• {c}" for c in f.probable_causes[:3]])
-            reasons = [r.text for r in f.explain.reasons[:6]]
+            lines += ["", fa.headline if fa else f.headline]
+            causes = fa.probable_causes if fa else f.probable_causes
+            if causes:
+                optional.append([("السبب المحتمل:" if ar else "Probable cause:")] + [f"• {c}" for c in causes[:3]])
+            reasons = [(r.text_ar or r.text) if ar else r.text for r in f.explain.reasons[:6]]
             if reasons:
                 optional.append([("ما تُظهره الحساسات:" if ar else "What the sensors show:")] + [f"• {t}" for t in reasons])
-            optional.append([("الأثر المتوقع: " if ar else "Expected impact: ") + f.predicted_impact.text])
+            optional.append([("الأثر المتوقع: " if ar else "Expected impact: ") + (fa.impact if fa else f.predicted_impact.text)])
             c = f.cost
             cost = [("التكلفة (افتراضات تخطيط):" if ar else "Cost (planning assumptions):"),
                     (f"• كل ساعة والمشكلة مفتوحة: {money(c.delay_per_hour)} جنيه" if ar else f"• Each hour it stays open: {money(c.delay_per_hour)} EGP"),
@@ -206,7 +213,7 @@ class TelegramAlerts:
                 cost.append("• ⚠️ " + ("الرقم يحتاج مراجعة: خارج المدى المعقول" if ar else "needs review: outside the plausible range"))
             optional.append(cost)
             a = f.recommended_action
-            optional.append([(f"المطلوب: {a.text} — طاقم {a.crew_type}، {URGENCY[lang][a.urgency]}" if ar else f"Recommended: {a.text} — {a.crew_type} crew, {URGENCY[lang][a.urgency]}")])
+            optional.append([(f"المطلوب: {fa.action if fa else a.text} — طاقم {CREW_AR.get(a.crew_type, a.crew_type)}، {URGENCY[lang][a.urgency]}" if ar else f"Recommended: {a.text} — {a.crew_type} crew, {URGENCY[lang][a.urgency]}")])
             if f.fallback:
                 optional.append([("(الشرح من القواعد، من غير النموذج اللغوي)" if ar else "(explained by the rules, not the language model)")])
         else:
@@ -217,7 +224,7 @@ class TelegramAlerts:
     def resolved_message(self, inc: Incident, now: datetime, lang: str) -> str:
         ar = lang == "ar"
         mins = max(0.0, (self.rt.now - inc.opened_at).total_seconds() / 60)
-        lines = [f"✅ {'انتهت' if ar else 'RESOLVED'} — {inc.title}",
+        lines = [f"✅ {'انتهت' if ar else 'RESOLVED'} — {(inc.title_ar or inc.title) if ar else inc.title}",
                  (f"الحادثة {inc.id} · ظلّت مفتوحة {mins:.1f} دقيقة (وقت التوأم)" if ar else f"Incident {inc.id} · was open for {mins:.1f} minutes (twin time)")]
         f = self._finding(inc)
         if f:

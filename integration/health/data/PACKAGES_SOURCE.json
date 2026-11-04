@@ -1,11 +1,11 @@
 {
  "what": "Output of the healthcare team's own what-if engine (dashboard/simulation_engine.py), called unchanged once per district with that district as the only target.",
- "source_commit": "64059cf510b061bf07d940f87eb4053e5b7efa1e",
+ "source_commit": "917994246928e588ed0256c0b0940eb61dbb1634",
  "capacity_view": "Peak-surge / stress-calibrated capacity",
  "settings": {
   "population_growth_pct": 20.0,
   "capacity_expansion_pct": 15.0,
-  "prevention_reach_pct": 10.0,
+  "prevention_reach_pct": 20.0,
   "access_improvement_minutes": -5.0,
   "budget_limit_m_egp": 45.0
  },
@@ -22,10 +22,10 @@
   "<package>_cost_m_egp": "their 5-year cost of the package, a placeholder of their config"
  },
  "files_sha256": {
-  "Data/Processed/master_panel.csv": "cff9180167a4f1981dae4afe0fecfa19e94c17dab99d3277ac6a8f303f910a43",
-  "dashboard/simulation_engine.py": "fd32989ead61d527140bcaa1262ccd2cf277205aee5e8d3c13ec7570d4c655a1",
-  "dashboard/config.py": "74ecbd6411e93577c1dfe534ae7a699bca0887dc23490bc425caf08afe7a9a60"
+  "Data/Processed/master_panel.csv": "32208a9f31905cfd2cac2cf9e08865f8fb440781e786ef5f7256b9aed2bccf2c",
+  "dashboard/simulation_engine.py": "cee5fc86b8d5ad5009cfe2c6eb596f03c046a23c22dfd53ec0ac63385787b050",
+  "dashboard/config.py": "62df432be7b5fb0d0555b4f9d01451b1c44526b5f5eb43f97f8be57676d6291e"
  },
- "extracted_at": "2026-11-02T21:34:05.664201+00:00",
+ "extracted_at": "2026-11-03T22:08:56.551798+00:00",
  "simulated": true
 }

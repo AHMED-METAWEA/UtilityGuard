@@ -5,6 +5,7 @@ import type { AgentFinding, Incident, Network } from '../api/types';
 import type { Kpi as KpiData } from '../api/dash';
 import { latestBoardFor, useStore } from '../store';
 import { href } from '../lib/route';
+import { incidentTitle, useAgentLang } from '../lib/agentLang';
 import { ago, compact, egp, fmt } from '../lib/format';
 import { kpiRef } from '../lib/why';
 import { EvidenceTag } from './Provenance';
@@ -79,6 +80,7 @@ export function CostTiles({ finding }: { finding: AgentFinding }) {
 
 export function IncidentCard({ incident, finding }: { incident?: Incident; finding?: AgentFinding }) {
   const { t } = useTranslation();
+  const lang = useAgentLang((s) => s.lang);
   const topology = useStore((s) => s.topology.data);
   const alerts = useStore((s) => s.alerts.data);
   const board = useStore(latestBoardFor(incident?.id ?? ''));
@@ -101,7 +103,7 @@ export function IncidentCard({ incident, finding }: { incident?: Incident; findi
         <span className="row" style={{ gap: 8 }}><SeverityChip s={incident.severity} /><span className="muted num">{incident.id}</span></span>
         {alert && <span className="muted" style={{ fontSize: 12 }}>{ago(alert.detectedAt)} ago</span>}
       </div>
-      <div style={{ fontSize: 17, fontWeight: 650, letterSpacing: '-.01em' }}>{incident.title}</div>
+      <div dir="auto" style={{ fontSize: 17, fontWeight: 650, letterSpacing: '-.01em' }}>{incidentTitle(incident, lang)}</div>
       <div className="sub" style={{ margin: '4px 0 12px' }}>{incident.reanalysing ? 'The incident grew. The agents are re-analysing it, and the figures below are from the earlier stage.' : finding ? finding.headline : `${zones}. The agents are analysing.`}</div>
       {board && <a href={href('incidents', incident.id)} className="muted" style={{ display: 'block', fontSize: 12, margin: '-4px 0 12px' }}>{board.state === 'running' ? 'In session' : firstJob ? `Board decided: first ${firstJob.assetName}` : 'Board decided'}</a>}
       {finding ? <div style={incident.reanalysing ? { opacity: 0.45 } : undefined}><CostTiles finding={finding} /></div> : <div className="skeleton" style={{ height: 76 }} />}

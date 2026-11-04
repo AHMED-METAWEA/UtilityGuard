@@ -120,6 +120,8 @@ class Alert(Model):
     detected_at: datetime
     state: Literal["open", "acknowledged", "resolved"] = "open"
     confidence: float = Field(ge=0, le=1)
+    title_ar: str | None = None  # the same title and summary in Arabic, written by the detector beside the English ones
+    summary_ar: str | None = None
 
 
 class Incident(Model):
@@ -134,6 +136,7 @@ class Incident(Model):
     finding_ids: list[str] = []
     calculation_id: str | None = None
     reanalysing: bool = False  # the incident grew into a bigger root cause and its findings are from the earlier stage
+    title_ar: str | None = None
 
 
 # ---------- 4.6A Explanation ----------
@@ -142,6 +145,7 @@ class Reason(Model):
     text: str
     evidence_type: Literal["measured", "forecast", "rule", "assumed"]
     evidence_ref: str | None = None
+    text_ar: str | None = None  # the same sentence in Arabic, with the same figures
 
 
 class CalcInput(Model):
@@ -269,6 +273,16 @@ class RecommendedAction(Model):
     urgency: Literal["immediate", "within_hours", "scheduled"]
 
 
+class FindingText(Model):
+    """What an agent says about an incident, in one language. The English text is the finding's own fields; this holds the Arabic one beside it."""
+    headline: str
+    explanation: str
+    probable_causes: list[str]
+    impact: str
+    action: str
+    reasoning_steps: list[str] = []
+
+
 class AgentFinding(Model):
     id: str
     incident_id: str
@@ -284,6 +298,7 @@ class AgentFinding(Model):
     created_at: datetime | None = None
     fallback: bool = False
     number_check: Literal["passed", "corrected"] = "passed"
+    ar: FindingText | None = None  # the same finding in Arabic: the agent's own words when the model wrote them, the computed wording otherwise
 
 
 # ---------- 4.7 / 4.8 ----------
@@ -474,6 +489,7 @@ class ScenarioState(Model):
 class ChatRequest(Model):
     message: str
     incident_id: str | None = None
+    lang: Literal["en", "ar"] | None = None  # the language of the answer; empty means the language chosen for the agents
 
 
 class ChatAccepted(Model):

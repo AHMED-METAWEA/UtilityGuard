@@ -17,6 +17,7 @@ import { go, href } from '../lib/route';
 import { assetBounds, money, useSensorSeries } from '../lib/useSensorSeries';
 import { ago, clock, fmt, sensorLabel } from '../lib/format';
 import { latestFinding } from '../lib/present';
+import { alertTitle, incidentTitle, localizeFinding, useAgentLang } from '../lib/agentLang';
 
 /** Reveals the agent's real steps one by one when the finding is fresh; shows them all when it is old. */
 function Steps({ finding }: { finding: AgentFinding }) {
@@ -49,7 +50,9 @@ function Step({ n, title, right, children }: { n: number; title: string; right?:
   );
 }
 
-function IncidentView({ incident, finding, alerts }: { incident: Incident; finding?: AgentFinding; alerts: Alert[] }) {
+function IncidentView({ incident, finding: rawFinding, alerts }: { incident: Incident; finding?: AgentFinding; alerts: Alert[] }) {
+  const lang = useAgentLang((s) => s.lang);
+  const finding = localizeFinding(rawFinding, lang);
   const topology = useStore((s) => s.topology.data);
   const set = useUi((s) => s.set); const notify = useUi((s) => s.notify);
   const [busy, setBusy] = useState(false);
@@ -81,7 +84,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
     catch (e) { notify((e as Error).message); } finally { setBusy(false); }
   };
   const timeline = [
-    ...alerts.map((a) => ({ t: a.detectedAt, text: `Alert raised: ${a.title}`, who: `rule rating ${Math.round(a.confidence * 100)}%` })),
+    ...alerts.map((a) => ({ t: a.detectedAt, text: `Alert raised: ${alertTitle(a, lang)}`, who: `rule rating ${Math.round(a.confidence * 100)}%` })),
     ...(finding ? [{ t: finding.createdAt, text: `${finding.agent[0].toUpperCase() + finding.agent.slice(1)} agent finished its analysis`, who: finding.numberCheck === 'passed' ? 'every figure verified' : 'figures corrected' }] : []),
   ].sort((a, b) => a.t.localeCompare(b.t));
 
@@ -94,13 +97,14 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
             {incident.networks.map((n) => <span key={n} className={`chip ${n}`}><NetIcon n={n} size={13} />{n}</span>)}
             <span className="muted num">{incident.id}</span>
           </div>
-          <h1>{incident.title}</h1>
+          <h1 dir="auto">{incidentTitle(incident, lang)}</h1>
           <p>{zone?.name ?? incident.zoneIds.join(', ')}. Opened {ago(incident.openedAt)} ago.</p>
         </div>
         <div className="row wrap" style={{ gap: 8 }}>
           <button className="btn" onClick={() => set({ chatOpen: true })}><MessageCircle size={16} />Ask the team</button>
           <button className="btn" onClick={() => set({ guardrail: { incidentId: incident.id } })}><FlaskConical size={16} />Test the AI</button>
-          <a className="btn" href={`/api/v1/incidents/${incident.id}/report`} download><Download size={16} />Report (PDF)</a>
+          <a className="btn" href={`/api/v1/incidents/${incident.id}/report?lang=en`} download title="The incident report as a PDF, in English"><Download size={16} />Report (PDF, English)</a>
+          <a className="btn" href={`/api/v1/incidents/${incident.id}/report?lang=ar`} download title="تقرير الحادثة بصيغة PDF بالعربية"><Download size={16} />التقرير (PDF، عربي)</a>
           <button className="btn primary" disabled={!open.length || busy} onClick={ack}><ShieldCheck size={16} />{open.length ? 'Acknowledge' : 'Acknowledged'}</button>
         </div>
       </div>
@@ -136,13 +140,13 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
           {incident.reanalysing && finding && <Card><div className="row" style={{ gap: 8 }}><Bot size={18} /><span><b>The incident grew.</b> The agents are re-analysing it, so the steps below are from the earlier stage and will be replaced.</span></div></Card>}
           {!finding ? <Card><div className="stack"><div className="row" style={{ gap: 8 }}><Bot size={18} /><b>The agents are analysing this incident</b></div><Skeleton h={14} /><Skeleton h={14} w="80%" /><Skeleton h={90} /></div></Card> : <>
             <Step n={1} title="What happened" right={<span className="row" style={{ gap: 6 }}><span className="chip"><NetIcon n={finding.agent === 'orchestrator' ? 'water' : finding.agent} size={13} />{finding.agent} agent</span>{finding.fallback && <span className="chip warn">Recorded answer</span>}</span>}>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>{finding.headline}</div>
-              <p className="sub" style={{ margin: '0 0 10px' }}>{money(finding.explanation)}</p>
+              <div dir="auto" style={{ fontWeight: 600, marginBottom: 4 }}>{finding.headline}</div>
+              <p dir="auto" className="sub" style={{ margin: '0 0 10px' }}>{money(finding.explanation)}</p>
               <details><summary className="sub" style={{ cursor: 'pointer' }}>What the agent did</summary><div style={{ marginTop: 8 }}><Steps finding={finding} /></div></details>
             </Step>
             <Step n={2} title="Why we are sure" right={<span className="num muted" title="A rating the rule sets from the size of the signal. It is not a measured probability: measured detection results are in the AI lab.">rule rating {fmt(finding.explain.confidence * 100)}%</span>}>
               <Reasons reasons={finding.explain.reasons} />
-              {finding.probableCauses.length > 0 && <div className="muted" style={{ fontSize: 12, marginTop: 10 }}>Probable causes: {finding.probableCauses.join('; ')}</div>}
+              {finding.probableCauses.length > 0 && <div dir="auto" className="muted" style={{ fontSize: 12, marginTop: 10 }}>{lang === 'ar' ? 'الأسباب المحتملة' : 'Probable causes'}: {finding.probableCauses.join(lang === 'ar' ? '؛ ' : '; ')}</div>}
             </Step>
             <Step n={3} title="What it costs" right={<button className="btn ghost sm" onClick={() => set({ calcId: finding.explain.calculationId })}>{finding.explain.calculationId}</button>}>
               <CostTiles finding={finding} />
@@ -152,9 +156,9 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
             {isBurst && <WhereCard data={loc.data} onPick={(assetId) => setPicked({ assetId, key: Date.now() })} />}
             <DecisionStudio incidentId={incident.id} />
             <Step n={4} title="What to do" right={<span className={`chip ${finding.recommendedAction.urgency === 'immediate' ? 'crit' : 'warn'}`}>{finding.recommendedAction.urgency.replace('_', ' ')}</span>}>
-              <p style={{ margin: '0 0 10px', lineHeight: 1.5 }}>{money(finding.recommendedAction.text)}</p>
+              <p dir="auto" style={{ margin: '0 0 10px', lineHeight: 1.5 }}>{money(finding.recommendedAction.text)}</p>
               <div className="row wrap" style={{ gap: 8 }}><span className="chip">Crew: {finding.recommendedAction.crewType}</span>{finding.predictedImpact.zoneIds.length > 0 && <span className="chip">Affects {finding.predictedImpact.zoneIds.length} district{finding.predictedImpact.zoneIds.length > 1 ? 's' : ''}</span>}</div>
-              {finding.predictedImpact.text && <div className="sub" style={{ marginTop: 8, fontSize: 13 }}>{money(finding.predictedImpact.text)}</div>}
+              {finding.predictedImpact.text && <div dir="auto" className="sub" style={{ marginTop: 8, fontSize: 13 }}>{money(finding.predictedImpact.text)}</div>}
             </Step>
           </>}
         </aside>
@@ -164,6 +168,7 @@ function IncidentView({ incident, finding, alerts }: { incident: Incident; findi
 }
 
 export function Incidents({ id }: { id?: string }) {
+  const lang = useAgentLang((s) => s.lang);
   const incidents = useStore((s) => s.incidents);
   const findings = useStore((s) => s.findings.data);
   const alerts = useStore((s) => s.alerts.data);
@@ -183,7 +188,7 @@ export function Incidents({ id }: { id?: string }) {
     <div className="page">
       {sorted.length > 1 && (
         <div className="row wrap" style={{ gap: 8 }} role="tablist" aria-label="Incidents">
-          {sorted.map((i) => <a key={i.id} role="tab" aria-selected={i.id === current.id} href={href('incidents', i.id)} className={`chip ${i.id === current.id ? 'accent' : ''}`} style={{ height: 28, textDecoration: 'none' }} onClick={() => go('incidents', i.id)}>{i.id} · {i.title}</a>)}
+          {sorted.map((i) => <a key={i.id} role="tab" aria-selected={i.id === current.id} href={href('incidents', i.id)} className={`chip ${i.id === current.id ? 'accent' : ''}`} style={{ height: 28, textDecoration: 'none' }} onClick={() => go('incidents', i.id)}>{i.id} · {incidentTitle(i, lang)}</a>)}
         </div>
       )}
       <IncidentView key={current.id} incident={current} finding={latestFinding(findings, current.id)} alerts={alerts.filter((a) => a.incidentId === current.id)} />

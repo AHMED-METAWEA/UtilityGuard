@@ -42,6 +42,8 @@ An operator with a few crews and several things breaking at once has three quest
 | Morning briefing | What needs attention today, in English and Arabic, composed by code and sent to Telegram |
 | Why this number? | Every tile and score opens its formula, inputs and editable assumptions |
 | Try to fool the AI | Send an unsupported claim and watch the checker mark each figure verified or removed |
+| Arabic or English | The agents speak the language the person chooses (findings, chat, board meeting, Telegram alerts), and the incident report is a PDF in either language; every Arabic figure passes the same number check as the English one |
+| Build here | Put a hospital, an expansion or a clinic in a zone; the twin is read with and without it on summer weekdays, in a heat wave and with a substation lost, and the page shows the share of days in breach per network and the cost with the utility upgrades needed |
 | Healthcare link | The twin's outage costs next to the healthcare project's environment and hospital figures (section 6) |
 
 ## 4. Why the numbers can be trusted
@@ -52,7 +54,7 @@ An operator with a few crews and several things breaking at once has three quest
 - **Measured, not claimed.** Detection, forecast accuracy and the detector benchmark are measured by running the twin (matched pairs: same seed with and without the fault) and published with intervals under `docs/measurements`.
 - **Reproducible.** The simulator is seeded; the same seed gives the same run, and the cost engine's results are re-derived by an independent script in the stress tests.
 - **Tamper-evident log.** Each line carries the SHA-256 of the line before it plus a separate head anchor; changing, deleting or truncating the log is detected.
-- **Tests.** 337 backend and 84 frontend tests pass; the shared JSON fixtures are validated against the schemas and parsed by the frontend.
+- **Tests.** 397 backend and 84 frontend tests pass; the shared JSON fixtures are validated against the schemas and parsed by the frontend.
 
 ## 5. Architecture
 
@@ -96,7 +98,7 @@ Neither can answer the other's question. The twin does not model air, waste or w
 
 - **Map layers.** Their 15 districts and 81 facilities (30 hospitals) on the live map, coloured by their own stress scores (overall, air, waste, water pollution, heat) and sized by residents, month selectable. Their coordinates are approximate, so each district is drawn on the centre of the zone it is matched to and the tooltip says the position is approximate.
 - **Failure tables for them** (`integration/health/out/`): for each of 24 failed assets, what the detector measured and what it costs (`scenarios.csv`), which districts are hit, which hospitals a failure reaches and how sure that match is (`hospital_exposure.csv`), ranked reliability packages with placeholder costs (`reliability_packages.csv`), and their districts file moved onto the twin's zones (`districts_on_twin_map.csv`).
-- **Their engine, unchanged.** Their own what-if engine is run read-only once per district with their default settings (`integration/health/extract_packages.py`), giving hospital pressure and the effect and 5-year cost of their four packages (A new centre plus prevention, B expand capacity, C transport and triage, D prevention only). The result was checked against their dashboard (district R1: pressure 1.23 before and 0.98 after package A, 40.5 M EGP).
+- **Their engine, unchanged.** Their own what-if engine is run read-only once per district with their default settings (`integration/health/extract_packages.py`), giving hospital pressure and the effect and 5-year cost of their four packages (A new centre plus prevention, B expand capacity, C transport and triage, D prevention only). The result was checked against their dashboard (district R1: pressure 1.23 before and 0.96 after package A (their commit 9179942), 40.5 M EGP).
 - **The joint table** (Executive page, `joint_decision.csv`): per district, the twin's outage cost, their environmental stress and hospitals, their hospital pressure and best package. Each district falls in one of four groups relative to the median district (outage cost higher, environment higher, both higher, both lower), or has no counterpart in the twin.
 - **One-command run.** `./run_all.sh` starts the twin (port 8000) and their Streamlit dashboard (port 8501); the **Healthcare** tab shows their dashboard inside the twin. Their code is cloned into a git-ignored folder and never edited.
 - **Workflow impact** (`integration/health/workflow-impact.md`): where each of the twin's three pillars enters their five-level KPI workflow, what the twin can give, and four questions for them.

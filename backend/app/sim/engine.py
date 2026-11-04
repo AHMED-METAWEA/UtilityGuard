@@ -25,6 +25,7 @@ TR_PER_MW = 284.3
 PUMP_SETPOINT = 4.7  # bar, discharge pressure a healthy pump holds
 STORM_HOUR = 12.0  # a storm is defined at the working-day midday peak, whatever the clock says
 PUMP_MAX_BOOST = 1.7  # bar a pump can add over its inlet pressure
+COOLED_ZONES = {z for _, (_, _, served) in COOLING_PLANTS.items() for z in served}
 
 
 def demand_profile(zone_type: str, hour: float, weekday: int, holiday: bool = False) -> float:
@@ -93,6 +94,7 @@ class Engine:
         self.ambient = 30.0
         self.overload_ticks: dict[str, int] = {}  # consecutive ticks a substation has run past its protection limit (storm only)
         self.demand_scale = 1.0  # >1 or <1 makes this a twin whose demand forecast is off, used for the expectation in detector benchmarks
+        self.extra_load: dict[str, tuple[float, float, float]] = {}  # zone id -> a planned facility's design load (water m3/h, electricity MW, cooling MW thermal), used by the siting what-if
 
     # ---------- events ----------
     def add_event(self, ev: Event) -> None:
@@ -183,10 +185,15 @@ class Engine:
                 p = p * (1 - storm_k) + demand_profile(z.type, STORM_HOUR, 6, False) * storm_k
             p *= day_demand * self.demand_scale
             billed = w * p * (0.6 + 0.4 * temp_f)
+            xw, xe, xc = self.extra_load.get(z.id, (0.0, 0.0, 0.0))
+            chillers = 0.0
+            if xc and z.id not in COOLED_ZONES:  # no district cooling here: the facility runs its own chillers, which draw electricity (their efficiency already follows the heat)
+                chillers, xc = xc * CHILLER_BASE * (1 + 0.018 * (self.ambient - 30)), 0.0
+            billed += xw
             self.water_billed[z.id] = billed
             self.zone_demand[z.id] = (billed * (1 + BG_LOSS),
-                                      e * (0.55 + 0.45 * p) * (0.8 + 0.2 * temp_f) * (1 + ac),
-                                      c * (0.4 + 0.6 * p) * temp_f ** 3)
+                                      e * (0.55 + 0.45 * p) * (0.8 + 0.2 * temp_f) * (1 + ac) + xe * (0.8 + 0.2 * temp_f) + chillers,
+                                      c * (0.4 + 0.6 * p) * temp_f ** 3 + xc * temp_f ** 3)
 
         # ---------- water ----------
         self.leak_m3h = {}

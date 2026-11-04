@@ -190,3 +190,10 @@ def test_the_cost_explanation_endpoint_validates_and_refuses_bad_input():
         assert c.get("/api/v1/city/decision/9999/cost").status_code == 404
         assert c.get("/api/v1/city/decision/1009/cost?network=gas").status_code == 400
         assert DecisionCost.model_validate(c.get("/api/v1/city/decision/1015/cost").json()).parts == []
+
+
+def test_a_month_is_read_in_both_formats_their_panel_has_used():
+    from app.city import iso_month
+
+    assert iso_month("2025-01-01") == iso_month("1/1/2025") == "2025-01-01"
+    assert iso_month("9/1/2026") == iso_month("2026-09-01") == "2026-09-01" and iso_month("12/1/2025") == "2025-12-01"

@@ -7,3 +7,7 @@ real message for each scenario a test runs. This switches them off for the whole
 import os
 
 os.environ["ALERTS_ENABLED"] = "0"
+# the language chosen for the agents is kept in a file; a test run must not read or change the developer's own choice
+import tempfile  # noqa: E402
+
+os.environ["UG_SETTINGS"] = os.path.join(tempfile.mkdtemp(prefix="ug-settings-"), "settings.json")

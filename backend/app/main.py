@@ -19,11 +19,12 @@ from starlette.exceptions import HTTPException
 import time
 from datetime import timedelta
 
-from app import dashboard, decision as decision_mod, extras, savings as savings_mod, scenarios
+from app import i18n, report_ar, dashboard, decision as decision_mod, extras, savings as savings_mod, scenarios, siting
 from app.agents import guardrail
 from app.agents.service import AgentService
 from app.briefing import BriefingService
 from app.city import CityData, CityError, read_decision, read_decision_cost
+from app.schemas.siting import SitingRequest
 from app.lab.benchmark import LabCache, summarize as summarize_benchmark, summarize_localization, summarize_quality, summarize_sensors
 from app.lab.live import live_localization
 from app.lab.quality import live_quality
@@ -35,7 +36,7 @@ from app.alerts import TelegramAlerts
 from app.ml.service import MLService
 from app.runtime import runtime
 from app.why import Why
-from app.schemas import GuardrailRequest, SensorHistory, SensorHistoryPoint, ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
+from app.schemas import GuardrailRequest, Model, SensorHistory, SensorHistoryPoint, ChatAccepted, ChatRequest, Health, ScenarioRunRequest, ScenarioRunResponse, ScenarioState, ScenarioStopRequest, envelope
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 
@@ -197,11 +198,30 @@ async def reset() -> dict:
     return {"status": "reset", "tick": runtime.engine.tick}
 
 
+@api.get("/settings")
+def get_settings() -> dict:
+    return {"agentLang": i18n.settings.agent_lang, "languages": list(i18n.LANGS)}
+
+
+class SettingsRequest(Model):
+    agent_lang: str
+
+
+@api.put("/settings")
+def put_settings(req: SettingsRequest) -> dict:
+    """The language the agents speak: new findings, chat answers and board meetings use it. Findings already written keep both languages, so the web app shows either at once."""
+    try:
+        i18n.settings.set_agent_lang(req.agent_lang)
+    except ValueError as e:
+        raise ApiError(422, "bad_language", "agentLang must be en or ar.") from e
+    return get_settings()
+
+
 @api.post("/chat")
 async def chat(req: ChatRequest) -> dict:
     if not req.message.strip():
         raise ApiError(422, "empty_message", "Message must not be empty.")
-    return out(ChatAccepted(message_id=service.chat(req.message, req.incident_id)))
+    return out(ChatAccepted(message_id=service.chat(req.message, req.incident_id, req.lang or i18n.settings.agent_lang)))
 
 
 @api.get("/calculations/{calc_id}")
@@ -416,6 +436,31 @@ def city_decision_cost(district_key: str, network: str = "any") -> dict:
         raise ApiError(e.status, e.code, e.message) from e
 
 
+@api.get("/siting/options")
+def siting_options() -> dict:
+    return siting.options()
+
+
+_siting_cache: dict[str, dict] = {}
+
+
+@api.post("/siting/evaluate")
+def siting_evaluate(req: SitingRequest) -> dict:
+    """Puts a facility in a zone inside a separate copy of the twin and reads the three networks with and without it (see app/siting.py). The live twin is not touched."""
+    key = req.model_dump_json()
+    if key not in _siting_cache:
+        try:
+            result = siting.evaluate(req, seed=runtime.seed)
+        except KeyError as e:
+            raise ApiError(404, "unknown_zone", f"No zone {e.args[0]}.") from e
+        except ValueError as e:
+            raise ApiError(422, "invalid_request", str(e)) from e
+        if len(_siting_cache) >= 32:
+            _siting_cache.pop(next(iter(_siting_cache)))
+        _siting_cache[key] = out(result)
+    return _siting_cache[key]
+
+
 @api.get("/city/facilities")
 def city_facilities() -> list:
     try:
@@ -448,12 +493,16 @@ def metrics() -> dict:
 
 
 @api.get("/incidents/{incident_id}/report")
-def report(incident_id: str) -> Response:
+def report(incident_id: str, lang: str | None = None) -> Response:
+    """The incident report as a PDF, in the language asked (`lang=en` or `lang=ar`); without one, the language chosen for the agents."""
     if incident_id not in runtime.incidents:
         raise ApiError(404, "not_found", f"Incident {incident_id} does not exist.")
-    pdf = extras.incident_pdf(runtime, incident_id)
+    lang = lang or i18n.settings.agent_lang
+    if lang not in i18n.LANGS:
+        raise ApiError(422, "bad_language", "lang must be en or ar.")
+    pdf = report_ar.incident_pdf_ar(runtime, incident_id) if lang == "ar" else extras.incident_pdf(runtime, incident_id)
     return Response(pdf, media_type="application/pdf",
-                    headers={"Content-Disposition": f'attachment; filename="utilityguard-{incident_id}.pdf"'})
+                    headers={"Content-Disposition": f'attachment; filename="utilityguard-{incident_id}-{lang}.pdf"'})
 
 
 @api.get("/compare")

@@ -1,6 +1,6 @@
 # Detection: recall, false alarms and precision (matched pairs)
 
-Measured 01 November 2026 at commit `3f3945c` with `scripts/stress/detection_pr.py` (seed 1, 2 start times per case, 212 fault runs, each with a control run on the same seed and start time). Took 29.3 minutes, no network and no language model.
+Measured 03 November 2026 at commit `f2cbe9a` with `scripts/stress/detection_pr.py` (seed 1, 2 start times per case, 212 fault runs, each with a control run on the same seed and start time). Took 11.4 minutes, no network and no language model.
 
 The twin is simulated, so these numbers describe the detector on the simulation, not on equipment in the field.
 

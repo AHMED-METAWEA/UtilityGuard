@@ -10,5 +10,7 @@ langgraph==0.2.61
 langchain-core==0.3.29
 groq==0.13.1
 reportlab==4.2.5
+arabic-reshaper==3.0.0
+python-bidi==0.6.3
 httpx==0.28.1
 pytest==8.3.4

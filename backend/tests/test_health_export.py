@@ -238,7 +238,7 @@ def test_their_engine_figures_are_read_as_extracted_and_the_best_package_is_the_
     theirs = ex.read_their_packages()
     assert set(theirs) == {str(k) for k in range(1001, 1016)}
     t = theirs["1001"]
-    assert t["pressure_baseline"] == pytest.approx(1.2271, abs=1e-4) and t["center_prevention_pressure"] == pytest.approx(0.9766, abs=1e-4)  # what their dashboard shows for R1
+    assert t["pressure_baseline"] == pytest.approx(1.2271, abs=1e-4) and t["center_prevention_pressure"] == pytest.approx(0.9639, abs=1e-4)  # what their dashboard shows for R1 (0.9766 before their commit 9179942 moved the prevention defaults)
     assert t["center_prevention_cost_m_egp"] == 40.5 and t["capacity_cost_m_egp"] == 9.0 and t["access_cost_m_egp"] == 16.0 and t["prevention_cost_m_egp"] == 7.5
     side = ex.their_side(t)
     assert side["their_over_capacity"] is True and side["their_best_package"] == "A New center + prevention" and side["their_best_package_pressure"] == t["center_prevention_pressure"]

@@ -17,9 +17,10 @@ from langgraph.graph import END, StateGraph
 from app.agents.checker import allowed_numbers, check
 from app.agents.figures import TOKEN, FigureSet, for_record, for_sensors
 from app.agents.llm import MODEL_FAST, llm
-from app.agents.tools import CAUSES, PLAYBOOKS, impacted, read_sensors
+from app.agents.tools import CAUSES, CAUSES_AR, PLAYBOOK_ACTION_AR, PLAYBOOKS, impacted, read_sensors
 from app.cost import Assumptions, IncidentFacts, compute
-from app.schemas import AgentFinding, CalculationRecord, Incident, PredictedImpact, RecommendedAction
+from app.i18n import CREW_AR, ZONE_AR, ar_hours, asset_ar
+from app.schemas import AgentFinding, CalculationRecord, FindingText, Incident, PredictedImpact, RecommendedAction
 
 if TYPE_CHECKING:
     from app.runtime import Runtime
@@ -45,7 +46,13 @@ Rules:
   imbalance) or an observation restated as a cause. Choose from `usualCauses` and say which the data supports; if the data does not show it, say the cause is not determined from the data and
   has to be confirmed on site. Never state a cause as certain when the data does not show it.
 Return JSON: {{"headline": str (max 12 words), "explanation": str (2 sentences), "probableCauses": [str, str],
-"impact": str (1 sentence), "action": str (1 imperative sentence)}}"""
+"impact": str (1 sentence), "action": str (1 imperative sentence),
+"ar": {{"headline": str, "explanation": str, "probableCauses": [str, str], "impact": str, "action": str}}}}
+The "ar" object is the same answer written in Arabic (Modern Standard Arabic, plain words a business owner understands): same meaning, same figure tokens, the same caution about
+causes. Do not type a digit or a unit for a figure there either: the token carries its unit. Asset codes such as SS-02 and P-03 stay in Latin letters.
+In "ar", use these words: pipe or main = ماسورة (the main = الخط الرئيسي), burst = كسر, leak = تسريب, pump = مضخة, substation = محطة كهرباء, chiller = مبرّد, cooling plant = محطة التبريد,
+sensor = حساس. Name a district only as `zonesAr` gives it. "probableCauses" in "ar" are the items of `usualCausesAr` that match the ones you chose in English, word for word, and
+"action" in "ar" follows `playbook.actionAr` (the same steps, the same crew)."""
 
 
 class SState(TypedDict, total=False):
@@ -58,6 +65,8 @@ class SState(TypedDict, total=False):
     impact: dict
     record: CalculationRecord
     text: dict
+    text_ar: dict
+    steps_ar: list[str]
     fallback: bool
     removed: list[str]
     figs: FigureSet
@@ -66,8 +75,13 @@ class SState(TypedDict, total=False):
 
 
 def _step(s: SState, msg: str) -> list[str]:
+    """Appends one step to the English trail. The Arabic trail (`steps_ar`) is kept beside it with `_step_ar`."""
     log.info("[%s] %s: %s", s["agent"], s["incident"].id, msg)
     return [*s.get("steps", []), msg]
+
+
+def _step_ar(s: SState, msg: str) -> list[str]:
+    return [*s.get("steps_ar", []), msg]
 
 
 def build_specialist(rt: "Runtime", A: Assumptions):
@@ -85,15 +99,19 @@ def build_specialist(rt: "Runtime", A: Assumptions):
         assets = [a for aid in inc.alert_ids for a in rt.alerts[aid].asset_ids] or [s["root"]]
         sensors = read_sensors(rt, list(dict.fromkeys(assets)))
         imp = impacted(rt, s["root"])
-        steps = _step(s, f"Read {len(sensors)} sensors on {', '.join(g.asset_index[a].name for a in list(dict.fromkeys(assets))[:3])}")
+        names = [g.asset_index[a].name for a in list(dict.fromkeys(assets))[:3]]
+        steps = _step(s, f"Read {len(sensors)} sensors on {', '.join(names)}")
         steps = _step({**s, "steps": steps}, f"Checked dependencies: {len(imp['zones'])} zone(s), {len(imp['pumps'])} pump(s), {len(imp['plants'])} plant(s) linked")
-        return {"sensors": sensors, "impact": imp, "steps": steps}
+        sar = _step_ar(s, f"قرأتُ حساسات {'، '.join(asset_ar(n) for n in names)} (العدد: {len(sensors)})")
+        sar = _step_ar({**s, "steps_ar": sar}, f"فحصتُ الاعتماديات: المناطق {len(imp['zones'])}، المضخات {len(imp['pumps'])}، محطات التبريد {len(imp['plants'])}")
+        return {"sensors": sensors, "impact": imp, "steps": steps, "steps_ar": sar}
 
     def cost(s: SState) -> SState:
         rec = compute(s["facts"], A, s["incident"].id)
         rt.calculations[rec.id] = rec
         steps = _step(s, f"Ran cost model {rec.id}: act now vs delay of {rec.cost.delay_hours:g} h")
-        return {"record": rec, "steps": steps}
+        sar = _step_ar(s, f"شغّلتُ نموذج التكلفة {rec.id}: التصرف الآن مقابل التأخير {ar_hours(rec.cost.delay_hours)}")
+        return {"record": rec, "steps": steps, "steps_ar": sar}
 
     async def reason(s: SState) -> SState:
         rec, f = s["record"], s["facts"]
@@ -103,15 +121,21 @@ def build_specialist(rt: "Runtime", A: Assumptions):
             "incident": s["incident"].title, "kind": f.kind, "reasons": [r.text for r in f.reasons],
             "sensors": [{"sensor": x["sensor"], "kind": x["kind"], "unit": x["unit"], "normal": x["normal"], "quality": x["quality"]} for x in s["sensors"][:8]],
             "dependencies": s["impact"], "figures": figs.table(),
-            "playbook": {"crew": crew, "action": action}, "usualCauses": CAUSES[f.kind],
+            "playbook": {"crew": crew, "action": action, "actionAr": PLAYBOOK_ACTION_AR[f.kind]}, "usualCauses": CAUSES[f.kind], "usualCausesAr": CAUSES_AR[f.kind],
+            "zonesAr": {z: ZONE_AR.get(z, z) for z in f.zone_types},
         }
-        key = llm.key("finding2", s["agent"], f.kind, s["root"])  # 2: the causes rule changed, so answers recorded under the old rule are not replayed
+        key = llm.key("finding4", s["agent"], f.kind, s["root"])  # 4: the Arabic version follows a glossary and the Arabic causes, so answers recorded under the first Arabic wording are not replayed
         out, fb = await llm.json(key, SYSTEM.format(agent=s["agent"], domain=DOMAIN[s["agent"]]),
-                                 json.dumps(data, default=str), model=MODEL_FAST)
+                                 json.dumps(data, default=str, ensure_ascii=False), model=MODEL_FAST)
         if not out:
             out = template(s)
+        out = dict(out)
+        ar = out.pop("ar", None)
+        if not _valid_ar(ar):
+            ar = template_ar(s)  # the model gave no usable Arabic: the computed wording stands in, and the finding says which it is
         steps = _step(s, f"Looked up {crew} playbook and wrote recommendation ({'recorded fallback' if fb else 'live LLM'})")
-        return {"text": out, "fallback": fb, "steps": steps, "figs": figs}
+        sar = _step_ar(s, f"راجعتُ خطة فريق {CREW_AR.get(crew, crew)} وكتبتُ التوصية ({'إجابة مسجّلة' if fb else 'نموذج لغوي مباشر'})")
+        return {"text": out, "text_ar": ar, "fallback": fb, "steps": steps, "steps_ar": sar, "figs": figs}
 
     def verify(s: SState) -> SState:
         allowed = allowed_numbers(s["record"], [x for sn in s["sensors"] for x in (sn["now"], sn["min30"] or 0, sn["max30"] or 0, *sn["normal"])])
@@ -120,14 +144,24 @@ def build_specialist(rt: "Runtime", A: Assumptions):
         cleaned, removed = _clean(rendered, allowed)
         removed = [*unknown, *removed]
         steps, fallback = s.get("steps", []), s.get("fallback", False)
+        steps_ar = s.get("steps_ar", [])
         if removed and fallback:
             # a recorded answer quotes figures from an older state: use the computed wording instead of leaving holes
             cleaned, removed = _clean(template(s), allowed)
             steps = _step(s, "Recorded wording was out of date, so the computed wording is used")
+            steps_ar = _step_ar(s, "الصياغة المسجّلة قديمة، فاستُخدمت الصياغة المحسوبة")
+        # the Arabic wording is held to the same rule: figures by token, anything typed as digits must be in the calculation
+        rendered_ar, unknown_ar = figs.render_any(s.get("text_ar") or template_ar(s), ar=True)
+        cleaned_ar, removed_ar = _clean(rendered_ar, allowed)
+        removed_ar = [*unknown_ar, *removed_ar]
+        if removed_ar:  # a figure that cannot be verified is not removed from Arabic prose: the computed Arabic sentence replaces the whole text
+            cleaned_ar, _ = _clean(template_ar(s), allowed)
+            steps_ar = _step_ar({**s, "steps_ar": steps_ar}, f"فحص الأرقام حذف {len(removed_ar)} رقمًا غير مؤكَّد من النص العربي، فاستُخدمت الصياغة المحسوبة")
         cited = len(TOKEN.findall(json.dumps(s["text"], ensure_ascii=False)))
         msg = ("Number check passed: every figure matches the calculation" + (f" ({cited} cited by token)" if cited else "")
                if not removed else f"Number check removed {len(removed)} unverified figure(s)")
-        return {"text": cleaned, "removed": removed, "steps": _step({**s, "steps": steps}, msg)}
+        msg_ar = ("فحص الأرقام نجح: كل رقم يطابق الحساب" + (f" ({cited} مذكور برمز)" if cited else "") if not removed else f"فحص الأرقام حذف {len(removed)} رقمًا غير مؤكَّد")
+        return {"text": cleaned, "text_ar": cleaned_ar, "removed": removed, "steps": _step({**s, "steps": steps}, msg), "steps_ar": _step_ar({**s, "steps_ar": steps_ar}, msg_ar)}
 
     def finalize(s: SState) -> SState:
         f, rec, t = s["facts"], s["record"], s["text"]
@@ -141,7 +175,8 @@ def build_specialist(rt: "Runtime", A: Assumptions):
             recommended_action=RecommendedAction(text=t.get("action") or action, crew_type=crew, urgency=urgency),
             cost=rec.cost, reasoning_steps=[*s["steps"], f"Finding ready in {elapsed:.1f} s"], explain=rec.explanation,
             created_at=datetime.now(timezone.utc), fallback=s.get("fallback", False),
-            number_check="corrected" if s.get("removed") else "passed")
+            number_check="corrected" if s.get("removed") else "passed",
+            ar=_finding_ar(s, crew, action, elapsed))
         return {"finding": finding}
 
     sg = StateGraph(SState)
@@ -185,6 +220,32 @@ def template(s: SState) -> dict:
         "impact": f"Affects {', '.join(f.zone_types)}.",
         "action": action,
     }
+
+
+def _valid_ar(ar) -> bool:
+    return (isinstance(ar, dict) and all(isinstance(ar.get(k), str) and ar[k].strip() for k in ("headline", "explanation", "impact", "action"))
+            and isinstance(ar.get("probableCauses"), list) and bool(ar["probableCauses"]) and all(isinstance(x, str) for x in ar["probableCauses"]))
+
+
+def template_ar(s: SState) -> dict:
+    """The deterministic wording in Arabic: used when the model gave no Arabic, or its Arabic could not be verified."""
+    f, rec, inc = s["facts"], s["record"], s["incident"]
+    first = next((r.text_ar for r in f.reasons if r.text_ar), None) or inc.title_ar or inc.title
+    zones = "، ".join(ZONE_AR.get(z, z) for z in f.zone_types) or "—"
+    return {
+        "headline": inc.title_ar or inc.title,
+        "explanation": f"{first}. التصرف الآن يكلّف {rec.cost.act_now:,.0f} جنيه؛ والانتظار {ar_hours(rec.cost.delay_hours)} يكلّف {rec.cost.cost_of_delay:,.0f} جنيه.",
+        "probableCauses": CAUSES_AR[f.kind][:2],
+        "impact": f"يؤثر على: {zones}.",
+        "action": PLAYBOOK_ACTION_AR[f.kind],
+    }
+
+
+def _finding_ar(s: SState, crew: str, action: str, elapsed: float) -> FindingText:
+    t = s.get("text_ar") or template_ar(s)
+    return FindingText(headline=t.get("headline") or s["incident"].title_ar or s["incident"].title, explanation=t.get("explanation", ""),
+                       probable_causes=t.get("probableCauses") or ["غير متاح"], impact=t.get("impact", ""), action=t.get("action") or PLAYBOOK_ACTION_AR[s["facts"].kind],
+                       reasoning_steps=[*s.get("steps_ar", []), f"النتيجة جاهزة خلال {elapsed:.1f} ثانية"])
 
 
 async def run_specialist(graph, agent: str, incident: Incident, facts: IncidentFacts, root: str) -> AgentFinding:

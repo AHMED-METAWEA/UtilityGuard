@@ -8,7 +8,7 @@ import { useUi } from '../store/ui';
 import { go, PAGES, type Page } from '../lib/route';
 import { setTheme, useTheme } from '../lib/theme';
 
-const TITLE: Record<Page, string> = { live: 'Live twin', incidents: 'Incidents', savings: 'Savings', forecast: 'Forecast and models', lab: 'AI lab', executive: 'Executive', healthcare: 'Healthcare investment', audit: 'Decision log' };
+const TITLE: Record<Page, string> = { live: 'Live twin', incidents: 'Incidents', savings: 'Savings', forecast: 'Forecast and models', lab: 'AI lab', executive: 'Executive', siting: 'Build here (siting what-if)', healthcare: 'Healthcare investment', audit: 'Decision log' };
 interface Cmd { id: string; label: string; hint: string; run: () => void }
 
 export function Palette() {

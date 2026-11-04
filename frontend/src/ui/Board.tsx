@@ -37,7 +37,7 @@ function Transcript({ session }: { session: BoardSession }) {
               <b>{message.agent === 'orchestrator' ? 'Chair' : `${NET[message.agent].label} agent`}</b>
               <SourceTag source={message.source} />
             </div>
-            <p>{message.text}</p>
+            <p dir="auto">{message.text}</p>
             <details>
               <summary className="muted">Figures</summary>
               <dl className="board-facts">
@@ -164,7 +164,7 @@ function BoardResult({ decision, onLatest }: { decision: BoardDecision; onLatest
   </div>;
   return (
     <section className="board-decision stack" aria-label="Board decision" style={{ gap: 18 }}>
-      <div><h3 className="card-title" style={{ margin: '0 0 6px' }}>What to do</h3><p style={{ margin: '0 0 6px' }}>{decision.summary}</p><SourceTag source={decision.summarySource} /></div>
+      <div><h3 className="card-title" style={{ margin: '0 0 6px' }}>What to do</h3><p dir="auto" style={{ margin: '0 0 6px' }}>{decision.summary}</p><SourceTag source={decision.summarySource} /></div>
       <DecisionControl decision={decision} onLatest={onLatest} />
       <CrewTimeline decision={decision} />
       <div className="board-kpis">

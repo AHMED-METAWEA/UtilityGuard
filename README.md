@@ -28,6 +28,8 @@ Arabic walkthrough for the committee: [docs/showcase.md](docs/showcase.md). What
 | **Board of agents** | When two or more networks have an open problem and there are fewer crews than problems, the agents meet. The order is the cheapest of every possible order (exhaustive search up to 6 problems), checked against 300 price scenarios. |
 | **Human approval** | The board only proposes. A person approves, approves a different order (priced first, logged as an override) or rejects with a reason. |
 | **Crew dispatch** | The approved plan runs in the twin on a demo clock. When a crew finishes, the fault ends and the detector, not the crew, confirms the alert is clear. |
+| **Arabic or English** | Choose the language the agents speak in the top bar (`EN | عربي`): findings, reasons, chat answers, the board meeting and Telegram alerts come in it, with the same figures and the same number checks. The incident report downloads as a PDF in either language (the Arabic one reads right to left). Contract 4.24. |
+| **Build here** | Put a hospital, an expansion, a clinic or a custom load in a zone and read the water, electricity and cooling networks with and without it (ordinary day, heat wave, loss of a substation), the share of simulated days in breach, and the cost with the utility upgrades it needs (`POST /siting/evaluate`, contract 4.23). |
 | **Early warning** | A pump that is wearing out is flagged while it still runs, one to two minutes before it fails in the eight-minute demo wear (measured over 24 wears of 5 to 20 minutes on three pumps and two seeds: 12 s to 574 s ahead, median 114 s; a wear of 3 minutes is warned in only some cases): its condition signals drift away from its peers, and the warning prices planned maintenance against an unplanned failure with a break-even risk. Nothing is raised in the other scenarios (checked). |
 | **Problem alerts on Telegram** | When a problem opens, grows or is resolved, and for every early warning, a message with every detail goes to the same Telegram chat: where, what the sensors show, probable cause, impact, the cost per hour, acting now against waiting, the recommended action. Composed by code from the same figures as the Incidents page (no model in the path), once per problem, with an hourly limit. `ALERTS_ENABLED=0` turns it off. |
 | **Morning briefing** | What needs attention today, composed by code in English and Arabic (no model in the path): a board decision waiting for approval first, open incidents ranked by what an hour of delay costs, early warnings, the next 24 hours of demand against capacity, savings. Sent to Telegram once a day; a problem already reported is counted, not repeated. |
@@ -165,7 +167,7 @@ WebSocket messages: `snapshot`, `reading`, `asset_status`, `alert`, `incident`, 
 ## Tests and checks
 
 ```bash
-cd backend && PYTHONPATH=. .venv/bin/python -m pytest -q          # 337 tests, about 8 minutes
+cd backend && PYTHONPATH=. .venv/bin/python -m pytest -q          # 397 tests, about 30 minutes
 cd frontend && npm run lint && npm test && npm run build          # 84 tests
 cd backend && PYTHONPATH=. .venv/bin/python scripts/demo_check.py --runs 1   # the whole demo path against a running server
 ```
@@ -183,7 +185,7 @@ backend/app/        sim, detection, ml, cost, agents, board, lab, schemas, main 
 backend/scripts/    demo_check.py, make_fixtures.py, export_for_health.py, stress/ (measurement and stress scripts)
 integration/health/ the link with the healthcare-investment project: mapping, copies of their data, generated tables (see its README)
 run_all.sh          starts the twin and their Streamlit dashboard together (Healthcare tab)
-backend/tests/      337 tests
+backend/tests/      397 tests
 backend/data/       assumptions.json, fallback_cache.json, models.pkl, lab_benchmark.json, audit.jsonl (all git-ignored)
 frontend/src/       pages, ui, panels, charts, map, store, api, lib, i18n, design
 frontend/public/geo OpenStreetMap layers (ODbL, see ATTRIBUTION.txt)

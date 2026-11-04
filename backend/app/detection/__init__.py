@@ -17,6 +17,7 @@ import numpy as np
 from sklearn.ensemble import IsolationForest
 
 from app.cost import TONS_PER_MW, IncidentFacts
+from app.i18n import ZONE_AR, asset_ar, sensor_ar, unit_ar
 from app.schemas import Alert, Incident, Reason
 from app.sim.engine import CALIBRATION_START
 from app.sim.topology import COOLING_PLANTS, SUBSTATION_BACKUP, ZONE_SUBSTATION
@@ -54,6 +55,8 @@ class Detection:
     facts: IncidentFacts
     root: str
     cause: str = ""  # shared external cause, e.g. "heat": alerts with the same cause belong to one incident even on different networks
+    title_ar: str = ""  # the title and the summary in Arabic, written beside the English ones
+    summary_ar: str = ""
 
 
 @dataclass
@@ -106,6 +109,14 @@ class Detector:
         d.on_incident, d.on_incident_update = [], []
         d.anomaly_scores = deque(maxlen=300)
         return d
+
+    def _voltage_text_ar(self, name: str, sub: str, now: float) -> str:
+        now = max(0.0, float(now))
+        before = self.state.healthy_kv.get(sub)
+        if before is None:
+            top = self.g.sensor_index[f"{sub}-voltage"].normal_range.max
+            return f"جهد {asset_ar(name)} يقرأ {now:.1f} كيلوفولت مقابل مدى طبيعي حتى {top:.1f} كيلوفولت"
+        return f"جهد {asset_ar(name)} هبط من {before:.1f} إلى {now:.1f} كيلوفولت"
 
     def _voltage_text(self, name: str, sub: str, now: float) -> str:
         """What the voltage did, in words that stay true: it fell from the last healthy reading (not from the highest of a sliding window, which turns into
@@ -162,6 +173,7 @@ class Detector:
         out: list[Detection] = []
         zt = lambda z: g.zone_index[z].type  # noqa: E731
         name = lambda a: g.asset_index[a].name  # noqa: E731
+        nar = lambda a: asset_ar(g.asset_index[a].name)  # noqa: E731
         for sub in SUBSTATION_BACKUP:
             on = eng.sub_on.get(sub, True)
             if on and not self.state.sub_was_on.get(sub, True):
@@ -181,19 +193,22 @@ class Detector:
                 plants = [a.id for a in g.topology.assets if a.kind == "plant" and g.asset_index[a.id].zone_id in zones]
                 backup = SUBSTATION_BACKUP[sub]
                 reasons = [
-                    Reason(text=self._voltage_text(name(sub), sub, v[-1]), evidence_type="measured", evidence_ref=f"{sub}-voltage"),
-                    Reason(text=f"{len(pumps)} pumps powered by {name(sub)} stopped and their pressure is falling", evidence_type="measured", evidence_ref=f"{pumps[0]}-pressure"),
-                    Reason(text=f"{name(backup)} picked up priority load, now {_mean(H[f'{backup}-load'], 3):.1f} MW", evidence_type="measured", evidence_ref=f"{backup}-load"),
-                    Reason(text=f"About {lost:.1f} MW of non-priority load is shed", evidence_type="rule", evidence_ref="rule:backup-sheds-45pct"),
+                    Reason(text=self._voltage_text(name(sub), sub, v[-1]), text_ar=self._voltage_text_ar(name(sub), sub, v[-1]), evidence_type="measured", evidence_ref=f"{sub}-voltage"),
+                    Reason(text=f"{len(pumps)} pumps powered by {name(sub)} stopped and their pressure is falling",
+                           text_ar=f"توقفت {len(pumps)} مضخة تغذيها {nar(sub)} وضغطها يهبط", evidence_type="measured", evidence_ref=f"{pumps[0]}-pressure"),
+                    Reason(text=f"{name(backup)} picked up priority load, now {_mean(H[f'{backup}-load'], 3):.1f} MW",
+                           text_ar=f"{nar(backup)} تحمّلت الأحمال ذات الأولوية، وحملها الآن {_mean(H[f'{backup}-load'], 3):.1f} ميجاوات", evidence_type="measured", evidence_ref=f"{backup}-load"),
+                    Reason(text=f"About {lost:.1f} MW of non-priority load is shed", text_ar=f"تم فصل حوالي {lost:.1f} ميجاوات من الأحمال غير ذات الأولوية", evidence_type="rule", evidence_ref="rule:backup-sheds-45pct"),
                 ]
                 if plants:
-                    reasons.append(Reason(text=f"Cooling plant {name(plants[0])} lost power", evidence_type="measured", evidence_ref=f"{plants[0]}-supply-temp"))
+                    reasons.append(Reason(text=f"Cooling plant {name(plants[0])} lost power", text_ar=f"{nar(plants[0])} فقدت الكهرباء", evidence_type="measured", evidence_ref=f"{plants[0]}-supply-temp"))
                 facts = IncidentFacts(kind="substation_trip", zone_types={z: zt(z) for z in zones}, unserved_mw=lost,
                                       pumps_stopped=len(pumps), plants_affected=len(plants),
                                       secondary_mw=0.08 * len(pumps) + 0.5 * len(plants), reasons=reasons, confidence=0.95)
                 out.append(Detection(f"trip:{sub}", "substation_trip", "electricity", zones[0] if sub != "elec-sub-02" else "zone-gov",
                                      [sub, *pumps, *plants], "critical", f"{name(sub)} tripped",
-                                     f"{name(sub)} is down. {len(pumps)} pumps and {len(plants)} cooling plant(s) lost power.", 0.95, facts, sub))
+                                     f"{name(sub)} is down. {len(pumps)} pumps and {len(plants)} cooling plant(s) lost power.", 0.95, facts, sub,
+                                     title_ar=f"فصل {nar(sub)}", summary_ar=f"{nar(sub)} خارج الخدمة. فقدت الكهرباء {len(pumps)} مضخة و{len(plants)} محطة تبريد."))
 
         # leak: flow mismatch on a pipe + pressure drop
         for z, pipe in g.zone_pipe.items():
@@ -208,20 +223,22 @@ class Detector:
                             for d, up in g.upstream_zone.items() if up == g.upstream_zone[z] and d != z) if g.upstream_zone[z] else True
                 pump_up = (_mean(H[f"{pump}-flow"], 3) / max(float(np.nanmean(H[f"{pump}-flow"][-60:-10] or [1])), 1) - 1) * 100 if len(H[f"{pump}-flow"]) > 12 else 0
                 reasons = [
-                    Reason(text=f"Pressure fell from {p_before:.1f} to {p_now:.1f} bar", evidence_type="measured", evidence_ref=f"{pipe}-pressure"),
-                    Reason(text=f"Inflow is {mismatch:.0f} m3/h higher than outflow", evidence_type="measured", evidence_ref=f"{pipe}-flow-in"),
+                    Reason(text=f"Pressure fell from {p_before:.1f} to {p_now:.1f} bar", text_ar=f"الضغط هبط من {p_before:.1f} إلى {p_now:.1f} بار", evidence_type="measured", evidence_ref=f"{pipe}-pressure"),
+                    Reason(text=f"Inflow is {mismatch:.0f} m3/h higher than outflow", text_ar=f"التدفق الداخل أعلى من الخارج بمقدار {mismatch:.0f} م³/ساعة", evidence_type="measured", evidence_ref=f"{pipe}-flow-in"),
                     Reason(text="Neighbouring sensors read normal, so this is not a sensor fault" if nb_ok else "Neighbouring pressures are also low",
+                           text_ar="الحساسات المجاورة تقرأ طبيعي، فالمشكلة ليست عطل حساس" if nb_ok else "الضغط منخفض في الحساسات المجاورة أيضًا",
                            evidence_type="rule", evidence_ref="rule:neighbour-consistency"),
                 ]
                 if pump_up > 3:
-                    reasons.append(Reason(text=f"Pump {name(pump)} draw is up {pump_up:.0f}% as it compensates", evidence_type="measured", evidence_ref=f"{pump}-flow"))
+                    reasons.append(Reason(text=f"Pump {name(pump)} draw is up {pump_up:.0f}% as it compensates", text_ar=f"سحب {nar(pump)} زاد {pump_up:.0f}% وهي تعوّض", evidence_type="measured", evidence_ref=f"{pump}-flow"))
                 sev = "critical" if mismatch > 120 or p_now < g.sensor_index[f"{pipe}-pressure"].normal_range.min * 0.75 else "warning"
                 conf = round(min(0.97, 0.6 + mismatch / 500 + (0.1 if nb_ok else 0)), 2)
                 facts = IncidentFacts(kind="leak", zone_types={z: zt(z)}, leak_m3h=round(mismatch, 0),
                                       secondary_mw=round(max(pump_up, 0) / 100 * _mean(H[f"{pump}-flow"], 3) * 0.0006, 3),
                                       reasons=reasons, confidence=conf)
                 out.append(Detection(f"leak:{pipe}", "leak", "water", z, [pipe, pump], sev, "Pipe burst suspected",
-                                     f"Pressure drop and a {mismatch:.0f} m3/h flow mismatch on {name(pipe)}.", conf, facts, pipe))
+                                     f"Pressure drop and a {mismatch:.0f} m3/h flow mismatch on {name(pipe)}.", conf, facts, pipe,
+                                     title_ar="اشتباه في كسر ماسورة", summary_ar=f"هبوط في الضغط وفرق تدفق {mismatch:.0f} م³/ساعة على {nar(pipe)}."))
 
         # creeping leak: too small for the burst rule, but steady. Real water leaves the pipe and pressure sags; a drifting meter changes no pressure.
         burst_keys = {d.key for d in out}
@@ -237,14 +254,15 @@ class Detector:
             if mismatch >= CREEP_MISMATCH and (drop >= CREEP_DROP or open_already):
                 pump = g.zone_pump[z]
                 reasons = [
-                    Reason(text=f"Inflow is {mismatch:.0f} m3/h higher than outflow, steady for 40 seconds", evidence_type="measured", evidence_ref=f"{pipe}-flow-in"),
-                    Reason(text=f"Pressure on the pipe fell {max(drop, 0):.2f} bar over the last two minutes", evidence_type="measured", evidence_ref=f"{pipe}-pressure"),
-                    Reason(text="Pressure fell as well, so this is water leaving the pipe and not a drifting flow meter", evidence_type="rule", evidence_ref="rule:pressure-confirms-flow"),
+                    Reason(text=f"Inflow is {mismatch:.0f} m3/h higher than outflow, steady for 40 seconds", text_ar=f"التدفق الداخل أعلى من الخارج بمقدار {mismatch:.0f} م³/ساعة، وثابت لمدة 40 ثانية", evidence_type="measured", evidence_ref=f"{pipe}-flow-in"),
+                    Reason(text=f"Pressure on the pipe fell {max(drop, 0):.2f} bar over the last two minutes", text_ar=f"ضغط الماسورة هبط {max(drop, 0):.2f} بار خلال آخر دقيقتين", evidence_type="measured", evidence_ref=f"{pipe}-pressure"),
+                    Reason(text="Pressure fell as well, so this is water leaving the pipe and not a drifting flow meter", text_ar="الضغط هبط أيضًا، فالمياه تخرج من الماسورة وليس عداد تدفق منحرف", evidence_type="rule", evidence_ref="rule:pressure-confirms-flow"),
                 ]
                 conf = round(min(0.9, 0.55 + mismatch / 400), 2)
                 facts = IncidentFacts(kind="leak", zone_types={z: zt(z)}, leak_m3h=round(mismatch, 0), reasons=reasons, confidence=conf)
                 out.append(Detection(f"leak:{pipe}", "leak", "water", z, [pipe, pump], "warning", "Slow leak suspected",
-                                     f"A steady {mismatch:.0f} m3/h flow mismatch with falling pressure on {name(pipe)}.", conf, facts, pipe))
+                                     f"A steady {mismatch:.0f} m3/h flow mismatch with falling pressure on {name(pipe)}.", conf, facts, pipe,
+                                     title_ar="اشتباه في تسريب بطيء", summary_ar=f"فرق تدفق ثابت {mismatch:.0f} م³/ساعة مع هبوط في الضغط على {nar(pipe)}."))
 
         # pump failure: pump powered but pressure/flow collapsing
         for z, pump in g.zone_pump.items():
@@ -257,14 +275,16 @@ class Detector:
             lift = _mean(p, 3) - _mean(inlet, 3) if inlet else 1.0  # a healthy pump adds ~0.5 bar over its inlet
             if len(p) > 5 and lift < 0.1 and _mean(p, 3) < rng.min:
                 reasons = [
-                    Reason(text=f"Pump {name(pump)} discharge pressure is {_mean(p, 3):.2f} bar, below the normal {rng.min:.2f} bar", evidence_type="measured", evidence_ref=f"{pump}-pressure"),
-                    Reason(text=f"Its substation {name(sub)} is energised, so this is not a power loss", evidence_type="measured", evidence_ref=f"{sub}-voltage"),
-                    Reason(text=f"The pump adds {lift:+.2f} bar over its inlet instead of about +0.5 bar", evidence_type="measured", evidence_ref=f"{g.zone_pipe[z]}-pressure"),
-                    Reason(text="Inflow and outflow on the supply pipe match, so this is not a leak", evidence_type="rule", evidence_ref="rule:no-flow-mismatch"),
+                    Reason(text=f"Pump {name(pump)} discharge pressure is {_mean(p, 3):.2f} bar, below the normal {rng.min:.2f} bar",
+                           text_ar=f"ضغط تفريغ {nar(pump)} هو {_mean(p, 3):.2f} بار، أقل من الطبيعي {rng.min:.2f} بار", evidence_type="measured", evidence_ref=f"{pump}-pressure"),
+                    Reason(text=f"Its substation {name(sub)} is energised, so this is not a power loss", text_ar=f"محطتها {nar(sub)} تعمل بالكهرباء، فالمشكلة ليست فقدان كهرباء", evidence_type="measured", evidence_ref=f"{sub}-voltage"),
+                    Reason(text=f"The pump adds {lift:+.2f} bar over its inlet instead of about +0.5 bar", text_ar=f"المضخة تضيف {lift:+.2f} بار فوق مدخلها بدل حوالي +0.5 بار", evidence_type="measured", evidence_ref=f"{g.zone_pipe[z]}-pressure"),
+                    Reason(text="Inflow and outflow on the supply pipe match, so this is not a leak", text_ar="التدفق الداخل والخارج على ماسورة التغذية متطابقان، فالمشكلة ليست تسريبًا", evidence_type="rule", evidence_ref="rule:no-flow-mismatch"),
                 ]
                 facts = IncidentFacts(kind="pump_failure", zone_types={z: zt(z)}, reasons=reasons, confidence=0.86)
                 out.append(Detection(f"pump:{pump}", "pump_failure", "water", z, [pump], "critical", f"Pump {name(pump)} failing",
-                                     f"Discharge pressure on {name(pump)} is collapsing while power is on.", 0.86, facts, pump))
+                                     f"Discharge pressure on {name(pump)} is collapsing while power is on.", 0.86, facts, pump,
+                                     title_ar=f"عطل في {nar(pump)}", summary_ar=f"ضغط التفريغ على {nar(pump)} ينهار رغم وجود الكهرباء."))
 
         # cooling fault: supply temperature high while the plant has power
         for a in g.topology.assets:
@@ -279,21 +299,24 @@ class Detector:
                 delivered = _mean(H[f"{a.id}-load"], 3)
                 deficit = max(0.0, need - delivered) * TONS_PER_MW
                 reasons = [
-                    Reason(text=f"Supply temperature is {_mean(t, 3):.1f} °C, above the {rng.max:.1f} °C limit", evidence_type="measured", evidence_ref=f"{a.id}-supply-temp"),
-                    Reason(text=f"Plant delivers {delivered:.1f} MW against {need:.1f} MW demand", evidence_type="measured", evidence_ref=f"{a.id}-load"),
-                    Reason(text=f"Its substation {name(sub)} is energised, so the chiller itself is at fault", evidence_type="rule", evidence_ref="rule:power-ok"),
+                    Reason(text=f"Supply temperature is {_mean(t, 3):.1f} °C, above the {rng.max:.1f} °C limit", text_ar=f"درجة حرارة مياه التغذية {_mean(t, 3):.1f} °م، أعلى من الحد {rng.max:.1f} °م", evidence_type="measured", evidence_ref=f"{a.id}-supply-temp"),
+                    Reason(text=f"Plant delivers {delivered:.1f} MW against {need:.1f} MW demand", text_ar=f"المحطة تسلّم {delivered:.1f} ميجاوات مقابل طلب {need:.1f} ميجاوات", evidence_type="measured", evidence_ref=f"{a.id}-load"),
+                    Reason(text=f"Its substation {name(sub)} is energised, so the chiller itself is at fault", text_ar=f"محطتها {nar(sub)} تعمل بالكهرباء، فالعطل في المبرّد نفسه", evidence_type="rule", evidence_ref="rule:power-ok"),
                 ]
                 load_max = g.sensor_index[f"{a.id}-load"].normal_range.max
                 at_limit = delivered >= 0.85 * load_max and need > delivered * 1.03
                 if at_limit:  # delivering all it can while demand is higher: a capacity problem, not a broken chiller
                     reasons[2] = Reason(text=f"{name(sub)} is energised and the plant is running at its limit, so demand is above capacity rather than a chiller failing",
+                                        text_ar=f"{nar(sub)} تعمل بالكهرباء والمحطة تعمل عند حدّها الأقصى، فالطلب أعلى من القدرة وليس عطلًا في المبرّد",
                                         evidence_type="rule", evidence_ref="rule:at-capacity")
                 facts = IncidentFacts(kind="cooling_fault", zone_types={z: zt(z) for z in served[:2]}, cooling_deficit_tons=round(deficit),
                                       reasons=reasons, confidence=0.88)
                 out.append(Detection(f"cool:{a.id}", "cooling_fault", "cooling", a.zone_id, [a.id, *[g.zone_loop[z] for z in served]],
                                      "critical" if deficit > 1500 else "warning", f"{a.name} cooling at capacity" if at_limit else f"{a.name} chiller fault",
                                      f"{a.name} supply water is too warm; zones get less cooling.", 0.88, facts, a.id,
-                                     cause="heat" if at_limit and eng.ambient >= HEAT_CAUSE_C else ""))
+                                     cause="heat" if at_limit and eng.ambient >= HEAT_CAUSE_C else "",
+                                     title_ar=f"{asset_ar(a.name)} تعمل عند الحد الأقصى" if at_limit else f"عطل مبرّد في {asset_ar(a.name)}",
+                                     summary_ar=f"مياه التغذية في {asset_ar(a.name)} أدفأ من اللازم؛ المناطق تحصل على تبريد أقل."))
 
         # overload / energy waste: substation load above its normal envelope (heat wave, holiday)
         for sub in SUBSTATION_BACKUP:
@@ -304,13 +327,14 @@ class Detector:
                 excess = _mean(ld, 3) - rng.max
                 zones = [z for z, s in ZONE_SUBSTATION.items() if s == sub]
                 reasons = [
-                    Reason(text=f"{name(sub)} load is {_mean(ld, 3):.1f} MW, {excess:.1f} MW above its normal maximum", evidence_type="measured", evidence_ref=f"{sub}-load"),
-                    Reason(text=f"Air temperature is {eng.ambient:.0f} °C, which drives cooling and electrical load", evidence_type="measured", evidence_ref="weather:ambient"),
+                    Reason(text=f"{name(sub)} load is {_mean(ld, 3):.1f} MW, {excess:.1f} MW above its normal maximum", text_ar=f"حمل {nar(sub)} هو {_mean(ld, 3):.1f} ميجاوات، أعلى من حدّه الطبيعي بمقدار {excess:.1f} ميجاوات", evidence_type="measured", evidence_ref=f"{sub}-load"),
+                    Reason(text=f"Air temperature is {eng.ambient:.0f} °C, which drives cooling and electrical load", text_ar=f"درجة حرارة الهواء {eng.ambient:.0f} °م، وهي ترفع حمل التبريد والكهرباء", evidence_type="measured", evidence_ref="weather:ambient"),
                 ]
                 facts = IncidentFacts(kind="energy_waste", zone_types={z: zt(z) for z in zones}, excess_mw=round(excess, 2), reasons=reasons, confidence=0.8)
                 out.append(Detection(f"overload:{sub}", "energy_waste", "electricity", zones[0], [sub], "warning", f"{name(sub)} overloaded",
                                      f"{name(sub)} is running {excess:.1f} MW above its normal envelope.", 0.8, facts, sub,
-                                     cause="heat" if eng.ambient >= HEAT_CAUSE_C else ""))
+                                     cause="heat" if eng.ambient >= HEAT_CAUSE_C else "",
+                                     title_ar=f"حمل زائد على {nar(sub)}", summary_ar=f"{nar(sub)} تعمل أعلى من نطاقها الطبيعي بمقدار {excess:.1f} ميجاوات."))
 
         # stuck sensor: flat value while its neighbours on the same network keep moving
         st = self.state.stuck_since
@@ -328,13 +352,15 @@ class Detector:
                 moving = sum(float(np.nanstd(H[x.id][-10:])) > 1e-6 for x in peers)
                 a = g.asset_index[s.asset_id]
                 reasons = [
-                    Reason(text=f"{s.id} has reported exactly {h[-1]:.2f} {s.unit} for {min(len(h), 10) * 2}+ seconds", evidence_type="measured", evidence_ref=s.id),
-                    Reason(text=f"{moving} of {len(peers)} neighbouring sensors are still changing normally", evidence_type="measured", evidence_ref=peers[0].id if peers else None),
-                    Reason(text="Real pressure always shows small noise, so a flat line means the sensor is stuck", evidence_type="rule", evidence_ref="rule:zero-variance"),
+                    Reason(text=f"{s.id} has reported exactly {h[-1]:.2f} {s.unit} for {min(len(h), 10) * 2}+ seconds",
+                           text_ar=f"{sensor_ar(s.id, s.asset_id, a.name)} يقرأ بالضبط {h[-1]:.2f} {unit_ar(s.unit)} منذ {min(len(h), 10) * 2}+ ثانية", evidence_type="measured", evidence_ref=s.id),
+                    Reason(text=f"{moving} of {len(peers)} neighbouring sensors are still changing normally", text_ar=f"{moving} من {len(peers)} حساسات مجاورة لا تزال تتغير بشكل طبيعي", evidence_type="measured", evidence_ref=peers[0].id if peers else None),
+                    Reason(text="Real pressure always shows small noise, so a flat line means the sensor is stuck", text_ar="الضغط الحقيقي تظهر عليه دائمًا ضوضاء صغيرة، فالخط المستقيم يعني أن الحساس عالق", evidence_type="rule", evidence_ref="rule:zero-variance"),
                 ]
                 facts = IncidentFacts(kind="sensor_fault", zone_types={a.zone_id: zt(a.zone_id)}, reasons=reasons, confidence=0.9)
                 out.append(Detection(f"stuck:{s.id}", "sensor_fault", s.network, a.zone_id, [s.asset_id], "warning", f"Sensor {s.id} stuck",
-                                     f"{s.id} is frozen while its neighbours move. Readings are marked suspect.", 0.9, facts, s.asset_id))
+                                     f"{s.id} is frozen while its neighbours move. Readings are marked suspect.", 0.9, facts, s.asset_id,
+                                     title_ar=f"حساس عالق: {sensor_ar(s.id, s.asset_id, a.name)}", summary_ar=f"{sensor_ar(s.id, s.asset_id, a.name)} متجمد بينما جيرانه يتحركون. تم وسم قراءاته كمشكوك فيها."))
                 rt.latest[s.id] = rt.latest[s.id].model_copy(update={"quality": "suspect"})
         return out
 
@@ -388,7 +414,7 @@ class Detector:
             if o:
                 o.last_seen, o.facts = tick, d.facts
                 if o.alert.severity != d.severity and SEVERITY_RANK[d.severity] > SEVERITY_RANK[o.alert.severity]:
-                    o.alert = o.alert.model_copy(update={"severity": d.severity, "summary": d.summary, "confidence": d.confidence})
+                    o.alert = o.alert.model_copy(update={"severity": d.severity, "summary": d.summary, "summary_ar": d.summary_ar or None, "confidence": d.confidence})
                     rt.alerts[o.alert.id] = o.alert
                     await rt.broadcast("alert", o.alert)
                 continue
@@ -404,7 +430,7 @@ class Detector:
                     log.info("incident %s reopened by %s", inc_id, d.key)
             alert = Alert(id=f"alert-{next(self.state.alert_ids):04d}", incident_id=inc_id or f"inc-{next(self.state.inc_ids):04d}",
                           network=d.network, zone_id=d.zone_id, asset_ids=d.asset_ids, severity=d.severity, title=d.title,
-                          summary=d.summary, detected_at=now, confidence=d.confidence)
+                          summary=d.summary, detected_at=now, confidence=d.confidence, title_ar=d.title_ar or None, summary_ar=d.summary_ar or None)
             self.state.open[d.key] = _Open(alert, tick, d.facts, d.kind, d.root)
             rt.alerts[alert.id] = alert
             if inc_id:
@@ -416,7 +442,8 @@ class Detector:
                     inc = inc.model_copy(update={"severity": d.severity})
                 escalates = KIND_PRIORITY[d.kind] > KIND_PRIORITY.get(self.state.incident_kind.get(inc_id, ""), -1)
                 if escalates:  # the incident grew into something bigger: it now belongs to the larger root cause
-                    inc = inc.model_copy(update={"title": f"{d.title}, {rt.engine.g.zone_index[d.zone_id].name}", "reanalysing": True})
+                    inc = inc.model_copy(update={"title": f"{d.title}, {rt.engine.g.zone_index[d.zone_id].name}", "reanalysing": True,
+                                                 "title_ar": f"{d.title_ar}، {ZONE_AR.get(d.zone_id, d.zone_id)}" if d.title_ar else None})
                     self.state.incident_kind[inc_id] = d.kind
                     log.info("incident %s escalated to %s root=%s", inc_id, d.kind, d.root)
                 rt.incidents[inc_id] = inc
@@ -435,6 +462,7 @@ class Detector:
                 if d.cause:
                     self.state.incident_cause[alert.incident_id] = d.cause
                 inc = Incident(id=alert.incident_id, title=f"{d.title}, {rt.engine.g.zone_index[d.zone_id].name}",
+                               title_ar=f"{d.title_ar}، {ZONE_AR.get(d.zone_id, d.zone_id)}" if d.title_ar else None,
                                networks=list(dict.fromkeys([d.network, *self._networks(d.asset_ids)])), zone_ids=list(d.facts.zone_types) or [d.zone_id], severity=d.severity,
                                state="open", opened_at=now, alert_ids=[alert.id])
                 rt.incidents[inc.id] = inc

@@ -6,8 +6,8 @@
  "assumptions": "registered defaults (backend/app/cost/__init__.py DEFAULTS), no saved override",
  "budget_m_egp": 15.0,
  "environment_month": "2026-09",
- "written_at": "2026-11-03T12:55:33.879057+00:00",
- "git_commit": "5031c1b",
+ "written_at": "2026-11-03T22:10:56.721685+00:00",
+ "git_commit": "f2cbe9a",
  "simulated": true,
  "files": {
   "scenarios.csv": {
@@ -28,7 +28,7 @@
   },
   "joint_decision.csv": {
    "rows": 15,
-   "sha256": "703bf017a0b7e6cdb8973a088418817bedf67de5692dc3292190ab8f7173269e"
+   "sha256": "08577651702da2a0780843f1f943e08a04966f0fb16727c16f08ce4898c019fa"
   },
   "districts_on_twin_map.csv": {
    "rows": 15,
@@ -56,7 +56,7 @@
   },
   "their_packages.csv": {
    "rows": 15,
-   "sha256": "4268c2b613dc0846f514ddecb0f878acc6deb8ff7d628c59e13505f21db330dd"
+   "sha256": "6e185f408cc4b51b2ae310d3939b020601ebb94e160f92743ad19d14e70ca94e"
   }
  }
 }

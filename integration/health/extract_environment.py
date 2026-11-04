@@ -2,7 +2,7 @@
 
     python extract_environment.py --source /path/to/master_panel.csv [--commit 64059cf510b0...]
 
-The source file is only READ. The extract keeps the keys (`district_key`, `month`) and the columns the map shows (air, waste, water pollution, heat, their
+The source file is only READ. Only the month is rewritten, as 2025-01-01, whichever of the two date formats their file uses (see `iso_month`). The extract keeps the keys (`district_key`, `month`) and the columns the map shows (air, waste, water pollution, heat, their
 stress scores and the health counts), unchanged. `data/SOURCE.json` holds the SHA-256 of the whole source file so anyone can check the extract was made
 from the version they have. Standard library only.
 """
@@ -17,6 +17,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+
+
+def iso_month(text: str) -> str:
+    """Their file wrote the month as 2025-01-01 and, since commit 9179942, as 1/1/2025 (month/day/year). Both mean the first of that month: the copy always writes 2025-01-01."""
+    t = text.strip()
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
+        try:
+            return datetime.strptime(t, fmt).strftime("%Y-%m-01")
+        except ValueError:
+            pass
+    raise SystemExit(f"cannot read the month {text!r}: expected 2025-01-01 or 1/1/2025")
 OUT = HERE / "data"
 REPO = "https://github.com/Gehan3/utilization-Environmental-measurements-Healthcare_Investment_Planning"
 COLUMNS = [
@@ -41,7 +52,7 @@ def main() -> None:
         missing = [c for c in COLUMNS if c not in (reader.fieldnames or [])]
         if missing:
             raise SystemExit(f"the source has no column(s) {missing}")
-        rows = [{c: row[c] for c in COLUMNS} for row in reader]
+        rows = [{c: (iso_month(row[c]) if c == "month" else row[c]) for c in COLUMNS} for row in reader]
     rows.sort(key=lambda r: (r["month"], r["district_key"]))
     OUT.mkdir(exist_ok=True)
     with (OUT / "environment_monthly.csv").open("w", newline="", encoding="utf-8") as f:

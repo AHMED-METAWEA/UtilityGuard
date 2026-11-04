@@ -2,3 +2,4 @@ data/fallback_cache.json
 data/assumptions.json
 data/models.pkl
 data/lab_benchmark.json
+data/settings.json

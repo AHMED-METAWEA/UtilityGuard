@@ -6,10 +6,12 @@ import { useUi } from '../store/ui';
 import { href, PAGES, type Page, useRoute } from '../lib/route';
 import { useTheme, type ThemeChoice } from '../lib/theme';
 import { clock } from '../lib/format';
+import { useAgentLang } from '../lib/agentLang';
+import { Seg } from '../ui';
 
 const NAV: Record<Page, [string, string]> = {
   live: ['nav.live', 'Live twin'], incidents: ['nav.incidents', 'Incidents'], savings: ['nav.savings', 'Savings'],
-  forecast: ['nav.forecast', 'Forecast'], lab: ['nav.lab', 'AI lab'], executive: ['nav.executive', 'Executive'], healthcare: ['nav.healthcare', 'Healthcare'], audit: ['nav.audit', 'Decision log'],
+  forecast: ['nav.forecast', 'Forecast'], lab: ['nav.lab', 'AI lab'], executive: ['nav.executive', 'Executive'], siting: ['nav.siting', 'Build here'], healthcare: ['nav.healthcare', 'Healthcare'], audit: ['nav.audit', 'Decision log'],
 };
 
 function Clock() {
@@ -29,6 +31,9 @@ export function TopBar() {
   const cycle: Record<ThemeChoice, ThemeChoice> = { system: 'light', light: 'dark', dark: 'system' };
   const ThemeIcon = choice === 'system' ? Monitor : choice === 'light' ? Sun : Moon;
   const live = conn === 'connected';
+  const agentLang = useAgentLang((s) => s.lang);
+  const setAgentLang = useAgentLang((s) => s.set);
+  const notify = useUi((s) => s.notify);
 
   return (
     <header className="topbar">
@@ -55,6 +60,9 @@ export function TopBar() {
         </span>
         <span className="pill hide-sm" title={llm === 'live' ? 'Agents answer from the live model' : 'Agents answer from recorded responses'}>
           {t('top.agents', 'Agents')}: <b style={{ fontWeight: 600, color: 'var(--text)' }}>{llm === 'fallback' ? 'recorded' : 'live'}</b>
+        </span>
+        <span title="The language the agents speak: new findings, chat answers and board meetings. Findings already written show in both.">
+          <Seg label="Language of the agents" value={agentLang} options={[{ v: 'en', label: 'EN' }, { v: 'ar', label: 'عربي' }]} onChange={(v) => void setAgentLang(v).catch((e: Error) => notify(e.message))} />
         </span>
         <Clock />
         <button className="btn ghost icon" onClick={() => setTheme(cycle[choice])} aria-label={`Theme: ${choice}`} title={`Theme: ${choice} (click to change)`}><ThemeIcon size={18} /></button>

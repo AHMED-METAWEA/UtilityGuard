@@ -26,6 +26,7 @@ import httpx
 
 from app.agents.figures import FigureSet, slug
 from app.dashboard import SUB_CAPACITY_MW
+from app.i18n import NETWORK_AR, ZONE_AR
 from app.schemas.briefing import (
     Briefing, BriefingChannel, BriefingDelivery, BriefingFigure, BriefingItem, BriefingSection, Lang,
 )
@@ -46,10 +47,6 @@ KIND_EN = {"leak": "Pipe burst", "pump_failure": "Pump failure", "substation_tri
            "energy_waste": "Substation overload", "sensor_fault": "Sensor fault"}
 KIND_AR = {"leak": "تسريب أو كسر في ماسورة", "pump_failure": "عطل في طلمبة", "substation_trip": "فصل محطة كهرباء", "cooling_fault": "عطل في محطة التبريد",
            "energy_waste": "حمل زائد على محطة كهرباء", "sensor_fault": "عطل في حساس"}
-ZONE_AR = {"zone-gov": "الحي الحكومي", "zone-cult": "مدينة الفنون والثقافة", "zone-cbd": "حي الأعمال المركزي", "zone-res-2": "الحي السكني R2",
-           "zone-just": "مدينة العدالة", "zone-pres": "الحي الرئاسي", "zone-res-n": "الحي السكني الشمالي", "zone-res-ne": "الحي السكني الشمالي الشرقي",
-           "zone-res-far": "الحي السكني أقصى الشمال الشرقي"}
-NETWORK_AR = {"water": "المياه", "electricity": "الكهرباء", "cooling": "التبريد"}
 
 
 class Fmt:

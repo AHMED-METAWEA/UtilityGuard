@@ -13,10 +13,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.agents.checker import REMOVED
+from app.i18n import unit_ar
 from app.schemas import CalculationRecord
 
 TOKEN = re.compile(r"\{{1,2}\s*([A-Za-z][A-Za-z0-9_]*)\s*\}{1,2}")  # models drop or add a brace, so one or two on each side are read the same
 DOUBLE_UNIT = re.compile(r"\b(EGP|MW|kV|bar|m3/h)(\s+)\1\b")  # a model that adds a unit after a token that already carries one
+DOUBLE_UNIT_AR = re.compile(r"(جنيه|ميجاوات|كيلوفولت|بار|م³/ساعة)(\s+)\1")  # the same in Arabic
 
 
 def slug(text: str) -> str:
@@ -61,8 +63,8 @@ class FigureSet:
         """What the model sees: the token to write, what it means, and how it will read. The value itself is not repeated as a bare number."""
         return [{"token": "{{" + f.key + "}}", "means": f.label, "reads": f.display} for f in self.items.values()]
 
-    def render(self, text: str) -> tuple[str, list[str]]:
-        """Put the figures in. A token that is not in the table is removed, and so is the markup around it."""
+    def render(self, text: str, ar: bool = False) -> tuple[str, list[str]]:
+        """Put the figures in. A token that is not in the table is removed, and so is the markup around it. In Arabic only the unit changes (22,508 EGP -> 22,508 جنيه)."""
         unknown: list[str] = []
 
         def sub(m: re.Match) -> str:
@@ -70,27 +72,27 @@ class FigureSet:
             if f is None:
                 unknown.append(m.group(0))
                 return REMOVED
-            return f.display
+            return unit_ar(f.display) if ar else f.display
 
         out = TOKEN.sub(sub, text)
-        return DOUBLE_UNIT.sub(r"\1", out), unknown
+        return (DOUBLE_UNIT_AR if ar else DOUBLE_UNIT).sub(r"\1", out), unknown
 
-    def render_any(self, obj: Any) -> tuple[Any, list[str]]:
+    def render_any(self, obj: Any, ar: bool = False) -> tuple[Any, list[str]]:
         """The same for the strings inside a model's JSON answer (a dict of strings and lists of strings)."""
         unknown: list[str] = []
         if isinstance(obj, str):
-            return self.render(obj)
+            return self.render(obj, ar)
         if isinstance(obj, list):
             out = []
             for x in obj:
-                y, u = self.render_any(x)
+                y, u = self.render_any(x, ar)
                 out.append(y)
                 unknown += u
             return out, unknown
         if isinstance(obj, dict):
             out = {}
             for k, v in obj.items():
-                out[k], u = self.render_any(v)
+                out[k], u = self.render_any(v, ar)
                 unknown += u
             return out, unknown
         return obj, unknown

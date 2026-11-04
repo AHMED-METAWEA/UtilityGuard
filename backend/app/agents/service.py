@@ -96,22 +96,22 @@ class AgentService:
         return n
 
     # ---------- chat ----------
-    def chat(self, message: str, incident_id: str | None) -> str:
+    def chat(self, message: str, incident_id: str | None, lang: str = "en") -> str:
         mid = f"msg-{next(self._msg_ids):04d}"
-        self._spawn(self._chat(mid, message, incident_id))
+        self._spawn(self._chat(mid, message, incident_id, lang))
         return mid
 
-    async def _chat(self, mid: str, message: str, incident_id: str | None) -> None:
+    async def _chat(self, mid: str, message: str, incident_id: str | None, lang: str = "en") -> None:
         rt = self.rt
 
         async def on_route(steps):
             await rt.broadcast("chat_route", ChatRoute(message_id=mid, routing=steps))
 
         try:
-            out = await self.orchestrator.ainvoke({"question": message, "incident_id": incident_id, "on_route": on_route})
+            out = await self.orchestrator.ainvoke({"question": message, "incident_id": incident_id, "on_route": on_route, "lang": lang})
         except Exception:  # noqa: BLE001
             log.exception("orchestrator failed")
-            await rt.broadcast("chat_chunk", ChatChunk(message_id=mid, text="The team could not answer right now. Please try again."))
+            await rt.broadcast("chat_chunk", ChatChunk(message_id=mid, text="تعذّر على الفريق الرد الآن. حاول مرة أخرى." if lang == "ar" else "The team could not answer right now. Please try again."))
             await rt.broadcast("chat_done", ChatDone(message_id=mid, agents_consulted=[], routing=[], fallback=True))
             return
         words = out["answer"].split(" ")

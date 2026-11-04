@@ -14,12 +14,14 @@ import { Lab } from './pages/Lab';
 import { Audit } from './pages/Audit';
 import { Executive } from './pages/Executive';
 import { Healthcare } from './pages/Healthcare';
+import { Siting } from './pages/Siting';
 import { ScenarioLab } from './panels/ScenarioLab';
 import { ChatDock } from './panels/ChatDock';
 import { AssetDrawer, AssumptionsDrawer, CalcDrawer } from './panels/Drawers';
 import { WhyDrawer } from './panels/WhyDrawer';
 import { Palette, Toast } from './panels/Palette';
 import { useUi } from './store/ui';
+import { useAgentLang } from './lib/agentLang';
 import { setTheme, resolve } from './lib/theme';
 
 export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -37,6 +39,7 @@ export default function App() {
   useEffect(() => {
     const abort = new AbortController();
     void loadResources(abort.signal);
+    void useAgentLang.getState().load();
     const client = new StreamClient(`${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/stream`);
     client.start();
     const unsub = useStore.subscribe((state) => {
@@ -78,6 +81,7 @@ export default function App() {
         {route.page === 'forecast' && <Forecast />}
         {route.page === 'lab' && <Lab />}
         {route.page === 'executive' && <Executive />}
+        {route.page === 'siting' && <Siting />}
         {route.page === 'healthcare' && <Healthcare />}
         {route.page === 'audit' && <Audit id={route.id} />}
       </main>

@@ -33,9 +33,11 @@ export interface Alert {
   id: string; incidentId: string; network: Network; zoneId: string; assetIds: string[];
   severity: 'info' | 'warning' | 'critical'; title: string; summary: string; detectedAt: Timestamp;
   state: 'open' | 'acknowledged' | 'resolved'; confidence: number;
+  /** The same title and summary in Arabic, written by the detector. */
+  titleAr?: string; summaryAr?: string;
 }
 export type EvidenceType = 'measured' | 'forecast' | 'rule' | 'assumed';
-export interface Reason { text: string; evidenceType: EvidenceType; evidenceRef: string }
+export interface Reason { text: string; evidenceType: EvidenceType; evidenceRef: string; textAr?: string }
 export type AssumptionStatus = 'official' | 'benchmark' | 'engineering' | 'planning';
 export interface CalculationInput { name: string; value: number; unit: string; source: EvidenceType; key?: string; basis?: string; status?: AssumptionStatus }
 export interface Calculation { name: string; formula: string; inputs: CalculationInput[]; result: number; unit: string }
@@ -66,6 +68,8 @@ export interface AgentFinding {
   recommendedAction: { text: string; crewType: string; urgency: 'immediate' | 'within_hours' | 'scheduled' }; cost: Cost; reasoningSteps: string[];
   /** The fixtures disambiguate the explanation block from the plain-language string. */
   explain: Explanation; createdAt: Timestamp; fallback: boolean; numberCheck: 'passed' | 'corrected';
+  /** The same finding in Arabic: the agent's own words when the model wrote them, the computed wording otherwise. */
+  ar?: { headline: string; explanation: string; probableCauses: string[]; impact: string; action: string; reasoningSteps: string[] };
 }
 export interface ForecastPoint { timestamp: Timestamp; predicted: number; lower: number; upper: number }
 export interface ForecastMetrics { mae: number; rmse: number; mape: number }
@@ -97,7 +101,7 @@ export interface ChatMessage {
   routing: RoutingStep[]; agentsConsulted: Agent[]; fallback: boolean; activeAgent?: Agent; calculationId?: string | null; findingIds?: string[];
 }
 export interface Health { status: string; llm: 'live' | 'fallback'; tick?: number; seed?: number; activeRuns?: string[] }
-export interface Incident { id: string; title: string; networks: Network[]; zoneIds: string[]; severity: Alert['severity']; alertIds: string[]; findingIds: string[]; calculationId: string | null; state: Alert['state']; openedAt: Timestamp; reanalysing?: boolean }
+export interface Incident { id: string; title: string; titleAr?: string; networks: Network[]; zoneIds: string[]; severity: Alert['severity']; alertIds: string[]; findingIds: string[]; calculationId: string | null; state: Alert['state']; openedAt: Timestamp; reanalysing?: boolean }
 export interface AcknowledgeResponse { id: string; state: 'acknowledged' }
 export type IncidentReport = Blob;
 export interface ComparisonResult { label: string; totalCost: number; waterLostM3: number; outageHours: number; series: ForecastPoint[] }
