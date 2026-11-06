@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Every model we used and what it achieved</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .m { width:540px; height:326px; padding:30px 36px; }
+  .m h3 { font-size:34px; margin:0 0 4px; }
+  .m .big { margin:0 0 6px; font:700 66px/1.1 'Poppins',Arial,sans-serif; color:var(--navy); }
+  .m p.t { margin:0; font-size:25px; line-height:1.38; }
+  .m .tag { font-size:21px; padding:4px 16px; margin-bottom:12px; }
+  .a1 { left:120px; } .a2 { left:690px; } .a3 { left:1260px; }
+  .b1 { top:275px; } .b2 { top:613px; }
+  .t-lt { background:#6B7FA3; }
+</style></head>
+<body>
+  <h1>Every model we used, and what it achieved</h1>
+  <p class="sub">Several methods were tried for each task, and the best was kept</p>
+
+  <div class="card m a1 b1"><span class="tag t-blue">Forecast</span><h3>5 models compared</h3>
+    <p class="big">97 to 99%</p><p class="t">accuracy (100% minus average error) with LightGBM, on 10 days it never saw</p></div>
+  <div class="card m a2 b1"><span class="tag t-blue">Detection</span><h3>4 detectors compared</h3>
+    <p class="big">160 of 160</p><p class="t">lab test faults found by the learned detector, 0 false alarms; the live rules found 93% of 212</p></div>
+  <div class="card m a3 b1"><span class="tag t-gold">Early warning</span><h3>Failure-risk model</h3>
+    <p class="big">24 of 24</p><p class="t">worn pumps warned before they stopped, a median 114 s ahead</p></div>
+
+  <div class="card m a1 b2"><span class="tag t-blue">Leak location</span><h3>Least squares</h3>
+    <p class="big">108 of 108</p><p class="t">runs ranked the right pipe first</p></div>
+  <div class="card m a2 b2"><span class="tag t-blue">Cost of waiting</span><h3>Monte Carlo</h3>
+    <p class="big">800 runs</p><p class="t">give a P10 to P90 range for every price</p></div>
+  <div class="card m a3 b2"><span class="tag t-gold">Language model</span><h3>gpt-oss-120b</h3>
+    <p class="big">Explains</p><p class="t">never calculates; every figure it quotes is checked</p></div>
+
+  <p class="foot">Simulated data. 160 of 160 means at least 97%, 24 of 24 at least 85%, 108 of 108 at least 96% (95% confidence). The failure score ranks assets, not the chance of failing by a date.</p>
+</body></html>

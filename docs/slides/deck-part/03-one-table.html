@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>How the two sides meet</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .src { top:290px; width:700px; height:230px; padding:30px 40px; }
+  .s1 { left:120px; } .s2 { left:1100px; width:700px; }
+  .src h3 { font-size:34px; margin-bottom:10px; }
+  .src ul { font-size:27px; line-height:1.45; }
+  .mid { position:absolute; left:830px; top:340px; width:260px; text-align:center; font-size:24px; line-height:1.35; color:#44566F; }
+  .mid svg { display:block; margin:0 auto 6px; }
+  .tbl { left:120px; top:570px; width:1680px; height:330px; background:rgba(255,248,232,.94); padding:30px 44px; }
+  .tbl h3 { font-size:34px; margin:0 0 14px; }
+  table { width:100%; border-collapse:collapse; font-size:28px; }
+  th { text-align:left; font:600 22px 'Open Sans',Arial,sans-serif; color:#6A5A33; padding:0 12px 10px; }
+  td { padding:12px; border-top:2px solid #E7D7B0; }
+  td:first-child { font-weight:700; color:var(--navy); }
+  .hi { background:#FBE4C2; border-radius:8px; padding:2px 10px; font-weight:700; }
+  .lo { color:#5A6B85; }
+  .t-teal2 { color:var(--teal); font-weight:700; } .t-navy2 { color:var(--navy); font-weight:700; }
+</style></head>
+<body>
+  <h1>One table per district</h1>
+  <p class="sub">Each district shows its infrastructure risk next to its environmental stress</p>
+
+  <div class="card src s1"><span class="tag t-teal">Healthcare project</span>
+    <ul><li>Environmental stress score, 0 to 100</li><li>Facilities in each district</li></ul></div>
+  <div class="mid">
+    <svg width="220" height="40" viewBox="0 0 220 40" aria-hidden="true"><g stroke="#2F4260" stroke-width="3" fill="none"><path d="M6 20H214"/><path d="M22 8L6 20L22 32"/><path d="M198 8L214 20L198 32"/></g></svg>
+    Files only.<br>Nothing is edited on either side.
+  </div>
+  <div class="card src s2"><span class="tag t-blue">Infrastructure twin</span>
+    <ul><li>Cost of the worst failure, in EGP</li><li>Hospitals a failure can reach</li></ul></div>
+
+  <div class="card tbl"><span class="tag t-gold">Joint table</span>
+    <table>
+      <tr><th>District</th><th>Cost of worst failure</th><th>Environmental stress</th><th>Hospitals</th><th>Reading</th></tr>
+      <tr><td>Government District</td><td><span class="hi">2.95 M EGP</span></td><td class="lo">21.0</td><td>3</td><td>Outage cost above the median, stress below</td></tr>
+      <tr><td>CBD</td><td class="lo">0.95 M EGP</td><td><span class="hi">25.8</span></td><td>2</td><td>Stress above the median, outage cost below</td></tr>
+    </table>
+  </div>
+
+  <p class="foot">The two sides sit next to each other and are never added. Only 4 of their 15 districts are the same district as one of ours; the rest are matched by type. Simulated data.</p>
+</body></html>

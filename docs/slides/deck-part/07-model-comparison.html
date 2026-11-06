@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Several models, one fair comparison</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .chip { position:absolute; right:120px; top:196px; background:var(--gold); color:#fff; font:600 26px/1 'Poppins',Arial,sans-serif; padding:14px 26px; border-radius:30px; }
+  .shot { background:#fff; padding:16px; }
+  .shot img { display:block; width:100%; border-radius:10px; }
+  .info { padding:26px 34px; }
+  .info .tag { font-size:22px; padding:4px 16px; margin-bottom:10px; }
+  .info .big { margin:0 0 4px; font:700 76px/1.05 'Poppins',Arial,sans-serif; color:var(--navy); }
+  .info p.t { margin:0 0 8px; font-size:25px; line-height:1.35; }
+  .info p.s { margin:0; font-size:23px; line-height:1.35; color:#4C5E7A; }
+  .r1s { left:120px; top:285px; width:920px; height:290px; }
+  .r1i { left:1070px; top:285px; width:730px; height:290px; }
+  .r2s { left:120px; top:595px; width:920px; height:372px; }
+  .r2i { left:1070px; top:595px; width:730px; height:372px; }
+  .foot { bottom:36px; font-size:22px; }
+</style></head>
+<body>
+  <h1>Several models, one fair comparison</h1>
+  <p class="sub">Each task was tried with several models, and the system marks the best</p>
+  <span class="chip">Language model: gpt-oss-120b</span>
+
+  <div class="card shot r1s"><img src="system-forecast-table.png" alt="The system's forecast model comparison table"></div>
+  <div class="card info r1i"><span class="tag t-blue">Forecast: 5 models</span>
+    <p class="big">2.6%</p>
+    <p class="t">water error of the best model, the Ensemble (Ridge: 5.5%)</p>
+    <p class="s">LightGBM stays live, 6% behind on water.</p></div>
+
+  <div class="card shot r2s"><img src="system-detector-table.png" alt="The system's fault detector comparison table"></div>
+  <div class="card info r2i"><span class="tag t-blue">Fault detection: 4 detectors</span>
+    <p class="big">160 of 160</p>
+    <p class="t">lab test faults found by the best detector, with 0 false alarms: at least 97% with 95% confidence</p>
+    <p class="s">On a larger, mixed test the live rules found 93% of 212 faults.</p></div>
+
+  <p class="foot">Screens from the running system. All data is simulated, and each model is scored on days or faults it never saw.</p>
+</body></html>

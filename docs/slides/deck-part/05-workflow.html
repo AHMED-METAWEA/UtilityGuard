@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>How a fault becomes an approved fix</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .rowtag { position:absolute; left:120px; margin:0; }
+  .st { position:absolute; width:390px; height:220px; padding:26px 30px; }
+  .st .n { position:absolute; left:30px; top:24px; width:50px; height:50px; border-radius:25px; background:var(--navy); color:#fff; font:600 28px/50px 'Poppins',Arial,sans-serif; text-align:center; }
+  .st h3 { margin:0 0 10px 68px; font:600 36px/50px 'Poppins',Arial,sans-serif; color:var(--navy); }
+  .st p { margin:0; font-size:27px; line-height:1.4; }
+  .st.gate { background:rgba(255,248,232,.94); }
+  .st.gate .n { background:var(--gold); }
+  .r1 { top:345px; } .r2 { top:635px; }
+  .x1 { left:120px; } .x2 { left:550px; } .x3 { left:980px; } .x4 { left:1410px; }
+  svg.ar { position:absolute; left:0; top:0; width:1920px; height:1080px; pointer-events:none; }
+  .loop { position:absolute; left:120px; top:900px; width:1680px; height:70px; border-radius:22px; background:rgba(226,239,227,.95); border:2px solid #3F7A47; display:flex; align-items:center; justify-content:center; font:600 28px 'Open Sans',Arial,sans-serif; color:#1F4D27; }
+</style></head>
+<body>
+  <h1>How a fault becomes an approved fix</h1>
+  <p class="sub">The code calculates, the agents explain, and a person decides</p>
+
+  <span class="tag t-blue rowtag" style="top:292px">Automatic: code reads, detects and prices; agents explain</span>
+  <div class="card st r1 x1"><span class="n">1</span><h3>Read</h3><p>89 sensors across the three networks</p></div>
+  <div class="card st r1 x2"><span class="n">2</span><h3>Detect</h3><p>A fault must last 3 readings; one root cause is one incident</p></div>
+  <div class="card st r1 x3"><span class="n">3</span><h3>Price</h3><p>Cost of waiting in EGP an hour, with a range</p></div>
+  <div class="card st r1 x4"><span class="n">4</span><h3>Explain</h3><p>Agents explain it; every figure is checked</p></div>
+
+  <span class="tag t-gold rowtag" style="top:582px">Then a person is in charge</span>
+  <div class="card st r2 x1"><span class="n">5</span><h3>Plan</h3><p>720 crew orders tried; the cheapest is proposed</p></div>
+  <div class="card st r2 x2 gate"><span class="n">6</span><h3>Approve</h3><p>Approve, change the order, or reject</p></div>
+  <div class="card st r2 x3"><span class="n">7</span><h3>Repair</h3><p>Crews work; the repair ends the fault</p></div>
+  <div class="card st r2 x4"><span class="n">8</span><h3>Confirm</h3><p>The detector, not the crew, says it is gone</p></div>
+
+  <svg class="ar" viewBox="0 0 1920 1080" aria-hidden="true">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9 z" fill="#2F4260"/></marker></defs>
+    <g stroke="#2F4260" stroke-width="3.5" fill="none" marker-end="url(#a)">
+      <path d="M512 455H546"/><path d="M942 455H976"/><path d="M1372 455H1406"/>
+      <path d="M512 745H546"/><path d="M942 745H976"/><path d="M1372 745H1406"/>
+    </g>
+  </svg>
+
+  <div class="loop">Closed loop: the cleared fault returns to live readings, and every step goes into a hash-chained log</div>
+</body></html>
