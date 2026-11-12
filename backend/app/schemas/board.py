@@ -178,12 +178,14 @@ class BoardDecision(Model):
     incident_ids: list[str]
     created_at: datetime
     crews: int
+    crew_teams: list[str] = Field(default_factory=list, description="Per crew lane: the network it works on (water, electricity, cooling) or any")
     tasks: list[BoardTask]
     plan: BoardPlan
     alternatives: list[BoardAlternative]
     flips: list[BoardFlip]
     risks: list[BoardRisk]
     extra_crew_saving: float | None = Field(default=None, description="EGP saved by adding one crew, if it helps")
+    extra_crew_team: str | None = Field(default=None, description="The crew that would save it: a network's own (water, electricity, cooling) or any for a general one")
     conflict: bool = Field(description="False when there are enough crews to start everything at once")
     summary: str
     summary_source: Literal["llm", "template"]

@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from app.agents.checker import allowed_numbers, check
-from app.agents.figures import TOKEN, FigureSet, for_record, for_sensors
+from app.agents.figures import TOKEN, FigureSet, for_record, for_sensors, typed_money
 from app.agents.llm import MODEL_FAST, llm
 from app.agents.tools import CAUSES, CAUSES_AR, PLAYBOOK_ACTION_AR, PLAYBOOKS, impacted, read_sensors
 from app.cost import Assumptions, IncidentFacts, compute
@@ -38,7 +38,7 @@ You are an expert only in {domain}, and you treat it as the most important thing
 You receive measured facts and a cost calculation computed by code.
 Rules:
 - Never type a digit for a cost, a duration or a sensor reading. The data holds a table of `figures`: write the figure's token, for example {{{{act_now}}}}.
-  The token already carries its unit and is replaced by code with the calculated value, so do not add a unit after it. Use only tokens from the table.
+  The token already carries its unit and is replaced by code with the calculated value, so do not add a unit after it. Use only tokens from the table. A cost typed in digits is removed even when it is right.
 - Asset names such as SS-02 and counts below ten may be written as they are. Any other number you type must appear in the data, quoted exactly. Never invent or estimate a number.
 - If something is not in the data, say it is not available.
 - Plain language for a business owner. Short.
@@ -69,6 +69,8 @@ class SState(TypedDict, total=False):
     steps_ar: list[str]
     fallback: bool
     removed: list[str]
+    typed: list[str]  # costs the model typed instead of citing their token, in the English answer
+    typed_ar: list[str]  # the same in the Arabic answer
     figs: FigureSet
     t0: float
     finding: Any
@@ -127,33 +129,42 @@ def build_specialist(rt: "Runtime", A: Assumptions):
         key = llm.key("finding4", s["agent"], f.kind, s["root"])  # 4: the Arabic version follows a glossary and the Arabic causes, so answers recorded under the first Arabic wording are not replayed
         out, fb = await llm.json(key, SYSTEM.format(agent=s["agent"], domain=DOMAIN[s["agent"]]),
                                  json.dumps(data, default=str, ensure_ascii=False), model=MODEL_FAST)
+        from_model = bool(out)
         if not out:
             out = template(s)
         out = dict(out)
         ar = out.pop("ar", None)
+        out, typed = typed_money(out) if from_model else (out, [])  # the computed wording types its figures; the model must cite them
         if not _valid_ar(ar):
-            ar = template_ar(s)  # the model gave no usable Arabic: the computed wording stands in, and the finding says which it is
+            ar, typed_ar = template_ar(s), []  # the model gave no usable Arabic: the computed wording stands in, and the finding says which it is
+        else:
+            ar, typed_ar = typed_money(ar)
         steps = _step(s, f"Looked up {crew} playbook and wrote recommendation ({'recorded fallback' if fb else 'live LLM'})")
         sar = _step_ar(s, f"راجعتُ خطة فريق {CREW_AR.get(crew, crew)} وكتبتُ التوصية ({'إجابة مسجّلة' if fb else 'نموذج لغوي مباشر'})")
-        return {"text": out, "text_ar": ar, "fallback": fb, "steps": steps, "steps_ar": sar, "figs": figs}
+        return {"text": out, "text_ar": ar, "fallback": fb, "steps": steps, "steps_ar": sar, "figs": figs, "typed": typed, "typed_ar": typed_ar}
 
     def verify(s: SState) -> SState:
         allowed = allowed_numbers(s["record"], [x for sn in s["sensors"] for x in (sn["now"], sn["min30"] or 0, sn["max30"] or 0, *sn["normal"])])
         figs = s.get("figs") or FigureSet()
         rendered, unknown = figs.render_any(s["text"])  # cited figures go in first; a token that is not in the table is removed
         cleaned, removed = _clean(rendered, allowed)
-        removed = [*unknown, *removed]
+        removed = [*s.get("typed", []), *unknown, *removed]
         steps, fallback = s.get("steps", []), s.get("fallback", False)
         steps_ar = s.get("steps_ar", [])
-        if removed and fallback:
-            # a recorded answer quotes figures from an older state: use the computed wording instead of leaving holes
-            cleaned, removed = _clean(template(s), allowed)
-            steps = _step(s, "Recorded wording was out of date, so the computed wording is used")
-            steps_ar = _step_ar(s, "الصياغة المسجّلة قديمة، فاستُخدمت الصياغة المحسوبة")
+        if removed and (fallback or s.get("typed")):
+            # a recorded answer quotes figures from an older state, or the model typed a cost instead of citing it: use the computed wording instead of leaving holes
+            cleaned, after = _clean(template(s), allowed)
+            if s.get("typed"):  # the check did change the answer, and the finding says so
+                steps = _step(s, f"The model typed {len(s['typed'])} cost(s) instead of citing the calculation, so the computed wording is used")
+                steps_ar = _step_ar(s, f"كتب النموذج {len(s['typed'])} من التكاليف بنفسه بدل أن يستشهد بالحساب، فاستُخدمت الصياغة المحسوبة")
+            else:
+                removed = after
+                steps = _step(s, "Recorded wording was out of date, so the computed wording is used")
+                steps_ar = _step_ar(s, "الصياغة المسجّلة قديمة، فاستُخدمت الصياغة المحسوبة")
         # the Arabic wording is held to the same rule: figures by token, anything typed as digits must be in the calculation
         rendered_ar, unknown_ar = figs.render_any(s.get("text_ar") or template_ar(s), ar=True)
         cleaned_ar, removed_ar = _clean(rendered_ar, allowed)
-        removed_ar = [*unknown_ar, *removed_ar]
+        removed_ar = [*s.get("typed_ar", []), *unknown_ar, *removed_ar]
         if removed_ar:  # a figure that cannot be verified is not removed from Arabic prose: the computed Arabic sentence replaces the whole text
             cleaned_ar, _ = _clean(template_ar(s), allowed)
             steps_ar = _step_ar({**s, "steps_ar": steps_ar}, f"فحص الأرقام حذف {len(removed_ar)} رقمًا غير مؤكَّد من النص العربي، فاستُخدمت الصياغة المحسوبة")

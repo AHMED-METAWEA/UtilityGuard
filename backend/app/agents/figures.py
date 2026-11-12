@@ -12,13 +12,44 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from app.agents.checker import REMOVED
+from app.agents.checker import NUM, REMOVED
 from app.i18n import unit_ar
 from app.schemas import CalculationRecord
 
 TOKEN = re.compile(r"\{{1,2}\s*([A-Za-z][A-Za-z0-9_]*)\s*\}{1,2}")  # models drop or add a brace, so one or two on each side are read the same
 DOUBLE_UNIT = re.compile(r"\b(EGP|MW|kV|bar|m3/h)(\s+)\1\b")  # a model that adds a unit after a token that already carries one
 DOUBLE_UNIT_AR = re.compile(r"(جنيه|ميجاوات|كيلوفولت|بار|م³/ساعة)(\s+)\1")  # the same in Arabic
+
+
+MONEY_AFTER = re.compile(r"[\s\u00a0\u202f]*(?:EGP|LE\b|pounds?\b|جنيه|ج\.م)", re.I)
+MONEY_BEFORE = re.compile(r"(?:EGP|جنيه)[\s\u00a0\u202f]*$", re.I)
+
+
+def typed_money(obj: Any) -> tuple[Any, list[str]]:
+    """Remove every amount of money the model typed instead of citing its token, in a string or in the strings of a JSON answer.
+
+    The checker passes a typed figure when the amount is somewhere in the data, but not that it is the amount it is said to be: the cost of acting
+    now typed as "the saving" would pass. Every cost has a token tied to its label, so a typed cost is removed even when the amount exists.
+    Run it on the model's own text, before the tokens are put in: a cited figure is not typed."""
+    if isinstance(obj, list):
+        pairs = [typed_money(x) for x in obj]
+        return [x for x, _ in pairs], [r for _, rs in pairs for r in rs]
+    if isinstance(obj, dict):
+        pairs = {k: typed_money(v) for k, v in obj.items()}
+        return {k: x for k, (x, _) in pairs.items()}, [r for _, rs in pairs.values() for r in rs]
+    if not isinstance(obj, str):
+        return obj, []
+    tokens = [m.span() for m in TOKEN.finditer(obj)]
+    removed: list[str] = []
+    out, pos = [], 0
+    for m in NUM.finditer(obj):
+        if any(a <= m.start() < b for a, b in tokens):
+            continue
+        if MONEY_AFTER.match(obj, m.end()) or MONEY_BEFORE.search(obj[max(0, m.start() - 8):m.start()]):
+            removed.append(m.group(0))
+            out += [obj[pos:m.start()], REMOVED]
+            pos = m.end()
+    return "".join(out) + obj[pos:], removed
 
 
 def slug(text: str) -> str:

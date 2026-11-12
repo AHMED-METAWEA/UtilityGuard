@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from app.agents.checker import allowed_numbers, check
-from app.agents.figures import FigureSet, for_findings, for_record, item_key, money, slug
+from app.agents.figures import FigureSet, for_findings, for_record, item_key, money, slug, typed_money
 from app.agents.llm import MODEL_FAST, MODEL_ORCH, llm
 from app.agents.specialists import DOMAIN
 from app.agents.tools import AGENT_FOR_KIND, find_asset, impacted, what_if
@@ -30,22 +30,24 @@ log = logging.getLogger("caregrid.orchestrator")
 
 ROUTER = """You are the orchestrator of Care Grid, a digital twin with three specialist agents:
 water (leaks, pressure, pumps), electricity (substations, feeders, outages, load), cooling (district cooling plants and loops).
-Cross-network links: substations power water pumps and cooling plants; heat raises cooling load which raises electrical load.
-Pick which specialists must be consulted for the owner's question, in a sensible order, each with a short reason.
+Cross-network links: substations power water pumps and cooling plants; heat raises cooling load which raises electrical load. The links in this district:
+@@LINKS@@
+Pick only the specialists the owner's question needs, in a sensible order, each with a short reason: the network the question is about, and a network the links
+above show is affected. Do not add an agent to be safe: an agent whose network the question does not touch makes the answer slower and longer.
 @@LANG@@
 Return JSON: {"route": [{"agent": "water"|"electricity"|"cooling", "reason": str}]}"""
 
 CONSULT = """You are the {agent} agent of Care Grid. Expert only in {domain}.
 Answer the orchestrator about your domain in at most 2 sentences. A fall in a substation's load is not load shed: the facts say how much is shed, and the rest moves to the
 backup substation. Say only what the data shows; if the question assumes a failure the data does not show, say so. Never type a cost: write its token from `figures`, for example {{{{find_0001_act_now}}}};
-the token carries its unit and is replaced by code with the calculated value. Any other number you type must be in the data, quoted exactly.
+the token carries its unit and is replaced by code with the calculated value. A cost typed in digits is removed even when it is right. Any other number you type must be in the data, quoted exactly.
 @@LANG@@
 Return JSON: {{"view": str}}"""
 
 SYNTH = """You are the orchestrator of Care Grid, advising the business owner of the New Administrative Capital utilities.
 Combine the specialists' views into one clear answer: the consequence, a ranked action plan, and the money (act now vs delay, saving).
 Rules: never type a cost. The data holds a table of `figures`: write the token of each money amount or duration, for example {{act_now}}; the token already
-carries its unit ("18,400 EGP") and is replaced by code with the calculated value, so do not add a unit after it. Any other number you type must be in the data,
+carries its unit ("18,400 EGP") and is replaced by code with the calculated value, so do not add a unit after it. A cost typed in digits is removed even when it is right. Any other number you type must be in the data,
 quoted exactly; never estimate. If data is missing, say so.
 Several incidents may be open. Each figure belongs to the incident it is listed with: never quote one incident's cost as the cost of another or of the whole, and rank the plan by the
 cost of an hour of delay, highest first (`situation.ranked`). When `horizon` is given the owner asked what waiting that long costs: answer with its figures, one per incident and the total.
@@ -68,9 +70,9 @@ def say(prompt: str, lang: str) -> str:
 
 
 KEYWORDS = {
-    "water": r"water|pipe|leak|pump|pressure|reservoir|burst|\bp-?\d",
-    "electricity": r"electric|power|substation|\bss-?\d|feeder|transformer|load|outage|trip|voltage|grid",
-    "cooling": r"cool|chiller|dcp|plant|temperature|heat|hvac|loop",
+    "water": r"water|pipe|leak|pump|pressure|reservoir|burst|\bp-?\d|مياه|ماسور|مواسير|تسريب|تسرب|مضخ|طلمب|ضغط|خزان|محابس",
+    "electricity": r"electric|power|substation|\bss-?\d|feeder|transformer|load|outage|trip|voltage|grid|megawatt|كهرب|محول|مغذي|حمل|انقطاع|فصل|جهد|ميجاوات",
+    "cooling": r"cool|chiller|dcp|plant|temperature|heat|hvac|loop|تبريد|مبرد|مبرّد|تكييف|حرار|الحر\b|نبرد",
 }
 
 
@@ -91,17 +93,34 @@ class OState(TypedDict, total=False):
     situation: dict
 
 
+def topology_route(rt: "Runtime", asset: str | None, ar: bool = False) -> list[RouteStep]:
+    """The agents a named asset needs, from the network links: its own network's, and for a substation, the agents of the pumps and plants it powers."""
+    if not asset:
+        return []
+    nm = lambda a: asset_ar(rt.engine.g.asset_index[a].name) if ar else rt.engine.g.asset_index[a].name  # noqa: E731
+    if not asset.startswith("elec-sub"):
+        own = "water" if asset.startswith("water-") else "cooling" if asset.startswith("cool-") else None
+        return [RouteStep(agent=own, reason=f"السؤال عن {nm(asset)}" if ar else f"The question is about {nm(asset)}")] if own else []
+    imp = impacted(rt, asset)
+    route = [RouteStep(agent="electricity", reason=f"فصل {nm(asset)} وانتقال الحمل" if ar else f"{nm(asset)} trip and load transfer")]
+    if imp["pumps"]:
+        route.append(RouteStep(agent="water", reason=f"{nm(asset)} تغذّي {len(imp['pumps'])} مضخة" if ar else f"{nm(asset)} powers {len(imp['pumps'])} pumps"))
+    if imp["plants"]:
+        route.append(RouteStep(agent="cooling", reason=f"{nm(asset)} تغذّي {'، '.join(nm(p) for p in imp['plants'])}" if ar else f"{nm(asset)} powers {', '.join(nm(p) for p in imp['plants'])}"))
+    return route
+
+
+def with_floor(route: list[RouteStep], floor: list[RouteStep]) -> list[RouteStep]:
+    """The model's route, with every agent the network links require added after it: the model may add and order agents, never drop a required one."""
+    have = {r.agent for r in route}
+    return [*route, *(r for r in floor if r.agent not in have)]
+
+
 def rule_route(q: str, rt: "Runtime", asset: str | None, ar: bool = False) -> list[RouteStep]:
     ql = q.lower()
-    nm = lambda a: asset_ar(rt.engine.g.asset_index[a].name) if ar else rt.engine.g.asset_index[a].name  # noqa: E731
     route = [RouteStep(agent=a, reason=f"السؤال يذكر مصطلحات {NETWORK_AR[a]}" if ar else f"Question mentions {a} terms") for a, pat in KEYWORDS.items() if re.search(pat, ql)]
     if asset and asset.startswith("elec-sub"):
-        imp = impacted(rt, asset)
-        route = [RouteStep(agent="electricity", reason=f"فصل {nm(asset)} وانتقال الحمل" if ar else f"{nm(asset)} trip and load transfer")]
-        if imp["pumps"]:
-            route.append(RouteStep(agent="water", reason=f"{nm(asset)} تغذّي {len(imp['pumps'])} مضخة" if ar else f"{nm(asset)} powers {len(imp['pumps'])} pumps"))
-        if imp["plants"]:
-            route.append(RouteStep(agent="cooling", reason=f"{nm(asset)} تغذّي {'، '.join(nm(p) for p in imp['plants'])}" if ar else f"{nm(asset)} powers {', '.join(nm(p) for p in imp['plants'])}"))
+        route = topology_route(rt, asset, ar)
     if not route:
         open_kinds = {rt.detector.state.incident_kind.get(i.id) for i in rt.incidents.values() if i.state != "resolved"}
         route = [RouteStep(agent=AGENT_FOR_KIND[k], reason="لديه حادثة مفتوحة" if ar else "Has an open incident") for k in open_kinds if k] or \
@@ -186,6 +205,26 @@ def names_ok(text: str, names: set[str]) -> bool:
     return all(any(n == t or n.endswith((" " + t, "-" + t)) for n in names) for t in SHORT_NAME.findall(text))  # "GOV-01" is part of the name "WP-GOV-01"
 
 
+def links(rt: "Runtime") -> str:
+    """Which pumps and cooling plants each substation powers, from the topology, for the router."""
+    names = lambda ids: ", ".join(rt.engine.g.asset_index[a].name for a in ids) or "nothing else"  # noqa: E731
+    subs = [a for a in rt.engine.g.asset_index if a.startswith("elec-sub")]
+    return "\n".join(f"{rt.engine.g.asset_index[sub].name} powers {names(impacted(rt, sub)['pumps'] + impacted(rt, sub)['plants'])}" for sub in sorted(subs))
+
+
+async def model_route(q: str, lang: str = "en", rt: "Runtime | None" = None) -> tuple[list[RouteStep], bool]:
+    """The route the language model picks, and whether it came from the recorded fallback. Empty when the model gives nothing usable."""
+    prompt = say(ROUTER, lang).replace("@@LINKS@@", links(rt) if rt else "not given")
+    data, fb = await llm.json(llm.key("route3", lang, q.lower().strip()), prompt, q, model=MODEL_ORCH)
+    try:
+        # the reason is shown to the operator, and routing has no record to cite, so no figure in it can be supported
+        steps = [RouteStep(agent=r["agent"], reason=check(str(r["reason"]), set())[0]) for r in data["route"] if r["agent"] in DOMAIN]
+    except Exception:  # noqa: BLE001
+        steps = []
+    seen: set[str] = set()
+    return [r for r in steps if not (r.agent in seen or seen.add(r.agent))], fb
+
+
 def build_orchestrator(rt: "Runtime", A: Assumptions):
     g = rt.engine.g
     zone_names = {z.id: z.name for z in g.topology.zones}
@@ -193,13 +232,8 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
     async def route(s: OState) -> OState:
         q, lang = s["question"], s.get("lang", "en")
         asset = find_asset(q, rt)
-        data, fb = await llm.json(llm.key("route2", lang, q.lower().strip()), say(ROUTER, lang), q, model=MODEL_ORCH)
-        try:
-            # the reason is shown to the operator, and routing has no record to cite, so no figure in it can be supported
-            steps = [RouteStep(agent=r["agent"], reason=check(str(r["reason"]), set())[0]) for r in data["route"] if r["agent"] in DOMAIN]
-        except Exception:  # noqa: BLE001
-            steps = []
-        steps = steps or rule_route(q, rt, asset, lang == "ar")
+        steps, fb = await model_route(q, lang, rt)
+        steps = with_floor(steps, topology_route(rt, asset, lang == "ar")) if steps else rule_route(q, rt, asset, lang == "ar")
         log.info("route %s -> %s", q, [r.agent for r in steps])
         if s.get("on_route"):
             await s["on_route"](steps)
@@ -264,7 +298,9 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
             known += [v for f in rt.findings.values() for v in (f.cost.expected_saving, f.cost.act_now, f.cost.cost_of_delay or 0)]
             raw = (out or {}).get("view")
             if isinstance(raw, str):
+                raw, typed = typed_money(raw)
                 raw, unknown = fs.render(raw, ar)
+                unknown = [*typed, *unknown]
             else:
                 unknown = []
             view, removed = check(raw, allowed_numbers(rec, known)) if raw else ("", [])
@@ -293,8 +329,10 @@ def build_orchestrator(rt: "Runtime", A: Assumptions):
                 "horizon": sit["horizon"], "figures": fs.table()}
         out, fb = await llm.json(llm.key("synth3", lang, s["question"].lower().strip(), str(sorted(s["views"])), sit["signature"]), say(SYNTH, lang),
                                  json.dumps(data, default=str, ensure_ascii=False), model=MODEL_ORCH)
-        answer = (out or {}).get("answer") or _template_answer(s, rec, ar)
+        answer, typed = typed_money((out or {}).get("answer"))
+        answer = answer or _template_answer(s, rec, ar)
         answer, unknown = fs.render(answer, ar) if isinstance(answer, str) else (answer, [])
+        unknown = [*typed, *unknown]
         extra = [x[k] for net in (s["whatif"] or {}).get("changes", {}).values() for x in net for k in ("from", "to", "change")]
         extra += [f.cost.expected_saving for f in rt.findings.values()] + [f.cost.act_now for f in rt.findings.values()] + sit["figures"].values()
         if sit["horizon"]:

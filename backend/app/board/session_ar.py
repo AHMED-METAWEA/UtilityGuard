@@ -139,7 +139,8 @@ def summary_draft_ar(a: Analysis, fact, Draft):
         facts += [fact(f"مستوى تغيّر الترتيب لـ{f['task'].asset_name}", f["threshold"], "جنيه/ساعة"), fact(f"تكلفة {f['task'].asset_name} في الساعة الآن", f["current"], "جنيه/ساعة")]
     crew = ""
     if a.extra_crew_saving:
-        crew = f" طاقم إضافي واحد سيوفّر {money(a.extra_crew_saving)} جنيه."
+        who = {"water": "مياه", "electricity": "كهرباء", "cooling": "تبريد"}.get(a.extra_crew_team or "any", "عام")
+        crew = f" طاقم {who} إضافي واحد سيوفّر {money(a.extra_crew_saving)} جنيه."
         facts.append(fact("الوفر من طاقم إضافي", a.extra_crew_saving, "جنيه"))
     saved = f" يوفّر {money(alarm['extra'])} جنيه مقارنةً بالعمل بترتيب وصول الإنذارات." if alarm["extra"] > 0.5 else ""
     tmpl = ("افعل التالي. " + "؛ ".join(lines) + f". السبب: {why} التكلفة المتوقعة للخطة {money(plan.cost)} جنيه.{saved} "

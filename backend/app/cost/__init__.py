@@ -136,8 +136,13 @@ for _kind, (_hours, _mult, _min, _max) in POLICIES.items():
             "Planning review threshold for a single district incident, not a cap on the computed value. Verify against the asset replacement budget and historical incident-loss register.")
 
 # Crew planning for the board: how many crews can work at once and how long each fault takes on site.
-DEFAULTS["crews_available"] = _default("Field crews available at once", 2.0, "crews", 2.0, 2.0,
-    "Planning count of crews that can work at the same time across the whole district. Set it to the real shift roster; it is a given, not an uncertain price, so it is not sampled. Verify against the duty roster.")
+# A general crew takes a job on any network; a network's own crews take only that network's jobs. Counts are givens, not uncertain prices, so they are not sampled.
+DEFAULTS["crews_available"] = _default("General crews available at once (any network)", 2.0, "crews", 2.0, 2.0,
+    "Planning count of crews that can work on any network at the same time across the whole district. Set it to the real shift roster. Verify against the duty roster.")
+for _net, _who in [("water", "pipe repair and pump"), ("electricity", "electrical"), ("cooling", "HVAC")]:
+    DEFAULTS[f"crews_{_net}"] = _default(f"{_net.capitalize()} crews available at once", 0.0, "crews", 0.0, 0.0,
+        f"Planning count of {_who} crews that only work on the {_net} network. With these set, a {_net} job goes to a {_net} crew or a general one, never to another network's crew. Verify against the duty roster.")
+CREW_KEYS = ["crews_available", "crews_water", "crews_electricity", "crews_cooling"]
 DEFAULTS["crew_switch_hours"] = _default("Crew mobilisation between two jobs", 0.5, "h", 0.25, 0.75,
     "Planning allowance for a crew to pack up, travel and set up at its next job. Verify against dispatch logs.")
 for _kind, _fix, _why in [("pipe_burst", 3.0, "excavate, isolate and replace a section or joint"), ("pump_failure", 4.0, "swap or repair a pump and restart it"),
@@ -166,9 +171,16 @@ class Assumptions:
                         self.values[k], self.changed[k] = value, str(item.get("source", "user"))
                 except (KeyError, TypeError, ValueError):
                     log.warning("ignoring the saved value of %s: not a usable number", k)
+            try:
+                self.check_roster(self.values)
+            except ValueError as e:
+                log.warning("ignoring the saved crew roster: %s", e)
+                for k in CREW_KEYS:
+                    self.values[k] = DEFAULTS[k]["value"]
+                    self.changed.pop(k, None)
 
     # Strictly positive: a divisor somewhere, or a count that must be at least something.
-    POSITIVE_UNITS = {"h/dispatch", "customers", "crews"}
+    POSITIVE_UNITS = {"h/dispatch", "customers"}
 
     @staticmethod
     def check(k: str, v: float) -> None:
@@ -184,6 +196,13 @@ class Assumptions:
         if v > ceiling:
             raise ValueError(f"{d['name']} of {v:g} is more than 1000 times its registered range (up to {d['high']:g} {d['unit']}); check the unit.")
 
+    @staticmethod
+    def check_roster(values: dict[str, float]) -> None:
+        """Every network needs at least one crew that can work on it: one of its own or a general one. Raises ValueError with the reason."""
+        for net in ("water", "electricity", "cooling"):
+            if round(values["crews_available"]) + round(values[f"crews_{net}"]) < 1:
+                raise ValueError(f"No crew can work on the {net} network: set at least one {net} crew or one general crew.")
+
     def __getitem__(self, k: str) -> float:
         return self.values[k]
 
@@ -192,6 +211,7 @@ class Assumptions:
             if k not in self.values:
                 raise KeyError(k)
             self.check(k, float(v))
+        self.check_roster({**self.values, **{k: float(v) for k, v in changes.items()}})
         for k, v in changes.items():
             self.values[k] = float(v)
             self.changed[k] = f"{source} {datetime.now(timezone.utc).date().isoformat()}"

@@ -8,7 +8,7 @@ import pytest
 
 from app.board import session as bs
 from app.board.analysis import analyse, calculation_record, decision_object
-from app.board.plan import INF, Params, all_orders, evaluate, plan_for, tasks_from_alerts
+from app.board.plan import GENERAL, INF, TEAMS, Params, all_orders, evaluate, plan_for, tasks_from_alerts
 from app.cost import Assumptions
 from app.detection import Detector
 from app.runtime import Runtime
@@ -24,7 +24,8 @@ def reference_cost(order, p: Params) -> float:
     done = [INF] * len(order)
     total = 0.0
     for i in order:
-        c = min(range(p.crews), key=lambda k: free[k])
+        able = [k for k in range(p.crews) if p.pool is None or p.pool[k] in (GENERAL, p.team[i])]
+        c = min(able, key=lambda k: free[k])
         start = free[c]
         relief = min((done[j] for j in range(len(order)) if p.relieved[i, j]), default=INF)
         if relief <= start:
@@ -55,6 +56,17 @@ def test_vectorised_schedule_matches_the_slow_reference(n, crews, seed):
     fast = evaluate(perms, p)
     slow = np.array([reference_cost(list(o), p) for o in perms])
     assert np.allclose(fast, slow)
+
+
+@pytest.mark.parametrize("n,pool,seed", [(3, [0, 1], 7), (4, [0, 2, GENERAL], 8), (5, [1, 1, 2], 9), (6, [0, 1, 2, GENERAL], 10)])
+def test_crews_of_one_network_match_the_slow_reference(n, pool, seed):
+    p = make_params(n, len(pool), seed)
+    r = np.random.default_rng(seed)
+    have = {k for k in pool if k != GENERAL}
+    p.pool = np.array(pool, dtype=np.int64)
+    p.team = np.array([r.choice(sorted(have)) if GENERAL not in pool else r.integers(0, 3) for _ in range(n)], dtype=np.int64)
+    perms = all_orders(n)
+    assert np.allclose(evaluate(perms, p), [reference_cost(list(o), p) for o in perms])
 
 
 def test_relief_matches_the_reference_and_cancels_work():
@@ -308,3 +320,39 @@ def test_what_would_change_the_boards_mind_is_the_exact_boundary_not_the_next_gr
                 o, _ = best_order(q, 4, perms)
                 assert (signature(plan_for(o, q)) != signature(chosen)) == want_change, (fl, tried)
             break
+
+
+def specialists(A, water=1, electricity=1, cooling=1, general=0):
+    return A.with_override("crews_water", water).with_override("crews_electricity", electricity).with_override("crews_cooling", cooling) \
+        .with_override("crews_available", general)
+
+
+def test_with_each_network_on_its_own_crews_no_job_goes_to_another_networks_crew(compound):
+    _, _, A, tasks, _ = compound
+    a = analyse(tasks, specialists(A), "board-teams")
+    teams = a.params.team_names()
+    assert sorted(teams) == ["cooling", "electricity", "water"]
+    for i, t in enumerate(a.tasks):
+        assert teams[int(a.plan.slot[i])] == t.agent
+    assert not a.conflict  # three networks, a crew each: nobody waits for another network's crew
+    best = min(reference_cost(list(o), a.params) for o in itertools.permutations(range(len(a.tasks))))
+    assert a.plan.cost == pytest.approx(best)
+    d = decision_object(a, "s", "template", None)
+    assert d.crew_teams == teams
+
+
+def test_two_jobs_on_one_network_queue_for_its_one_crew_and_the_board_names_the_crew_to_add(storm):
+    rt, det, A, tasks = storm
+    a = analyse(tasks, specialists(A, electricity=1), "board-one-electrical")
+    assert a.conflict and a.params.team_names() == ["water", "electricity", "cooling"]
+    assert {a.params.team_names()[int(a.plan.slot[i])] for i in range(len(a.tasks))} == {"electricity"}
+    assert a.extra_crew_saving and a.extra_crew_team == "electricity"  # a water or cooling crew cannot help a substation
+
+
+def test_a_roster_that_leaves_a_network_without_a_crew_is_refused(tmp_path):
+    A = Assumptions(path=tmp_path / "assumptions.json")
+    with pytest.raises(ValueError, match="cooling"):
+        A.update({"crews_available": 0, "crews_water": 1, "crews_electricity": 1})
+    assert A["crews_available"] == 2  # nothing was changed
+    A.update({"crews_available": 0, "crews_water": 2, "crews_electricity": 1, "crews_cooling": 1})
+    assert Assumptions(path=tmp_path / "assumptions.json")["crews_water"] == 2

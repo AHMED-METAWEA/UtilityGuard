@@ -5,6 +5,7 @@ No language model is involved here. Every figure the agents later quote comes fr
     Hourly cost of a problem      C_i      = C_loss + C_disruption + C_secondary        (the cost model, EGP/h)
     Work time on site             h_i      = fix_hours_<kind>
     Completion hour               T_i      = start_i + h_i, crews free after response_hours, then after crew_switch_hours
+    Who can take a job            a crew of the job's own network, or a general crew (the first one free; a network's own crew on a tie)
     Loss until fixed              C_i x T_i
     Repair                        R_i x m(w_i),  w_i = max(0, start_i - response_hours),  m = min(cap, 1 + (late - 1) w / delay)
     Cost of an order              sum_i  C_i x T_i + R_i x m(w_i)
@@ -29,6 +30,8 @@ from app.sim.topology import SUBSTATION_BACKUP
 MAX_TASKS = 6  # 6! = 720 orders, searched exhaustively
 RUNS = 300  # price scenarios for the robustness check
 INF = float("inf")
+TEAMS = ("water", "electricity", "cooling")
+GENERAL = -1  # a crew lane that takes a job on any network
 
 ACTIONS = {
     "leak": ("Isolate the damaged segment with the nearest valves and replace the section", "pipe repair"),
@@ -104,10 +107,36 @@ class Params:
     switch: float
     crews: int
     relieved: np.ndarray  # relieved[i, j]: task i is relieved when task j finishes
+    pool: np.ndarray | None = None  # pool[c]: the network crew c works on (index into TEAMS), or GENERAL; None means every crew is general
+    team: np.ndarray | None = None  # team[i]: the network of task i (index into TEAMS)
+
+    def team_names(self) -> list[str]:
+        """The network each crew lane works on, or "any"."""
+        return ["any"] * self.crews if self.pool is None else ["any" if k == GENERAL else TEAMS[k] for k in self.pool]
+
+    def with_crew(self, team: str | None) -> "Params":
+        """The same problems with one more crew: a general one (team None) or one of a network's own. Lanes stay in crew_pool's order."""
+        pool = np.full(self.crews, GENERAL, dtype=np.int64) if self.pool is None else self.pool
+        k = GENERAL if team is None else TEAMS.index(team)
+        own = np.sort(np.append(pool[pool != GENERAL], k) if k != GENERAL else pool[pool != GENERAL])
+        general = int((pool == GENERAL).sum()) + (k == GENERAL)
+        team_of = self.team if self.team is not None else np.zeros(len(self.rate), dtype=np.int64)
+        return dataclasses.replace(self, crews=self.crews + 1, pool=np.concatenate([own, np.full(general, GENERAL)]).astype(np.int64), team=team_of)
+
+
+def crew_pool(A: Assumptions, general: int | None = None) -> np.ndarray:
+    """One lane per crew: each network's own crews first (so a tie goes to them and keeps a general crew free), then the general ones."""
+    own = [k for k, t in enumerate(TEAMS) for _ in range(int(round(A[f"crews_{t}"])))]
+    return np.array(own + [GENERAL] * (int(round(A["crews_available"])) if general is None else general), dtype=np.int64)
 
 
 def params_for(tasks: list[Task], A: Assumptions, crews: int | None = None) -> Params:
     n = len(tasks)
+    pool = crew_pool(A, crews)
+    team = np.array([TEAMS.index(t.agent) for t in tasks], dtype=np.int64)
+    for t in tasks:
+        if not ((pool == GENERAL) | (pool == TEAMS.index(t.agent))).any():
+            raise ValueError(f"No crew can work on the {t.agent} network: set at least one {t.agent} crew or one general crew.")
     rel = np.zeros((n, n), dtype=bool)
     pos = {t.id: i for i, t in enumerate(tasks)}
     for i, t in enumerate(tasks):
@@ -119,7 +148,7 @@ def params_for(tasks: list[Task], A: Assumptions, crews: int | None = None) -> P
                   hours=np.array([A[f"fix_hours_{t.policy}"] for t in tasks]),
                   late=np.array([A[f"late_multiplier_{t.policy}"] for t in tasks]), delay=np.array([A[f"delay_hours_{t.policy}"] for t in tasks]),
                   cap=A["late_multiplier_cap"], response=A["response_hours"], switch=A["crew_switch_hours"],
-                  crews=int(round(A["crews_available"])) if crews is None else crews, relieved=rel)
+                  crews=len(pool), relieved=rel, pool=pool, team=team)
 
 
 def evaluate(perms: np.ndarray, p: Params, detail: bool = False):
@@ -133,7 +162,8 @@ def evaluate(perms: np.ndarray, p: Params, detail: bool = False):
         start, end, slot, dropped, mult = (np.zeros((m, n)), np.zeros((m, n)), np.zeros((m, n), dtype=int), np.zeros((m, n), dtype=bool), np.ones((m, n)))
     for pos in range(n):
         idx = perms[:, pos]
-        c = free.argmin(axis=1)
+        able = free if p.pool is None else np.where((p.pool == GENERAL) | (p.pool == p.team[idx][:, None]), free, INF)  # only crews that can do this job
+        c = able.argmin(axis=1)
         s = free[ar, c]
         relief = np.where(p.relieved[idx], done, INF).min(axis=1)
         drop = relief <= s

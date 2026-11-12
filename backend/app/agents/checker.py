@@ -100,11 +100,11 @@ def allowed_numbers(record: CalculationRecord | None, extra: Iterable[float] = (
     return {v for v, _ in allowed_labeled(record, extra)}
 
 
-UNIT_AFTER = re.compile(r"\s*(%|m3|m³|egp|mw|kw|kv|bar|°c|tr\b|ton)", re.I)
+UNIT_AFTER = re.compile(r"\s*(%|m3|m³|egp|mw|kw|kv|bar|°c|tr\b|ton|h\b|hours?\b|hrs?\b|min(?:utes?)?\b|ساع|دقيق)", re.I)
 
 
 def _small_count(x: float, after: str) -> bool:
-    """Small whole numbers are counts and ordinals ("3 agents", "step 2"), unless a unit follows: "5 m3/h" is a quantity."""
+    """Small whole numbers are counts and ordinals ("3 agents", "step 2"), unless a unit follows: "5 m3/h" and "3 hours" are quantities."""
     return x <= 10 and x == int(x) and not UNIT_AFTER.match(after)
 
 

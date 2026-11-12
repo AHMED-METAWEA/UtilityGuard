@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
@@ -45,6 +44,7 @@ class Analysis:
     flips: list[dict]
     risks: list[dict]
     extra_crew_saving: float | None
+    extra_crew_team: str | None  # the crew that would save it: a network's own ("water"...) or "any" for a general one
     conflict: bool
     own_first: dict  # agent -> Plan
     waiting_price: dict  # agent -> EGP more than if it went first
@@ -109,11 +109,12 @@ def analyse(all_tasks: list[Task], A: Assumptions, session_id: str, overload: li
     fl = flips(tasks, p, chosen, perms)[:3]
 
     conflict = bool(np.any(chosen.start > p.response + 1e-9) or chosen.dropped.any())
-    saving = None
-    if p.crews < n and n > 1:
-        more = dataclasses.replace(p, crews=p.crews + 1)
-        _, c2 = best_order(more, n, perms)
-        saving = chosen.cost - c2 if chosen.cost - c2 > 0.5 else None
+    saving, saving_team = None, None
+    if conflict and n > 1:  # somebody waits: try one more crew of each kind that could take one of these jobs, a general one or a network's own
+        for team in [*dict.fromkeys(t.agent for t in tasks), None]:  # on a tie, name the network's own crew
+            _, c2 = best_order(p.with_crew(team), n, perms)
+            if chosen.cost - c2 > 0.5 and (saving is None or chosen.cost - c2 > saving + 0.5):
+                saving, saving_team = chosen.cost - c2, team or "any"
 
     risks: list[dict] = []
     for name, pct in (overload or [])[:2]:
@@ -128,7 +129,7 @@ def analyse(all_tasks: list[Task], A: Assumptions, session_id: str, overload: li
     risks.append(dict(kind="tail", text=f"In one price scenario in ten the plan costs {money(rob.p90)} EGP or more."))
 
     return Analysis(session_id=session_id, tasks=tasks, omitted=omitted, params=p, plan=chosen, task_cost=tc, robust=rob, alternatives=alternatives,
-                    flips=fl, risks=risks, extra_crew_saving=saving, conflict=conflict, own_first=own_first, waiting_price=waiting_price, others_pay=others_pay)
+                    flips=fl, risks=risks, extra_crew_saving=saving, extra_crew_team=saving_team, conflict=conflict, own_first=own_first, waiting_price=waiting_price, others_pay=others_pay)
 
 
 # ---------- schema objects ----------
@@ -159,13 +160,13 @@ def board_steps(a: Analysis) -> list[BoardStep]:
 def decision_object(a: Analysis, summary: str, summary_source: str, calculation_id: str | None) -> BoardDecision:
     incident_ids = list(dict.fromkeys(t.incident_id for t in a.tasks))
     return BoardDecision(
-        session_id=a.session_id, incident_ids=incident_ids, created_at=a.created_at, crews=a.params.crews, tasks=board_tasks(a),
+        session_id=a.session_id, incident_ids=incident_ids, created_at=a.created_at, crews=a.params.crews, crew_teams=a.params.team_names(), tasks=board_tasks(a),
         plan=BoardPlan(steps=board_steps(a), expected_cost=round(a.plan.cost, 2), p10=round(a.robust.p10, 2), p50=round(a.robust.p50, 2), p90=round(a.robust.p90, 2),
                        win_share=round(a.robust.win_share, 4), regret_mean=round(a.robust.regret_mean, 2), regret_p90=round(a.robust.regret_p90, 2),
                        hourly_bleed=round(float(a.params.rate.sum()), 2), runs=a.robust.runs),
         alternatives=[BoardAlternative(id=x["id"], name=x["name"], order=x["order"], expected_cost=round(x["cost"], 2), extra_cost=round(x["extra"], 2)) for x in a.alternatives],
         flips=[BoardFlip(task_id=f["task"].id, asset_name=f["task"].asset_name, current=round(f["current"], 2), threshold=round(f["threshold"], 2), direction=f["direction"]) for f in a.flips],
-        risks=[BoardRisk(**r) for r in a.risks], extra_crew_saving=None if a.extra_crew_saving is None else round(a.extra_crew_saving, 2),
+        risks=[BoardRisk(**r) for r in a.risks], extra_crew_saving=None if a.extra_crew_saving is None else round(a.extra_crew_saving, 2), extra_crew_team=a.extra_crew_team,
         conflict=a.conflict, summary=summary, summary_source=summary_source, calculation_id=calculation_id)
 
 
@@ -188,10 +189,11 @@ def calculation_record(a: Analysis, A: Assumptions, calc_id: str) -> Calculation
                                  inputs=[_a("C_delay", p.rate[i], "EGP/h"), _a("fix_hours", p.hours[i], "h", "assumed", f"fix_hours_{t.policy}")],
                                  result=round(float(p.rate[i] / p.hours[i]), 2), unit="EGP/h"))
         calcs.append(Calculation(name=f"Finished at hour, {t.asset_name}",
-                                 formula="start + fix_hours, where start is the first free crew (response_hours for the first jobs, then crew_switch_hours after each job)",
+                                 formula="start + fix_hours, where start is the first free crew that can work on this network: its own or a general one (response_hours for the first jobs, then crew_switch_hours after each job)",
                                  inputs=[_a("start", a.plan.start[i], "h"), _a("fix_hours", p.hours[i], "h", "assumed", f"fix_hours_{t.policy}"),
                                          _a("response_hours", p.response, "h", "assumed", "response_hours"), _a("crew_switch_hours", p.switch, "h", "assumed", "crew_switch_hours"),
-                                         _a("crews_available", p.crews, "crews", "assumed", "crews_available")],
+                                         _a("crews_available", A["crews_available"], "crews", "assumed", "crews_available"),
+                                         _a(f"crews_{t.agent}", A[f"crews_{t.agent}"], "crews", "assumed", f"crews_{t.agent}")],
                                  result=round(float(a.plan.end[i]), 2), unit="h"))
         calcs.append(Calculation(name=f"Loss until fixed, {t.asset_name}", formula="C_delay × finished_at_hour",
                                  inputs=[_a("C_delay", p.rate[i], "EGP/h"), _a("finished_at", a.plan.end[i], "h")], result=round(float(p.rate[i] * a.plan.end[i]), 2)))
@@ -209,7 +211,7 @@ def calculation_record(a: Analysis, A: Assumptions, calc_id: str) -> Calculation
     alarm = next(x for x in a.alternatives if x["id"] == "alarm")
     calcs.append(Calculation(name="Total cost working in alarm order", formula="the same formula, orders as the alarms arrived",
                              inputs=[_a("total", alarm["cost"], "EGP")], result=round(alarm["cost"], 2)))
-    keys = ["crews_available", "crew_switch_hours", "response_hours", "late_multiplier_cap"] + [f"fix_hours_{t.policy}" for t in tasks] \
+    keys = ["crews_available", *[f"crews_{t.agent}" for t in tasks], "crew_switch_hours", "response_hours", "late_multiplier_cap"] + [f"fix_hours_{t.policy}" for t in tasks] \
         + [f"late_multiplier_{t.policy}" for t in tasks] + [f"delay_hours_{t.policy}" for t in tasks]
     reasons = [Reason(text=f"{len(tasks)} open problems, {p.crews} crews, {money(float(p.rate.sum()))} EGP per hour while they stay open", evidence_type="measured", evidence_ref=tasks[0].id),
                Reason(text="Every order was tried, and the cheapest was chosen", evidence_type="rule", evidence_ref="rule:exhaustive-search"),

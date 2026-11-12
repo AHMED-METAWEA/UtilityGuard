@@ -153,8 +153,8 @@ export interface AuditVerification { ok: boolean; entries: number; brokenAt?: nu
 export interface OrderPreview { order: string[]; steps: BoardStep[]; expectedCost: number; boardCost: number; costDelta: number; override: boolean }
 export interface ReviewRequest { operator: string; note?: string; order?: string[] | null; secondsPerHour?: number | null }
 export interface BoardDecision {
-  sessionId: string; incidentIds: string[]; createdAt: Timestamp; crews: number; tasks: BoardTask[]; plan: BoardPlan;
-  alternatives: BoardAlternative[]; flips: BoardFlip[]; risks: BoardRisk[]; extraCrewSaving?: number | null;
+  sessionId: string; incidentIds: string[]; createdAt: Timestamp; crews: number; crewTeams?: string[]; tasks: BoardTask[]; plan: BoardPlan;
+  alternatives: BoardAlternative[]; flips: BoardFlip[]; risks: BoardRisk[]; extraCrewSaving?: number | null; extraCrewTeam?: string | null;
   status: DecisionStatus; review?: Review | null; execution: ExecutionStep[];
   conflict: boolean; summary: string; summarySource: BoardMessage['source']; calculationId?: string | null;
 }

@@ -7,6 +7,10 @@
   ],
   "createdAt": "2026-10-28T11:30:00Z",
   "crews": 2,
+  "crewTeams": [
+    "any",
+    "any"
+  ],
   "tasks": [
     {
       "id": "alert-0001",

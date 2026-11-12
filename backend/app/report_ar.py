@@ -51,7 +51,7 @@ ASSUMPTION_AR = {
     "parts_pipe": "قطع إصلاح الماسورة", "parts_pump": "قطع إصلاح المضخة", "parts_substation": "إصلاح المحطة وفحصها", "parts_chiller": "قطع إصلاح المبرّد",
     "parts_sensor": "معايرة الحساس أو استبداله", "response_hours": "زمن استجابة الطاقم عند الإرسال الآن", "isolate_loss_reduction": "خفض الفقد بعد عزل الماسورة",
     "late_multiplier_cap": "الحد الأقصى لمضاعِف الإصلاح المتأخر", "false_dispatch": "تكلفة طاقم أُرسل لإنذار كاذب", "false_dispatch_interval": "الفاصل بين الإرسالات الكاذبة",
-    "planned_factor": "تكلفة الإصلاح المخطط نسبةً للطارئ", "background_loss_ratio": "التسرب الأساسي نسبةً للطلب المفوتر", "crews_available": "الطواقم المتاحة في آن واحد",
+    "planned_factor": "تكلفة الإصلاح المخطط نسبةً للطارئ", "background_loss_ratio": "التسرب الأساسي نسبةً للطلب المفوتر", "crews_available": "الطواقم العامة المتاحة في آن واحد (أي شبكة)", "crews_water": "طواقم المياه المتاحة في آن واحد", "crews_electricity": "طواقم الكهرباء المتاحة في آن واحد", "crews_cooling": "طواقم التبريد المتاحة في آن واحد",
     "crew_switch_hours": "تنقّل الطاقم بين مهمتين",
 }
 SOURCE_AR = {"default assumption": "افتراض افتراضي"}

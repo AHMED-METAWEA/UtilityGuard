@@ -87,6 +87,7 @@ ASSET_PATTERNS = [
 
 
 def find_asset(text: str, rt: "Runtime") -> str | None:
+    text = text.translate(str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789"))  # an asset number typed in Arabic-Indic digits is the same asset
     for pat, fmt in ASSET_PATTERNS:
         m = pat.search(text)
         if m and fmt.format(m.group(1)) in rt.engine.g.asset_index:

@@ -237,7 +237,8 @@ def summary_draft(a: Analysis) -> Draft:
         facts += [fact(f"{f['task'].asset_name} flip level", f["threshold"], "EGP/h"), fact(f"{f['task'].asset_name} cost per hour now", f["current"], "EGP/h")]
     crew = ""
     if a.extra_crew_saving:
-        crew = f" One more crew would save {money(a.extra_crew_saving)} EGP."
+        who = "general crew" if a.extra_crew_team in (None, "any") else f"{a.extra_crew_team} crew"
+        crew = f" One more {who} would save {money(a.extra_crew_saving)} EGP."
         facts.append(fact("Saved by one more crew", a.extra_crew_saving, "EGP"))
     saved = f" It saves {money(alarm['extra'])} EGP against working in the order the alarms arrived." if alarm["extra"] > 0.5 else ""
     tmpl = (f"Do this. " + "; ".join(lines) + f". Why: {why} The plan is expected to cost {money(plan.cost)} EGP.{saved} "

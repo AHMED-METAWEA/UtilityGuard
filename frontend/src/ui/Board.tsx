@@ -16,6 +16,7 @@ import './Board.css';
 
 const ROUNDS = ['Opening', 'Positions', 'What waiting costs', 'Decision', 'Replies'];
 const crewName = (slot: number) => String.fromCharCode(64 + slot);
+const TEAM: Record<string, string> = { water: 'Water', electricity: 'Electricity', cooling: 'Cooling' };
 const SourceTag = ({ source }: { source: BoardMessage['source'] }) => <span className="tag">{source === 'llm' ? 'Model wording' : 'System wording'}</span>;
 
 function Transcript({ session }: { session: BoardSession }) {
@@ -96,6 +97,7 @@ function CrewTimeline({ decision }: { decision: BoardDecision }) {
             <text x={left + plotWidth / 2} y={H - 4} textAnchor="middle" fontSize="11" fill="var(--text-3)">Planned hours</text>
             {Array.from({ length: layout.laneCount }, (_, i) => <g key={i}>
               <text x={left - 10} y={top + i * laneHeight + 29} textAnchor="end" fontSize="12" fill="var(--text-2)">Crew {crewName(i + 1)}</text>
+              {TEAM[decision.crewTeams?.[i] ?? ''] && <text x={left - 10} y={top + i * laneHeight + 42} textAnchor="end" fontSize="10" fill="var(--text-3)">{TEAM[decision.crewTeams![i]]}</text>}
               <line x1={left} x2={W - right} y1={top + i * laneHeight + 44} y2={top + i * laneHeight + 44} stroke="var(--grid)" />
             </g>)}
             {layout.responseHour !== null && <g>
@@ -172,7 +174,7 @@ function BoardResult({ decision, onLatest }: { decision: BoardDecision; onLatest
         {tile('Cheapest in', plan.winShare * 100, '%', `of ${fmt(plan.runs)} price scenarios`)}
         {tile('Bad case', plan.p90, 'EGP', 'one price scenario in ten costs this much or more')}
         {tile('Open problems cost', plan.hourlyBleed, 'EGP per hour')}
-        {decision.extraCrewSaving != null && tile('One more crew saves', decision.extraCrewSaving, 'EGP', undefined, true)}
+        {decision.extraCrewSaving != null && tile('One more crew saves', decision.extraCrewSaving, 'EGP', TEAM[decision.extraCrewTeam ?? ''] ? `a ${TEAM[decision.extraCrewTeam!].toLowerCase()} crew` : 'a general crew, any network', true)}
       </div>
       <div className="stack" style={{ gap: 10 }}>
         <h3 className="card-title" style={{ margin: 0 }}>Compared with other orders</h3>

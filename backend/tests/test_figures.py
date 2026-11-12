@@ -82,7 +82,8 @@ def test_a_specialist_that_cites_tokens_gets_the_calculated_figures_and_invented
     out = asyncio.run(sp.run_specialist(graph, "water", inc, facts, "water-pipe-04"))
     rec = next(iter(rt.calculations.values()))
     assert f"{rec.cost.act_now:,.0f} EGP" in out.explanation and f"{rec.cost.cost_of_delay:,.0f} EGP" in out.explanation
-    assert "9,999,999" not in out.explanation and REMOVED in out.explanation
+    # a cost typed in digits: the whole answer is replaced by the computed wording, with no hole where the figure was
+    assert "9,999,999" not in out.explanation and REMOVED not in out.explanation and out.headline != "Burst on the main"
     assert out.number_check == "corrected" and "{{ghost}}" not in " ".join(out.probable_causes)
     assert "{{act_now}}" in seen["user"] and '"cost"' not in seen["user"]  # the model is given the table of tokens, not a cost object to copy from
 
@@ -112,3 +113,47 @@ def test_a_figure_in_the_models_routing_reason_is_removed(tmp_path, monkeypatch)
     monkeypatch.setattr(orch.llm, "json", fake)
     asyncio.run(graph.ainvoke({"question": "what is wrong with the water network", "incident_id": None, "on_route": on_route}))
     assert seen and "9,999,999" not in seen[0].reason
+
+
+def test_a_cost_the_model_types_is_removed_even_when_the_amount_is_real():
+    from app.agents.checker import REMOVED
+    from app.agents.figures import typed_money
+    text, removed = typed_money("Acting now costs {{act_now}}; the saving is 36,020 EGP and the crew needs 3 hours.")
+    assert removed == ["36,020"] and "{{act_now}}" in text and REMOVED in text and "3 hours" in text
+    _, removed = typed_money("التوفير 36,020 جنيه")
+    assert removed == ["36,020"]
+    _, removed = typed_money("EGP 18,400 now, pressure 3.2 bar, 26.3 MW shed, token {{find_0001_saving}}")
+    assert removed == ["18,400"]
+    out, removed = typed_money({"headline": "Leak at P-03", "ar": {"impact": "الخسارة 5 million EGP"}, "probableCauses": ["x 12 EGP", "y"]})
+    assert removed == ["5 million", "12"] and out["headline"] == "Leak at P-03"
+
+
+def test_a_small_number_of_hours_must_be_in_the_data():
+    from app.agents.checker import check
+    _, removed = check("The crew needs 3 hours and 2 pumps stopped.", {4.0})
+    assert removed == ["3"]
+    _, removed = check("الفريق يحتاج 3 ساعات", {3.0})
+    assert removed == []
+
+
+def test_a_named_substation_brings_in_every_network_it_powers_even_when_the_model_names_one():
+    from app.agents.orchestrator import topology_route, with_floor
+    from app.runtime import Runtime
+    from app.schemas import RouteStep
+    rt = Runtime(42)
+    model = [RouteStep(agent="electricity", reason="trip")]
+    assert [r.agent for r in with_floor(model, topology_route(rt, "elec-sub-02"))] == ["electricity", "water", "cooling"]
+    assert [r.agent for r in with_floor(model, topology_route(rt, "elec-sub-03"))] == ["electricity", "water"]  # SS-03 powers no cooling plant
+    assert [r.agent for r in with_floor(model, topology_route(rt, "cool-plant-01"))] == ["electricity", "cooling"]
+    assert topology_route(rt, None) == []
+
+
+def test_the_rule_router_on_the_labelled_questions():
+    """The fallback router, offline, on the hand-labelled set: it is the router when the model is down, so it must route most questions right in both languages."""
+    import asyncio
+    from app.agents.routing_eval import run, score
+    from app.runtime import Runtime
+    rows = asyncio.run(run(Runtime(42), live=False))
+    for lang in ("en", "ar"):
+        s = score([r for r in rows if r["lang"] == lang], "rules")
+        assert s["right"] >= 0.85 * s["n"], (lang, s)
