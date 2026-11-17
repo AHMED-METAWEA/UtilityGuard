@@ -1,0 +1,16 @@
+osm_id,code,fclass,name,district_key,area_km2,centroid_lon,centroid_lat
+1001,NAC-R1,residential_district,الحي السكني الأول R1,1001,14.2,31.669000,30.024500
+1002,NAC-R2,residential_district,الحي السكني الثاني R2,1002,12.8,31.674001,30.017000
+1003,NAC-R3,residential_district,الحي السكني الثالث R3 (كابيتال ريزيدنس),1003,18.5,31.738500,30.041000
+1004,NAC-R4,residential_district,الحي السكني الرابع R4,1004,15.1,31.774000,30.041000
+1005,NAC-R5,residential_district,الحي السكني الخامس R5 (جاردن سيتي العاصمة),1005,21.4,31.780000,30.053000
+1006,NAC-R6,residential_district,الحي السكني السادس R6,1006,16.3,31.663999,30.017000
+1007,NAC-R7,residential_district,الحي السكني السابع R7,1007,25.0,31.738500,30.031000
+1008,NAC-R8,residential_district,الحي السكني الثامن R8,1008,22.5,31.774000,30.031000
+1009,NAC-CBD,commercial_district,حي المال والأعمال CBD,1009,1.95,31.696500,30.011250
+1010,NAC-GOV,government_district,الحي الحكومي والوزارات,1010,5.5,31.752000,30.019000
+1011,NAC-DIP,diplomatic_district,حي السفارات (الحي الدبلوماسي),1011,6.8,31.752000,30.009000
+1012,NAC-CULT,cultural_district,مدينة الفنون والثقافة,1012,0.52,31.726000,30.016000
+1013,NAC-MED,medical_district,المدينة الطبية,1013,2.3,31.731001,30.008500
+1014,NAC-KNOW,knowledge_district,مدينة المعرفة والمعاهد,1014,1.22,31.720999,30.008500
+1015,NAC-PARK,green_belt,النهر الأخضر (الحديقة المركزية),1015,10.0,31.718,30.01

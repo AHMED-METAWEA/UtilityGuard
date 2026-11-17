@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>The infrastructure side: a live twin</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .map { left:120px; top:290px; width:1040px; padding:12px; }
+  .map img { display:block; width:100%; border-radius:18px; }
+  .right { position:absolute; left:1220px; top:290px; width:580px; }
+  .stat { display:flex; align-items:center; gap:22px; margin-bottom:34px; }
+  .stat b { font:700 76px/1 'Poppins',Arial,sans-serif; color:var(--navy); min-width:150px; }
+  .stat span { font-size:28px; line-height:1.3; }
+  .chips { position:absolute; left:1220px; top:580px; width:580px; display:flex; flex-direction:column; gap:14px; }
+  .chip { background:var(--glass); border-radius:18px; padding:14px 22px; font-size:26px; line-height:1.3; box-shadow:0 6px 18px rgba(27,58,99,.1); }
+  .chip b { color:var(--navy); }
+  .leg { position:absolute; left:140px; top:900px; display:flex; gap:40px; font-size:24px; color:#44566F; }
+  .leg i { display:inline-block; width:34px; height:7px; border-radius:4px; margin-right:12px; vertical-align:middle; }
+</style></head>
+<body>
+  <h1>Infrastructure side: a live twin</h1>
+  <p class="sub">Three networks in one model, so a fault can be followed from one to the next</p>
+
+  <div class="card map">
+    <img src="system-live-map.png" alt="The running system: map of the nine districts with the water, power and cooling networks">
+  </div>
+
+  <div class="right">
+    <div class="stat"><b>89</b><span>sensors on 48 assets in 9 districts, read every 2 seconds</span></div>
+    <div class="stat"><b>15</b><span>stress scenarios: heat wave, pipe burst, substation lost</span></div>
+  </div>
+  <div class="chips">
+    <div class="chip"><b>Detects</b> 93% of 212 injected faults</div>
+    <div class="chip"><b>Forecasts</b> demand within 1 to 3%</div>
+    <div class="chip"><b>Warns</b> of pump wear, 24 of 24, a median 114 s ahead</div>
+  </div>
+
+  <p class="foot">Screen from the running system. All readings are simulated.</p>
+</body></html>

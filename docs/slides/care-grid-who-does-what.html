@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Care Grid workflow, who does what</title>
+<style>
+  :root { --bg:#f7f5f1; --ink:#2a2926; --muted:#6d6a63; --box:#fdfbf7; --line:#6b6860; --navy:#0e2142; --gate:#fbe9d0; --gate-line:#a86a1d; --ag:#e7ebf3; --ag-line:#27487f; --loop:#e2efe3; --loop-line:#3f7a47; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); }
+  body { width:1280px; height:720px; position:relative; overflow:hidden; color:var(--ink); font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+  h1 { position:absolute; left:86px; top:48px; margin:0; font-size:36px; line-height:1.1; font-weight:700; letter-spacing:-0.2px; }
+  .sub { position:absolute; left:86px; top:104px; margin:0; font-size:17px; color:var(--muted); }
+  .lane { position:absolute; left:86px; width:1108px; height:128px; border-radius:12px; border:1.5px solid #d8d3c8; background:#f1eee7; }
+  .lane.ag { background:#eef1f7; } .lane.pe { background:#fcf3e4; }
+  .ln { position:absolute; left:86px; width:118px; height:128px; padding:0 14px; display:flex; flex-direction:column; justify-content:center; }
+  .ln b { font-size:17px; } .ln span { font-size:12.5px; color:var(--muted); margin-top:3px; line-height:1.3; }
+  .st { position:absolute; width:130px; height:98px; border:2px solid var(--line); border-radius:10px; background:var(--box); padding:10px 9px 0; text-align:center; }
+  .st b { display:block; font-size:15px; line-height:1.2; margin-bottom:4px; }
+  .st span { display:block; font-size:12.5px; line-height:1.3; color:#4a4843; }
+  .st.ag { border-color:var(--ag-line); } .st.pe { background:var(--gate); border-color:var(--gate-line); } .st.pe b { color:#4a2d07; }
+  .bar { position:absolute; left:86px; top:626px; width:1108px; height:44px; border:2px solid var(--loop-line); background:var(--loop); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600; color:#1f4d27; }
+  svg { position:absolute; left:0; top:0; width:1280px; height:720px; pointer-events:none; }
+</style>
+</head>
+<body>
+  <h1>Care Grid workflow: who does what</h1>
+  <p class="sub">The code calculates, the agents explain, a person decides</p>
+
+  <div class="lane" style="top:146px"></div><div class="ln" style="top:146px"><b>Code</b><span>calculates every number</span></div>
+  <div class="lane ag" style="top:284px"></div><div class="ln" style="top:284px"><b>Agents</b><span>language model; explains only</span></div>
+  <div class="lane pe" style="top:422px"></div><div class="ln" style="top:422px"><b>Person</b><span>approves, changes, rejects</span></div>
+
+  <!-- columns: x = 210 + i * 140 ; code lane y=161, agents y=299, person y=437 -->
+  <div class="st" style="left:210px;top:161px"><b>1. Read</b><span>89 sensors every 2 seconds</span></div>
+  <div class="st" style="left:350px;top:161px"><b>2. Detect</b><span>3 readings confirm; one root cause, one incident</span></div>
+  <div class="st" style="left:490px;top:161px"><b>3. Price</b><span>EGP per hour, P10 to P90</span></div>
+  <div class="st ag" style="left:630px;top:299px"><b>4. Explain</b><span>Findings in plain words; every figure checked</span></div>
+  <div class="st" style="left:770px;top:161px"><b>5. Plan</b><span>720 crew orders tried; cheapest proposed</span></div>
+  <div class="st pe" style="left:910px;top:437px"><b>6. Approve</b><span>Approve, change (priced first) or reject</span></div>
+  <div class="st" style="left:1050px;top:161px"><b>7. Confirm</b><span>Crews repair; the detector says it is gone</span></div>
+
+  <svg viewBox="0 0 1280 720" aria-hidden="true">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1 L9 5 L1 9 z" fill="#6b6860"/></marker></defs>
+    <g stroke="#6b6860" stroke-width="2" fill="none" marker-end="url(#a)" stroke-linejoin="round">
+      <path d="M340 210 H350"/>
+      <path d="M480 210 H490"/>
+      <path d="M620 210 H625 V348 H630"/>
+      <path d="M760 348 H765 V210 H770"/>
+      <path d="M900 210 H905 V486 H910"/>
+      <path d="M1040 486 H1045 V210 H1050"/>
+    </g>
+  </svg>
+
+  <div class="bar">Closed loop: the cleared fault returns to live readings, and every step is written to a hash-chained log</div>
+</body>
+</html>

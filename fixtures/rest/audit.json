@@ -1,0 +1,99 @@
+{
+  "entries": [
+    {
+      "seq": 1,
+      "at": "2026-10-28T11:30:01Z",
+      "run": "run-20261028-080000",
+      "actor": "board",
+      "action": "proposed",
+      "sessionId": "board-0001",
+      "subject": "calc-board-0001",
+      "detail": "The board proposes 3 job(s) with 2 crew(s), expected cost 1,226,362 EGP. Waiting for a person to decide.",
+      "data": {
+        "expected_cost": 1226362.14,
+        "p90": 1674640.98,
+        "tasks": 3.0,
+        "summary_source": "template",
+        "decision_hash": "0583dc8f2b88b155a278574612ac248af26c192850ce60e4f1c2dd08f9031ba3"
+      },
+      "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "aaa9fbfee26e398e84a4a7895f43e4507ffebcfb840f5e5caff0b479c56c08f8"
+    },
+    {
+      "seq": 2,
+      "at": "2026-10-28T11:30:40Z",
+      "run": "run-20261028-080000",
+      "actor": "Eng. Mona",
+      "action": "approve",
+      "sessionId": "board-0001",
+      "subject": "calc-board-0001",
+      "detail": "Approved the board's plan as proposed.",
+      "data": {
+        "expected_cost": 1226362.14,
+        "board_cost": 1226362.14,
+        "cost_delta": 0.0,
+        "override": false,
+        "decision_hash": "0583dc8f2b88b155a278574612ac248af26c192850ce60e4f1c2dd08f9031ba3",
+        "tasks": 3.0,
+        "not_in_proposal": 0.0,
+        "seconds_per_hour": 20.0,
+        "order": "alert-0001 > alert-0003 > alert-0002"
+      },
+      "prevHash": "aaa9fbfee26e398e84a4a7895f43e4507ffebcfb840f5e5caff0b479c56c08f8",
+      "hash": "565dd822f0a89ab09d982fc139f9f0b7833afc8615ebf9454a2a7a0ce20e2fb6"
+    },
+    {
+      "seq": 3,
+      "at": "2026-10-28T11:30:41Z",
+      "run": "run-20261028-080000",
+      "actor": "dispatch",
+      "action": "crew_dispatched",
+      "sessionId": "board-0001",
+      "subject": "alert-0001",
+      "detail": "Crew 1 started on SS-04: Inspect, re-close the breaker and re-energise the substation.",
+      "data": {
+        "crew": 1.0,
+        "plan_hour": 1.0
+      },
+      "prevHash": "565dd822f0a89ab09d982fc139f9f0b7833afc8615ebf9454a2a7a0ce20e2fb6",
+      "hash": "3679d29a8749783dbf3b3140bf389e099c92485f7596c808f8007a647f8f7c09"
+    },
+    {
+      "seq": 4,
+      "at": "2026-10-28T11:31:00Z",
+      "run": "run-20261028-080000",
+      "actor": "dispatch",
+      "action": "repair_done",
+      "sessionId": "board-0001",
+      "subject": "alert-0001",
+      "detail": "Crew 1 finished SS-04. The twin now shows the fault cleared.",
+      "data": {
+        "faults_cleared": 1.0,
+        "plan_hour": 2.5
+      },
+      "prevHash": "3679d29a8749783dbf3b3140bf389e099c92485f7596c808f8007a647f8f7c09",
+      "hash": "9384ace4ddfe26d9d8d8096531d9878aabf4012b536f313f37412071711d3448"
+    },
+    {
+      "seq": 5,
+      "at": "2026-10-28T11:30:42Z",
+      "run": "run-20261028-080000",
+      "actor": "dispatch",
+      "action": "crew_dispatched",
+      "sessionId": "board-0001",
+      "subject": "alert-0003",
+      "detail": "Crew 2 started on DCP-01: Start the standby chiller and repair the faulty one.",
+      "data": {
+        "crew": 2.0,
+        "plan_hour": 1.0
+      },
+      "prevHash": "9384ace4ddfe26d9d8d8096531d9878aabf4012b536f313f37412071711d3448",
+      "hash": "75ed9eef2e121e03066ae4c3208365770dd513a51be09d12d4ec4598e1253006"
+    }
+  ],
+  "verification": {
+    "ok": true,
+    "entries": 5,
+    "head": "75ed9eef2e121e03066ae4c3208365770dd513a51be09d12d4ec4598e1253006"
+  }
+}

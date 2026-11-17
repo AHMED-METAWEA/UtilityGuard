@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Open+Sans:wght@400;600;700&display=swap');
+:root { --navy:#1B3A63; --ink:#2F4260; --blue:#2F6FB5; --teal:#0D9488; --gold:#C28A1E; --glass:rgba(255,255,255,.78); --line:#C9D8EA; }
+* { box-sizing:border-box; }
+html,body { margin:0; }
+body { width:1920px; height:1080px; position:relative; overflow:hidden; font-family:'Open Sans',Arial,sans-serif; color:var(--ink);
+  background:
+    radial-gradient(900px 520px at 12% 8%, rgba(255,255,255,.95), rgba(255,255,255,0) 70%),
+    radial-gradient(1100px 600px at 88% 92%, rgba(190,213,238,.75), rgba(190,213,238,0) 70%),
+    linear-gradient(180deg,#DCE8F5 0%,#EEF4FA 55%,#E3ECF7 100%); }
+h1 { position:absolute; left:120px; top:84px; margin:0; width:1560px; font:600 66px/1.12 'Poppins',Arial,sans-serif; color:var(--navy); }
+.sub { position:absolute; left:120px; top:200px; margin:0; width:1400px; font-size:32px; line-height:1.35; color:var(--ink); }
+.foot { position:absolute; left:120px; bottom:56px; width:1680px; margin:0; font-size:24px; line-height:1.4; color:#5A6B85; }
+.card { position:absolute; background:var(--glass); border-radius:28px; box-shadow:0 10px 34px rgba(27,58,99,.13); border:2px solid rgba(255,255,255,.9); padding:40px 44px; }
+.tag { display:inline-block; font:600 24px 'Poppins',Arial,sans-serif; padding:6px 20px; border-radius:30px; color:#fff; margin-bottom:18px; }
+.t-teal { background:var(--teal); } .t-blue { background:var(--navy); } .t-gold { background:var(--gold); }
+.card h3 { margin:0 0 16px; font:600 40px/1.15 'Poppins',Arial,sans-serif; color:var(--navy); }
+.card ul { margin:0; padding-left:30px; font-size:30px; line-height:1.5; }

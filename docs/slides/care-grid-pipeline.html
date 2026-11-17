@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Care Grid pipeline</title>
+<style>
+  :root { --bg:#f7f5f1; --ink:#2a2926; --muted:#6d6a63; --box:#ece9e2; --line:#6b6860; --gate:#fbe9d0; --gate-line:#a86a1d; --loop:#e2efe3; --loop-line:#3f7a47; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); }
+  body { width:1280px; height:720px; position:relative; overflow:hidden; color:var(--ink); font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+  h1 { position:absolute; left:86px; top:48px; margin:0; font-size:36px; line-height:1.1; font-weight:700; letter-spacing:-0.2px; }
+  .sub { position:absolute; left:86px; top:104px; margin:0; font-size:17px; color:var(--muted); }
+  .lab { position:absolute; left:86px; margin:0; font-size:15px; font-weight:700; color:var(--muted); }
+  .box { position:absolute; width:240px; height:92px; border:2px solid var(--line); border-radius:12px; background:var(--box); text-align:center; padding:12px 12px 0; }
+  .box b { display:block; font-size:18.5px; line-height:1.2; margin-bottom:4px; }
+  .box span { display:block; font-size:14px; line-height:1.3; color:#4a4843; }
+  .gate { background:var(--gate); border-color:var(--gate-line); } .gate b { color:#4a2d07; }
+  .loop { background:var(--loop); border-color:var(--loop-line); } .loop b { color:#1f4d27; }
+  .c1 { left:86px; } .c2 { left:375px; } .c3 { left:665px; } .c4 { left:953px; }
+  .a1 { top:178px; } .a2 { top:326px; } .a3 { top:474px; }
+  .bar { position:absolute; left:86px; top:600px; width:1108px; height:50px; border:2px solid var(--loop-line); background:var(--loop); border-radius:10px;
+         display:flex; align-items:center; justify-content:center; font-size:15.5px; color:#1f4d27; font-weight:600; }
+  svg { position:absolute; left:0; top:0; width:1280px; height:720px; pointer-events:none; }
+</style>
+</head>
+<body>
+  <h1>How a reading becomes a fix</h1>
+  <p class="sub">The pipeline in the order the code runs it</p>
+
+  <p class="lab" style="top:152px">EVERY 2 SECONDS</p>
+  <div class="box a1 c1"><b>1. Simulator</b><span>89 sensor readings, with injected faults</span></div>
+  <div class="box a1 c2"><b>2. Expected values</b><span>A twin with the same seed and no faults; forecast and early warning</span></div>
+  <div class="box a1 c3"><b>3. Detector</b><span>A fault must last 3 readings; one root cause is one incident</span></div>
+  <div class="box a1 c4"><b>4. Screen and Telegram</b><span>Pushed live to the map; alerts sent to the chat</span></div>
+
+  <p class="lab" style="top:300px">FOR EACH INCIDENT</p>
+  <div class="box a2 c1"><b>5. Price</b><span>EGP per hour of delay, P10 to P90</span></div>
+  <div class="box a2 c2"><b>6. Agents explain</b><span>Water, power and cooling specialists; numbers checked</span></div>
+  <div class="box a2 c3"><b>7. Board plan</b><span>720 crew orders tried; the cheapest proposed</span></div>
+  <div class="box a2 c4 gate"><b>8. A person decides</b><span>Approve, change the order (priced first) or reject</span></div>
+
+  <p class="lab" style="top:448px">AFTER APPROVAL</p>
+  <div class="box a3 c1"><b>9. Crews work</b><span>On the demo clock; the repair ends the fault</span></div>
+  <div class="box a3 c2"><b>10. Detector confirms</b><span>The detector, not the crew, says it is gone</span></div>
+  <div class="box a3 c3 loop"><b>11. Audit log</b><span>Every step, hash-chained: an edit breaks the chain</span></div>
+
+  <svg viewBox="0 0 1280 720" aria-hidden="true">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9 z" fill="#6b6860"/></marker></defs>
+    <g stroke="#6b6860" stroke-width="2" fill="none" marker-end="url(#a)">
+      <line x1="328" y1="224" x2="368" y2="224"/><line x1="617" y1="224" x2="658" y2="224"/><line x1="906" y1="224" x2="946" y2="224"/>
+      <line x1="328" y1="372" x2="368" y2="372"/><line x1="617" y1="372" x2="658" y2="372"/><line x1="906" y1="372" x2="946" y2="372"/>
+      <line x1="328" y1="520" x2="368" y2="520"/><line x1="617" y1="520" x2="658" y2="520"/>
+    </g>
+  </svg>
+
+  <div class="bar">Closed loop: the cleared fault returns to live readings, and edited assumptions recompute every price</div>
+</body>
+</html>

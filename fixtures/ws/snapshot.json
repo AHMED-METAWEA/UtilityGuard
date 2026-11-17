@@ -1,0 +1,3896 @@
+{
+  "type": "snapshot",
+  "payload": {
+    "tick": 0,
+    "timestamp": "2026-10-28T11:30:00Z",
+    "topology": {
+      "zones": [
+        {
+          "id": "zone-gov",
+          "name": "Government District",
+          "type": "government",
+          "center": {
+            "lat": 30.014,
+            "lng": 31.752
+          },
+          "polygon": [
+            {
+              "lat": 30.007,
+              "lng": 31.738
+            },
+            {
+              "lat": 30.007,
+              "lng": 31.766
+            },
+            {
+              "lat": 30.021,
+              "lng": 31.766
+            },
+            {
+              "lat": 30.021,
+              "lng": 31.738
+            },
+            {
+              "lat": 30.007,
+              "lng": 31.738
+            }
+          ]
+        },
+        {
+          "id": "zone-cult",
+          "name": "Arts and Culture City",
+          "type": "services",
+          "center": {
+            "lat": 30.011,
+            "lng": 31.726
+          },
+          "polygon": [
+            {
+              "lat": 30.005,
+              "lng": 31.716
+            },
+            {
+              "lat": 30.005,
+              "lng": 31.736
+            },
+            {
+              "lat": 30.017,
+              "lng": 31.736
+            },
+            {
+              "lat": 30.017,
+              "lng": 31.716
+            },
+            {
+              "lat": 30.005,
+              "lng": 31.716
+            }
+          ]
+        },
+        {
+          "id": "zone-cbd",
+          "name": "Central Business District",
+          "type": "business",
+          "center": {
+            "lat": 30.01125,
+            "lng": 31.6965
+          },
+          "polygon": [
+            {
+              "lat": 30.005,
+              "lng": 31.687
+            },
+            {
+              "lat": 30.005,
+              "lng": 31.706
+            },
+            {
+              "lat": 30.0175,
+              "lng": 31.706
+            },
+            {
+              "lat": 30.0175,
+              "lng": 31.687
+            },
+            {
+              "lat": 30.005,
+              "lng": 31.687
+            }
+          ]
+        },
+        {
+          "id": "zone-res-2",
+          "name": "Residential R2",
+          "type": "residential",
+          "center": {
+            "lat": 30.0195,
+            "lng": 31.669
+          },
+          "polygon": [
+            {
+              "lat": 30.013,
+              "lng": 31.658
+            },
+            {
+              "lat": 30.013,
+              "lng": 31.68
+            },
+            {
+              "lat": 30.026,
+              "lng": 31.68
+            },
+            {
+              "lat": 30.026,
+              "lng": 31.658
+            },
+            {
+              "lat": 30.013,
+              "lng": 31.658
+            }
+          ]
+        },
+        {
+          "id": "zone-just",
+          "name": "Justice City",
+          "type": "government",
+          "center": {
+            "lat": 30.0065,
+            "lng": 31.7735
+          },
+          "polygon": [
+            {
+              "lat": 30.0,
+              "lng": 31.767
+            },
+            {
+              "lat": 30.0,
+              "lng": 31.78
+            },
+            {
+              "lat": 30.013,
+              "lng": 31.78
+            },
+            {
+              "lat": 30.013,
+              "lng": 31.767
+            },
+            {
+              "lat": 30.0,
+              "lng": 31.767
+            }
+          ]
+        },
+        {
+          "id": "zone-pres",
+          "name": "Presidential District",
+          "type": "government",
+          "center": {
+            "lat": 30.03025,
+            "lng": 31.7555
+          },
+          "polygon": [
+            {
+              "lat": 30.0245,
+              "lng": 31.748
+            },
+            {
+              "lat": 30.0245,
+              "lng": 31.763
+            },
+            {
+              "lat": 30.036,
+              "lng": 31.763
+            },
+            {
+              "lat": 30.036,
+              "lng": 31.748
+            },
+            {
+              "lat": 30.0245,
+              "lng": 31.748
+            }
+          ]
+        },
+        {
+          "id": "zone-res-n",
+          "name": "Residential North",
+          "type": "residential",
+          "center": {
+            "lat": 30.036,
+            "lng": 31.7385
+          },
+          "polygon": [
+            {
+              "lat": 30.027,
+              "lng": 31.73
+            },
+            {
+              "lat": 30.027,
+              "lng": 31.747
+            },
+            {
+              "lat": 30.045,
+              "lng": 31.747
+            },
+            {
+              "lat": 30.045,
+              "lng": 31.73
+            },
+            {
+              "lat": 30.027,
+              "lng": 31.73
+            }
+          ]
+        },
+        {
+          "id": "zone-res-ne",
+          "name": "Residential North-East",
+          "type": "residential",
+          "center": {
+            "lat": 30.036,
+            "lng": 31.774
+          },
+          "polygon": [
+            {
+              "lat": 30.028,
+              "lng": 31.766
+            },
+            {
+              "lat": 30.028,
+              "lng": 31.782
+            },
+            {
+              "lat": 30.044,
+              "lng": 31.782
+            },
+            {
+              "lat": 30.044,
+              "lng": 31.766
+            },
+            {
+              "lat": 30.028,
+              "lng": 31.766
+            }
+          ]
+        },
+        {
+          "id": "zone-res-far",
+          "name": "Residential Far North-East",
+          "type": "residential",
+          "center": {
+            "lat": 30.053,
+            "lng": 31.78
+          },
+          "polygon": [
+            {
+              "lat": 30.045,
+              "lng": 31.772
+            },
+            {
+              "lat": 30.045,
+              "lng": 31.788
+            },
+            {
+              "lat": 30.061,
+              "lng": 31.788
+            },
+            {
+              "lat": 30.061,
+              "lng": 31.772
+            },
+            {
+              "lat": 30.045,
+              "lng": 31.772
+            }
+          ]
+        }
+      ],
+      "assets": [
+        {
+          "id": "elec-sub-01",
+          "network": "electricity",
+          "kind": "substation",
+          "name": "SS-01",
+          "zoneId": "zone-cbd",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.0195,
+                "lng": 31.684
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-sub-02",
+          "network": "electricity",
+          "kind": "substation",
+          "name": "SS-02",
+          "zoneId": "zone-gov",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.0228,
+                "lng": 31.74
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-sub-03",
+          "network": "electricity",
+          "kind": "substation",
+          "name": "SS-03",
+          "zoneId": "zone-pres",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.0385,
+                "lng": 31.752
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-sub-04",
+          "network": "electricity",
+          "kind": "substation",
+          "name": "SS-04",
+          "zoneId": "zone-res-ne",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.027,
+                "lng": 31.779
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-01",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-01",
+          "zoneId": "zone-res-2",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.0195,
+                "lng": 31.684
+              },
+              {
+                "lat": 30.0195,
+                "lng": 31.666
+              },
+              {
+                "lat": 30.0165,
+                "lng": 31.666
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-01",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-01",
+          "zoneId": "zone-res-2",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.0165,
+                "lng": 31.666
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-02",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-02",
+          "zoneId": "zone-cbd",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.0195,
+                "lng": 31.684
+              },
+              {
+                "lat": 30.0195,
+                "lng": 31.6935
+              },
+              {
+                "lat": 30.00825,
+                "lng": 31.6935
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-02",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-02",
+          "zoneId": "zone-cbd",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.00825,
+                "lng": 31.6935
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-03",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-03",
+          "zoneId": "zone-gov",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.0228,
+                "lng": 31.74
+              },
+              {
+                "lat": 30.0228,
+                "lng": 31.749
+              },
+              {
+                "lat": 30.011,
+                "lng": 31.749
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-03",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-03",
+          "zoneId": "zone-gov",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.011,
+                "lng": 31.749
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-04",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-04",
+          "zoneId": "zone-cult",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.0228,
+                "lng": 31.74
+              },
+              {
+                "lat": 30.0228,
+                "lng": 31.723
+              },
+              {
+                "lat": 30.008,
+                "lng": 31.723
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-04",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-04",
+          "zoneId": "zone-cult",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.008,
+                "lng": 31.723
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-05",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-05",
+          "zoneId": "zone-pres",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.0385,
+                "lng": 31.752
+              },
+              {
+                "lat": 30.0385,
+                "lng": 31.7525
+              },
+              {
+                "lat": 30.02725,
+                "lng": 31.7525
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-05",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-05",
+          "zoneId": "zone-pres",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.02725,
+                "lng": 31.7525
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-06",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-06",
+          "zoneId": "zone-res-n",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.0385,
+                "lng": 31.752
+              },
+              {
+                "lat": 30.0385,
+                "lng": 31.7355
+              },
+              {
+                "lat": 30.033,
+                "lng": 31.7355
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-06",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-06",
+          "zoneId": "zone-res-n",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.033,
+                "lng": 31.7355
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-07",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-07",
+          "zoneId": "zone-just",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.027,
+                "lng": 31.779
+              },
+              {
+                "lat": 30.027,
+                "lng": 31.7705
+              },
+              {
+                "lat": 30.0035,
+                "lng": 31.7705
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-07",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-07",
+          "zoneId": "zone-just",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.0035,
+                "lng": 31.7705
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-08",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-08",
+          "zoneId": "zone-res-ne",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.027,
+                "lng": 31.779
+              },
+              {
+                "lat": 30.027,
+                "lng": 31.771
+              },
+              {
+                "lat": 30.033,
+                "lng": 31.771
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-08",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-08",
+          "zoneId": "zone-res-ne",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.033,
+                "lng": 31.771
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-feeder-09",
+          "network": "electricity",
+          "kind": "feeder",
+          "name": "Feeder F-09",
+          "zoneId": "zone-res-far",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.027,
+                "lng": 31.779
+              },
+              {
+                "lat": 30.027,
+                "lng": 31.777
+              },
+              {
+                "lat": 30.05,
+                "lng": 31.777
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "elec-tx-09",
+          "network": "electricity",
+          "kind": "transformer",
+          "name": "TX-09",
+          "zoneId": "zone-res-far",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.05,
+                "lng": 31.777
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-res-01",
+          "network": "water",
+          "kind": "reservoir",
+          "name": "RES-01",
+          "zoneId": "zone-gov",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.0228,
+                "lng": 31.733
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-01",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-01",
+          "zoneId": "zone-gov",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.018,
+                "lng": 31.748
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-01",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-GOV-01",
+          "zoneId": "zone-gov",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.0228,
+                "lng": 31.733
+              },
+              {
+                "lat": 30.0228,
+                "lng": 31.748
+              },
+              {
+                "lat": 30.018,
+                "lng": 31.748
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-02",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-02",
+          "zoneId": "zone-cult",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.015,
+                "lng": 31.722
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-02",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-CULT-02",
+          "zoneId": "zone-cult",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.018,
+                "lng": 31.748
+              },
+              {
+                "lat": 30.018,
+                "lng": 31.722
+              },
+              {
+                "lat": 30.015,
+                "lng": 31.722
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-03",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-03",
+          "zoneId": "zone-cbd",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.01525,
+                "lng": 31.6925
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-03",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-CBD-03",
+          "zoneId": "zone-cbd",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.015,
+                "lng": 31.722
+              },
+              {
+                "lat": 30.015,
+                "lng": 31.6925
+              },
+              {
+                "lat": 30.01525,
+                "lng": 31.6925
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-04",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-04",
+          "zoneId": "zone-res-2",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.0235,
+                "lng": 31.665
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-04",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-RES-2-04",
+          "zoneId": "zone-res-2",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.01525,
+                "lng": 31.6925
+              },
+              {
+                "lat": 30.01525,
+                "lng": 31.665
+              },
+              {
+                "lat": 30.0235,
+                "lng": 31.665
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-05",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-05",
+          "zoneId": "zone-just",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.0105,
+                "lng": 31.7695
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-05",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-JUST-05",
+          "zoneId": "zone-just",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.018,
+                "lng": 31.748
+              },
+              {
+                "lat": 30.0105,
+                "lng": 31.748
+              },
+              {
+                "lat": 30.0105,
+                "lng": 31.7695
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-06",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-06",
+          "zoneId": "zone-pres",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.03425,
+                "lng": 31.7515
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-06",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-PRES-06",
+          "zoneId": "zone-pres",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.018,
+                "lng": 31.748
+              },
+              {
+                "lat": 30.03425,
+                "lng": 31.748
+              },
+              {
+                "lat": 30.03425,
+                "lng": 31.7515
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-07",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-07",
+          "zoneId": "zone-res-n",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.04,
+                "lng": 31.7345
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-07",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-RES-N-07",
+          "zoneId": "zone-res-n",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.03425,
+                "lng": 31.7515
+              },
+              {
+                "lat": 30.04,
+                "lng": 31.7515
+              },
+              {
+                "lat": 30.04,
+                "lng": 31.7345
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-08",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-08",
+          "zoneId": "zone-res-ne",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.04,
+                "lng": 31.77
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-08",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-RES-NE-08",
+          "zoneId": "zone-res-ne",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.03425,
+                "lng": 31.7515
+              },
+              {
+                "lat": 30.04,
+                "lng": 31.7515
+              },
+              {
+                "lat": 30.04,
+                "lng": 31.77
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pump-09",
+          "network": "water",
+          "kind": "pump",
+          "name": "P-09",
+          "zoneId": "zone-res-far",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.057,
+                "lng": 31.776
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "water-pipe-09",
+          "network": "water",
+          "kind": "pipe",
+          "name": "Main WP-RES-FAR-09",
+          "zoneId": "zone-res-far",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.04,
+                "lng": 31.77
+              },
+              {
+                "lat": 30.057,
+                "lng": 31.77
+              },
+              {
+                "lat": 30.057,
+                "lng": 31.776
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "cool-plant-01",
+          "network": "cooling",
+          "kind": "plant",
+          "name": "DCP-01",
+          "zoneId": "zone-gov",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.01,
+                "lng": 31.757
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "cool-loop-01",
+          "network": "cooling",
+          "kind": "loop",
+          "name": "Loop CL-01",
+          "zoneId": "zone-gov",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.01,
+                "lng": 31.757
+              },
+              {
+                "lat": 30.014,
+                "lng": 31.757
+              },
+              {
+                "lat": 30.009,
+                "lng": 31.74
+              },
+              {
+                "lat": 30.009,
+                "lng": 31.764
+              },
+              {
+                "lat": 30.019,
+                "lng": 31.764
+              },
+              {
+                "lat": 30.019,
+                "lng": 31.74
+              },
+              {
+                "lat": 30.009,
+                "lng": 31.74
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "cool-loop-02",
+          "network": "cooling",
+          "kind": "loop",
+          "name": "Loop CL-02",
+          "zoneId": "zone-pres",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.01,
+                "lng": 31.757
+              },
+              {
+                "lat": 30.03025,
+                "lng": 31.757
+              },
+              {
+                "lat": 30.0265,
+                "lng": 31.75
+              },
+              {
+                "lat": 30.0265,
+                "lng": 31.761
+              },
+              {
+                "lat": 30.034,
+                "lng": 31.761
+              },
+              {
+                "lat": 30.034,
+                "lng": 31.75
+              },
+              {
+                "lat": 30.0265,
+                "lng": 31.75
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "cool-loop-03",
+          "network": "cooling",
+          "kind": "loop",
+          "name": "Loop CL-03",
+          "zoneId": "zone-just",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.01,
+                "lng": 31.757
+              },
+              {
+                "lat": 30.0065,
+                "lng": 31.757
+              },
+              {
+                "lat": 30.002,
+                "lng": 31.769
+              },
+              {
+                "lat": 30.002,
+                "lng": 31.778
+              },
+              {
+                "lat": 30.011,
+                "lng": 31.778
+              },
+              {
+                "lat": 30.011,
+                "lng": 31.769
+              },
+              {
+                "lat": 30.002,
+                "lng": 31.769
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "cool-plant-02",
+          "network": "cooling",
+          "kind": "plant",
+          "name": "DCP-02",
+          "zoneId": "zone-cbd",
+          "geometry": {
+            "type": "point",
+            "coordinates": [
+              {
+                "lat": 30.00725,
+                "lng": 31.7015
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "cool-loop-04",
+          "network": "cooling",
+          "kind": "loop",
+          "name": "Loop CL-04",
+          "zoneId": "zone-cbd",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.00725,
+                "lng": 31.7015
+              },
+              {
+                "lat": 30.01125,
+                "lng": 31.7015
+              },
+              {
+                "lat": 30.007,
+                "lng": 31.689
+              },
+              {
+                "lat": 30.007,
+                "lng": 31.704
+              },
+              {
+                "lat": 30.0155,
+                "lng": 31.704
+              },
+              {
+                "lat": 30.0155,
+                "lng": 31.689
+              },
+              {
+                "lat": 30.007,
+                "lng": 31.689
+              }
+            ]
+          },
+          "status": "normal"
+        },
+        {
+          "id": "cool-loop-05",
+          "network": "cooling",
+          "kind": "loop",
+          "name": "Loop CL-05",
+          "zoneId": "zone-cult",
+          "geometry": {
+            "type": "line",
+            "coordinates": [
+              {
+                "lat": 30.00725,
+                "lng": 31.7015
+              },
+              {
+                "lat": 30.011,
+                "lng": 31.7015
+              },
+              {
+                "lat": 30.007,
+                "lng": 31.718
+              },
+              {
+                "lat": 30.007,
+                "lng": 31.734
+              },
+              {
+                "lat": 30.015,
+                "lng": 31.734
+              },
+              {
+                "lat": 30.015,
+                "lng": 31.718
+              },
+              {
+                "lat": 30.007,
+                "lng": 31.718
+              }
+            ]
+          },
+          "status": "normal"
+        }
+      ],
+      "sensors": [
+        {
+          "id": "elec-sub-01-load",
+          "assetId": "elec-sub-01",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 47.0,
+            "max": 84.0
+          },
+          "position": {
+            "lat": 30.0195,
+            "lng": 31.684
+          }
+        },
+        {
+          "id": "elec-sub-01-voltage",
+          "assetId": "elec-sub-01",
+          "network": "electricity",
+          "kind": "voltage",
+          "unit": "kV",
+          "normalRange": {
+            "min": 20.48,
+            "max": 22.76
+          },
+          "position": {
+            "lat": 30.0195,
+            "lng": 31.684
+          }
+        },
+        {
+          "id": "elec-sub-02-load",
+          "assetId": "elec-sub-02",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 43.0,
+            "max": 82.0
+          },
+          "position": {
+            "lat": 30.0228,
+            "lng": 31.74
+          }
+        },
+        {
+          "id": "elec-sub-02-voltage",
+          "assetId": "elec-sub-02",
+          "network": "electricity",
+          "kind": "voltage",
+          "unit": "kV",
+          "normalRange": {
+            "min": 20.5,
+            "max": 22.82
+          },
+          "position": {
+            "lat": 30.0228,
+            "lng": 31.74
+          }
+        },
+        {
+          "id": "elec-sub-03-load",
+          "assetId": "elec-sub-03",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 25.47,
+            "max": 41.1
+          },
+          "position": {
+            "lat": 30.0385,
+            "lng": 31.752
+          }
+        },
+        {
+          "id": "elec-sub-03-voltage",
+          "assetId": "elec-sub-03",
+          "network": "electricity",
+          "kind": "voltage",
+          "unit": "kV",
+          "normalRange": {
+            "min": 20.93,
+            "max": 23.07
+          },
+          "position": {
+            "lat": 30.0385,
+            "lng": 31.752
+          }
+        },
+        {
+          "id": "elec-sub-04-load",
+          "assetId": "elec-sub-04",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 34.0,
+            "max": 57.0
+          },
+          "position": {
+            "lat": 30.027,
+            "lng": 31.779
+          }
+        },
+        {
+          "id": "elec-sub-04-voltage",
+          "assetId": "elec-sub-04",
+          "network": "electricity",
+          "kind": "voltage",
+          "unit": "kV",
+          "normalRange": {
+            "min": 20.78,
+            "max": 22.93
+          },
+          "position": {
+            "lat": 30.027,
+            "lng": 31.779
+          }
+        },
+        {
+          "id": "elec-feeder-01-load",
+          "assetId": "elec-feeder-01",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 15.24,
+            "max": 28.99
+          },
+          "position": {
+            "lat": 30.0165,
+            "lng": 31.666
+          }
+        },
+        {
+          "id": "elec-tx-01-temperature",
+          "assetId": "elec-tx-01",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 43.0,
+            "max": 60.0
+          },
+          "position": {
+            "lat": 30.0165,
+            "lng": 31.666
+          }
+        },
+        {
+          "id": "elec-feeder-02-load",
+          "assetId": "elec-feeder-02",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 32.0,
+            "max": 65.0
+          },
+          "position": {
+            "lat": 30.00825,
+            "lng": 31.6935
+          }
+        },
+        {
+          "id": "elec-tx-02-temperature",
+          "assetId": "elec-tx-02",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 53.0,
+            "max": 83.0
+          },
+          "position": {
+            "lat": 30.00825,
+            "lng": 31.6935
+          }
+        },
+        {
+          "id": "elec-feeder-03-load",
+          "assetId": "elec-feeder-03",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 28.0,
+            "max": 60.0
+          },
+          "position": {
+            "lat": 30.011,
+            "lng": 31.749
+          }
+        },
+        {
+          "id": "elec-tx-03-temperature",
+          "assetId": "elec-tx-03",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 50.0,
+            "max": 81.0
+          },
+          "position": {
+            "lat": 30.011,
+            "lng": 31.749
+          }
+        },
+        {
+          "id": "elec-feeder-04-load",
+          "assetId": "elec-feeder-04",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 15.28,
+            "max": 21.68
+          },
+          "position": {
+            "lat": 30.008,
+            "lng": 31.723
+          }
+        },
+        {
+          "id": "elec-tx-04-temperature",
+          "assetId": "elec-tx-04",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 43.0,
+            "max": 58.0
+          },
+          "position": {
+            "lat": 30.008,
+            "lng": 31.723
+          }
+        },
+        {
+          "id": "elec-feeder-05-load",
+          "assetId": "elec-feeder-05",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 11.48,
+            "max": 21.37
+          },
+          "position": {
+            "lat": 30.02725,
+            "lng": 31.7525
+          }
+        },
+        {
+          "id": "elec-tx-05-temperature",
+          "assetId": "elec-tx-05",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 41.0,
+            "max": 57.0
+          },
+          "position": {
+            "lat": 30.02725,
+            "lng": 31.7525
+          }
+        },
+        {
+          "id": "elec-feeder-06-load",
+          "assetId": "elec-feeder-06",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 13.81,
+            "max": 26.41
+          },
+          "position": {
+            "lat": 30.033,
+            "lng": 31.7355
+          }
+        },
+        {
+          "id": "elec-tx-06-temperature",
+          "assetId": "elec-tx-06",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 42.0,
+            "max": 58.0
+          },
+          "position": {
+            "lat": 30.033,
+            "lng": 31.7355
+          }
+        },
+        {
+          "id": "elec-feeder-07-load",
+          "assetId": "elec-feeder-07",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 11.1,
+            "max": 20.79
+          },
+          "position": {
+            "lat": 30.0035,
+            "lng": 31.7705
+          }
+        },
+        {
+          "id": "elec-tx-07-temperature",
+          "assetId": "elec-tx-07",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 40.0,
+            "max": 57.0
+          },
+          "position": {
+            "lat": 30.0035,
+            "lng": 31.7705
+          }
+        },
+        {
+          "id": "elec-feeder-08-load",
+          "assetId": "elec-feeder-08",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 11.87,
+            "max": 22.87
+          },
+          "position": {
+            "lat": 30.033,
+            "lng": 31.771
+          }
+        },
+        {
+          "id": "elec-tx-08-temperature",
+          "assetId": "elec-tx-08",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 41.0,
+            "max": 56.0
+          },
+          "position": {
+            "lat": 30.033,
+            "lng": 31.771
+          }
+        },
+        {
+          "id": "elec-feeder-09-load",
+          "assetId": "elec-feeder-09",
+          "network": "electricity",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 11.07,
+            "max": 21.12
+          },
+          "position": {
+            "lat": 30.05,
+            "lng": 31.777
+          }
+        },
+        {
+          "id": "elec-tx-09-temperature",
+          "assetId": "elec-tx-09",
+          "network": "electricity",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 40.0,
+            "max": 55.0
+          },
+          "position": {
+            "lat": 30.05,
+            "lng": 31.777
+          }
+        },
+        {
+          "id": "water-res-01-pressure",
+          "assetId": "water-res-01",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.17,
+            "max": 4.76
+          },
+          "position": {
+            "lat": 30.0228,
+            "lng": 31.733
+          }
+        },
+        {
+          "id": "water-res-01-flow",
+          "assetId": "water-res-01",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 1955.0,
+            "max": 5751.0
+          },
+          "position": {
+            "lat": 30.0228,
+            "lng": 31.733
+          }
+        },
+        {
+          "id": "water-pump-01-pressure",
+          "assetId": "water-pump-01",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.47,
+            "max": 4.92
+          },
+          "position": {
+            "lat": 30.018,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pump-01-flow",
+          "assetId": "water-pump-01",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 1961.0,
+            "max": 5745.0
+          },
+          "position": {
+            "lat": 30.018,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pipe-01-flow-in",
+          "assetId": "water-pipe-01",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 1963.0,
+            "max": 5730.0
+          },
+          "position": {
+            "lat": 30.0228,
+            "lng": 31.733
+          }
+        },
+        {
+          "id": "water-pipe-01-flow-out",
+          "assetId": "water-pipe-01",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 1965.0,
+            "max": 5749.0
+          },
+          "position": {
+            "lat": 30.018,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pipe-01-pressure",
+          "assetId": "water-pipe-01",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 3.94,
+            "max": 4.45
+          },
+          "position": {
+            "lat": 30.0228,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pump-02-pressure",
+          "assetId": "water-pump-02",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.48,
+            "max": 4.92
+          },
+          "position": {
+            "lat": 30.015,
+            "lng": 31.722
+          }
+        },
+        {
+          "id": "water-pump-02-flow",
+          "assetId": "water-pump-02",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 824.0,
+            "max": 2254.0
+          },
+          "position": {
+            "lat": 30.015,
+            "lng": 31.722
+          }
+        },
+        {
+          "id": "water-pipe-02-flow-in",
+          "assetId": "water-pipe-02",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 824.0,
+            "max": 2254.0
+          },
+          "position": {
+            "lat": 30.018,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pipe-02-flow-out",
+          "assetId": "water-pipe-02",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 826.0,
+            "max": 2253.0
+          },
+          "position": {
+            "lat": 30.015,
+            "lng": 31.722
+          }
+        },
+        {
+          "id": "water-pipe-02-pressure",
+          "assetId": "water-pipe-02",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.07,
+            "max": 4.5
+          },
+          "position": {
+            "lat": 30.018,
+            "lng": 31.722
+          }
+        },
+        {
+          "id": "water-pump-03-pressure",
+          "assetId": "water-pump-03",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.47,
+            "max": 4.92
+          },
+          "position": {
+            "lat": 30.01525,
+            "lng": 31.6925
+          }
+        },
+        {
+          "id": "water-pump-03-flow",
+          "assetId": "water-pump-03",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 518.0,
+            "max": 1685.0
+          },
+          "position": {
+            "lat": 30.01525,
+            "lng": 31.6925
+          }
+        },
+        {
+          "id": "water-pipe-03-flow-in",
+          "assetId": "water-pipe-03",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 513.0,
+            "max": 1684.0
+          },
+          "position": {
+            "lat": 30.015,
+            "lng": 31.722
+          }
+        },
+        {
+          "id": "water-pipe-03-flow-out",
+          "assetId": "water-pipe-03",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 517.0,
+            "max": 1681.0
+          },
+          "position": {
+            "lat": 30.01525,
+            "lng": 31.6925
+          }
+        },
+        {
+          "id": "water-pipe-03-pressure",
+          "assetId": "water-pipe-03",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.09,
+            "max": 4.52
+          },
+          "position": {
+            "lat": 30.015,
+            "lng": 31.6925
+          }
+        },
+        {
+          "id": "water-pump-04-pressure",
+          "assetId": "water-pump-04",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.47,
+            "max": 4.92
+          },
+          "position": {
+            "lat": 30.0235,
+            "lng": 31.665
+          }
+        },
+        {
+          "id": "water-pump-04-flow",
+          "assetId": "water-pump-04",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 203.0,
+            "max": 1017.0
+          },
+          "position": {
+            "lat": 30.0235,
+            "lng": 31.665
+          }
+        },
+        {
+          "id": "water-pipe-04-flow-in",
+          "assetId": "water-pipe-04",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 203.0,
+            "max": 1015.0
+          },
+          "position": {
+            "lat": 30.01525,
+            "lng": 31.6925
+          }
+        },
+        {
+          "id": "water-pipe-04-flow-out",
+          "assetId": "water-pipe-04",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 204.0,
+            "max": 1019.0
+          },
+          "position": {
+            "lat": 30.0235,
+            "lng": 31.665
+          }
+        },
+        {
+          "id": "water-pipe-04-pressure",
+          "assetId": "water-pipe-04",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.12,
+            "max": 4.54
+          },
+          "position": {
+            "lat": 30.01525,
+            "lng": 31.665
+          }
+        },
+        {
+          "id": "water-pump-05-pressure",
+          "assetId": "water-pump-05",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.47,
+            "max": 4.92
+          },
+          "position": {
+            "lat": 30.0105,
+            "lng": 31.7695
+          }
+        },
+        {
+          "id": "water-pump-05-flow",
+          "assetId": "water-pump-05",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 140.0,
+            "max": 674.0
+          },
+          "position": {
+            "lat": 30.0105,
+            "lng": 31.7695
+          }
+        },
+        {
+          "id": "water-pipe-05-flow-in",
+          "assetId": "water-pipe-05",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 140.0,
+            "max": 673.0
+          },
+          "position": {
+            "lat": 30.018,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pipe-05-flow-out",
+          "assetId": "water-pipe-05",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 140.0,
+            "max": 673.0
+          },
+          "position": {
+            "lat": 30.0105,
+            "lng": 31.7695
+          }
+        },
+        {
+          "id": "water-pipe-05-pressure",
+          "assetId": "water-pipe-05",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.13,
+            "max": 4.55
+          },
+          "position": {
+            "lat": 30.0105,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pump-06-pressure",
+          "assetId": "water-pump-06",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.48,
+            "max": 4.92
+          },
+          "position": {
+            "lat": 30.03425,
+            "lng": 31.7515
+          }
+        },
+        {
+          "id": "water-pump-06-flow",
+          "assetId": "water-pump-06",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 678.0,
+            "max": 2746.0
+          },
+          "position": {
+            "lat": 30.03425,
+            "lng": 31.7515
+          }
+        },
+        {
+          "id": "water-pipe-06-flow-in",
+          "assetId": "water-pipe-06",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 681.0,
+            "max": 2741.0
+          },
+          "position": {
+            "lat": 30.018,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pipe-06-flow-out",
+          "assetId": "water-pipe-06",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 680.0,
+            "max": 2749.0
+          },
+          "position": {
+            "lat": 30.03425,
+            "lng": 31.7515
+          }
+        },
+        {
+          "id": "water-pipe-06-pressure",
+          "assetId": "water-pipe-06",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.06,
+            "max": 4.52
+          },
+          "position": {
+            "lat": 30.03425,
+            "lng": 31.748
+          }
+        },
+        {
+          "id": "water-pump-07-pressure",
+          "assetId": "water-pump-07",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.48,
+            "max": 4.93
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.7345
+          }
+        },
+        {
+          "id": "water-pump-07-flow",
+          "assetId": "water-pump-07",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 182.0,
+            "max": 908.0
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.7345
+          }
+        },
+        {
+          "id": "water-pipe-07-flow-in",
+          "assetId": "water-pipe-07",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 182.0,
+            "max": 906.0
+          },
+          "position": {
+            "lat": 30.03425,
+            "lng": 31.7515
+          }
+        },
+        {
+          "id": "water-pipe-07-flow-out",
+          "assetId": "water-pipe-07",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 181.0,
+            "max": 907.0
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.7345
+          }
+        },
+        {
+          "id": "water-pipe-07-pressure",
+          "assetId": "water-pipe-07",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.12,
+            "max": 4.54
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.7515
+          }
+        },
+        {
+          "id": "water-pump-08-pressure",
+          "assetId": "water-pump-08",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.47,
+            "max": 4.93
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.77
+          }
+        },
+        {
+          "id": "water-pump-08-flow",
+          "assetId": "water-pump-08",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 324.0,
+            "max": 1613.0
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.77
+          }
+        },
+        {
+          "id": "water-pipe-08-flow-in",
+          "assetId": "water-pipe-08",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 325.0,
+            "max": 1621.0
+          },
+          "position": {
+            "lat": 30.03425,
+            "lng": 31.7515
+          }
+        },
+        {
+          "id": "water-pipe-08-flow-out",
+          "assetId": "water-pipe-08",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 324.0,
+            "max": 1614.0
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.77
+          }
+        },
+        {
+          "id": "water-pipe-08-pressure",
+          "assetId": "water-pipe-08",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.1,
+            "max": 4.53
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.7515
+          }
+        },
+        {
+          "id": "water-pump-09-pressure",
+          "assetId": "water-pump-09",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.47,
+            "max": 4.93
+          },
+          "position": {
+            "lat": 30.057,
+            "lng": 31.776
+          }
+        },
+        {
+          "id": "water-pump-09-flow",
+          "assetId": "water-pump-09",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 156.0,
+            "max": 781.0
+          },
+          "position": {
+            "lat": 30.057,
+            "lng": 31.776
+          }
+        },
+        {
+          "id": "water-pipe-09-flow-in",
+          "assetId": "water-pipe-09",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 156.0,
+            "max": 782.0
+          },
+          "position": {
+            "lat": 30.04,
+            "lng": 31.77
+          }
+        },
+        {
+          "id": "water-pipe-09-flow-out",
+          "assetId": "water-pipe-09",
+          "network": "water",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 157.0,
+            "max": 782.0
+          },
+          "position": {
+            "lat": 30.057,
+            "lng": 31.776
+          }
+        },
+        {
+          "id": "water-pipe-09-pressure",
+          "assetId": "water-pipe-09",
+          "network": "water",
+          "kind": "pressure",
+          "unit": "bar",
+          "normalRange": {
+            "min": 4.12,
+            "max": 4.55
+          },
+          "position": {
+            "lat": 30.057,
+            "lng": 31.77
+          }
+        },
+        {
+          "id": "cool-plant-01-supply-temp",
+          "assetId": "cool-plant-01",
+          "network": "cooling",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 5.71,
+            "max": 6.45
+          },
+          "position": {
+            "lat": 30.01,
+            "lng": 31.757
+          }
+        },
+        {
+          "id": "cool-plant-01-flow",
+          "assetId": "cool-plant-01",
+          "network": "cooling",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 1343.0,
+            "max": 6088.0
+          },
+          "position": {
+            "lat": 30.01,
+            "lng": 31.757
+          }
+        },
+        {
+          "id": "cool-plant-01-load",
+          "assetId": "cool-plant-01",
+          "network": "cooling",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 11.22,
+            "max": 50.67
+          },
+          "position": {
+            "lat": 30.01,
+            "lng": 31.757
+          }
+        },
+        {
+          "id": "cool-loop-01-return-temp",
+          "assetId": "cool-loop-01",
+          "network": "cooling",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 11.56,
+            "max": 12.84
+          },
+          "position": {
+            "lat": 30.019,
+            "lng": 31.764
+          }
+        },
+        {
+          "id": "cool-loop-01-flow",
+          "assetId": "cool-loop-01",
+          "network": "cooling",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 726.0,
+            "max": 3273.0
+          },
+          "position": {
+            "lat": 30.009,
+            "lng": 31.74
+          }
+        },
+        {
+          "id": "cool-loop-02-return-temp",
+          "assetId": "cool-loop-02",
+          "network": "cooling",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 11.19,
+            "max": 12.48
+          },
+          "position": {
+            "lat": 30.034,
+            "lng": 31.761
+          }
+        },
+        {
+          "id": "cool-loop-02-flow",
+          "assetId": "cool-loop-02",
+          "network": "cooling",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 311.0,
+            "max": 1399.0
+          },
+          "position": {
+            "lat": 30.0265,
+            "lng": 31.75
+          }
+        },
+        {
+          "id": "cool-loop-03-return-temp",
+          "assetId": "cool-loop-03",
+          "network": "cooling",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 11.21,
+            "max": 12.47
+          },
+          "position": {
+            "lat": 30.011,
+            "lng": 31.778
+          }
+        },
+        {
+          "id": "cool-loop-03-flow",
+          "assetId": "cool-loop-03",
+          "network": "cooling",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 312.0,
+            "max": 1399.0
+          },
+          "position": {
+            "lat": 30.002,
+            "lng": 31.769
+          }
+        },
+        {
+          "id": "cool-plant-02-supply-temp",
+          "assetId": "cool-plant-02",
+          "network": "cooling",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 5.71,
+            "max": 6.46
+          },
+          "position": {
+            "lat": 30.00725,
+            "lng": 31.7015
+          }
+        },
+        {
+          "id": "cool-plant-02-flow",
+          "assetId": "cool-plant-02",
+          "network": "cooling",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 1273.0,
+            "max": 4960.0
+          },
+          "position": {
+            "lat": 30.00725,
+            "lng": 31.7015
+          }
+        },
+        {
+          "id": "cool-plant-02-load",
+          "assetId": "cool-plant-02",
+          "network": "cooling",
+          "kind": "load",
+          "unit": "MW",
+          "normalRange": {
+            "min": 10.6,
+            "max": 41.24
+          },
+          "position": {
+            "lat": 30.00725,
+            "lng": 31.7015
+          }
+        },
+        {
+          "id": "cool-loop-04-return-temp",
+          "assetId": "cool-loop-04",
+          "network": "cooling",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 11.7,
+            "max": 13.08
+          },
+          "position": {
+            "lat": 30.0155,
+            "lng": 31.704
+          }
+        },
+        {
+          "id": "cool-loop-04-flow",
+          "assetId": "cool-loop-04",
+          "network": "cooling",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 830.0,
+            "max": 3747.0
+          },
+          "position": {
+            "lat": 30.007,
+            "lng": 31.689
+          }
+        },
+        {
+          "id": "cool-loop-05-return-temp",
+          "assetId": "cool-loop-05",
+          "network": "cooling",
+          "kind": "temperature",
+          "unit": "°C",
+          "normalRange": {
+            "min": 11.25,
+            "max": 12.57
+          },
+          "position": {
+            "lat": 30.015,
+            "lng": 31.734
+          }
+        },
+        {
+          "id": "cool-loop-05-flow",
+          "assetId": "cool-loop-05",
+          "network": "cooling",
+          "kind": "flow",
+          "unit": "m3/h",
+          "normalRange": {
+            "min": 442.0,
+            "max": 1243.0
+          },
+          "position": {
+            "lat": 30.007,
+            "lng": 31.718
+          }
+        }
+      ],
+      "links": [
+        {
+          "fromAsset": "elec-sub-01",
+          "toAsset": "elec-feeder-01",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-01",
+          "toAsset": "elec-tx-01",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-01",
+          "toAsset": "elec-feeder-02",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-02",
+          "toAsset": "elec-tx-02",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-02",
+          "toAsset": "elec-feeder-03",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-03",
+          "toAsset": "elec-tx-03",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-02",
+          "toAsset": "elec-feeder-04",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-04",
+          "toAsset": "elec-tx-04",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-03",
+          "toAsset": "elec-feeder-05",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-05",
+          "toAsset": "elec-tx-05",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-03",
+          "toAsset": "elec-feeder-06",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-06",
+          "toAsset": "elec-tx-06",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-04",
+          "toAsset": "elec-feeder-07",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-07",
+          "toAsset": "elec-tx-07",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-04",
+          "toAsset": "elec-feeder-08",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-08",
+          "toAsset": "elec-tx-08",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-04",
+          "toAsset": "elec-feeder-09",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-feeder-09",
+          "toAsset": "elec-tx-09",
+          "relation": "feeds"
+        },
+        {
+          "fromAsset": "elec-sub-02",
+          "toAsset": "water-res-01",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "elec-sub-02",
+          "toAsset": "water-pump-01",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-01",
+          "toAsset": "water-pump-01",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-res-01",
+          "toAsset": "water-pipe-01",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-02",
+          "toAsset": "water-pump-02",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-02",
+          "toAsset": "water-pump-02",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-pump-01",
+          "toAsset": "water-pipe-02",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-01",
+          "toAsset": "water-pump-03",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-03",
+          "toAsset": "water-pump-03",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-pump-02",
+          "toAsset": "water-pipe-03",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-01",
+          "toAsset": "water-pump-04",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-04",
+          "toAsset": "water-pump-04",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-pump-03",
+          "toAsset": "water-pipe-04",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-04",
+          "toAsset": "water-pump-05",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-05",
+          "toAsset": "water-pump-05",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-pump-01",
+          "toAsset": "water-pipe-05",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-03",
+          "toAsset": "water-pump-06",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-06",
+          "toAsset": "water-pump-06",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-pump-01",
+          "toAsset": "water-pipe-06",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-03",
+          "toAsset": "water-pump-07",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-07",
+          "toAsset": "water-pump-07",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-pump-06",
+          "toAsset": "water-pipe-07",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-04",
+          "toAsset": "water-pump-08",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-08",
+          "toAsset": "water-pump-08",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-pump-06",
+          "toAsset": "water-pipe-08",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-04",
+          "toAsset": "water-pump-09",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "water-pipe-09",
+          "toAsset": "water-pump-09",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "water-pump-08",
+          "toAsset": "water-pipe-09",
+          "relation": "supplies"
+        },
+        {
+          "fromAsset": "elec-sub-02",
+          "toAsset": "cool-plant-01",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "cool-plant-01",
+          "toAsset": "cool-loop-01",
+          "relation": "cools"
+        },
+        {
+          "fromAsset": "cool-plant-01",
+          "toAsset": "cool-loop-02",
+          "relation": "cools"
+        },
+        {
+          "fromAsset": "cool-plant-01",
+          "toAsset": "cool-loop-03",
+          "relation": "cools"
+        },
+        {
+          "fromAsset": "elec-sub-01",
+          "toAsset": "cool-plant-02",
+          "relation": "powers"
+        },
+        {
+          "fromAsset": "cool-plant-02",
+          "toAsset": "cool-loop-04",
+          "relation": "cools"
+        },
+        {
+          "fromAsset": "cool-plant-02",
+          "toAsset": "cool-loop-05",
+          "relation": "cools"
+        }
+      ]
+    },
+    "latest": [
+      {
+        "sensorId": "elec-sub-01-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 65.5,
+        "quality": "ok",
+        "forecast": 65.5
+      },
+      {
+        "sensorId": "elec-sub-01-voltage",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 21.98,
+        "quality": "ok",
+        "forecast": 21.62
+      },
+      {
+        "sensorId": "elec-sub-02-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 63.64,
+        "quality": "ok",
+        "forecast": 62.5
+      },
+      {
+        "sensorId": "elec-sub-02-voltage",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 21.72,
+        "quality": "ok",
+        "forecast": 21.66
+      },
+      {
+        "sensorId": "elec-sub-03-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 32.78,
+        "quality": "ok",
+        "forecast": 33.28
+      },
+      {
+        "sensorId": "elec-sub-03-voltage",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 21.58,
+        "quality": "ok",
+        "forecast": 22.0
+      },
+      {
+        "sensorId": "elec-sub-04-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 45.25,
+        "quality": "ok",
+        "forecast": 45.5
+      },
+      {
+        "sensorId": "elec-sub-04-voltage",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 22.15,
+        "quality": "ok",
+        "forecast": 21.86
+      },
+      {
+        "sensorId": "elec-feeder-01-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 22.55,
+        "quality": "ok",
+        "forecast": 22.11
+      },
+      {
+        "sensorId": "elec-tx-01-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 51.92,
+        "quality": "ok",
+        "forecast": 51.5
+      },
+      {
+        "sensorId": "elec-feeder-02-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 47.97,
+        "quality": "ok",
+        "forecast": 48.5
+      },
+      {
+        "sensorId": "elec-tx-02-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 66.64,
+        "quality": "ok",
+        "forecast": 68.0
+      },
+      {
+        "sensorId": "elec-feeder-03-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 43.53,
+        "quality": "ok",
+        "forecast": 44.0
+      },
+      {
+        "sensorId": "elec-tx-03-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 66.05,
+        "quality": "ok",
+        "forecast": 65.5
+      },
+      {
+        "sensorId": "elec-feeder-04-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 18.85,
+        "quality": "ok",
+        "forecast": 18.48
+      },
+      {
+        "sensorId": "elec-tx-04-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 51.16,
+        "quality": "ok",
+        "forecast": 50.5
+      },
+      {
+        "sensorId": "elec-feeder-05-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 16.34,
+        "quality": "ok",
+        "forecast": 16.43
+      },
+      {
+        "sensorId": "elec-tx-05-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 48.06,
+        "quality": "ok",
+        "forecast": 49.0
+      },
+      {
+        "sensorId": "elec-feeder-06-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 19.81,
+        "quality": "ok",
+        "forecast": 20.11
+      },
+      {
+        "sensorId": "elec-tx-06-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 50.15,
+        "quality": "ok",
+        "forecast": 50.0
+      },
+      {
+        "sensorId": "elec-feeder-07-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 16.24,
+        "quality": "ok",
+        "forecast": 15.95
+      },
+      {
+        "sensorId": "elec-tx-07-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 49.31,
+        "quality": "ok",
+        "forecast": 48.5
+      },
+      {
+        "sensorId": "elec-feeder-08-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 17.37,
+        "quality": "ok",
+        "forecast": 17.37
+      },
+      {
+        "sensorId": "elec-tx-08-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 47.68,
+        "quality": "ok",
+        "forecast": 48.5
+      },
+      {
+        "sensorId": "elec-feeder-09-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 15.8,
+        "quality": "ok",
+        "forecast": 16.09
+      },
+      {
+        "sensorId": "elec-tx-09-temperature",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 47.37,
+        "quality": "ok",
+        "forecast": 47.5
+      },
+      {
+        "sensorId": "water-res-01-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.53,
+        "quality": "ok",
+        "forecast": 4.46
+      },
+      {
+        "sensorId": "water-res-01-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 3926.7,
+        "quality": "ok",
+        "forecast": 3853.0
+      },
+      {
+        "sensorId": "water-pump-01-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.73,
+        "quality": "ok",
+        "forecast": 4.7
+      },
+      {
+        "sensorId": "water-pump-01-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 3801.86,
+        "quality": "ok",
+        "forecast": 3853.0
+      },
+      {
+        "sensorId": "water-pipe-01-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 3770.49,
+        "quality": "ok",
+        "forecast": 3846.5
+      },
+      {
+        "sensorId": "water-pipe-01-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 3825.83,
+        "quality": "ok",
+        "forecast": 3857.0
+      },
+      {
+        "sensorId": "water-pipe-01-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.25,
+        "quality": "ok",
+        "forecast": 4.2
+      },
+      {
+        "sensorId": "water-pump-02-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.79,
+        "quality": "ok",
+        "forecast": 4.7
+      },
+      {
+        "sensorId": "water-pump-02-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1555.29,
+        "quality": "ok",
+        "forecast": 1539.0
+      },
+      {
+        "sensorId": "water-pipe-02-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1525.82,
+        "quality": "ok",
+        "forecast": 1539.0
+      },
+      {
+        "sensorId": "water-pipe-02-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1508.96,
+        "quality": "ok",
+        "forecast": 1539.5
+      },
+      {
+        "sensorId": "water-pipe-02-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.23,
+        "quality": "ok",
+        "forecast": 4.29
+      },
+      {
+        "sensorId": "water-pump-03-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.73,
+        "quality": "ok",
+        "forecast": 4.7
+      },
+      {
+        "sensorId": "water-pump-03-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1122.73,
+        "quality": "ok",
+        "forecast": 1101.5
+      },
+      {
+        "sensorId": "water-pipe-03-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1114.87,
+        "quality": "ok",
+        "forecast": 1098.5
+      },
+      {
+        "sensorId": "water-pipe-03-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1095.51,
+        "quality": "ok",
+        "forecast": 1099.0
+      },
+      {
+        "sensorId": "water-pipe-03-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.22,
+        "quality": "ok",
+        "forecast": 4.3
+      },
+      {
+        "sensorId": "water-pump-04-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.62,
+        "quality": "ok",
+        "forecast": 4.7
+      },
+      {
+        "sensorId": "water-pump-04-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 610.22,
+        "quality": "ok",
+        "forecast": 610.0
+      },
+      {
+        "sensorId": "water-pipe-04-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 619.36,
+        "quality": "ok",
+        "forecast": 609.0
+      },
+      {
+        "sensorId": "water-pipe-04-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 622.53,
+        "quality": "ok",
+        "forecast": 611.5
+      },
+      {
+        "sensorId": "water-pipe-04-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.34,
+        "quality": "ok",
+        "forecast": 4.33
+      },
+      {
+        "sensorId": "water-pump-05-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.63,
+        "quality": "ok",
+        "forecast": 4.7
+      },
+      {
+        "sensorId": "water-pump-05-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 399.24,
+        "quality": "ok",
+        "forecast": 407.0
+      },
+      {
+        "sensorId": "water-pipe-05-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 404.37,
+        "quality": "ok",
+        "forecast": 406.5
+      },
+      {
+        "sensorId": "water-pipe-05-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 411.95,
+        "quality": "ok",
+        "forecast": 406.5
+      },
+      {
+        "sensorId": "water-pipe-05-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.43,
+        "quality": "ok",
+        "forecast": 4.34
+      },
+      {
+        "sensorId": "water-pump-06-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.74,
+        "quality": "ok",
+        "forecast": 4.7
+      },
+      {
+        "sensorId": "water-pump-06-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1692.87,
+        "quality": "ok",
+        "forecast": 1712.0
+      },
+      {
+        "sensorId": "water-pipe-06-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1676.79,
+        "quality": "ok",
+        "forecast": 1711.0
+      },
+      {
+        "sensorId": "water-pipe-06-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 1696.62,
+        "quality": "ok",
+        "forecast": 1714.5
+      },
+      {
+        "sensorId": "water-pipe-06-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.33,
+        "quality": "ok",
+        "forecast": 4.29
+      },
+      {
+        "sensorId": "water-pump-07-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.8,
+        "quality": "ok",
+        "forecast": 4.71
+      },
+      {
+        "sensorId": "water-pump-07-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 551.94,
+        "quality": "ok",
+        "forecast": 545.0
+      },
+      {
+        "sensorId": "water-pipe-07-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 540.68,
+        "quality": "ok",
+        "forecast": 544.0
+      },
+      {
+        "sensorId": "water-pipe-07-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 533.49,
+        "quality": "ok",
+        "forecast": 544.0
+      },
+      {
+        "sensorId": "water-pipe-07-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.27,
+        "quality": "ok",
+        "forecast": 4.33
+      },
+      {
+        "sensorId": "water-pump-08-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.72,
+        "quality": "ok",
+        "forecast": 4.7
+      },
+      {
+        "sensorId": "water-pump-08-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 986.32,
+        "quality": "ok",
+        "forecast": 968.5
+      },
+      {
+        "sensorId": "water-pipe-08-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 989.09,
+        "quality": "ok",
+        "forecast": 973.0
+      },
+      {
+        "sensorId": "water-pipe-08-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 968.49,
+        "quality": "ok",
+        "forecast": 969.0
+      },
+      {
+        "sensorId": "water-pipe-08-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.24,
+        "quality": "ok",
+        "forecast": 4.31
+      },
+      {
+        "sensorId": "water-pump-09-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.62,
+        "quality": "ok",
+        "forecast": 4.7
+      },
+      {
+        "sensorId": "water-pump-09-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 467.42,
+        "quality": "ok",
+        "forecast": 468.5
+      },
+      {
+        "sensorId": "water-pipe-09-flow-in",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 476.26,
+        "quality": "ok",
+        "forecast": 469.0
+      },
+      {
+        "sensorId": "water-pipe-09-flow-out",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 478.43,
+        "quality": "ok",
+        "forecast": 469.5
+      },
+      {
+        "sensorId": "water-pipe-09-pressure",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 4.35,
+        "quality": "ok",
+        "forecast": 4.33
+      },
+      {
+        "sensorId": "cool-plant-01-supply-temp",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 6.0,
+        "quality": "ok",
+        "forecast": 6.08
+      },
+      {
+        "sensorId": "cool-plant-01-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 3642.29,
+        "quality": "ok",
+        "forecast": 3715.5
+      },
+      {
+        "sensorId": "cool-plant-01-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 30.71,
+        "quality": "ok",
+        "forecast": 30.95
+      },
+      {
+        "sensorId": "cool-loop-01-return-temp",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 12.34,
+        "quality": "ok",
+        "forecast": 12.2
+      },
+      {
+        "sensorId": "cool-loop-01-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 2039.47,
+        "quality": "ok",
+        "forecast": 1999.5
+      },
+      {
+        "sensorId": "cool-loop-02-return-temp",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 11.96,
+        "quality": "ok",
+        "forecast": 11.84
+      },
+      {
+        "sensorId": "cool-loop-02-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 847.41,
+        "quality": "ok",
+        "forecast": 855.0
+      },
+      {
+        "sensorId": "cool-loop-03-return-temp",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 11.6,
+        "quality": "ok",
+        "forecast": 11.84
+      },
+      {
+        "sensorId": "cool-loop-03-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 844.72,
+        "quality": "ok",
+        "forecast": 855.5
+      },
+      {
+        "sensorId": "cool-plant-02-supply-temp",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 6.12,
+        "quality": "ok",
+        "forecast": 6.08
+      },
+      {
+        "sensorId": "cool-plant-02-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 3176.86,
+        "quality": "ok",
+        "forecast": 3116.5
+      },
+      {
+        "sensorId": "cool-plant-02-load",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 26.3,
+        "quality": "ok",
+        "forecast": 25.92
+      },
+      {
+        "sensorId": "cool-loop-04-return-temp",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 12.35,
+        "quality": "ok",
+        "forecast": 12.39
+      },
+      {
+        "sensorId": "cool-loop-04-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 2246.23,
+        "quality": "ok",
+        "forecast": 2288.5
+      },
+      {
+        "sensorId": "cool-loop-05-return-temp",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 11.71,
+        "quality": "ok",
+        "forecast": 11.91
+      },
+      {
+        "sensorId": "cool-loop-05-flow",
+        "timestamp": "2026-10-28T11:30:00Z",
+        "value": 843.1,
+        "quality": "ok",
+        "forecast": 842.5
+      }
+    ],
+    "assets": [
+      {
+        "assetId": "elec-sub-01",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-sub-02",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-sub-03",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-sub-04",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-01",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-01",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-02",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-02",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-03",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-03",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-04",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-04",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-05",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-05",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-06",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-06",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-07",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-07",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-08",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-08",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-feeder-09",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "elec-tx-09",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-res-01",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-01",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-01",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-02",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-02",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-03",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-03",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-04",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-04",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-05",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-05",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-06",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-06",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-07",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-07",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-08",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-08",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pump-09",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "water-pipe-09",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "cool-plant-01",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "cool-loop-01",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "cool-loop-02",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "cool-loop-03",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "cool-plant-02",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "cool-loop-04",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      },
+      {
+        "assetId": "cool-loop-05",
+        "status": "normal",
+        "healthScore": 92.0,
+        "failureProbability": 0.03
+      }
+    ],
+    "alerts": [],
+    "incidents": [],
+    "findings": [],
+    "scenarios": [],
+    "llm": "live"
+  }
+}

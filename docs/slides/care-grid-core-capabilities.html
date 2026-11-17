@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Care Grid core capabilities</title>
+<style>
+  :root { --bg:#f7f5f1; --ink:#2a2926; --muted:#6d6a63; --card:#fdfbf7; --line:#d8d3c8; --navy:#0e2142; --gold:#b98a2c; --loop:#e2efe3; --loop-line:#3f7a47; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); }
+  body { width:1280px; height:720px; position:relative; overflow:hidden; color:var(--ink); font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; }
+  h1 { position:absolute; left:86px; top:52px; margin:0; font-size:36px; line-height:1.1; font-weight:700; letter-spacing:-0.2px; }
+  .sub { position:absolute; left:86px; top:108px; margin:0; font-size:17px; color:var(--muted); }
+  .cap { position:absolute; width:353px; height:212px; background:var(--card); border:2px solid var(--line); border-left:7px solid var(--navy); border-radius:12px; padding:18px 22px 0 20px; }
+  .cap.g { border-left-color:var(--gold); }
+  .cap h3 { margin:0 0 2px; font-size:22px; color:var(--navy); }
+  .cap .one { margin:0 0 10px; font-size:14px; color:var(--muted); }
+  .cap ul { margin:0; padding-left:18px; font-size:15.5px; line-height:1.5; }
+  .r1 { top:160px; } .r2 { top:388px; }
+  .c1 { left:86px; } .c2 { left:463px; } .c3 { left:841px; }
+  .link { position:absolute; left:86px; top:622px; width:1108px; height:50px; border:2px solid var(--loop-line); background:var(--loop); border-radius:10px; display:flex; align-items:center; padding:0 22px; font-size:15.5px; color:#1f4d27; }
+  .link b { margin-right:10px; }
+</style>
+</head>
+<body>
+  <h1>Core capabilities</h1>
+  <p class="sub">What Care Grid can do today, for the capital's water, electricity and cooling</p>
+
+  <div class="cap r1 c1"><h3>See</h3><p class="one">One live twin</p>
+    <ul><li>3 networks in one model</li><li>9 districts, 48 assets, 89 sensors</li><li>Flags a stuck or drifting sensor</li></ul></div>
+  <div class="cap r1 c2"><h3>Detect</h3><p class="one">From a reading to an incident</p>
+    <ul><li>7 kinds of fault</li><li>One root cause, one incident</li><li>Finds which pipe is leaking</li></ul></div>
+  <div class="cap r1 c3"><h3>Predict</h3><p class="one">Before it costs</p>
+    <ul><li>Demand 24 to 72 hours ahead</li><li>Warns while a worn pump still runs</li><li>Each warning says why</li></ul></div>
+
+  <div class="cap r2 c1 g"><h3>Price</h3><p class="one">Every decision in EGP</p>
+    <ul><li>Cost of waiting, per hour</li><li>A range, P10 to P90</li><li>Assumptions with a basis, editable</li></ul></div>
+  <div class="cap r2 c2 g"><h3>Decide</h3><p class="one">A person stays in charge</p>
+    <ul><li>Cheapest crew order proposed</li><li>Approve, change or reject</li><li>15 what-if scenarios to rehearse</li></ul></div>
+  <div class="cap r2 c3 g"><h3>Explain and prove</h3><p class="one">Nothing taken on trust</p>
+    <ul><li>Agents answer in Arabic and English</li><li>Every figure checked or removed</li><li>Hash-chained decision log</li></ul></div>
+
+  <div class="link"><b>Plus:</b> "Build here?" tests a hospital site, and a link to the healthcare project puts outage cost beside environmental stress.</div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "type": "audit_entry",
+  "payload": {
+    "seq": 5,
+    "at": "2026-10-28T11:30:42Z",
+    "run": "run-20261028-080000",
+    "actor": "dispatch",
+    "action": "crew_dispatched",
+    "sessionId": "board-0001",
+    "subject": "alert-0003",
+    "detail": "Crew 2 started on DCP-01: Start the standby chiller and repair the faulty one.",
+    "data": {
+      "crew": 2.0,
+      "plan_hour": 1.0
+    },
+    "prevHash": "9384ace4ddfe26d9d8d8096531d9878aabf4012b536f313f37412071711d3448",
+    "hash": "75ed9eef2e121e03066ae4c3208365770dd513a51be09d12d4ec4598e1253006"
+  }
+}

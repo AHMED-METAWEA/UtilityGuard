@@ -1,0 +1,286 @@
+{
+  "detectorId": "d4",
+  "leakM3H": 60.0,
+  "runsPerAsset": 18,
+  "baselineDetectionRate": 1.0,
+  "baselineDelayMin": 4.0,
+  "baselineLocalizationTop1": 1.0,
+  "hourlyCost": 2049.44,
+  "rows": [
+    {
+      "assetId": "water-pipe-01",
+      "name": "Main WP-GOV-01",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-01-flow-in",
+        "water-pipe-01-flow-out",
+        "water-pipe-01-pressure"
+      ],
+      "detectionRate": 0.889,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 12.94,
+      "extraCost": 442.15,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pipe-06",
+      "name": "Main WP-PRES-06",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-06-flow-in",
+        "water-pipe-06-flow-out",
+        "water-pipe-06-pressure"
+      ],
+      "detectionRate": 0.889,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 12.89,
+      "extraCost": 440.25,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pipe-07",
+      "name": "Main WP-RES-N-07",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-07-flow-in",
+        "water-pipe-07-flow-out",
+        "water-pipe-07-pressure"
+      ],
+      "detectionRate": 0.889,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 12.89,
+      "extraCost": 440.25,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pipe-09",
+      "name": "Main WP-RES-FAR-09",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-09-flow-in",
+        "water-pipe-09-flow-out",
+        "water-pipe-09-pressure"
+      ],
+      "detectionRate": 0.889,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 12.89,
+      "extraCost": 440.25,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pipe-08",
+      "name": "Main WP-RES-NE-08",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-08-flow-in",
+        "water-pipe-08-flow-out",
+        "water-pipe-08-pressure"
+      ],
+      "detectionRate": 0.889,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 12.78,
+      "extraCost": 436.46,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pipe-02",
+      "name": "Main WP-CULT-02",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-02-flow-in",
+        "water-pipe-02-flow-out",
+        "water-pipe-02-pressure"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 3.83,
+      "extraCost": 130.94,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pipe-04",
+      "name": "Main WP-RES-2-04",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-04-flow-in",
+        "water-pipe-04-flow-out",
+        "water-pipe-04-pressure"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 2.44,
+      "extraCost": 83.5,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pipe-03",
+      "name": "Main WP-CBD-03",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-03-flow-in",
+        "water-pipe-03-flow-out",
+        "water-pipe-03-pressure"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.72,
+      "extraCost": 24.67,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pipe-05",
+      "name": "Main WP-JUST-05",
+      "kind": "pipe",
+      "sensors": [
+        "water-pipe-05-flow-in",
+        "water-pipe-05-flow-out",
+        "water-pipe-05-pressure"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.67,
+      "extraCost": 22.77,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-07",
+      "name": "P-07",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-07-pressure",
+        "water-pump-07-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.11,
+      "extraCost": 3.8,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-res-01",
+      "name": "RES-01",
+      "kind": "reservoir",
+      "sensors": [
+        "water-res-01-pressure",
+        "water-res-01-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.06,
+      "extraCost": 1.9,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-01",
+      "name": "P-01",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-01-pressure",
+        "water-pump-01-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.0,
+      "extraCost": 0.0,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-02",
+      "name": "P-02",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-02-pressure",
+        "water-pump-02-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.0,
+      "extraCost": 0.0,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-03",
+      "name": "P-03",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-03-pressure",
+        "water-pump-03-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.0,
+      "extraCost": 0.0,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-04",
+      "name": "P-04",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-04-pressure",
+        "water-pump-04-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.0,
+      "extraCost": 0.0,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-05",
+      "name": "P-05",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-05-pressure",
+        "water-pump-05-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.0,
+      "extraCost": 0.0,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-06",
+      "name": "P-06",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-06-pressure",
+        "water-pump-06-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.0,
+      "extraCost": 0.0,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-08",
+      "name": "P-08",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-08-pressure",
+        "water-pump-08-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.0,
+      "extraCost": 0.0,
+      "localizationTop1": 1.0
+    },
+    {
+      "assetId": "water-pump-09",
+      "name": "P-09",
+      "kind": "pump",
+      "sensors": [
+        "water-pump-09-pressure",
+        "water-pump-09-flow"
+      ],
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0,
+      "extraDelayMin": 0.0,
+      "extraCost": 0.0,
+      "localizationTop1": 1.0
+    }
+  ]
+}

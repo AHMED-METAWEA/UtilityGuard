@@ -1,0 +1,34 @@
+{
+  "method": "Residual signatures: one leak on one pipe plus a demand-error term, ranked by the share of the residual explained",
+  "sensorsUsed": 89,
+  "sensorsTotal": 89,
+  "demandErrorPct": 0.2,
+  "candidates": [
+    {
+      "rank": 1,
+      "assetId": "water-pipe-01",
+      "name": "Main WP-GOV-01",
+      "zoneId": "zone-gov",
+      "score": 0.999,
+      "leakM3H": 167.4
+    },
+    {
+      "rank": 2,
+      "assetId": "water-pipe-09",
+      "name": "Main WP-RES-FAR-09",
+      "zoneId": "zone-res-far",
+      "score": 0.002,
+      "leakM3H": 2.7
+    },
+    {
+      "rank": 3,
+      "assetId": "water-pipe-02",
+      "name": "Main WP-CULT-02",
+      "zoneId": "zone-cult",
+      "score": 0.002,
+      "leakM3H": 2.7
+    }
+  ],
+  "ambiguous": false,
+  "incidentId": "inc-0001"
+}

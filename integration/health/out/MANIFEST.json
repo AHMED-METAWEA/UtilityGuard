@@ -1,0 +1,62 @@
+{
+ "seed": 42,
+ "at": "2026-11-01T08:00:00+00:00",
+ "warm_ticks": 60,
+ "assets": 24,
+ "assumptions": "registered defaults (backend/app/cost/__init__.py DEFAULTS), no saved override",
+ "budget_m_egp": 15.0,
+ "environment_month": "2026-09",
+ "written_at": "2026-11-04T18:32:23.611378+00:00",
+ "git_commit": "bffb98f",
+ "simulated": true,
+ "files": {
+  "scenarios.csv": {
+   "rows": 24,
+   "sha256": "a14e84741b6283c3842d581cb9ecd88f12c90aa0fcf2279d923f69a8a687f2a0"
+  },
+  "scenario_zones.csv": {
+   "rows": 31,
+   "sha256": "300b2e31e2ae3c8adf3958e516700a8609266b78612f55da70a5d06e604cc1aa"
+  },
+  "district_risk.csv": {
+   "rows": 15,
+   "sha256": "37f05ae2a45598eec2bc4c42bc3f93214bd5b63bd7cfc8d0eb9fa5c3f17ce280"
+  },
+  "hospital_exposure.csv": {
+   "rows": 95,
+   "sha256": "94e979ddd867d201f2e86fd4ad090f2c7368619a983e3bd5444edb0b554e346a"
+  },
+  "joint_decision.csv": {
+   "rows": 15,
+   "sha256": "08577651702da2a0780843f1f943e08a04966f0fb16727c16f08ce4898c019fa"
+  },
+  "districts_on_twin_map.csv": {
+   "rows": 15,
+   "sha256": "67885eb8ff4920ac4746cf07d358dd50cbebe6541af71903ab5a9976b9dbac51"
+  },
+  "reliability_packages.csv": {
+   "rows": 24,
+   "sha256": "d69690cf8814b846de27ca8ddd6784b551141ce861388883a06db1d020d96d74"
+  },
+  "district_zone_worst.csv": {
+   "rows": 31,
+   "sha256": "b6243ed10b3cf055052bb85ea4c1b43aa5013594f120888f602a3fb865b6d170"
+  },
+  "zone_mapping.csv": {
+   "rows": 15,
+   "sha256": "9dd50422269f73afaeaf52a81a01423b39aa325f8217002fc589ef7b10ae7348"
+  },
+  "packages.csv": {
+   "rows": 4,
+   "sha256": "a416a7c20e486d927751a3d25aed6f71b59972823c49241487069180dc1f9e01"
+  },
+  "cost_explanations.json": {
+   "rows": 24,
+   "sha256": "92069376ca1aa3131b27ec4ac7714dd515d601e3f129e12d5ed6ccbcc5cc0395"
+  },
+  "their_packages.csv": {
+   "rows": 15,
+   "sha256": "6e185f408cc4b51b2ae310d3939b020601ebb94e160f92743ad19d14e70ca94e"
+  }
+ }
+}

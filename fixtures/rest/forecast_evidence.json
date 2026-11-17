@@ -1,0 +1,504 @@
+{
+  "network": "water",
+  "unit": "m3/h",
+  "trainDays": 260,
+  "testDays": 10,
+  "points": 480,
+  "trainedThrough": "2026-10-31T21:00:00Z",
+  "weatherErrorC": 1.0,
+  "model": {
+    "mae": 91.87,
+    "rmse": 118.21,
+    "mape": 2.455,
+    "bias": 0.39
+  },
+  "baselines": [
+    {
+      "name": "Same hour yesterday",
+      "mae": 377.992,
+      "mape": 9.563
+    },
+    {
+      "name": "Same hour last week",
+      "mae": 259.972,
+      "mape": 6.72
+    },
+    {
+      "name": "Average of both",
+      "mae": 301.029,
+      "mape": 7.673
+    }
+  ],
+  "skill": 0.647,
+  "coverage": 0.95,
+  "nominal": 0.8,
+  "byHour": [
+    {
+      "hour": 0,
+      "mape": 2.69
+    },
+    {
+      "hour": 1,
+      "mape": 2.49
+    },
+    {
+      "hour": 2,
+      "mape": 2.3
+    },
+    {
+      "hour": 3,
+      "mape": 2.18
+    },
+    {
+      "hour": 4,
+      "mape": 2.29
+    },
+    {
+      "hour": 5,
+      "mape": 2.26
+    },
+    {
+      "hour": 6,
+      "mape": 2.46
+    },
+    {
+      "hour": 7,
+      "mape": 2.57
+    },
+    {
+      "hour": 8,
+      "mape": 2.68
+    },
+    {
+      "hour": 9,
+      "mape": 2.62
+    },
+    {
+      "hour": 10,
+      "mape": 2.33
+    },
+    {
+      "hour": 11,
+      "mape": 2.61
+    },
+    {
+      "hour": 12,
+      "mape": 2.37
+    },
+    {
+      "hour": 13,
+      "mape": 2.27
+    },
+    {
+      "hour": 14,
+      "mape": 2.47
+    },
+    {
+      "hour": 15,
+      "mape": 2.46
+    },
+    {
+      "hour": 16,
+      "mape": 2.18
+    },
+    {
+      "hour": 17,
+      "mape": 2.37
+    },
+    {
+      "hour": 18,
+      "mape": 2.53
+    },
+    {
+      "hour": 19,
+      "mape": 2.82
+    },
+    {
+      "hour": 20,
+      "mape": 2.59
+    },
+    {
+      "hour": 21,
+      "mape": 2.57
+    },
+    {
+      "hour": 22,
+      "mape": 2.52
+    },
+    {
+      "hour": 23,
+      "mape": 2.29
+    }
+  ],
+  "scenario": {
+    "days": 4,
+    "mape": 1.71,
+    "mapeBlind": 12.21
+  },
+  "liveCorrection": {
+    "tauHours": 16.0,
+    "maeWithout": 88.495,
+    "maeWith": 78.0
+  },
+  "zones": [
+    {
+      "zoneId": "zone-cbd",
+      "name": "Central Business District",
+      "mae": 13.472,
+      "rmse": 19.021,
+      "mape": 2.64
+    },
+    {
+      "zoneId": "zone-cult",
+      "name": "Arts and Culture City",
+      "mae": 11.655,
+      "rmse": 14.594,
+      "mape": 2.86
+    },
+    {
+      "zoneId": "zone-gov",
+      "name": "Government District",
+      "mae": 11.38,
+      "rmse": 16.49,
+      "mape": 2.59
+    },
+    {
+      "zoneId": "zone-just",
+      "name": "Justice City",
+      "mae": 6.891,
+      "rmse": 9.499,
+      "mape": 2.69
+    },
+    {
+      "zoneId": "zone-pres",
+      "name": "Presidential District",
+      "mae": 6.777,
+      "rmse": 9.437,
+      "mape": 2.62
+    },
+    {
+      "zoneId": "zone-res-2",
+      "name": "Residential R2",
+      "mae": 17.143,
+      "rmse": 23.007,
+      "mape": 3.12
+    },
+    {
+      "zoneId": "zone-res-far",
+      "name": "Residential Far North-East",
+      "mae": 12.477,
+      "rmse": 17.132,
+      "mape": 2.95
+    },
+    {
+      "zoneId": "zone-res-n",
+      "name": "Residential North",
+      "mae": 14.598,
+      "rmse": 19.827,
+      "mape": 2.98
+    },
+    {
+      "zoneId": "zone-res-ne",
+      "name": "Residential North-East",
+      "mae": 13.486,
+      "rmse": 18.552,
+      "mape": 2.97
+    }
+  ],
+  "importances": [
+    {
+      "feature": "same_hour_last_week",
+      "importance": 0.689
+    },
+    {
+      "feature": "holiday",
+      "importance": 0.135
+    },
+    {
+      "feature": "zone_type",
+      "importance": 0.084
+    },
+    {
+      "feature": "same_hour_yesterday",
+      "importance": 0.035
+    },
+    {
+      "feature": "hour_of_day",
+      "importance": 0.027
+    },
+    {
+      "feature": "zone_size",
+      "importance": 0.024
+    }
+  ],
+  "comparison": [
+    {
+      "mae": 91.87,
+      "rmse": 118.21,
+      "mape": 2.455,
+      "bias": 0.39,
+      "name": "lightgbm",
+      "kind": "gradient boosting",
+      "oofMae": 144.48488981466124,
+      "skillVsBestBaseline": 0.6466166851226482,
+      "fitSeconds": 10.363,
+      "isLive": true,
+      "isSelected": false,
+      "params": "300 trees; learning_rate=.05; num_leaves=31; min_child_samples=20",
+      "pLgbmBetter": 0.0,
+      "hourlyMape": [
+        2.693530751557509,
+        2.4897766208519987,
+        2.2964343453490197,
+        2.1766323876910723,
+        2.293454860039911,
+        2.257502952222503,
+        2.4617066687050317,
+        2.56754349956329,
+        2.683652900965669,
+        2.6196049640235466,
+        2.332273272194325,
+        2.6129067401360655,
+        2.36701067634097,
+        2.2714935276297887,
+        2.468347824989834,
+        2.4617348018174385,
+        2.1761278256496572,
+        2.3675673789109695,
+        2.532018058775084,
+        2.8236205355753228,
+        2.5897328042486207,
+        2.5667848947174576,
+        2.521005694965079,
+        2.2871093201236694
+      ],
+      "weights": {},
+      "weightsSource": ""
+    },
+    {
+      "mae": 210.096,
+      "rmse": 347.039,
+      "mape": 5.365,
+      "bias": 0.109,
+      "name": "ridge",
+      "kind": "linear",
+      "oofMae": 269.32311524846335,
+      "skillVsBestBaseline": 0.19185102555999245,
+      "fitSeconds": 1.297,
+      "isLive": false,
+      "isSelected": false,
+      "params": "StandardScaler + Ridge(alpha=1); FEATURES only",
+      "pLgbmBetter": 1.0,
+      "hourlyMape": [
+        2.4392974349497445,
+        2.608345312589999,
+        2.8271491327775697,
+        2.738851406245772,
+        2.8387612496136025,
+        2.992480214032307,
+        4.036064724217732,
+        4.742946047389866,
+        5.653767417929747,
+        7.088106400064882,
+        8.634490273445403,
+        9.36459605766647,
+        9.049990377654494,
+        7.993536517545459,
+        6.555736587351378,
+        5.0695834219618945,
+        3.9080106057780353,
+        3.1546467778798957,
+        4.256707636625307,
+        5.049256200844056,
+        5.775810756850454,
+        5.918601981579349,
+        7.17501073860661,
+        8.89431503886421
+      ],
+      "weights": {},
+      "weightsSource": ""
+    },
+    {
+      "mae": 95.237,
+      "rmse": 118.861,
+      "mape": 2.491,
+      "bias": 0.413,
+      "name": "random_forest",
+      "kind": "random forest",
+      "oofMae": 133.1230718443569,
+      "skillVsBestBaseline": 0.6336644085277404,
+      "fitSeconds": 62.577,
+      "isLive": false,
+      "isSelected": false,
+      "params": "200 trees; depth=14; min_leaf=2; max_samples=.55; n_jobs=-1",
+      "pLgbmBetter": 0.637,
+      "hourlyMape": [
+        2.113973600090169,
+        1.8180719256612423,
+        1.8358750614428943,
+        2.1205055185784962,
+        2.5148992529414205,
+        2.530762170038376,
+        2.5178965801233706,
+        2.527602829323906,
+        2.3229794320498405,
+        2.42673837037263,
+        2.9463572309234762,
+        2.683223232202456,
+        2.2609270547191915,
+        2.4960984842960823,
+        2.765882408537954,
+        2.885210356287986,
+        2.615383614241553,
+        2.168579071138247,
+        2.4770292858114233,
+        2.7608206910604123,
+        3.2650765571971676,
+        2.70431522061581,
+        2.5820769946896407,
+        2.4502925538441365
+      ],
+      "weights": {},
+      "weightsSource": ""
+    },
+    {
+      "mae": 416.463,
+      "rmse": 556.485,
+      "mape": 10.695,
+      "bias": -4.077,
+      "name": "seasonal_smoothing",
+      "kind": "statistical",
+      "oofMae": 486.2025602738623,
+      "skillVsBestBaseline": -0.6019498527294702,
+      "fitSeconds": 0.76,
+      "isLive": false,
+      "isSelected": false,
+      "params": "Additive daily seasonality (48 slots); alpha=.15; gamma=.10; no trend/features",
+      "pLgbmBetter": 1.0,
+      "hourlyMape": [
+        8.775673442929595,
+        8.47291959296518,
+        8.056810966010481,
+        7.799121332013999,
+        7.073727592677594,
+        6.157175772352651,
+        5.630999242662322,
+        6.5753743981365185,
+        9.858734705514042,
+        14.724632874193707,
+        21.079578945819414,
+        24.388168507409407,
+        23.615616484478053,
+        19.863861158038347,
+        15.35913036822317,
+        11.25549884030077,
+        8.192849819136452,
+        7.033921702805911,
+        6.701370064869056,
+        6.876939694440923,
+        7.485745088760395,
+        7.414499783063063,
+        7.4055867245737765,
+        6.8913068925854235
+      ],
+      "weights": {},
+      "weightsSource": ""
+    },
+    {
+      "mae": 93.44,
+      "rmse": 117.482,
+      "mape": 2.445,
+      "bias": 0.411,
+      "name": "ensemble",
+      "kind": "ensemble",
+      "oofMae": 132.96346303779137,
+      "skillVsBestBaseline": 0.6405751214530544,
+      "fitSeconds": 0.003,
+      "isLive": false,
+      "isSelected": true,
+      "params": "LGBM=0.10; RF=0.90; dev OOF MAE grid, step=.01",
+      "pLgbmBetter": 0.537,
+      "hourlyMape": [
+        2.008286964273275,
+        1.7980681663167402,
+        1.7783665499295185,
+        2.040403006329577,
+        2.449643061571099,
+        2.4518667394952574,
+        2.4908398030240946,
+        2.531596896347844,
+        2.333071900360522,
+        2.3767983429380792,
+        2.8751866766177256,
+        2.670891532872492,
+        2.254186193200525,
+        2.4468898257102842,
+        2.6993363290061896,
+        2.7868102962371903,
+        2.5489455865323354,
+        2.1235600676663324,
+        2.4391734219428565,
+        2.7420021151831517,
+        3.1758709850309166,
+        2.684862842089768,
+        2.5759698647171847,
+        2.4052607574033766
+      ],
+      "weights": {
+        "lightgbm": 0.09999999999999998,
+        "random_forest": 0.9
+      },
+      "weightsSource": "dev_oof"
+    }
+  ],
+  "selected": "ensemble",
+  "selectedMatchesLive": false,
+  "comparisonNote": "Same dev/test split and five blocked folds; train on other dev blocks, including later blocks (not rolling-origin). Feature models use FEATURES and normalised zone demand; statistical model uses only zone targets and daily slots. Selected by aggregate-by-timestamp dev OOF MAE. Ensemble weights use that same OOF data, not nested CV or test data. Production remains LightGBM, regardless of selection. Test metrics are uncorrected network totals. LightGBM bootstrap wins: 1,000 paired whole Cairo-day resamples, seed 731; ties are not wins (self=0). This win share is not a p-value; ten test days give limited evidence. Fit seconds sum full-dev and five fold fits; ensemble excludes component fits; statistical timing includes prediction.",
+  "byDayType": [
+    {
+      "name": "Working day",
+      "days": 125,
+      "mape": 3.53
+    },
+    {
+      "name": "Weekend (Friday, Saturday)",
+      "days": 50,
+      "mape": 3.13
+    },
+    {
+      "name": "Holiday on a working day",
+      "days": 48,
+      "mape": 4.08
+    },
+    {
+      "name": "Holiday on a weekend day",
+      "days": 19,
+      "mape": 4.28
+    },
+    {
+      "name": "Heat wave",
+      "days": 52,
+      "mape": 4.08
+    }
+  ],
+  "reliability": {
+    "label": "reliable",
+    "checks": [
+      {
+        "name": "Better than the best simple baseline",
+        "status": "ok",
+        "detail": "It removes 65% of the error of the best baseline (ok from 25%)."
+      },
+      {
+        "name": "Band holds the share it promises",
+        "status": "ok",
+        "detail": "The band held 95% of real values against 80% intended, wider than needed but safe."
+      },
+      {
+        "name": "No kind of day is much worse than the average",
+        "status": "ok",
+        "detail": "The worst is holiday on a weekend day at 4.3% against 2.5% overall (ok up to 5.0%)."
+      }
+    ]
+  }
+}

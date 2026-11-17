@@ -1,0 +1,1128 @@
+[
+  {
+    "facilityId": "F003",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - الحي السكني الأول R1",
+    "districtKey": "1001",
+    "position": {
+      "lat": 30.007857,
+      "lng": 31.681009
+    },
+    "placedAt": {
+      "lat": 30.017357000000004,
+      "lng": 31.665009
+    }
+  },
+  {
+    "facilityId": "F007",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الأول R1",
+    "districtKey": "1001",
+    "position": {
+      "lat": 30.012997,
+      "lng": 31.685595
+    },
+    "placedAt": {
+      "lat": 30.022497,
+      "lng": 31.669595000000005
+    }
+  },
+  {
+    "facilityId": "F008",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الأول R1",
+    "districtKey": "1001",
+    "position": {
+      "lat": 30.009655,
+      "lng": 31.69637
+    },
+    "placedAt": {
+      "lat": 30.019154999999998,
+      "lng": 31.68037
+    }
+  },
+  {
+    "facilityId": "F009",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الأول R1",
+    "districtKey": "1001",
+    "position": {
+      "lat": 30.012649,
+      "lng": 31.687841
+    },
+    "placedAt": {
+      "lat": 30.022149,
+      "lng": 31.671841000000004
+    }
+  },
+  {
+    "facilityId": "F013",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الأول R1",
+    "districtKey": "1001",
+    "position": {
+      "lat": 30.009821,
+      "lng": 31.678541
+    },
+    "placedAt": {
+      "lat": 30.019320999999998,
+      "lng": 31.662541
+    }
+  },
+  {
+    "facilityId": "F016",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثاني R2",
+    "districtKey": "1002",
+    "position": {
+      "lat": 30.018934,
+      "lng": 31.701482
+    },
+    "placedAt": {
+      "lat": 30.017933999999997,
+      "lng": 31.674482982957414
+    }
+  },
+  {
+    "facilityId": "F017",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثاني R2",
+    "districtKey": "1002",
+    "position": {
+      "lat": 30.023503,
+      "lng": 31.71227
+    },
+    "placedAt": {
+      "lat": 30.022503,
+      "lng": 31.685270982957412
+    }
+  },
+  {
+    "facilityId": "F020",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الثاني R2",
+    "districtKey": "1002",
+    "position": {
+      "lat": 30.015774,
+      "lng": 31.696808
+    },
+    "placedAt": {
+      "lat": 30.014774000000003,
+      "lng": 31.669808982957413
+    }
+  },
+  {
+    "facilityId": "F021",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثاني R2",
+    "districtKey": "1002",
+    "position": {
+      "lat": 30.015135,
+      "lng": 31.70889
+    },
+    "placedAt": {
+      "lat": 30.014134999999996,
+      "lng": 31.68189098295742
+    }
+  },
+  {
+    "facilityId": "F022",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثاني R2",
+    "districtKey": "1002",
+    "position": {
+      "lat": 30.010818,
+      "lng": 31.702025
+    },
+    "placedAt": {
+      "lat": 30.009817999999996,
+      "lng": 31.675025982957415
+    }
+  },
+  {
+    "facilityId": "F025",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثالث R3 (كابيتال ريزيدنس)",
+    "districtKey": "1003",
+    "position": {
+      "lat": 30.026804,
+      "lng": 31.720072
+    },
+    "placedAt": {
+      "lat": 30.046803999999995,
+      "lng": 31.743571999999997
+    }
+  },
+  {
+    "facilityId": "F028",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الثالث R3 (كابيتال ريزيدنس)",
+    "districtKey": "1003",
+    "position": {
+      "lat": 30.024377,
+      "lng": 31.7119
+    },
+    "placedAt": {
+      "lat": 30.044376999999997,
+      "lng": 31.735400000000002
+    }
+  },
+  {
+    "facilityId": "F032",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثالث R3 (كابيتال ريزيدنس)",
+    "districtKey": "1003",
+    "position": {
+      "lat": 30.025213,
+      "lng": 31.70397
+    },
+    "placedAt": {
+      "lat": 30.045213000000004,
+      "lng": 31.72747
+    }
+  },
+  {
+    "facilityId": "F033",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الثالث R3 (كابيتال ريزيدنس)",
+    "districtKey": "1003",
+    "position": {
+      "lat": 30.015034,
+      "lng": 31.713544
+    },
+    "placedAt": {
+      "lat": 30.035033999999996,
+      "lng": 31.737044
+    }
+  },
+  {
+    "facilityId": "F037",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الرابع R4",
+    "districtKey": "1004",
+    "position": {
+      "lat": 30.032594,
+      "lng": 31.721869
+    },
+    "placedAt": {
+      "lat": 30.049594,
+      "lng": 31.765869
+    }
+  },
+  {
+    "facilityId": "F041",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الرابع R4",
+    "districtKey": "1004",
+    "position": {
+      "lat": 30.018559,
+      "lng": 31.720641
+    },
+    "placedAt": {
+      "lat": 30.035559,
+      "lng": 31.764641
+    }
+  },
+  {
+    "facilityId": "F042",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - الحي السكني الرابع R4",
+    "districtKey": "1004",
+    "position": {
+      "lat": 30.031215,
+      "lng": 31.737632
+    },
+    "placedAt": {
+      "lat": 30.048215,
+      "lng": 31.781632000000005
+    }
+  },
+  {
+    "facilityId": "F043",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الرابع R4",
+    "districtKey": "1004",
+    "position": {
+      "lat": 30.022348,
+      "lng": 31.730258
+    },
+    "placedAt": {
+      "lat": 30.039348000000004,
+      "lng": 31.774258
+    }
+  },
+  {
+    "facilityId": "F044",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الرابع R4",
+    "districtKey": "1004",
+    "position": {
+      "lat": 30.020752,
+      "lng": 31.720877
+    },
+    "placedAt": {
+      "lat": 30.037751999999998,
+      "lng": 31.764877000000002
+    }
+  },
+  {
+    "facilityId": "F046",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - الحي السكني الخامس R5 (جاردن سيتي العاصمة)",
+    "districtKey": "1005",
+    "position": {
+      "lat": 30.023078,
+      "lng": 31.734557
+    },
+    "placedAt": {
+      "lat": 30.048078000000004,
+      "lng": 31.769556999999995
+    }
+  },
+  {
+    "facilityId": "F047",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الخامس R5 (جاردن سيتي العاصمة)",
+    "districtKey": "1005",
+    "position": {
+      "lat": 30.032245,
+      "lng": 31.749711
+    },
+    "placedAt": {
+      "lat": 30.057245,
+      "lng": 31.784711000000005
+    }
+  },
+  {
+    "facilityId": "F048",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الخامس R5 (جاردن سيتي العاصمة)",
+    "districtKey": "1005",
+    "position": {
+      "lat": 30.023336,
+      "lng": 31.756946
+    },
+    "placedAt": {
+      "lat": 30.048336,
+      "lng": 31.791946
+    }
+  },
+  {
+    "facilityId": "F050",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الخامس R5 (جاردن سيتي العاصمة)",
+    "districtKey": "1005",
+    "position": {
+      "lat": 30.031614,
+      "lng": 31.748224
+    },
+    "placedAt": {
+      "lat": 30.056614000000003,
+      "lng": 31.783224
+    }
+  },
+  {
+    "facilityId": "F053",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الخامس R5 (جاردن سيتي العاصمة)",
+    "districtKey": "1005",
+    "position": {
+      "lat": 30.027406,
+      "lng": 31.752275
+    },
+    "placedAt": {
+      "lat": 30.052405999999998,
+      "lng": 31.787274999999998
+    }
+  },
+  {
+    "facilityId": "F056",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني السادس R6",
+    "districtKey": "1006",
+    "position": {
+      "lat": 30.034551,
+      "lng": 31.762181
+    },
+    "placedAt": {
+      "lat": 30.020551000000005,
+      "lng": 31.66618001704258
+    }
+  },
+  {
+    "facilityId": "F057",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني السادس R6",
+    "districtKey": "1006",
+    "position": {
+      "lat": 30.02553,
+      "lng": 31.76029
+    },
+    "placedAt": {
+      "lat": 30.01153,
+      "lng": 31.66428901704258
+    }
+  },
+  {
+    "facilityId": "F059",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني السادس R6",
+    "districtKey": "1006",
+    "position": {
+      "lat": 30.02375,
+      "lng": 31.770482
+    },
+    "placedAt": {
+      "lat": 30.009750000000004,
+      "lng": 31.674481017042584
+    }
+  },
+  {
+    "facilityId": "F060",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني السادس R6",
+    "districtKey": "1006",
+    "position": {
+      "lat": 30.039494,
+      "lng": 31.750723
+    },
+    "placedAt": {
+      "lat": 30.025494000000002,
+      "lng": 31.654722017042584
+    }
+  },
+  {
+    "facilityId": "F066",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - الحي السكني السابع R7",
+    "districtKey": "1007",
+    "position": {
+      "lat": 29.992019,
+      "lng": 31.734306
+    },
+    "placedAt": {
+      "lat": 30.038019000000006,
+      "lng": 31.747805999999997
+    }
+  },
+  {
+    "facilityId": "F070",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - الحي السكني السابع R7",
+    "districtKey": "1007",
+    "position": {
+      "lat": 29.994889,
+      "lng": 31.723762
+    },
+    "placedAt": {
+      "lat": 30.040889000000007,
+      "lng": 31.737261999999994
+    }
+  },
+  {
+    "facilityId": "F071",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني السابع R7",
+    "districtKey": "1007",
+    "position": {
+      "lat": 29.984878,
+      "lng": 31.713434
+    },
+    "placedAt": {
+      "lat": 30.030878,
+      "lng": 31.726933999999993
+    }
+  },
+  {
+    "facilityId": "F074",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثامن R8",
+    "districtKey": "1008",
+    "position": {
+      "lat": 29.97688,
+      "lng": 31.734365
+    },
+    "placedAt": {
+      "lat": 30.02588,
+      "lng": 31.768365
+    }
+  },
+  {
+    "facilityId": "F081",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الثامن R8",
+    "districtKey": "1008",
+    "position": {
+      "lat": 29.980564,
+      "lng": 31.75028
+    },
+    "placedAt": {
+      "lat": 30.029564000000008,
+      "lng": 31.784280000000006
+    }
+  },
+  {
+    "facilityId": "F083",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثامن R8",
+    "districtKey": "1008",
+    "position": {
+      "lat": 29.989023,
+      "lng": 31.737242
+    },
+    "placedAt": {
+      "lat": 30.038023000000003,
+      "lng": 31.771241999999997
+    }
+  },
+  {
+    "facilityId": "F084",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي السكني الثامن R8",
+    "districtKey": "1008",
+    "position": {
+      "lat": 29.983136,
+      "lng": 31.732068
+    },
+    "placedAt": {
+      "lat": 30.032136,
+      "lng": 31.766068
+    }
+  },
+  {
+    "facilityId": "F086",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي السكني الثامن R8",
+    "districtKey": "1008",
+    "position": {
+      "lat": 29.991801,
+      "lng": 31.74276
+    },
+    "placedAt": {
+      "lat": 30.040801000000002,
+      "lng": 31.776760000000007
+    }
+  },
+  {
+    "facilityId": "F087",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - حي المال والأعمال CBD",
+    "districtKey": "1009",
+    "position": {
+      "lat": 30.001451,
+      "lng": 31.705087
+    },
+    "placedAt": {
+      "lat": 30.007701,
+      "lng": 31.691587
+    }
+  },
+  {
+    "facilityId": "F090",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - حي المال والأعمال CBD",
+    "districtKey": "1009",
+    "position": {
+      "lat": 29.996632,
+      "lng": 31.712676
+    },
+    "placedAt": {
+      "lat": 30.002882000000003,
+      "lng": 31.699176
+    }
+  },
+  {
+    "facilityId": "F091",
+    "kind": "hospital",
+    "nameAr": "مستشفى - حي المال والأعمال CBD",
+    "districtKey": "1009",
+    "position": {
+      "lat": 29.998885,
+      "lng": 31.713069
+    },
+    "placedAt": {
+      "lat": 30.005135000000006,
+      "lng": 31.699569000000004
+    }
+  },
+  {
+    "facilityId": "F092",
+    "kind": "hospital",
+    "nameAr": "مستشفى - حي المال والأعمال CBD",
+    "districtKey": "1009",
+    "position": {
+      "lat": 29.996015,
+      "lng": 31.707523
+    },
+    "placedAt": {
+      "lat": 30.002265000000005,
+      "lng": 31.694022999999994
+    }
+  },
+  {
+    "facilityId": "F094",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - حي المال والأعمال CBD",
+    "districtKey": "1009",
+    "position": {
+      "lat": 30.001563,
+      "lng": 31.714129
+    },
+    "placedAt": {
+      "lat": 30.007813000000002,
+      "lng": 31.700629
+    }
+  },
+  {
+    "facilityId": "F095",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - حي المال والأعمال CBD",
+    "districtKey": "1009",
+    "position": {
+      "lat": 30.011779,
+      "lng": 31.721564
+    },
+    "placedAt": {
+      "lat": 30.018029000000002,
+      "lng": 31.708064
+    }
+  },
+  {
+    "facilityId": "F097",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - حي المال والأعمال CBD",
+    "districtKey": "1009",
+    "position": {
+      "lat": 30.001533,
+      "lng": 31.71089
+    },
+    "placedAt": {
+      "lat": 30.007783,
+      "lng": 31.69739
+    }
+  },
+  {
+    "facilityId": "F099",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - حي المال والأعمال CBD",
+    "districtKey": "1009",
+    "position": {
+      "lat": 29.998888,
+      "lng": 31.718209
+    },
+    "placedAt": {
+      "lat": 30.005138,
+      "lng": 31.704709
+    }
+  },
+  {
+    "facilityId": "F102",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي الحكومي والوزارات",
+    "districtKey": "1010",
+    "position": {
+      "lat": 30.001569,
+      "lng": 31.698535
+    },
+    "placedAt": {
+      "lat": 30.010568999999993,
+      "lng": 31.750535000000003
+    }
+  },
+  {
+    "facilityId": "F103",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي الحكومي والوزارات",
+    "districtKey": "1010",
+    "position": {
+      "lat": 30.01672,
+      "lng": 31.711104
+    },
+    "placedAt": {
+      "lat": 30.025719999999996,
+      "lng": 31.763104000000002
+    }
+  },
+  {
+    "facilityId": "F105",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي الحكومي والوزارات",
+    "districtKey": "1010",
+    "position": {
+      "lat": 30.010985,
+      "lng": 31.694006
+    },
+    "placedAt": {
+      "lat": 30.019984999999995,
+      "lng": 31.746005999999998
+    }
+  },
+  {
+    "facilityId": "F109",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي الحكومي والوزارات",
+    "districtKey": "1010",
+    "position": {
+      "lat": 30.000288,
+      "lng": 31.706188
+    },
+    "placedAt": {
+      "lat": 30.009288,
+      "lng": 31.758188
+    }
+  },
+  {
+    "facilityId": "F110",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي الحكومي والوزارات",
+    "districtKey": "1010",
+    "position": {
+      "lat": 30.000815,
+      "lng": 31.689104
+    },
+    "placedAt": {
+      "lat": 30.009814999999993,
+      "lng": 31.741103999999996
+    }
+  },
+  {
+    "facilityId": "F112",
+    "kind": "hospital",
+    "nameAr": "مستشفى - الحي الحكومي والوزارات",
+    "districtKey": "1010",
+    "position": {
+      "lat": 30.009469,
+      "lng": 31.699799
+    },
+    "placedAt": {
+      "lat": 30.018469,
+      "lng": 31.751798999999995
+    }
+  },
+  {
+    "facilityId": "F113",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - الحي الحكومي والوزارات",
+    "districtKey": "1010",
+    "position": {
+      "lat": 30.00797,
+      "lng": 31.698412
+    },
+    "placedAt": {
+      "lat": 30.016969999999997,
+      "lng": 31.750412
+    }
+  },
+  {
+    "facilityId": "F115",
+    "kind": "hospital",
+    "nameAr": "مستشفى - حي السفارات (الحي الدبلوماسي)",
+    "districtKey": "1011",
+    "position": {
+      "lat": 29.995021,
+      "lng": 31.730402
+    },
+    "placedAt": {
+      "lat": 30.009021,
+      "lng": 31.762402
+    }
+  },
+  {
+    "facilityId": "F122",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - حي السفارات (الحي الدبلوماسي)",
+    "districtKey": "1011",
+    "position": {
+      "lat": 29.985779,
+      "lng": 31.717054
+    },
+    "placedAt": {
+      "lat": 29.999779,
+      "lng": 31.749054
+    }
+  },
+  {
+    "facilityId": "F125",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - مدينة الفنون والثقافة",
+    "districtKey": "1012",
+    "position": {
+      "lat": 30.005935,
+      "lng": 31.685836
+    },
+    "placedAt": {
+      "lat": 30.019935,
+      "lng": 31.716835999999994
+    }
+  },
+  {
+    "facilityId": "F129",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - مدينة الفنون والثقافة",
+    "districtKey": "1012",
+    "position": {
+      "lat": 30.007528,
+      "lng": 31.691928
+    },
+    "placedAt": {
+      "lat": 30.021528,
+      "lng": 31.722928000000003
+    }
+  },
+  {
+    "facilityId": "F130",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - مدينة الفنون والثقافة",
+    "districtKey": "1012",
+    "position": {
+      "lat": 30.009168,
+      "lng": 31.705338
+    },
+    "placedAt": {
+      "lat": 30.023167999999995,
+      "lng": 31.736337999999996
+    }
+  },
+  {
+    "facilityId": "F131",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - مدينة الفنون والثقافة",
+    "districtKey": "1012",
+    "position": {
+      "lat": 30.007091,
+      "lng": 31.701021
+    },
+    "placedAt": {
+      "lat": 30.021090999999995,
+      "lng": 31.732020999999996
+    }
+  },
+  {
+    "facilityId": "F132",
+    "kind": "hospital",
+    "nameAr": "مستشفى - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.007931,
+      "lng": 31.735824
+    },
+    "placedAt": {
+      "lat": 30.008430999999998,
+      "lng": 31.73182455437008
+    }
+  },
+  {
+    "facilityId": "F133",
+    "kind": "hospital",
+    "nameAr": "مستشفى - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.0,
+      "lng": 31.730143
+    },
+    "placedAt": {
+      "lat": 30.0005,
+      "lng": 31.726143554370076
+    }
+  },
+  {
+    "facilityId": "F134",
+    "kind": "hospital",
+    "nameAr": "مستشفى - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.014943,
+      "lng": 31.746005
+    },
+    "placedAt": {
+      "lat": 30.015443,
+      "lng": 31.742005554370074
+    }
+  },
+  {
+    "facilityId": "F135",
+    "kind": "hospital",
+    "nameAr": "مستشفى - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.011535,
+      "lng": 31.745963
+    },
+    "placedAt": {
+      "lat": 30.012034999999994,
+      "lng": 31.741963554370074
+    }
+  },
+  {
+    "facilityId": "F136",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 29.999666,
+      "lng": 31.734833
+    },
+    "placedAt": {
+      "lat": 30.000166000000004,
+      "lng": 31.730833554370072
+    }
+  },
+  {
+    "facilityId": "F137",
+    "kind": "hospital",
+    "nameAr": "مستشفى - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.009074,
+      "lng": 31.737459
+    },
+    "placedAt": {
+      "lat": 30.009573999999997,
+      "lng": 31.73345955437007
+    }
+  },
+  {
+    "facilityId": "F138",
+    "kind": "hospital",
+    "nameAr": "مستشفى - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.013626,
+      "lng": 31.745709
+    },
+    "placedAt": {
+      "lat": 30.014126,
+      "lng": 31.741709554370075
+    }
+  },
+  {
+    "facilityId": "F139",
+    "kind": "hospital",
+    "nameAr": "مستشفى - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.017485,
+      "lng": 31.745342
+    },
+    "placedAt": {
+      "lat": 30.017985,
+      "lng": 31.74134255437008
+    }
+  },
+  {
+    "facilityId": "F141",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.017373,
+      "lng": 31.73994
+    },
+    "placedAt": {
+      "lat": 30.017872999999998,
+      "lng": 31.735940554370075
+    }
+  },
+  {
+    "facilityId": "F142",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.015337,
+      "lng": 31.743087
+    },
+    "placedAt": {
+      "lat": 30.015837,
+      "lng": 31.739087554370073
+    }
+  },
+  {
+    "facilityId": "F143",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.002452,
+      "lng": 31.733226
+    },
+    "placedAt": {
+      "lat": 30.002952000000004,
+      "lng": 31.729226554370072
+    }
+  },
+  {
+    "facilityId": "F144",
+    "kind": "hospital",
+    "nameAr": "مستشفى - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.000932,
+      "lng": 31.744406
+    },
+    "placedAt": {
+      "lat": 30.001431999999998,
+      "lng": 31.740406554370075
+    }
+  },
+  {
+    "facilityId": "F145",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.009626,
+      "lng": 31.728597
+    },
+    "placedAt": {
+      "lat": 30.010125999999996,
+      "lng": 31.724597554370078
+    }
+  },
+  {
+    "facilityId": "F146",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.002734,
+      "lng": 31.744129
+    },
+    "placedAt": {
+      "lat": 30.003234000000003,
+      "lng": 31.74012955437007
+    }
+  },
+  {
+    "facilityId": "F148",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.00556,
+      "lng": 31.73456
+    },
+    "placedAt": {
+      "lat": 30.00606,
+      "lng": 31.730560554370072
+    }
+  },
+  {
+    "facilityId": "F149",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.004605,
+      "lng": 31.728969
+    },
+    "placedAt": {
+      "lat": 30.005104999999997,
+      "lng": 31.724969554370077
+    }
+  },
+  {
+    "facilityId": "F150",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.006104,
+      "lng": 31.729088
+    },
+    "placedAt": {
+      "lat": 30.006604,
+      "lng": 31.725088554370075
+    }
+  },
+  {
+    "facilityId": "F151",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - المدينة الطبية",
+    "districtKey": "1013",
+    "position": {
+      "lat": 30.013344,
+      "lng": 31.740783
+    },
+    "placedAt": {
+      "lat": 30.013844000000002,
+      "lng": 31.736783554370078
+    }
+  },
+  {
+    "facilityId": "F156",
+    "kind": "hospital",
+    "nameAr": "مستشفى - مدينة المعرفة والمعاهد",
+    "districtKey": "1014",
+    "position": {
+      "lat": 30.020382,
+      "lng": 31.760191
+    },
+    "placedAt": {
+      "lat": 30.016881999999995,
+      "lng": 31.73119044562992
+    }
+  },
+  {
+    "facilityId": "F161",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - مدينة المعرفة والمعاهد",
+    "districtKey": "1014",
+    "position": {
+      "lat": 30.004135,
+      "lng": 31.747469
+    },
+    "placedAt": {
+      "lat": 30.000635000000003,
+      "lng": 31.718468445629924
+    }
+  },
+  {
+    "facilityId": "F165",
+    "kind": "hospital",
+    "nameAr": "مستشفى - مدينة المعرفة والمعاهد",
+    "districtKey": "1014",
+    "position": {
+      "lat": 30.010224,
+      "lng": 31.744714
+    },
+    "placedAt": {
+      "lat": 30.006724,
+      "lng": 31.715713445629923
+    }
+  },
+  {
+    "facilityId": "F167",
+    "kind": "clinic",
+    "nameAr": "مركز طبي / عيادات - مدينة المعرفة والمعاهد",
+    "districtKey": "1014",
+    "position": {
+      "lat": 30.010333,
+      "lng": 31.760573
+    },
+    "placedAt": {
+      "lat": 30.006833,
+      "lng": 31.731572445629922
+    }
+  },
+  {
+    "facilityId": "F173",
+    "kind": "doctors",
+    "nameAr": "عيادة تخصصية - النهر الأخضر (الحديقة المركزية)",
+    "districtKey": "1015",
+    "position": {
+      "lat": 30.005468,
+      "lng": 31.715956
+    }
+  },
+  {
+    "facilityId": "F174",
+    "kind": "hospital",
+    "nameAr": "مستشفى - النهر الأخضر (الحديقة المركزية)",
+    "districtKey": "1015",
+    "position": {
+      "lat": 30.016258,
+      "lng": 31.726753
+    }
+  }
+]

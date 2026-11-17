@@ -1,0 +1,1774 @@
+{
+ "summary": {
+  "rules": {
+   "all": {
+    "right": 50,
+    "missing": 2,
+    "extra": 2,
+    "n": 54
+   },
+   "en": {
+    "right": 28,
+    "missing": 1,
+    "extra": 1,
+    "n": 30
+   },
+   "ar": {
+    "right": 22,
+    "missing": 1,
+    "extra": 1,
+    "n": 24
+   }
+  },
+  "model": {
+   "all": {
+    "right": 46,
+    "missing": 1,
+    "extra": 7,
+    "n": 54
+   },
+   "en": {
+    "right": 25,
+    "missing": 0,
+    "extra": 5,
+    "n": 30
+   },
+   "ar": {
+    "right": 21,
+    "missing": 1,
+    "extra": 2,
+    "n": 24
+   }
+  },
+  "model_with_links": {
+   "all": {
+    "right": 47,
+    "missing": 0,
+    "extra": 7,
+    "n": 54
+   },
+   "en": {
+    "right": 25,
+    "missing": 0,
+    "extra": 5,
+    "n": 30
+   },
+   "ar": {
+    "right": 22,
+    "missing": 0,
+    "extra": 2,
+    "n": 24
+   }
+  }
+ },
+ "rows": [
+  {
+   "id": "q01",
+   "lang": "en",
+   "question": "Why is the pressure dropping in the government district?",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra"
+   }
+  },
+  {
+   "id": "q02",
+   "lang": "en",
+   "question": "Is there a leak anywhere right now?",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q03",
+   "lang": "en",
+   "question": "What happens if SS-02 trips?",
+   "must": [
+    "electricity",
+    "water",
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q04",
+   "lang": "en",
+   "question": "What happens if SS-03 trips?",
+   "must": [
+    "electricity",
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q05",
+   "lang": "en",
+   "question": "What if SS-04 fails?",
+   "must": [
+    "electricity",
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q06",
+   "lang": "en",
+   "question": "What if SS-01 trips?",
+   "must": [
+    "electricity",
+    "water",
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q07",
+   "lang": "en",
+   "question": "Is pump P-05 healthy?",
+   "must": [
+    "water"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q08",
+   "lang": "en",
+   "question": "Why did P-03 stop?",
+   "must": [
+    "water"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q09",
+   "lang": "en",
+   "question": "How is DCP-01 doing?",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q10",
+   "lang": "en",
+   "question": "Chiller output looks low at DCP-02, why?",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q11",
+   "lang": "en",
+   "question": "Which substation is the most loaded?",
+   "must": [
+    "electricity"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q12",
+   "lang": "en",
+   "question": "Is there any power outage now?",
+   "must": [
+    "electricity"
+   ],
+   "may": [
+    "water",
+    "cooling"
+   ],
+   "rules": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q13",
+   "lang": "en",
+   "question": "A heat wave is coming tomorrow, what should we prepare?",
+   "must": [
+    "cooling",
+    "electricity"
+   ],
+   "may": [
+    "water"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "missing"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q14",
+   "lang": "en",
+   "question": "What is the reservoir level?",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra"
+   }
+  },
+  {
+   "id": "q15",
+   "lang": "en",
+   "question": "Feeder voltage on SS-01 looks unstable",
+   "must": [
+    "electricity"
+   ],
+   "may": [
+    "water",
+    "cooling"
+   ],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q16",
+   "lang": "en",
+   "question": "Should we pre-cool the government buildings before the peak?",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q17",
+   "lang": "en",
+   "question": "Is the water network losing more than usual today?",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra"
+   }
+  },
+  {
+   "id": "q18",
+   "lang": "en",
+   "question": "Is the electricity bill higher because of cooling?",
+   "must": [
+    "electricity",
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q19",
+   "lang": "en",
+   "question": "Do the pumps in the presidential district have power?",
+   "must": [
+    "water",
+    "electricity"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q20",
+   "lang": "en",
+   "question": "If DCP-02 stops, which zones lose cooling?",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q21",
+   "lang": "en",
+   "question": "What if pump P-01 fails?",
+   "must": [
+    "water"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity",
+     "cooling"
+    ],
+    "verdict": "extra",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity",
+     "cooling"
+    ],
+    "verdict": "extra"
+   }
+  },
+  {
+   "id": "q22",
+   "lang": "en",
+   "question": "Give me the status of all three networks",
+   "must": [
+    "water",
+    "electricity",
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water",
+     "electricity",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q23",
+   "lang": "en",
+   "question": "Any problems in the cooling loops?",
+   "must": [
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "extra",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "extra"
+   }
+  },
+  {
+   "id": "q24",
+   "lang": "en",
+   "question": "Transformer temperature at SS-02 is high",
+   "must": [
+    "electricity"
+   ],
+   "may": [
+    "water",
+    "cooling"
+   ],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q25",
+   "lang": "en",
+   "question": "Why is water pressure low in the CBD after the substation tripped?",
+   "must": [
+    "water",
+    "electricity"
+   ],
+   "may": [
+    "cooling"
+   ],
+   "rules": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q26",
+   "lang": "en",
+   "question": "Can we shift load from SS-03 to SS-04?",
+   "must": [
+    "electricity"
+   ],
+   "may": [
+    "water"
+   ],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q27",
+   "lang": "en",
+   "question": "Is any sensor giving wrong readings on the water mains?",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q28",
+   "lang": "en",
+   "question": "How many megawatts are unserved right now?",
+   "must": [
+    "electricity"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q29",
+   "lang": "en",
+   "question": "What is the chilled water supply temperature?",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "water",
+     "cooling"
+    ],
+    "verdict": "extra"
+   },
+   "model": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q30",
+   "lang": "en",
+   "question": "Which pipe burst and where should we close the valves?",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q31",
+   "lang": "ar",
+   "question": "ليه الضغط بيقل في الحي الحكومي؟",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra"
+   }
+  },
+  {
+   "id": "q32",
+   "lang": "ar",
+   "question": "فيه تسريب مياه دلوقتي؟",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q33",
+   "lang": "ar",
+   "question": "إيه اللي يحصل لو محطة SS-02 فصلت؟",
+   "must": [
+    "electricity",
+    "water",
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q34",
+   "lang": "ar",
+   "question": "لو SS-03 وقعت إيه اللي هيتأثر؟",
+   "must": [
+    "electricity",
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q35",
+   "lang": "ar",
+   "question": "المضخة P-05 حالتها إيه؟",
+   "must": [
+    "water"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q36",
+   "lang": "ar",
+   "question": "محطة التبريد DCP-01 عاملة إيه؟",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q37",
+   "lang": "ar",
+   "question": "أنهي محطة كهرباء عليها أكبر حمل؟",
+   "must": [
+    "electricity"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q38",
+   "lang": "ar",
+   "question": "فيه انقطاع كهرباء دلوقتي؟",
+   "must": [
+    "electricity"
+   ],
+   "may": [
+    "water",
+    "cooling"
+   ],
+   "rules": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water",
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q39",
+   "lang": "ar",
+   "question": "موجة الحر جاية بكرة، نجهز إيه؟",
+   "must": [
+    "cooling",
+    "electricity"
+   ],
+   "may": [
+    "water"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "missing"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q40",
+   "lang": "ar",
+   "question": "مستوى الخزان كام؟",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q41",
+   "lang": "ar",
+   "question": "هل فاتورة الكهرباء زادت بسبب التبريد؟",
+   "must": [
+    "electricity",
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q42",
+   "lang": "ar",
+   "question": "المضخات في الحي الرئاسي واصلها كهرباء؟",
+   "must": [
+    "water",
+    "electricity"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q43",
+   "lang": "ar",
+   "question": "لو DCP-02 وقفت، أنهي مناطق هتفقد التبريد؟",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q44",
+   "lang": "ar",
+   "question": "اديني حالة الشبكات التلاتة",
+   "must": [
+    "water",
+    "electricity",
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water",
+     "electricity",
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity",
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity",
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q45",
+   "lang": "ar",
+   "question": "فيه مشاكل في دواير التبريد؟",
+   "must": [
+    "cooling"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q46",
+   "lang": "ar",
+   "question": "ينفع ننقل الحمل من SS-03 لـ SS-04؟",
+   "must": [
+    "electricity"
+   ],
+   "may": [
+    "water"
+   ],
+   "rules": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q47",
+   "lang": "ar",
+   "question": "فيه حساس بيدي قراءات غلط على خطوط المياه؟",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [],
+    "verdict": "missing",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q48",
+   "lang": "ar",
+   "question": "كام ميجاوات مش واصلة للمشتركين دلوقتي؟",
+   "must": [
+    "electricity"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q49",
+   "lang": "ar",
+   "question": "درجة حرارة المياه المبردة الخارجة من محطة التبريد كام؟",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "water",
+     "cooling"
+    ],
+    "verdict": "extra"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q50",
+   "lang": "ar",
+   "question": "لو المضخة P-01 عطلت إيه اللي يحصل؟",
+   "must": [
+    "water"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q51",
+   "lang": "ar",
+   "question": "ليه ضغط المياه واطي في الحي المالي بعد ما محطة الكهرباء فصلت؟",
+   "must": [
+    "water",
+    "electricity"
+   ],
+   "may": [
+    "cooling"
+   ],
+   "rules": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "electricity",
+     "water"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q52",
+   "lang": "ar",
+   "question": "نبرد المباني الحكومية بدري قبل الذروة؟",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  },
+  {
+   "id": "q53",
+   "lang": "ar",
+   "question": "الشبكة بتفقد مياه أكتر من العادي النهارده؟",
+   "must": [
+    "water"
+   ],
+   "may": [],
+   "rules": {
+    "agents": [
+     "water"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "water",
+     "electricity"
+    ],
+    "verdict": "extra"
+   }
+  },
+  {
+   "id": "q54",
+   "lang": "ar",
+   "question": "المبرد في DCP-02 إنتاجه قليل ليه؟",
+   "must": [
+    "cooling"
+   ],
+   "may": [
+    "electricity"
+   ],
+   "rules": {
+    "agents": [
+     "cooling"
+    ],
+    "verdict": "right"
+   },
+   "model": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right",
+    "failed": false
+   },
+   "model_with_links": {
+    "agents": [
+     "cooling",
+     "electricity"
+    ],
+    "verdict": "right"
+   }
+  }
+ ]
+}

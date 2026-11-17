@@ -1,0 +1,41 @@
+{
+  "kinds": [
+    {
+      "kind": "sensor_dropout:1",
+      "label": "Sensor stopped reporting",
+      "runs": 16,
+      "detected": 16,
+      "detectionRate": 1.0,
+      "medianDelayMin": 4.0
+    },
+    {
+      "kind": "stuck_sensor:1",
+      "label": "Sensor stuck on one value",
+      "runs": 16,
+      "detected": 16,
+      "detectionRate": 1.0,
+      "medianDelayMin": 13.0
+    },
+    {
+      "kind": "sensor_drift:0.5",
+      "label": "Slow drift, 0.5% of range per minute",
+      "runs": 16,
+      "detected": 10,
+      "detectionRate": 0.625,
+      "medianDelayMin": 22.0
+    },
+    {
+      "kind": "sensor_drift:1",
+      "label": "Fast drift, 1% of range per minute",
+      "runs": 16,
+      "detected": 16,
+      "detectionRate": 1.0,
+      "medianDelayMin": 19.0
+    }
+  ],
+  "falseFlagsPer100SensorHours": 0.06,
+  "sensorHours": 8010.0,
+  "processRuns": 7,
+  "processFalseFlags": 4,
+  "windowTicks": 30
+}

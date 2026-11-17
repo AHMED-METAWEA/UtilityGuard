@@ -1,0 +1,394 @@
+# Care Grid Contract: Backend/Frontend Interface and UI/UX Standards
+
+This document is the single agreement between the two coding agents. Claude Code owns the backend and AI. Codex owns the frontend. Neither side changes a shape in this document without updating it first. Read it fully before writing code.
+
+## 1. Ownership
+
+**Claude Code (backend and AI) is responsible for:**
+
+- Simulation engine for water, electricity, and cooling, including event injection and cross-network effects.
+- Detection layer: anomalies, leaks, faulty sensors, alert grouping.
+- ML: demand forecasting and failure prediction, with evaluation metrics.
+- Cost model.
+- LangGraph agents: Water, Electricity, Cooling, and the Orchestrator.
+- FastAPI REST and WebSocket server, and the fallback cache of recorded agent responses.
+
+**Codex (frontend) is responsible for:**
+
+- The map, layers, and asset interactions.
+- Live charts, alert panel, scenario lab, agent chat, cost view, model performance view.
+- All visual design, animation, state management, and the WebSocket client.
+- A mock server that replays sample messages in the exact shapes below, so the frontend can be built without waiting for the backend.
+
+**Shared:** this contract, the sample fixtures folder, and the ID naming rules.
+
+## 2. Transport
+
+- REST base path: /api/v1
+- WebSocket: /ws/stream, one connection per client, server pushes JSON messages.
+- All timestamps are ISO 8601 UTC strings.
+- All messages are JSON objects with a type field and a payload field.
+- Numbers use SI-style units fixed per sensor type (listed in section 4). The unit is also sent with each sensor for display.
+
+## 3. ID Naming Rules
+
+- Zones: zone-gov, zone-cbd, zone-res-1, and so on.
+- Networks: water, electricity, cooling.
+- Assets: net-type-number, for example water-pump-03, elec-sub-02, cool-plant-01.
+- Sensors: sensor id equals asset id plus a suffix, for example water-pump-03-pressure.
+- Alerts: alert-number. Incidents: inc-number. Scenarios: scn-name.
+
+## 4. Data Shapes
+
+### 4.1 Topology (REST, loaded once)
+
+GET /api/v1/topology returns the static description of the twin:
+
+- zones: array of objects with id, name, type (government, business, residential, services), center (lat and lng), and polygon (array of lat and lng pairs).
+- assets: array of objects with id, network, kind (pipe, pump, reservoir, substation, feeder, transformer, plant, loop), name, zoneId, geometry (point or line), and status.
+- sensors: array of objects with id, assetId, network, kind (pressure, flow, load, voltage, temperature), unit, normalRange (min and max), and position.
+- links: array of dependencies between networks, each with fromAsset, toAsset, and relation (for example powers, cools).
+
+### 4.2 Sensor reading (WebSocket)
+
+Message type: reading. Payload fields: sensorId, timestamp, value, quality (ok, suspect, missing), and an optional forecast value. Readings are batched: one message may carry an array of readings for the same tick, with a tick counter.
+
+### 4.3 Asset status update (WebSocket)
+
+Message type: asset_status. Payload fields: assetId, status (normal, warning, fault, offline), healthScore (0 to 100), and failureProbability (0 to 1) when available.
+
+### 4.4 Alert (WebSocket and REST)
+
+Message type: alert. Payload fields: id, incidentId, network, zoneId, assetIds (array), severity (info, warning, critical), title, summary, detectedAt, state (open, acknowledged, resolved), and confidence (0 to 1; the interface calls it a *rule rating*: a number the detection rule sets from the size of the signal, not a measured probability. Measured detection results are in `docs/measurements/detection-pr.md`). Grouped alerts share an incidentId, and updates to an alert reuse the same id.
+
+### 4.5 Agent finding (WebSocket and REST)
+
+Message type: agent_finding. Payload fields: id, incidentId, agent (water, electricity, cooling, orchestrator), headline, explanation (plain language), probableCauses (array), predictedImpact (text and affected zone ids), recommendedAction (text, crewType, urgency), cost (a cost object, see 4.6), and reasoningSteps (array of short strings shown in the UI as the agent thinking).
+
+### 4.6 Cost object
+
+Fields: currency (EGP), actNow (total), delayPerHour (total), expectedSaving (total), and breakdown (array of items, each with label, amount, cause, and a unique `group` cost owner). The backend computes every number in code, and the frontend only displays them.
+
+### 4.6A Explanation and calculation record
+
+Every agent finding and every cost object also carries an explanation block, so the UI can show why a decision was made and how each number was reached. Fields: reasons (an ordered array of objects with text, evidenceType of measured, forecast, rule, or assumed, and evidenceRef), calculations (an array of objects with name, formula as plain text, inputs as name, value, unit, source, basis, optional status, and optional assumption key, and result), assumptions (an array of the assumption registry entries defined in 4.10), sensitivity (an array with the changed input, the change in percent, and the new saving), tornado (rows `{input, name, low, high, savingAtLow, savingAtHigh}`, sorted by descending absolute saving swing), and confidence (0 to 1). The frontend shows these as numbered reasons, a formula view with the real values filled in, and an assumptions panel. GET /api/v1/calculations/{id} returns the full record, and GET and PUT /api/v1/assumptions read and update the price and parameter configuration, which triggers a recomputation of the active incident.
+
+### 4.7 Forecast (REST and WebSocket)
+
+GET /api/v1/forecast?network=water&zoneId=zone-gov&horizonHours=24 returns a series of points with timestamp, predicted, lower, and upper, plus the latest metrics (mae, rmse, mape). The WebSocket sends type forecast_update when a forecast is refreshed.
+
+### 4.8 Model metrics
+
+GET /api/v1/metrics returns forecasting metrics per network, detection precision and recall, and the date of the last model run. Also top feature importances per model for the explainability view.
+
+### 4.9 Clarifications fixed in Phase 0
+
+The fixtures folder is the exact reference for these shapes, and the backend Pydantic models live in backend/app/schemas.
+
+- JSON field names are camelCase.
+- The reading payload is `{tick, timestamp, readings: [Reading]}`.
+- Asset geometry is `{type: point|line, coordinates: [{lat, lng}]}`.
+- Pipe sensors use suffixes `-flow-in`, `-flow-out` and `-pressure`. Cooling plants use `-supply-temp`, and loops use `-return-temp`.
+- An agent finding keeps `explanation` as plain text, and its explanation block (4.6A) is in `explain`. The cost object carries the same block in `cost.explanation`. The finding also has `createdAt`, `fallback` and `numberCheck` (passed or corrected).
+- The cost object adds `delayHours` and `costOfDelay` (that is, `delayPerHour × delayHours + lateRepair`), so the UI can show the act now / delay / saving tiles without doing any math.
+- An assumption has a stable `key`, which is used by PUT /assumptions as a `{key: value}` map, and by sensitivity rows as `input`.
+- An incident is `{id, title, networks, zoneIds, severity, state, openedAt, alertIds, findingIds, calculationId}`.
+- On connect, the WebSocket sends `snapshot` first: `{tick, timestamp, topology, latest, assets, alerts, incidents, findings, scenarios, llm}`.
+- New WS type `chat_route` `{messageId, routing: [{agent, reason}]}` is sent as soon as the orchestrator decides, before any chunk, so the UI can show the routing live. `chat_chunk` also has `agent`. `chat_done` has `agentsConsulted`, `routing: [{agent, reason}]`, `fallback`, `calculationId` and `findingIds`.
+- GET /api/v1/findings lists agent findings. PUT /api/v1/assumptions takes a `{key: value}` map and returns `{assumptions, recomputed}`; recomputed findings are re-sent over the WS with the same id.
+- The demo sequence is in fixtures/sequence/burst.json, as an array of `{delayMs, message}`.
+
+### 4.10 Dashboard and savings endpoints (added in the redesign)
+
+All numbers are computed by the backend. Fixtures: fixtures/rest/{kpis,savings,series_demand,series_substations,series_cooling_efficiency}.json.
+
+- GET /api/v1/kpis returns a list of `{id, label, value, unit, digits, target, better (lower|higher), delta, series [{t, v}], note, formula, network}`. `delta` is the change versus the same hour yesterday. KPI ids: nrw, water_production, electric_load, cooling_efficiency, districts_served, savings_available.
+- GET /api/v1/series/demand?network=water&zoneId=all&hours=24 returns `{network, zoneId, unit, now, actual [{t, v}], forecast [{timestamp, predicted, lower, upper}], metrics {mae, rmse, mape}}`. `zoneId=all` sums the zones.
+- GET /api/v1/series/substations returns `{unit, capacity, lines [{id, name, points [{t, v}]}]}`, 24 h of load per substation.
+- GET /api/v1/series/cooling-efficiency?days=30 returns `{unit, target, days [{date, value, ambientMax}]}`, kW per ton of cooling per day.
+- GET /api/v1/sensors/{sensorId}/history?minutes=10 returns `{sensorId, unit, normalRange, points [{t, v, expected}]}`, the last minutes of one sensor with what the twin expected. It lets a page show the lead-up to an incident.
+- GET /api/v1/savings returns `{generatedAt, totalMonthly, totalInvestment, totalRange {p10, p50, p90, runs}, opportunities [...]}`. An opportunity is `{id, title, network, where, summary, monthlySaving, savingRange, investment, paybackDays, paybackMonths, npv3Years, formula (values filled in), calculations, inputs, reasons, assumptions, confidence, status}`. It is recomputed when PUT /assumptions changes a price.
+- Cost object changes: `actNow` is now the repair cost plus the losses until the crew arrives (`actNowLosses`, `responseHours`), so `expectedSaving = costOfDelay − actNow`. New field `savingRange {p10, p50, p90, runs}` comes from a seeded Monte Carlo over the uncertain assumptions (uniform within each registered `[low, high]`) and the leak estimate (±15%). These are scenario percentiles, not calibrated probabilities.
+- Assumptions added: response_hours, setback_reduction, setback_invest, pm_target_pressure, pm_n1, pm_invest, reset_delta_c, reset_pct_per_c, reset_invest, clean_invest, planned_factor.
+
+- Every assumption in GET/PUT `/assumptions`, `Explanation.assumptions`, and `Opportunity.assumptions` carries `{key, name, value, unit, source, userChanged, basis, status, low, high, reviewed}`. `status` is `official|benchmark|engineering|planning`; `reviewed` is a YYYY-MM-DD date. `source` retains the existing default/user attribution. Overrides retain the original planning/benchmark basis and range; they do not become verified evidence. Ranges describe uncertainty, not validation limits.
+- Flat `penalty_*`, `delay_hours`, and `late_multiplier` keys are replaced by `customer_hour_{zoneType}`, `voll_{zoneType}`, `delay_hours_{kind}`, and `late_multiplier_{kind}`. Kinds are `pipe_burst`, `pump_failure`, `substation_trip`, `cooling_fault`, `stuck_sensor`, and `energy_waste`; existing detector names `leak` and `sensor_fault` remain accepted. Customer counts are registered as `customers_zone_*`, seeded by `ZONE_CUSTOMERS` in topology. For unserved MW without zone metering, customer shares allocate the total once across zones. VoLL owns customer economic outage harm; disruption owns only utility notification/support administration. Secondary energy owns only extra purchased energy, and cooling shortfall already covered by an electrical outage is excluded.
+- `Cost.review` (boolean) and optional `Cost.reviewReason` flag savings outside `saving_min_{kind}` / `saving_max_{kind}`; amounts are preserved. Every breakdown `group` is unique: `loss:*`, `disruption:{zoneId}`, `secondary:electricity`, or `repair`. Breakdown amounts sum exactly to `costOfDelay`; the repair row includes the late multiplier once.
+- `Explanation.tornado` recomputes the real saving at each used assumption's registered endpoints with all other inputs fixed; only assumptions that move the saving appear. Legacy `sensitivity` remains available.
+- Opportunities add `paybackMonths` (investment / unrounded monthly saving; omitted if no positive saving), `npv3Years` (EGP, 36 month-end net savings discounted at `(1 + discount_rate)^(1/12) - 1`, less upfront investment), and named `calculations` for monthly saving, investment, payback, and NPV. `discount_rate = 0.18` is an effective annual planning rate to verify with finance. Planned maintenance models a recurring monthly expected net benefit, already subtracting planned repair expenditure, with no separate upfront investment. `paybackDays` is retained (30 days/month).
+- `/compare` adds `explanation`, the same incident formula/assumption record used for its two totals and saving. Response losses are included exactly once in the act-now side.
+- Savings totals are sums of displayed opportunity amounts; `totalRange` samples the same assumptions jointly to preserve shared-price dependence. These opportunities are standalone estimates; the total assumes independent, additive interventions without physical overlap. See `docs/cost-model.md` for formulas, all input bases, worked examples, and limitations.
+
+- Forecast changes. `GET /series/demand` adds `baseline` (the same forecast on a normal day, only while a heat-wave or holiday scenario runs), `hindcast` (the model's values for the past hours, to lay over `actual`), `hindcastMape`, and `drivers {temperatureNow, temperaturePeak, heatWave, holiday, liveCorrection, correctionHours, weatherErrorC, trainedThrough}`. The forecast takes the running scenario as input, so it moves when a scenario starts. `liveCorrection` is the live demand over the model's value for now, applied to the near term and faded over `correctionHours`. The band is the model's own relative error on out-of-fold days, kept apart for normal, heat-wave and holiday days; for the all-districts view it is the measured band of the total, not a sum of district bands.
+- `GET /forecast/evidence?network=` returns `{network, unit, trainDays, testDays, points, trainedThrough, weatherErrorC, model {mae, rmse, mape, bias}, baselines [{name, mae, mape}], skill, coverage, nominal, byHour [{hour, mape}], scenario {days, mape, mapeBlind}, liveCorrection {tauHours, maeWithout, maeWith}, zones [{zoneId, name, mae, rmse, mape}], importances}`. Scores are on the last `testDays` days, which no model was fitted on. `skill` is one minus the model's MAE over the best naive baseline's MAE. `coverage` is the share of test points inside the band, against `nominal`. The models train on the latest `trainDays + testDays` days and are refreshed daily. 404 `no_forecast` for an unknown network.
+- Forecast evidence also carries `comparison [{name, kind, mae, rmse, mape, bias, oofMae, skillVsBestBaseline, fitSeconds, isLive, isSelected, params, pLgbmBetter, hourlyMape, weights, weightsSource}]`, `selected`, `selectedMatchesLive`, and `comparisonNote`. Names are `lightgbm`, `ridge`, `random_forest`, `seasonal_smoothing`, `ensemble`; kinds are `gradient boosting|linear|random forest|statistical|ensemble`. Feature models fit the same normalised zone demand with `FEATURES`; Ridge standardises features inside each fit. The statistical model uses NumPy additive daily seasonal smoothing per zone, without exogenous features. All use the same development/test split and five blocked folds (other dev blocks can lie after the held-out block; this is not rolling-origin validation). Scores and OOF MAE sum zone predictions by timestamp before scoring. `selected` minimises dev OOF MAE, independently of test scores; production `/forecast` remains LightGBM even when `selectedMatchesLive=false`. The LGBM/RF ensemble fits nonnegative weights summing to one on aggregate dev OOF MAE only, using a 0.01 grid; `weightsSource=dev_oof` and `weights` expose them. Weight fitting reuses the OOF data and is not nested CV. `pLgbmBetter` is the share of 1,000 paired whole Cairo-test-day bootstrap resamples (seed 731) in which LightGBM has strictly smaller MAE, not a classical p-value; ties, including self-comparison, count as zero wins. `hourlyMape` contains 24 test MAPE values, indexed by Cairo hour 0–23. `fitSeconds` sums full-dev and five fold fit times (ensemble excludes component fits; statistical timing includes prediction). Legacy evidence defaults to an empty comparison, `selected=lightgbm`, `selectedMatchesLive=true`, and an empty note. This comparison measures simulated history, not real-city accuracy.
+
+- Decision Studio: `GET /api/v1/incidents/{incidentId}/decision` returns `{incidentId, currency, recommendedOptionId, runs, seed, assumptions, options, breakEven, decisionMap, review, reviewReason?}`; unknown incidents or matching findings return 404 `not_found`. Inputs come from the finding's cost snapshot. `recommendedOptionId` is the least sampled mean cost, null on an exact tie.
+- Options have stable `id` (`fix_now`, pipe-burst-only `isolate_fix`, `wait_6h`, `wait_24h`, `wait_72h`), `name`, `delayHours`, `currentCost`, `expectedCost`, `p10`, `p50`, `p90` (sampled worst case), `expectedRegret`, `winShare`, `winShareText`, `costLines` (existing Calculation records), and signed `netBenefitVsFixNow` (option mean minus fix-now mean; negative is cheaper). `currentCost` and its lines use current assumptions; the other cost metrics use 800 shared uniform assumption draws. Regret is paired against each draw's cheapest option. Display `winShare` as “cheapest in X% of sampled price scenarios”.
+- Isolation reduces lost water only after arrival, retains disruption and secondary costs to the original horizon, and adds un-escalated `planned_factor × repair_now` plus an extra crew call-out. Waiting uses capped linear repair escalation. New planning assumptions are `isolate_loss_reduction` (0.85, range 0.70–0.95) and `late_multiplier_cap` (3.0, range 2.0–4.0). `assumptions` contains full Assumption records; review flags the recommended cost against existing per-kind sanity bounds without clamping it.
+- Each `breakEven` row is `{optionId, parameter, value?, unit, formula, inputs, reason?}`, solving the wait/fix-now tie for pipe leak rate (`leak_m3h`, m3/h) or other kinds' hourly loss rate (`delay_per_hour`, EGP/h). Negative algebraic crossings are retained; a missing finite crossing has a reason. `decisionMap` is `{xKey, xName, xUnit, xValues, yKey, yName, yUnit, yValues, cells, currentX, currentY, currentOptionId}`: nine values per axis, rows are y, exact ties give null, and current in-range values are included. This grid and `currentOptionId` use deterministic current assumptions, while the top-level recommendation uses sampled means. Fixture: `fixtures/rest/decision.json`. Formulas and worked example: `docs/cost-model.md`, Decision Studio.
+
+### 4.11 AI lab (detector benchmark, localization, sensor value, data quality)
+All numbers come from running the twin engine with faults injected; nothing is stored by hand. One benchmark tick is one minute, the expectation the detectors compare against has its own demand error (about 3%, slowly varying), and detectors see readings and the expectation only, never the truth or the fault.
+- `GET /lab/benchmark` returns `{generatedAt, config {tickMinutes, windowMinutes, expectationErrorPct, trainRuns, testRuns, cleanHours, holdoutZones, seed}, detectors [{id d1..d4, name, kind baseline|statistical|unsupervised|supervised, note, falseAlarmsPer100h, detectionRate, medianDelayMin, p90DelayMin, meanDelayCost, unseenDetectionRate, unseenMedianDelayMin, byFault [{kind, label, runs, detected, detectionRate, medianDelayMin, meanDelayCost}]}], leakCurve [{leakM3H, results [{detectorId, detectionRate, medianDelayMin}]}], faults [{kind, label, runs, hourlyCost}], bestDetectorId, notes}`. `meanDelayCost` is EGP per fault: the cost model's hourly cost of the fault (at the current assumptions) times the delay, a miss counting as the whole window; it moves when a price changes, the delays do not. `unseen*` is on locations the supervised model never saw in training. Thresholds of D2, D3 and D4 are set on clean calibration runs.
+- `GET /lab/localization` returns `{bySize [{leakM3H, top1, top3, runs}], top1, top3, runs, sensorsTotal}`.
+- `GET /incidents/{id}/localization` (leak incidents only, else 404 `no_localization`) returns `{method, sensorsUsed, sensorsTotal, demandErrorPct, candidates [{rank, assetId, name, zoneId, score, leakM3H}], ambiguous, incidentId}`: the three most likely pipes, from precomputed leak signatures fitted together with a demand-error term. `score` is the share of the residual explained, `ambiguous` is true when the top two are within 0.03.
+- `GET /lab/sensors` returns the value of each water asset's sensors: `{detectorId, leakM3H, runsPerAsset, baselineDetectionRate, baselineDelayMin, baselineLocalizationTop1, hourlyCost, rows [{assetId, name, kind, sensors, detectionRate, medianDelayMin, extraDelayMin, extraCost, localizationTop1}]}`, sorted by `extraCost` (EGP per burst if those sensors went offline).
+- `POST /lab/trial` takes `{pipeId?, leakM3H (10 to 300), disabledSensors [], seed?}`, injects a hidden burst into a copy of the twin and returns `{truthAssetId, truthName, leakM3H, windowMin, hourlyCost, detectors [{detectorId, name, detected, delayMin}], localization, hitRank, disabledSensors}`.
+- `GET /lab/quality` returns the offline scoring of the data-quality flags `{kinds [{kind, label, runs, detected, detectionRate, medianDelayMin}], falseFlagsPer100SensorHours, sensorHours, processRuns, processFalseFlags, windowTicks}`; `GET /quality` returns the live flags `{sensorsTotal, flagged [{sensorId, status missing|stuck|drift, detail}]}`. A sensor whose own asset's other sensors move, or many sensors of its kind at once, is a process change and is not flagged.
+- Two telemetry-only scenarios exist for this: `scn-sensor-drift` (`targetSensor`, `severity`; 1% of the normal range per tick at severity 1) and `scn-sensor-dropout` (`targetSensor`). The truth is untouched; only the reading changes (drift) or is missing (dropout).
+
+## 5. Scenario Control
+
+- GET /api/v1/scenarios lists available scenarios with id, name, description, network, and parameters (for example severity and target asset).
+- POST /api/v1/scenarios/run with a scenario id and parameters starts a scenario and returns a run id.
+- POST /api/v1/scenarios/stop with the run id ends it and restores normal behaviour.
+- The WebSocket sends scenario_state messages with runId, scenarioId, state (running, stopped), and startedAt.
+- Starter scenarios: pipe burst, stuck sensor, substation trip, pump failure, cooling plant fault, heat wave, holiday demand.
+- A reset endpoint, POST /api/v1/scenarios/reset, returns the whole twin to its normal baseline. This is essential for demo rehearsals.
+
+## 6. Agent Chat
+
+- POST /api/v1/chat with a message and an optional incidentId. The reply streams over the WebSocket as chat_chunk messages (with messageId and text) and ends with a chat_done message that includes which agents were consulted, in order.
+- Each chat reply also includes the routing information: which specialist agent or agents the orchestrator called and why, so the UI can show the routing live.
+- If the Groq call fails, the backend serves the recorded fallback answer and marks the message with fallback set to true.
+
+## 7. Other REST Endpoints
+
+- GET /api/v1/health returns server status and whether the LLM is live or in fallback mode.
+- GET /api/v1/alerts and GET /api/v1/incidents list current and recent items.
+- POST /api/v1/alerts/{id}/acknowledge acknowledges an alert.
+- GET /api/v1/incidents/{id}/report returns an exportable incident report as a PDF.
+- GET /api/v1/compare?scenarioId=... returns the before-and-after comparison of the same scenario with and without intervention.
+- GET /api/v1/sensor-placement returns suggested locations for extra sensors with an estimated detection improvement.
+- GET /api/v1/drift returns the twin-versus-reality drift indicators.
+
+## 8. Behaviour Rules
+
+- The backend sends a full snapshot on WebSocket connect, so a refreshed page recovers immediately.
+- Reading frequency is one tick every 2 seconds, and the frontend must handle bursts and out-of-order messages gracefully.
+- The frontend never computes costs, forecasts, or detection results. It only renders what the backend sends.
+- Unknown fields must be ignored by both sides, so the contract can grow without breaking either one.
+- Every error response has a code and a human-readable message.
+- Any change to a shape is made in this document first, with the fixtures updated in the same change.
+
+## 9. Fixtures and Mock Server
+
+- A fixtures folder holds one realistic sample for every message type and endpoint response above.
+- Codex builds a small mock server that replays these fixtures, including a full scenario sequence (normal, burst, alert, finding, resolution), so the entire UI can be built and polished before the real backend is ready.
+- Claude Code validates its real outputs against the same fixtures with schema tests, so a mismatch is caught immediately.
+
+## 10. Frontend Standards: Professional UI and UX
+
+The frontend must look like it was built by a senior front-end engineer with twenty years of experience in UI and UX. It should feel like a real control-room product, not a student project.
+
+### 10.1 Design principles
+
+- Clarity first: the most important status is visible within two seconds of opening the page.
+- Progressive disclosure: overview first, detail on click or hover, never everything at once.
+- Consistency: one design system for spacing, color, typography, and components throughout.
+- Calm by default, loud only when needed: normal state is subdued, and warnings and critical alerts get clear emphasis.
+- Every interaction gives immediate feedback.
+
+### 10.2 Visual language
+
+- Dark command-center theme with deep navy or charcoal backgrounds, subtle gradients, and soft glass-style panels with fine borders.
+- A restrained accent palette: one color per network (for example blue for water, amber for electricity, teal or cyan for cooling), and the standard green, amber, and red for status.
+- Glowing lines for networks, with animated flow along pipes and cables. Animation speed reflects real flow.
+- A modern typeface such as Inter for the interface and a monospaced or tabular font for numbers so values do not jitter when they update.
+- A strict spacing scale (multiples of 4 or 8 pixels), consistent corner radius, and a clear type hierarchy.
+
+### 10.3 Layout
+
+- Full-screen map as the hero, with floating panels on top rather than a cluttered page.
+- Top bar: project name, live connection status, LLM live or fallback indicator, clock, and the scenario lab entry.
+- Left side: layer toggles and zone filter. Right side: alerts and agent findings. Bottom: live charts, collapsible.
+- Agent chat as a docked panel that expands, showing routing steps and which agent is answering.
+- Click on any asset to open a detail drawer with health score, live chart, forecast, and recent alerts.
+
+### 10.4 Motion and feedback
+
+- Smooth, short transitions (150 to 300 milliseconds) with easing, no jarring jumps.
+- Chart updates animate gently, and new alerts slide in with a short highlight.
+- A faulty sensor pulses on the map, and the affected zone is softly highlighted.
+- When a scenario runs, the map visibly reacts, and the agent reasoning steps stream in one by one so the audience can follow the AI thinking.
+- Skeleton loaders instead of spinners, and a graceful reconnecting state if the WebSocket drops.
+
+### 10.5 UX details that signal quality
+
+- Keyboard shortcuts for layer toggles and the scenario lab, and a command palette.
+- Tooltips with units on every number, and consistent number formatting with thousands separators.
+- Empty, loading, and error states designed for every panel.
+- Clear severity hierarchy in alerts, with grouped incidents expandable into their individual alerts.
+- Cost shown as a clear comparison: cost of acting now versus cost of delay, with the breakdown one click away.
+- Responsive for large screens and projectors first, and still usable on a laptop.
+- Accessible contrast and never relying on color alone, so icons and labels back up the status colors.
+
+### 10.6 Suggested frontend stack
+
+React with TypeScript and Vite, Tailwind CSS with a small component library, MapLibre GL or Deck.gl for the map, ECharts or Recharts for charts, Zustand for state, and Framer Motion for animation.
+
+### 10.7 Arabic and English
+
+Build with text in a translation file from the start, so an Arabic right-to-left version can be added without rewriting components.
+
+## 11. Backend Standards
+
+- Typed schemas with Pydantic for every message in this contract, so invalid output is rejected before it is sent.
+- Deterministic simulation with a seed, so a demo can be reproduced exactly.
+- Clear separation: simulation, detection, ML, cost, agents, and API in separate modules.
+- All LLM calls go through one client wrapper that handles retries, timeouts, structured output, and the fallback cache.
+- Logging of every agent step, so the reasoning shown in the UI is real and traceable.
+
+## 12. Order of Work
+
+1. Both agents read this contract and agree on any needed changes.
+2. Claude Code writes the Pydantic schemas and the fixtures. Codex builds the app shell, design system, and mock server in parallel.
+3. Claude Code builds the water simulation and WebSocket stream. Codex connects the map and live charts to it.
+4. Add alerts and the Water Agent, then electricity and cooling, then the orchestrator.
+5. Add forecasting, cost, scenario lab, and extras.
+6. Polish, rehearse the demo script, and test fallback mode with the internet off.
+
+## 13. Definition of Done
+
+- Every message and endpoint in this contract works against the real backend and passes the fixture tests.
+- The demo script runs end to end three times in a row without a manual restart.
+- The UI holds a steady frame rate with all three layers and live charts running.
+- The app works in fallback mode if the Groq API is unavailable.
+
+### 4.12 Public price references, realistic scenarios, escalation
+
+- Every assumption record also carries `references` (`[{label, low, high, unit, kind, publisher, url, asof, note}]`, `kind` is `official|reported|aggregator|benchmark|historical|related`; `low`/`high` are null for context-only references), `evidence` (`consistent|partly|differs|related|none`) and `searchNote` (set when a search found no public source). `evidence` compares the registered `[low, high]` range with the comparable references (`historical` and context-only references are never compared): all inside is `consistent`, some is `partly`, none is `differs`. Nothing was checked against an official gazette or tariff schedule; press and aggregator figures say so in `kind`. Source: `backend/app/cost/references.py`, found by web search on 2026-10-29.
+- New scenarios (`GET /scenarios`): `scn-iftar-surge` (`uplift`, residential demand rises by that fraction), `scn-hidden-leak` (`targetAsset`, `severity`; a leak that grows over 4 minutes, too small for the burst rule and found by the flow-balance rule), `scn-load-shedding` (`targetAsset`, `durationSeconds`; a substation is cut for a window and then restored, and its alerts resolve) and `scn-storm` (`temperature`; see below).
+- `scn-storm` is one run of two engine events: a heat wave that builds over about 80 s, and protection relays. It is defined at the working-day midday peak whatever the clock says. Cooling plants cannot deliver past 90% of their normal maximum, so supply temperature rises; extra air-conditioning load pushes substations past their limit; the most overloaded substation trips after 15 sustained ticks, its backup inherits the load and trips in turn (at most two trips). The detector groups all of it into ONE incident (shared cause `heat`, then the trips by blast radius).
+- Escalation: when an alert of a higher-priority kind (`substation_trip` over `cooling_fault`/`pump_failure`/`leak` over `energy_waste`) joins an incident, the incident's title, severity and root cause move to it, and the agents analyse it again. An incident can therefore have several findings; the UI shows the latest. Pumps and overload alerts are suppressed for 15 ticks after a substation returns, while readings settle.
+- Engine events gained `delay` (ticks before they act) and `duration` (ticks they stay in effect); both default to the old behaviour.
+
+### 4.13 Board of agents
+
+A meeting of the three network agents and the chair (orchestrator) that decides the order in which to send crews to every open problem. Start it with `POST /api/v1/board/convene {incidentId?}` (409 `nothing_to_decide` if no alert is open); it also convenes by itself, 20 seconds after the set of open problems stops changing (it waits for a meeting in progress to finish and meets again if new problems appeared meanwhile), when at least two networks have their own open problem. Set `BOARD_AUTO=0` to turn that off.
+
+- WebSocket: `board_state {sessionId, incidentId?, state running|done, startedAt}` at the start and end, one `board_message` per message about 0.9 s apart, and `board_decision` at the end. REST: `GET /board/latest?incidentId=` and `GET /board/sessions/{id}` return a session `{id, incidentId?, state, startedAt, messages[], decision?}` (404 `no_session` if none). A reset clears all sessions.
+- `BoardMessage {id, sessionId, round, agent water|electricity|cooling|orchestrator, kind opening|position|dependent|challenge|decision|concession, text, facts [{label, value, unit, source measured|calculated|assumed}], source llm|template}`. Rounds: 0 opening, 1 positions, 2 what waiting costs, 3 decision, 4 replies. `source: template` means the words were written by code, because the model was unavailable or its rewrite changed a figure, an asset or the length. Either way every figure in `text` is in `facts` (checked), so a figure on screen is always a computed figure.
+- `BoardDecision {sessionId, incidentIds, createdAt, crews, tasks [BoardTask], plan {steps [BoardStep], expectedCost, p10, p50, p90, winShare, regretMean, regretP90, hourlyBleed, runs}, alternatives [{id, name, order [taskId], expectedCost, extraCost}], flips [{taskId, assetName, current, threshold, direction below|above}], risks [{kind overload|queue|tail, text}], extraCrewSaving?, conflict, summary, summarySource, calculationId}`. A `BoardTask` is one open alert: `{id (the alert id), agent, assetId, assetName, kind, action, crew, hoursToFix, hourlyCost, repairCost, returnPerCrewHour, relievedBy[]}`. A `BoardStep` is `{order, taskId, agent, assetName, action, crewSlot (1-based), startHour, endHour, hourlyCost, lossUntilFixed, repairCost, repairMultiplier, dropped, reliefHour?}`; hours count from now.
+- How the decision is made (all in code, `backend/app/board/`): each open alert is priced by the cost model (`hourlyCost` is C_loss + C_disruption + C_secondary) and given an on-site work time (`fix_hours_<kind>`); crews are free after `response_hours`, then `crew_switch_hours` after each job; the cost of an order is the sum over problems of hourly cost x finish hour plus repair cost x the late-repair multiplier for the time it waited. Every order of up to 6 problems is tried (exhaustive search) and the cheapest is chosen. `alternatives` are the alarm order, each agent's work first, and the worst order. `winShare` is the share of 300 price scenarios (assumptions drawn from their registered ranges) in which the chosen order is the cheapest. `flips` give the hourly cost at which the best order would change. `extraCrewSaving` is what one more crew would save. A problem that another repair makes moot (an overload on a backup substation, relieved by restoring the tripped one that feeds it) stops costing when that repair finishes (`dropped`, `reliefHour`).
+- `calculationId` opens in the usual calculation view: its record lists every step's hourly cost, return per crew hour, finish hour, loss and repair cost with the assumption keys behind them (`crews_available`, `crew_switch_hours`, `fix_hours_<kind>`, the late-repair keys). It is not a Decision Studio record.
+- Fixtures: `fixtures/rest/board_session.json`, `fixtures/ws/board_state.json`, `board_message.json`, `board_decision.json`. New scenario `scn-compound` (a main bursts, a chiller fails and a substation trips together) gives the board three tasks and two crews.
+
+
+### 4.14 Human approval, crew dispatch and the decision log
+
+The board only proposes. Nothing changes in the twin until a person approves.
+
+- `BoardDecision` gains `status` (`proposed` -> `executing` -> `completed`, or `rejected`, `superseded` when a newer proposal arrives first, `stale` when every problem cleared before anyone decided), `review?` and `execution[]`. The server re-broadcasts `board_decision` on every change (approval, a crew starting or finishing, the detector confirming), so the screen only replaces the decision it holds for that `sessionId`.
+- `POST /api/v1/board/sessions/{id}/approve` body `ReviewRequest {operator (1-60 chars, typed by the person; the twin has no sign-in), note?, order? [taskId], secondsPerHour? (1-120)}`. Without `order` the board's plan is approved. With `order` (every task id of the proposal exactly once, in start order) the person approves their own order: the server prices it with the same schedule function; if the schedule differs from the board's it is an override and `review.costDelta` is the extra expected cost in EGP (never negative for up to 6 problems, because the board's order is the exhaustive minimum). `POST .../reject` needs `note` (the reason, 3+ chars). Errors: 404 `no_session`, 409 `no_decision`, `already_<status>` (including `already_superseded`), `no_analysis`, `nothing_to_do` (and the decision becomes `stale`), 422 `bad_order`, `reason_required`.
+- `Review {outcome approved|rejected, operator, at, note, override, order [taskId], expectedCost?, boardCost?, costDelta?, decisionHash, secondsPerHour?}`. `decisionHash` is the SHA-256 of the proposal exactly as the person saw it; it equals the `decisionHash` in the `proposed` log line.
+- `POST /api/v1/board/sessions/{id}/preview` body `{order [taskId]}` -> `OrderPreview {order, steps [BoardStep], expectedCost, boardCost, costDelta, override}`: the price of an order before anyone commits to it. It changes nothing and writes nothing to the log (same 404/409/422 errors as approve).
+- Execution runs on a demo clock: one planned hour takes `secondsPerHour` seconds of the twin's time (default 20, `DISPATCH_SECONDS_PER_HOUR`), because a real 3 hour repair cannot be watched. Plan hours and costs are not scaled. `ExecutionStep {taskId, assetId, assetName, action, crewSlot, planStartHour, planEndHour, state waiting|working|done|skipped, note, startedAt?, finishedAt?, confirmedAt?}`. When a crew finishes, the fault on that asset ends in the twin (`Engine.repair`: the burst, pump failure, trip, cooling fault or stuck sensor event on it is removed; an overload gets load shed back under its normal maximum). `confirmedAt` is set when the detector independently clears the alert, not when the crew finishes. A step the plan marks `dropped` (relieved by another repair) gets no crew (`skipped`). A step whose problem already cleared before the crew was due is also `skipped`.
+- Decision log: `GET /api/v1/audit?sessionId=&limit=` -> `{entries [AuditEntry], verification}`; `GET /audit/verify` -> `{ok, entries, brokenAt?, head?, reason?}`; `GET /audit/export` (CSV). WebSocket `audit_entry` pushes each new line. `AuditEntry {seq, at, run, actor, action, sessionId?, subject?, detail, data {string: string|number|bool}, prevHash, hash}`. Actions: `proposed` (actor `board`), `approve`, `approve_with_changes`, `reject`, `superseded`, `proposal_stale`, `crew_dispatched`, `repair_done`, `no_crew_needed`, `skipped`, `alert_cleared` (actor `detector`), `plan_completed`, `simulation_reset`. Each line's `hash` is SHA-256 over its fields and the previous line's hash (the first links to 64 zeros), so editing or removing any line breaks every hash after it and `verify` reports the first broken `seq`. The newest `seq` and hash are also written to `audit.jsonl.head` after every append, so cutting lines off the end of the file (which a chain alone cannot see) is reported with `reason` and `brokenAt` = the first missing line. Limits: deleting the whole file counts as a fresh log, and someone who rewrites both files can still forge it; the head hash on the Decision log page is the record to keep outside the machine. Appends are serialised by a lock (the request handlers run on a thread pool). The log is appended to `backend/data/audit.jsonl` (`AUDIT_PATH` to move it), survives a restart and a simulation reset (a reset adds a `simulation_reset` line), and `run` tells apart sessions with the same id from different simulation runs.
+- Limits: identity is whatever the person types (no authentication yet); the hash chain shows tampering inside the file, it does not stop someone with file access from rewriting the whole file; one plan executes at a time per session and the board does not re-plan mid-execution.
+- Fixtures: `fixtures/rest/board_decision_executing.json` (approved, one job done, one working, one waiting), `fixtures/rest/audit.json`, `fixtures/ws/audit_entry.json`.
+
+### 4.15 Early warning
+
+A pump or transformer whose condition signals drift away from its peers is flagged **while it is still running**. How: the failure model scores the asset (a score read against the model's synthetic failure history, not the chance of failing within a stated time: see below); the same score is recomputed with the two condition signals (deviation from the twin, signal variability) set to the median of the other assets of the same kind; the difference is the `excess`. A warning opens when the excess, measured in log-odds (so that a young pump with a risk near 1% is judged like an old one), stays at or above 1.0 and at least 0.01 in probability points for three samples in a row (about a minute) while the asset is `normal` or `warning`. It is not raised for assets inside the reach of an open incident (a pump moving more water because a main burst is not wearing out), nor for six samples after an asset comes back online. It closes (`cleared`) when the log-odds excess is under 0.5 for three samples. The `excess` field in the payload stays in probability points (`risk − peerRisk`). If the asset then stops it becomes `failed` and records the lead time.
+
+- WebSocket `early_warning` (payload `EarlyWarning`), sent when a warning opens and about every 20 s while it is active, and again on `cleared` and `failed`. REST: `GET /api/v1/warnings` returns every warning of this run, newest first. A reset clears them.
+- `EarlyWarning {id, assetId, assetName, network, zoneId, state active|cleared|failed, createdAt, updatedAt, risk, peerRisk, excess, risePerMinute?, signals [{label, value, peerValue, unit}], series [{t, risk, peer}], cost {unplanned, planned, breakEven, risk, verdict maintain_now|watch, expectedSaving}, text, drivers [Reason], evidence?, leadTimeSeconds?, whyRef}`. `excess` is `round(risk,3) − round(peerRisk,3)`, so the screen reproduces it. `minutesTo90` was removed: measured against the real stop time it said 14 minutes for a pump that stopped 18 seconds later, so it was misleading. `cost` comes from the cost model: `unplanned` is the pump-failure proxy (losses over the delay plus late repair), `planned` is `planned_factor` x the emergency repair, `breakEven = planned / unplanned`, `expectedSaving = risk x unplanned - planned` (all from the rounded figures shown). Every figure in `text` is one of these numbers.
+- `drivers` (`Reason` with `textAr`) says why the warning is open, in this order: the two condition signals, largest share first, each with `explains X of the G points` where G is the gap to the peers in points. The shares are a Shapley split (the score recomputed with each signal put back to the peer median, averaged over the two orders), so they add up to G to the point shown; then what age, running hours and load alone give (marked `assumed`: age and hours are values the simulation assigns, not measurements); then the opening rule with the current log-odds gap.
+- `evidence` (`WarningEvidence`, absent when `backend/data/earlywarn_evidence.json` is missing) is what the twin's own test runs showed when a wearing pump was left alone: wears run, warned before the stop, lead time (min, median, max, in seconds), the score at the moment of the warning (min, max), wears too fast for it, and the simulated hours without a false warning. `text` / `textAr` are written by code from those figures. The file is written by `scripts/stress/earlywarn_matrix.py --write-evidence`. The twin makes every wear end in a stop, so this shows that the warning comes in time, not that a real pump would fail; the text says so.
+- What the score means: on the held-out quarter of the model's own history its mean error against the true rate in that history is about 4.6 points (Brier 0.154; 0.150 is the best any score can reach), but that history has no time window and a failure is recorded for 50% of its assets. So the level is high by construction and is not the chance of failing within a stated time; the gap to the peers says more than the level (in the tests the score at the moment of the warning ranged widely). `GET /why/warning:<id>` and `asset-risk:<id>` state this with the figures (`ml.failure_calibration`).
+- Scenario `scn-pump-wear` (parameters `targetAsset`, `minutesToFailure` 3 to 20, default 8): the pump's discharge pressure starts to hunt and it moves more water for the same duty, then it stops. The warning arrives before the pump stops; how long before depends on the pump and the wear time and is in `evidence` (it was not constant, see `docs/measurements/early-warning.md`). The other 14 scenarios raise no warning (checked).
+- Honest limits: the risk model is trained on a synthetic hazard, so this demonstrates the mechanism and is not field accuracy; only pumps and transformers are assessed; a fast failure with no precursor (`scn-pump-failure`) is, correctly, not warned about.
+- Fixtures: `fixtures/ws/early_warning.json`, `fixtures/rest/warnings.json`.
+
+### 4.16 "Why this number?"
+
+`GET /api/v1/why/{ref}` returns a `WhyRecord {ref, title, value?, unit, evidence measured|calculated|model|assumed|forecast, formula, steps [string], inputs [CalcInput], notes [string], links [{label, href}], computedAt}` (404 `no_explanation` for an unknown reference). `inputs` are the same `CalcInput` as in calculation records: `{name, value, unit, source measured|forecast|rule|assumed, key?, basis, status?}`; an input with a `key` is a registered assumption the person can edit. References:
+
+| `ref` | What |
+| --- | --- |
+| `kpi:<id>` | A dashboard tile: `nrw`, `water_production`, `electric_load`, `cooling_efficiency`, `districts_served`, `savings_available` (the ids of `GET /kpis`). |
+| `asset-health:<assetId>` | Health score: base condition (a fixed seeded value per asset, stated as not measured) minus 50 x the worst sensor deviation, minus 40 if offline. |
+| `asset-risk:<assetId>` | Failure risk score: the six model inputs with their sources and a note that the model is trained on a synthetic hazard. 404 until the model has scored the asset. |
+| `warning:<warningId>` | An early warning's maintenance decision with every assumption behind it. |
+| `saving:<opportunityId>` | A savings opportunity: formula, calculations, inputs. |
+| `forecast:<network>` | The forecast accuracy: error against the best simple method on the held-out days. |
+
+Incident costs, board plans and chat answers keep their `calc-…` records (`GET /calculations/{id}`). A backend test asserts every KPI, every asset, every opportunity and every network has an explanation, so a number on those screens cannot be left without one. Fixtures: `fixtures/rest/why_kpi.json`, `why_warning.json`.
+
+### 4.17 Guardrail test ("try to fool the AI")
+
+`POST /api/v1/guardrail/probe {prompt (1-600 chars), incidentId?}`. The incident (default: the latest) supplies the real data and its calculation record. The model receives that data and the person's message, and what it writes is the `raw` answer; the same number checker that protects every agent answer then gives each figure a verdict. Response `GuardrailResult {prompt, incidentId, calculationId, source llm|planted, raw, checked, figures [{text, value, verdict verified|removed, matched?, matchedValue?}], removed, allowedCount}`. `checked` is `raw` with each removed figure replaced by `[figure removed]`; `matched` names the calculated value a verified figure agrees with (for example "cost of acting now"). `source: planted` means no model answered (offline, quota, error), so a draft that repeats the person's claim and adds invented figures stands in; the screen must say so. Whole numbers up to 10 pass as counts ("3 agents") unless a unit follows ("5 m3/h" is a quantity). 409 `no_incident` when nothing has been detected yet. Fixture: `fixtures/rest/guardrail_probe.json`.
+
+### 4.18 Forecast reliability and error by kind of day
+
+`GET /api/v1/forecast/evidence?network=` (`ForecastEvidence`) gains two fields; both are absent on evidence trained before them.
+
+- `byDayType [{name, days, mape}]`: the network-total error (percent) on the development window, predicted out-of-fold, for each kind of day that occurs in it: `Working day`, `Weekend (Friday, Saturday)`, `Holiday on a working day`, `Holiday on a weekend day`, `Heat wave`. `days` is the number of distinct Cairo dates, so a row with two or three days is a small sample and should be read as one.
+- `reliability {label reliable|indicative|unreliable, checks [{name, status ok|weak|fail, detail}]}`: whether the forecast is fit to plan with. Three checks, each with its figures in `detail`: skill against the best simple baseline (`ok` from 25%, `weak` above 0, else `fail`); whether the band holds the share it promises (a band narrower than it claims is judged more strictly than one wider than needed, which is safe but says less); and whether the worst kind of day is within 2x of the overall error (never judged below 5%). The label is `unreliable` only when the skill or band check fails. A forecast that is good except on one kind of day is `indicative` and the third check names the day. The rules are constants in `app/ml/verdict.py` and run on the stored evidence, so they can change without retraining.
+- The training calendar (`scenario_calendar`) now puts holidays and heat waves on Fridays and Saturdays at their natural share, and there are 14 holidays in the development window. Before this the model had never seen a holiday on a weekend day. Measured over 56 future days with a holiday of factor 1.5: weekend holiday median error 10.2% before, 5.6% after; working-day holiday 5.7% before, 6.7% after. The twin gives every date its own random demand (about 3.5%) and temperature (about 2 deg C), so a single date says more about that date than about the model: tests judge a scenario by the median of four dates.
+- Fixture: `fixtures/rest/forecast_evidence.json`.
+
+### 4.19 Morning briefing
+
+What needs the owner's attention today, composed by code in English or Arabic with no language model in the path, so it goes out whether or not a model is reachable.
+
+- `GET /api/v1/briefing?lang=en|ar&forSend=false` returns `Briefing {generatedAt, lang, headline, sections [{id decision|now|watch|outlook|money, title, items [{kind decision|incident|warning|outlook|money|data|repeat, severity critical|warning|info, text, fingerprint, link?}]}], text, figures [{key, label, display, value}], repeated, deliveries [{channel telegram|in_app, state sent|failed|skipped, detail, at}]}`. `text` is the whole briefing as plain text, the form a messaging channel receives. `figures` lists every figure in the text, with the value it was rendered from; English and Arabic carry the same keys and values. 422 `bad_language` for another language.
+- Order: a board decision waiting for approval comes first (`decision`), then open incidents ranked by what an hour of delay costs (`now`), early warnings and sensors with suspect readings (`watch`), the next 24 hours of forecast demand with the electrical peak as a share of firm capacity (`outlook`), savings available (`money`). At most three items per section; the rest are counted.
+- Events and exposures are kept apart: an incident is money being lost now, a warning or a forecast peak is something that may cost money.
+- Repeats: `forSend=true` (what a send uses) leaves out an incident or warning that was reported within `BRIEFING_COOLDOWN_HOURS` (12) at the same severity or lower, and counts them in `repeated` ("Problems already reported and still open: 2"). A problem that got worse is reported again. The `fingerprint` names the problem and never its value, so a standing leak is recognised tomorrow at a different cost. The history is a file (`BRIEFING_STATE`, default `data/briefing_state.json`), so a restart does not repeat the morning.
+- Arabic is composed, not translated: sentences are written as Arabic with the same figure tokens, units are Arabic (جنيه, ميجاوات, م³/ساعة), months are Arabic names, incident kinds and districts have Arabic names (an asset code such as SS-04 stays Latin). Arabic numbers use Western digits, as business writing in Egypt does.
+- `GET /api/v1/briefing/channels` returns `[{channel, configured, detail}]`. `POST /api/v1/briefing/send {lang, channel}` returns `{delivery, briefing}`. Telegram needs `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` (a bot from @BotFather); without them the delivery is `skipped` with the reason, nothing fails. A network error or a refusal gives `failed` with a `detail` that never contains the token. The message is cut at Telegram's 4096 characters.
+- Daily send: when Telegram is configured the app sends the briefing once a day at `BRIEFING_AT` (Cairo time, default 07:00) in `BRIEFING_LANG` (default `ar`); `BRIEFING_ENABLED=0` turns it off. A failed or skipped attempt is not retried until the next day.
+- Problem alerts to Telegram (`app/alerts.py`, same bot and chat as the briefing): a message with every detail goes out when an incident opens (once the agent's finding is ready, or after `ALERTS_WAIT_FINDING_S`, default 45 s, with what the detector knows), when its severity rises (`escalated`) or its root cause turns out bigger (`updated`), when it is resolved (with how long it was open), and for an early warning when it opens and again if the asset then fails (with the lead time). The text is composed by code from the incident, the agent's finding and the cost engine's figures (no model in the path): where (zones, assets), what the sensors show, probable cause, impact, the cost per hour open, acting now, waiting `delay_hours`, the saving with its P10-P90 range, the recommended action, and a note that costs are planning assumptions. When it is over Telegram's 4096 characters the evidence is dropped first, never the costs. Settings: `ALERTS_ENABLED` (default 1), `ALERTS_MIN_SEVERITY` (default `warning`), `ALERTS_LANG` (default `BRIEFING_LANG`, else `ar`), `ALERTS_WARNINGS` (default 1), `ALERTS_PER_HOUR` (default 30; more are held back with one notice), `APP_URL` (adds a link). `GET /api/v1/alerts/telegram` -> `AlertsStatus {configured, enabled, lang, minSeverity, warnings, perHour, deliveries [{id, kind incident|updated|escalated|resolved|warning|warning_failed|test|paused, subjectId, title, state sent|failed|skipped|suppressed, at, detail, characters}]}` (the token is never in it). `POST /api/v1/alerts/telegram/test` sends one short test message (409 `telegram_not_configured` without the token and chat id). Nothing is retried; a failed delivery is logged and the app shows the same incident either way. Stress scripts that run many scenarios should set `ALERTS_ENABLED=0`.
+- Fixtures: `fixtures/rest/briefing.json`, `briefing_ar.json`, `briefing_channels.json`.
+
+### 4.20 Figures cited by token
+
+Agents no longer type the money in their answers. The model is given a table `figures [{token, means, reads}]` and writes `{{act_now}}` where a figure belongs; code replaces it with the calculated value (`app/agents/figures.py`), formatted exactly as the dashboard shows it ("22,697 EGP"), from the same calculation record. A token that is not in the table is removed with its markup, a model's added unit after a token is dropped, and a brace dropped or added is read as the token. Because the figure is put in afterwards, an answer recorded earlier and replayed after a price change shows today's figure. Figures the model types anyway (sensor readings quoted from the data, counts) still go through the number checker.
+
+The number checker now also reads: Arabic-Indic and Persian digits and the Arabic thousands and decimal separators (٩٨٧٦٥, ۱٬۲۳۴, ٣٫٧٥), Arabic scale words (ألف, مليون, مليار and their plurals), and spelled-out English numbers that contain a scale word ("fifty thousand", "a million"). Arabic letters may touch a figure (و٥٠٠); Latin letters may not (asset ids). Not covered: spelled-out Arabic numbers, and a unit glued to a figure with no space ("5m3/h").
+
+### 4.21 Incidents: one fault is one incident
+
+- An open alert closes only when the evidence is clearly gone, not when the opening condition lapses: a cooling alert opens at 0.6 C above the supply-temperature limit and closes below 0.2 C; a leak alert closes when the flow mismatch falls under half the creeping-leak threshold, and never while the pump on that pipe has no power (a pump with no power moves no water, so the leak cannot be seen, which is not a repair); a pump alert and an overload alert have the same margin. Before this a weak chiller fault opened and closed the alert over and over (12.75 incidents for one fault).
+- A fault that comes back within `REOPEN_TICKS` (150 ticks, 5 minutes) of its alert closing reopens the same incident (`state` back to `open`, a second alert in `alertIds`) instead of opening a new one beside it.
+
+### 4.22 The healthcare team's districts, facilities and environment
+
+Read-only. The twin did not generate any of these values: they are copied unchanged from the healthcare-investment project (`integration/health/data`, with the source repository, commit and SHA-256 of its panel in `SOURCE.json`). The feature is off, with `404 no_city_data`, when that folder is missing.
+
+- `GET /api/v1/city/districts?month=YYYY-MM` -> `CityDistricts {month, months [YYYY-MM, oldest first], source {repository, commit, sha256, simulated, note}, districts [CityDistrict]}`. Without `month` the latest month. A malformed month is `422 invalid_month`, a month outside the data `404 no_month`.
+- `CityDistrict {districtKey, code, nameAr, kind, areaKm2, position {lat, lng}, placedAt? {lat, lng}, matchKind, ourZoneIds, facilities {hospitals, clinics, doctors}, metrics}`. `position` is their centroid, unchanged: their file has no boundary, so the map draws a symbol, not an outline, and the coordinates are approximate (rounded, evenly stepped). `placedAt` is where the map draws it: the centre of the zone it is matched to, or on a small ring (about 550 m) around that centre when several districts share the zone; absent for `none`. It is a drawing position for readability, not a measured one. `matchKind` is `direct` (same name and kind as one of our zones, **not** the same place: their government district is about 5 km from ours), `type` (read as the same kind of district) or `none`; `ourZoneIds` lists the zones. The source is `integration/health/zone_mapping.csv`.
+- `metrics` (`CityMetrics`): `month`, `residents`, air (`aqiMean`, `aqiMax`, `pm25Ugm3`, `pm10Ugm3`, `daysAqiOver150`), waste (`binFillPct`, `binHoursOver85Pct`, `overflowIncidents`, `collectionEfficiencyPct`, `uncollectedTons`, `odorPestRisk`), water pollution and supply (`waterPollutionIndex`, `ecoliPositivePct`, `chlorineResidualMgL`, `turbidityNtu`, `supplyInterruptionHours`, `leakIncidents`, `nonRevenueWaterPct`), weather (`avgTempC`, `heatDays`), `stress {air, waste, water, heat, overall}` (their 0..100 scores, 100 the worst; `overall` is their Environmental Stress Index: under 20 low, 20 to under 35 moderate, 35 and over high), and the health counts `visitsDemand`, `respiratoryVisits`, `waterborneVisits`, `heatRelatedVisits`.
+- `GET /api/v1/city/facilities` -> `[CityFacility {facilityId, kind (hospital, clinic, doctors), nameAr, districtKey, position, placedAt?}]`: 81 facilities, 30 of them hospitals. `placedAt` keeps the facility's offset from its own district's centre, moved onto where that district is drawn.
+- `GET /api/v1/city/decision` -> `Decision {envMonth, source, simulated, medianCostOfDelayEgp, medianEsiOverall, rows [DecisionRow]}`: `integration/health/out/joint_decision.csv` served as it is (404 `no_decision_table` when it has not been generated). A row puts the twin's side (`worstCostOfDelayEgp`, `worstUnservedMw`, `scenariosAffecting`, `worstScenarioId`, `electricityWorstCostEgp`, `waterWorstCostEgp`, `coolingWorstCostEgp` (the same figure for one network only, never added; a network no scenario reaches the district through is absent), `hospitalScenariosSure`, `hospitalScenariosPossible`) next to theirs (`esiOverall`, `esiAir`, `esiWaste`, `esiWater`, `esiHeat`, `esiBand`, `highestScore`, the facility counts, and `pressureBaseline`, `overCapacity`, `pressureGrowthOnly`, `bestPackage`, `bestPackagePressure`, `bestPackageCostMEgp`: their hospital pressure ratio (demand over capacity) and best package from their own what-if engine, run unchanged with their default settings and that district as the only target; the package costs are placeholders of their configuration; absent when `integration/health/data/their_packages.csv` is not there). **Nothing from the two sides is added together.** `outageVsMedian` and `environmentVsMedian` compare each side with the median of the districts that have it, and `group` is `both_higher`, `outage_higher`, `environment_higher`, `both_lower` or `no_outage_data`: a relative reading, because all overall scores sit in one band and no threshold of ours is invented. `hospitalScenariosSure` counts the failures that hit every zone the district is matched to; `hospitalScenariosPossible` those that hit only some of them (an upper bound).
+- `GET /api/v1/city/decision/{districtKey}/cost?network=any|electricity|water|cooling` -> `DecisionCost {districtKey, network, matchKind, figureEgp?, how, parts [CostPart]}`: how one figure of the table was made, from the cost engine's own record of the scenario (`cost_explanations.json`, nothing recomputed). One `CostPart` per zone the district is matched to: `scenarioId`, `assetName`, `kind`, `delayHours`, `responseHours`, `ownLines [{label, cause, amount}]` (the cost lines of that zone; `zoneCostOfDelayEgp` is their sum and the district's figure, or one term of its mean for a `type` district), `ownSteps [{name, formula, inputs, result, unit}]` (the formula and inputs behind each line), `otherZonesEgp` and `sharedLines` (the rest of the incident: `ownLines + otherZonesEgp + sharedLines = incidentCostOfDelayEgp`), `totalStep` (the whole incident's formula) and `assumptions [{name, key, value, unit, status, basis}]`. 404 `no_decision_table` / `unknown_district`, 400 `bad_network`. Empty `parts` when no scenario of that network reaches the district.
+- The map's two layers (**Healthcare districts**, **Health facilities**) read these endpoints only when switched on. Districts are coloured by one of their stress scores (overall, air, waste, water, heat) in their bands, sized by registered residents, with a month selector.
+- What it is not: a model of air, waste or water quality in the twin. The twin models flow, pressure, electricity and cooling; these layers show another team's figures beside them, labelled as theirs and as simulated.
+
+
+### 4.23 Siting what-if: put a facility in a zone
+
+A planner picks a zone and a facility (new hospital, hospital expansion, clinic, or a custom load) and reads what it does to the networks and what it costs. It runs on a separate copy of the twin (`app/siting.py`); the live twin is never touched. No language model is involved.
+
+- `GET /api/v1/siting/options` -> `{zones [{id, name, type, substation, pump, coolingPlant?}], kinds [{id, label, unit, defaultUnits, capexMEgp?, capexBasis, assumptions [SitingAssumption]}], limits {electricity, water, cooling}, spread}`.
+- `POST /api/v1/siting/evaluate` with `SitingRequest {zoneId, kind (hospital | hospital_expansion | clinic | custom), units, waterM3H?, electricityMw?, coolingMw?, capexMEgp?, runs?}` -> `SitingResult {zone, kind, units, unit, load {waterM3H, electricityMw, coolingMw, onSiteChillersMw}, assumptions, conditions [ConditionResult], cost {capexMEgp?, capexBasis, mitigations, mitigationMEgp, totalMEgp?, note}, districts [SitingDistrict], verdict, runs, seed, simulated}`. A custom load needs all three load numbers per facility (`422` otherwise); an unknown zone is `404 unknown_zone`. The same request gives the same answer (seeded); the last 32 answers are cached.
+- How it is read: the facility's design load is added to the zone's demand inside the engine (`Engine.extra_load`), and the twin is read hour by hour on simulated summer weekdays (Sunday to Thursday, June to September, each with its own temperature and demand draw), with and without the facility, over `runs` draws of the load inside its assumption ranges. Three conditions are read and never mixed: an ordinary day, a heat wave of 46 °C, and the loss of the zone's substation or of the one it backs up. A zone without district cooling puts the facility's cooling on its own chillers, which draw electricity.
+- A **breach** is a limit the twin already has: a substation above its firm capacity (110 MW, the dashboard's assumption; warning from 85%), a cooling plant above the top of its normal operating range (warning from 85%), a district pump that cannot hold its discharge set-point (warning: a pipe under its normal pressure). `probabilityBefore` and `probabilityAfter` are the shares of simulated days with at least one breach without and with the facility: a probability under the stated assumptions, not a forecast of the real network. Only the substations and the plant the facility can reach are checked, so a breach elsewhere does not count.
+- Cost: the facility's own cost (entered, or the healthcare team's placeholder for a new hospital and an expansion; a clinic and a custom load have none unless entered) plus one placeholder package of `integration/health/out/packages.csv` per limiting asset when the facility adds at least 10 points of days in breach and leaves at least 5%. The electricity above the firm capacity the facility adds is valued at the zone type's value of lost load (cost model, with its range).
+- What it is not: the loads per bed or per clinic are planning allowances (listed with their range and the words "replace with the design brief"), not design figures; a hospital is treated like any other load in a substation loss (the twin sheds 55% of it), although a real one is priority load.
+- Sources of the hospital load assumptions (checked 3 November 2026; none is Egyptian data, and the per-bed electricity is derived, not quoted): water per bed, [NBC India extract](https://www.ncrpb.nic.in/NCRBP%20ADB-TA%207055/repository/pdf/clause/clause2.2.8.3c.pdf) (450 L/bed/day) and an ASPE-based chart on [phcppros.com](https://www.phcppros.com/articles/15032-simplistic-preliminary-design) (132 to 251 gal/bed/day, typical 172); energy intensity, [Hajj General Hospital Medan study](https://jurnal.sumutprov.go.id/index.php/inovasi/article/view/1041) (177 kWh/m2/year, quoting 380 globally); floor area per bed, a Korean survey ([koreascience.kr](https://www.koreascience.kr/article/JAKO201305538527916.page?lang=ko), 80.2 m2 average) and the Chinese general-hospital standard (112 m2); load factor 0.73 from a [hospital load-profile study](https://ewh.ieee.org/conf/powertech/2009/papers/823.pdf); cooling, the Baptist Hospital Nashville case on [csemag.com](https://www.csemag.com/case-study-hospital-heat-recovery-chiller/) (5,800 tons, 759 beds). The clinic loads have no source and stay illustrative. Replace all of them with the design brief's schedules.
+
+### 4.24 The language of the agents and of the report
+
+The person chooses the language the agents speak (English or Arabic) in the top bar of the web app (`EN | عربي`); the server keeps the choice in `backend/data/settings.json`. The report language is chosen on each download. Nothing is translated by a model after the fact: the code writes both languages of what it writes, and the model writes the narrative in the chosen language under the same checks.
+
+- `GET /api/v1/settings` -> `{agentLang, languages}`; `PUT /api/v1/settings {agentLang: "en" | "ar"}` (`422 bad_language` otherwise). New findings, chat answers and board meetings use the chosen language.
+- Both languages travel together, so switching shows the other at once: `Alert.titleAr` and `summaryAr`, `Incident.titleAr`, `Reason.textAr` (the detector writes every reason and title in both languages, with the same figures), and `AgentFinding.ar {headline, explanation, probableCauses, impact, action, reasoningSteps}`. A specialist's answer carries an `ar` object; when the model gives none, or its Arabic carries a figure the calculation does not hold, the computed Arabic wording (`template_ar`) takes its place. The Arabic of a finding is checked like the English: figures by token, anything typed as digits must be in the calculation record.
+- `POST /api/v1/chat {message, incidentId?, lang?}`: `lang` is the language of the answer; without it, the chosen language (whatever language the question is in). Routing reasons, specialists' views and the answer follow it; the code's own answer (when the model is out of reach or its wording fails the checks) exists in both.
+- The board meeting is written in the chosen language when it starts. By default the Arabic meeting is the code's own sentences (`source: template`), which are grammatical by construction and carry the same figures as the English ones (a test compares them one by one); `BOARD_AR_LLM=1` lets the model re-voice it under the same figure and asset checks, which guard numbers and not grammar. The decision card (steps, alternatives, risks) is still English.
+- `GET /api/v1/incidents/{id}/report?lang=en|ar` -> the incident report as a PDF; without `lang`, the chosen language. The Arabic report reads right to left with joined letters (ReportLab does not know Arabic, so each line is cut, shaped with `arabic-reshaper` and put in reading order with `python-bidi` in `app/report_ar.py`) in the Amiri font (`backend/assets/fonts`, SIL Open Font Licence). Digits stay Western in both languages. Names the cost engine has only in English (a few assumptions of the maintenance and savings models) stay in Latin letters.
+- Telegram alerts in Arabic (`ALERTS_LANG=ar`) use the finding's Arabic text, the Arabic titles, causes and reasons, and the Arabic names of the crew, not only an Arabic frame around English text.
+- What is not in Arabic: the labels of the web app (the globe button toggles those, partly translated), the Savings, Forecast and AI lab pages, the Decision log entries, the board's decision card, and the cost model's provenance sentences.

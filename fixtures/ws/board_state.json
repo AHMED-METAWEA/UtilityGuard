@@ -1,0 +1,9 @@
+{
+  "type": "board_state",
+  "payload": {
+    "sessionId": "board-0001",
+    "incidentId": "inc-0001",
+    "state": "running",
+    "startedAt": "2026-10-28T11:30:00Z"
+  }
+}

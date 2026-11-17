@@ -1,0 +1,411 @@
+"""Generate /fixtures from the Pydantic schemas so every sample is valid by construction.
+
+Run: .venv/bin/python -m scripts.make_fixtures
+Use --forecast-evidence-only to refresh just the demand-model evidence fixture.
+"""
+
+from __future__ import annotations
+
+import json
+import math
+import sys
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from app.schemas import (
+    AgentFinding, Alert, AssetStatus, CalculationRecord, ChatAccepted,
+    ChatChunk, ChatDone, ChatRoute, Compare, CompareSide, DriftIndicator, FeatureImportance,
+    Forecast, ForecastMetrics, ForecastPoint, Health, Incident, LatLng, ModelMetrics, NetworkMetrics,
+    PlacementSuggestion, PredictedImpact, Reading, ReadingBatch, Reason, RecommendedAction, RouteStep, Scenario,
+    ScenarioParam, ScenarioRunResponse, ScenarioState, Snapshot, envelope,
+)
+from app.cost import Assumptions, IncidentFacts, compute
+from app.decision import from_finding
+from app.sim.engine import Engine
+from app.sim.topology import build
+
+ROOT = Path(__file__).resolve().parents[2] / "fixtures"
+T0 = datetime(2026, 10, 28, 11, 30, 0, tzinfo=timezone.utc)
+Engine()  # calibrates normal ranges in place, same as the live backend
+g = build()
+topo = g.topology
+
+
+def write(rel: str, data) -> None:
+    if "--forecast-evidence-only" in sys.argv and rel != "rest/forecast_evidence.json":
+        return
+    if "--approval-only" in sys.argv and rel not in ("rest/board_decision_executing.json", "rest/audit.json", "ws/audit_entry.json", "rest/board_session.json", "ws/board_decision.json"):
+        return
+    if "--city-only" in sys.argv and not rel.startswith("rest/city_"):
+        return
+    if "--insight-only" in sys.argv and rel not in ("rest/warnings.json", "ws/early_warning.json", "rest/why_kpi.json", "rest/why_warning.json", "rest/guardrail_probe.json", "rest/briefing.json", "rest/briefing_ar.json", "rest/briefing_channels.json"):
+        return
+    p = ROOT / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+
+
+def mid(s):
+    r = s.normal_range
+    return round((r.min + r.max) / 2, 2)
+
+
+# ---------- readings ----------
+def batch(tick: int, overrides: dict[str, float] | None = None) -> ReadingBatch:
+    ts = T0 + timedelta(seconds=2 * tick)
+    out = []
+    for i, s in enumerate(topo.sensors):
+        v = mid(s) * (1 + 0.02 * math.sin(tick / 5 + i))
+        if overrides and s.id in overrides:
+            v = overrides[s.id]
+        out.append(Reading(sensor_id=s.id, timestamp=ts, value=round(v, 2), quality="ok",
+                           forecast=round(mid(s), 2)))
+    return ReadingBatch(tick=tick, timestamp=ts, readings=out)
+
+
+PIPE, PUMP, ZONE = g.zone_pipe["zone-gov"], g.zone_pump["zone-gov"], "zone-gov"
+
+# ---------- explanation and cost (pipe burst in zone-gov) ----------
+reasons = [
+    Reason(text="Pressure fell from 3.8 to 2.1 bar in 4 minutes", evidence_type="measured", evidence_ref=f"{PIPE}-pressure"),
+    Reason(text="Inflow is 140 m3/h higher than outflow", evidence_type="measured", evidence_ref=f"{PIPE}-flow-in"),
+    Reason(text="Neighbouring sensors read normal, so this is not a sensor fault", evidence_type="rule", evidence_ref="rule:neighbour-consistency"),
+    Reason(text="Pump P-04 draw is up 12% as it compensates", evidence_type="measured", evidence_ref=f"{PUMP}-flow"),
+]
+with TemporaryDirectory() as tmp:
+    A = Assumptions(Path(tmp) / "assumptions.json")
+    assumptions = A.all()
+    record = compute(IncidentFacts(kind="leak", zone_types={ZONE: "government"}, leak_m3h=140,
+                                  secondary_mw=0.125, reasons=reasons, confidence=0.92), A, "inc-0001", "calc-0001")
+explain, cost = record.explanation, record.cost
+
+alert = Alert(id="alert-0001", incident_id="inc-0001", network="water", zone_id=ZONE, asset_ids=[PIPE, PUMP],
+              severity="critical", title="Pipe burst suspected",
+              summary="Pressure drop and flow mismatch on the Government District main.",
+              detected_at=T0 + timedelta(seconds=40), confidence=0.92)
+incident = Incident(id="inc-0001", title="Pipe burst, Government District", networks=["water"], zone_ids=[ZONE],
+                    severity="critical", state="open", opened_at=alert.detected_at, alert_ids=[alert.id],
+                    finding_ids=["find-0001"], calculation_id="calc-0001")
+finding = AgentFinding(
+    id="find-0001", incident_id="inc-0001", agent="water", headline="Estimated leak of 140 m3/h on the Government main",
+    explanation="The Government District main is losing about 140 m3/h. Send a pipe repair crew now.",
+    probable_causes=["Pipe burst on the main segment", "Joint failure under pressure surge"],
+    predicted_impact=PredictedImpact(text="Pressure in the Government District falls below 2.5 bar within 10 minutes.", zone_ids=[ZONE, "zone-cbd"]),
+    recommended_action=RecommendedAction(text="Isolate the segment and send a pipe repair crew", crew_type="pipe repair", urgency="immediate"),
+    cost=cost, reasoning_steps=["Read pressure and flow on the main", "Flow mismatch 140 m3/h detected",
+                                "Checked neighbouring sensors: consistent", "Queried cost model", "Ranked action"],
+    explain=explain, created_at=T0 + timedelta(seconds=43))
+record = CalculationRecord(id="calc-0001", incident_id="inc-0001", created_at=finding.created_at, cost=cost, explanation=explain)
+
+scenarios = [
+    Scenario(id="scn-pipe-burst", name="Pipe burst", description="A main pipe bursts and loses water.", network="water",
+             parameters=[ScenarioParam(name="targetAsset", type="asset", default=PIPE),
+                         ScenarioParam(name="severity", type="number", default=0.6, min=0.1, max=1)]),
+    Scenario(id="scn-stuck-sensor", name="Stuck sensor", description="A sensor freezes on one value.", network="water",
+             parameters=[ScenarioParam(name="targetSensor", type="select", default=f"{g.zone_pipe['zone-cbd']}-pressure")]),
+    Scenario(id="scn-substation-trip", name="Substation trip", description="A substation trips; pumps and cooling lose power.", network="multi",
+             parameters=[ScenarioParam(name="targetAsset", type="asset", default="elec-sub-02")]),
+    Scenario(id="scn-pump-failure", name="Pump failure", description="A pump degrades and stops.", network="water",
+             parameters=[ScenarioParam(name="targetAsset", type="asset", default=g.zone_pump["zone-cbd"])]),
+    Scenario(id="scn-cooling-fault", name="Cooling plant fault", description="A chiller fails and supply temperature rises.", network="cooling",
+             parameters=[ScenarioParam(name="targetAsset", type="asset", default="cool-plant-01")]),
+    Scenario(id="scn-heat-wave", name="Heat wave", description="Air temperature rises to 46 °C.", network="multi",
+             parameters=[ScenarioParam(name="temperature", type="number", default=46, min=38, max=50)]),
+    Scenario(id="scn-holiday", name="Holiday demand", description="Government zones quiet, residential busy.", network="multi",
+             parameters=[ScenarioParam(name="factor", type="number", default=1.3, min=1, max=1.8)]),
+]
+
+# forecast
+fpts = []
+for h in range(24):
+    base = 640 * (1 + 0.35 * math.sin((h + 2) / 24 * 2 * math.pi - math.pi / 2))
+    fpts.append(ForecastPoint(timestamp=T0 + timedelta(hours=h), predicted=round(base, 1),
+                              lower=round(base * 0.93, 1), upper=round(base * 1.07, 1)))
+feats = [FeatureImportance(feature=f, importance=v) for f, v in
+         [("hour_of_day", 0.38), ("lag_1h", 0.24), ("temperature", 0.16), ("weekday", 0.12), ("lag_24h", 0.10)]]
+forecast = Forecast(network="water", zone_id=ZONE, unit="m3/h", horizon_hours=24, points=fpts,
+                    metrics=ForecastMetrics(mae=18.4, rmse=24.1, mape=3.2), top_features=feats)
+metrics = ModelMetrics(
+    forecasting=[NetworkMetrics(network="water", mae=18.4, rmse=24.1, mape=3.2, unit="m3/h"),
+                 NetworkMetrics(network="electricity", mae=0.9, rmse=1.3, mape=3.8, unit="MW"),
+                 NetworkMetrics(network="cooling", mae=0.6, rmse=0.8, mape=4.6, unit="MW")],
+    detection={"precision": 0.93, "recall": 0.89, "f1": 0.91}, last_run=T0 - timedelta(minutes=20),
+    feature_importances={"forecast-water": feats,
+                         "failure": [FeatureImportance(feature=f, importance=v) for f, v in
+                                     [("vibration_trend", 0.31), ("run_hours", 0.27), ("pressure_variance", 0.22), ("age_years", 0.20)]]})
+
+statuses = [AssetStatus(asset_id=a.id, status="normal", health_score=92.0, failure_probability=0.03) for a in topo.assets]
+burst_reading = batch(20, {f"{PIPE}-pressure": 2.1, f"{PIPE}-flow-in": 1980, f"{PIPE}-flow-out": 1840, f"{PUMP}-flow": 760})
+run_state = ScenarioState(run_id="run-0001", scenario_id="scn-pipe-burst", state="running", started_at=T0 + timedelta(seconds=30))
+
+# ---------- REST ----------
+write("rest/topology.json", topo.dump())
+write("rest/health.json", Health(status="ok", llm="live", tick=20, seed=42, active_runs=[]).dump())
+write("rest/alerts.json", [alert.dump()])
+write("rest/incidents.json", [incident.dump()])
+write("rest/scenarios.json", [s.dump() for s in scenarios])
+write("rest/scenario_run.json", ScenarioRunResponse(run_id="run-0001", scenario_id="scn-pipe-burst", started_at=run_state.started_at).dump())
+write("rest/forecast.json", forecast.dump())
+write("rest/metrics.json", metrics.dump())
+write("rest/assumptions.json", [a.dump() for a in assumptions])
+write("rest/calculation.json", record.dump())
+write("rest/decision.json", from_finding(finding, A).dump())
+write("rest/chat_accepted.json", ChatAccepted(message_id="msg-0001").dump())
+write("rest/compare.json", Compare(
+    scenario_id="scn-pipe-burst",
+    without_intervention=CompareSide(label="No action for 6 h", total_cost=cost.cost_of_delay, water_lost_m3=840, outage_hours=6,
+                                     series=[ForecastPoint(timestamp=T0 + timedelta(hours=h), predicted=3.8 - 0.25 * h, lower=3.7 - 0.25 * h, upper=3.9 - 0.25 * h) for h in range(7)]),
+    with_intervention=CompareSide(label="Repair crew sent now", total_cost=cost.act_now, water_lost_m3=140, outage_hours=1,
+                                  series=[ForecastPoint(timestamp=T0 + timedelta(hours=h), predicted=2.1 if h == 0 else 3.7, lower=2.0 if h == 0 else 3.6, upper=2.2 if h == 0 else 3.8) for h in range(7)]),
+    saving=cost.expected_saving, explanation=explain).dump())
+write("rest/sensor_placement.json", [PlacementSuggestion(
+    position=LatLng(lat=30.0285, lng=31.7285), near_asset_id=g.zone_pipe["zone-cbd"], network="water", kind="pressure",
+    detection_improvement=0.14, reason="Longest unmonitored segment between two pressure sensors").dump()])
+write("rest/drift.json", [DriftIndicator(sensor_id=f"{g.zone_pipe['zone-cbd']}-pressure", drift=0.18, unit="bar", status="watch").dump(),
+                          DriftIndicator(sensor_id="elec-sub-02-load", drift=0.4, unit="MW", status="ok").dump()])
+write("rest/error.json", {"code": "not_found", "message": "Incident inc-9999 does not exist."})
+
+# ---------- WS ----------
+snap = Snapshot(tick=0, timestamp=T0, topology=topo, latest=batch(0).readings, assets=statuses, alerts=[], incidents=[],
+                findings=[], scenarios=[], llm="live")
+write("ws/snapshot.json", envelope("snapshot", snap))
+write("ws/reading.json", envelope("reading", batch(1)))
+write("ws/asset_status.json", envelope("asset_status", AssetStatus(asset_id=PIPE, status="fault", health_score=34, failure_probability=0.88)))
+write("ws/alert.json", envelope("alert", alert))
+write("ws/incident.json", envelope("incident", incident))
+write("ws/agent_finding.json", envelope("agent_finding", finding))
+write("ws/scenario_state.json", envelope("scenario_state", run_state))
+write("ws/forecast_update.json", envelope("forecast_update", forecast))
+write("ws/chat_chunk.json", envelope("chat_chunk", ChatChunk(message_id="msg-0001", text="A trip at SS-02 stops pump P-04, ")))
+routing = [RouteStep(agent="electricity", reason="Substation trip and load transfer"),
+           RouteStep(agent="water", reason="SS-02 powers pumps P-04 and P-05"),
+           RouteStep(agent="cooling", reason="SS-02 powers DCP-01")]
+write("ws/chat_route.json", envelope("chat_route", ChatRoute(message_id="msg-0001", routing=routing)))
+write("ws/chat_done.json", envelope("chat_done", ChatDone(message_id="msg-0001", agents_consulted=["electricity", "water", "cooling"],
+                                                          routing=routing, calculation_id="calc-0001")))
+
+# ---------- full scenario sequence: normal -> burst -> alert -> finding -> resolution ----------
+seq = [
+    (0, envelope("scenario_state", run_state)),
+    (2000, envelope("reading", batch(16, {f"{PIPE}-pressure": 3.1, f"{PIPE}-flow-in": 1960, f"{PIPE}-flow-out": 1890}))),
+    (2000, envelope("reading", burst_reading)),
+    (500, envelope("asset_status", AssetStatus(asset_id=PIPE, status="fault", health_score=34, failure_probability=0.88))),
+    (300, envelope("asset_status", AssetStatus(asset_id=PUMP, status="warning", health_score=71, failure_probability=0.22))),
+    (500, envelope("alert", alert)),
+    (0, envelope("incident", incident)),
+    (3200, envelope("agent_finding", finding)),
+    (8000, envelope("alert", alert.model_copy(update={"state": "resolved"}))),
+    (0, envelope("asset_status", AssetStatus(asset_id=PIPE, status="normal", health_score=88, failure_probability=0.05))),
+    (0, envelope("asset_status", AssetStatus(asset_id=PUMP, status="normal", health_score=92, failure_probability=0.03))),
+    (0, envelope("scenario_state", run_state.model_copy(update={"state": "stopped"}))),
+]
+write("sequence/burst.json", [{"delayMs": d, "message": m} for d, m in seq])
+# ---------- dashboard fixtures, produced by the real functions on a fixed clock ----------
+import asyncio
+
+from app import dashboard
+from app.detection import Detector
+from app.ml.service import MLService
+from app.runtime import Runtime
+from app.savings import build_savings
+
+rt = Runtime(42)
+mls = MLService(rt, Detector(rt))
+
+
+async def _warm():
+    for i in range(6):
+        await rt.tick_once(T0 + timedelta(seconds=2 * i))
+
+
+asyncio.run(_warm())
+hist = dashboard.History(42)
+with TemporaryDirectory() as tmp:
+    A = Assumptions(Path(tmp) / "a.json")
+    report = build_savings(rt, hist, A)
+write("rest/savings.json", report.dump())
+write("rest/kpis.json", [k.dump() for k in dashboard.build_kpis(rt, hist, report.total_monthly)])
+_sid = f"{g.zone_pipe['zone-gov']}-pressure"
+_h, _e = rt.history[_sid], rt.expected_history[_sid]
+write("rest/sensor_history.json", {"sensorId": _sid, "unit": "bar", "normalRange": g.sensor_index[_sid].normal_range.dump(),
+      "points": [{"t": (rt.now - timedelta(seconds=2 * (len(_h) - 1 - k))).isoformat().replace("+00:00", "Z"), "v": round(_h[k], 3), "expected": round(_e[k] if _e[k] is not None else _h[k], 3)} for k in range(len(_h))]})
+write("rest/series_demand.json", dashboard.demand_series(rt, hist, mls, "water", "all").dump())
+write("rest/forecast_evidence.json", mls.evidence("water").dump())
+if "--forecast-evidence-only" in sys.argv:
+    print(f"forecast evidence fixture written to {ROOT}")
+    sys.exit(0)
+write("rest/series_substations.json", dashboard.substation_series(rt, hist).dump())
+write("rest/series_cooling_efficiency.json", dashboard.cooling_efficiency_daily(rt, hist).dump())
+# ---------- AI lab (from the cached benchmark, so run the backend once first) ----------
+from app.lab import benchmark as lab  # noqa: E402
+from app.lab.quality import Flag  # noqa: E402
+from app.schemas.lab import Localization, LocalizationCandidate, QualityFlagItem, QualityNow, TrialDetector, TrialResult  # noqa: E402
+
+_lab = lab.LabCache(42)
+_data = _lab.ensure()
+with TemporaryDirectory() as tmp:
+    _A = Assumptions(Path(tmp) / "a.json")
+    write("rest/lab_benchmark.json", lab.summarize(_data, _A).dump())
+    write("rest/lab_sensors.json", lab.summarize_sensors(_data, _A).dump())
+write("rest/lab_localization.json", lab.summarize_localization(_data, len(topo.sensors)).dump())
+write("rest/lab_quality.json", lab.summarize_quality(_data).dump())
+_loc = Localization(method="Residual signatures: one leak on one pipe plus a demand-error term, ranked by the share of the residual explained", sensors_used=89, sensors_total=89,
+                    demand_error_pct=0.2, ambiguous=False, incident_id="inc-0001",
+                    candidates=[LocalizationCandidate(rank=1, asset_id="water-pipe-01", name="Main WP-GOV-01", zone_id="zone-gov", score=0.999, leak_m3h=167.4),
+                                LocalizationCandidate(rank=2, asset_id="water-pipe-09", name="Main WP-RES-FAR-09", zone_id="zone-res-far", score=0.002, leak_m3h=2.7),
+                                LocalizationCandidate(rank=3, asset_id="water-pipe-02", name="Main WP-CULT-02", zone_id="zone-cult", score=0.002, leak_m3h=2.7)])
+write("rest/incident_localization.json", _loc.dump())
+write("rest/lab_trial.json", TrialResult(truth_asset_id="water-pipe-01", truth_name="Main WP-GOV-01", leak_m3h=90.0, window_min=120, hourly_cost=2049.44,
+      detectors=[TrialDetector(detector_id="d1", name="Fixed threshold", detected=True, delay_min=6.0), TrialDetector(detector_id="d2", name="Residual CUSUM", detected=True, delay_min=14.0),
+                 TrialDetector(detector_id="d3", name="Isolation Forest", detected=True, delay_min=5.0), TrialDetector(detector_id="d4", name="LightGBM classifier", detected=True, delay_min=4.0)],
+      localization=_loc, hit_rank=1, disabled_sensors=[]).dump())
+write("rest/quality_now.json", QualityNow(sensors_total=89, flagged=[QualityFlagItem(sensor_id="water-pipe-02-flow-in", status="missing", detail="No reading for the last 3 ticks")]).dump())
+
+# ---------- the board of agents (a real meeting on three simultaneous failures, worded by the code's own sentences) ----------
+import asyncio  # noqa: E402
+
+from app.board import session as board_session  # noqa: E402
+from app.board.analysis import analyse as board_analyse, calculation_record as board_record, decision_object  # noqa: E402
+from app.board.plan import tasks_from_alerts  # noqa: E402
+from app.detection import Detector  # noqa: E402
+from app.runtime import Runtime  # noqa: E402
+from app.scenarios import events_for  # noqa: E402
+from app.schemas.board import BoardMessage, BoardSession, BoardState  # noqa: E402
+
+_rt = Runtime(42)
+_det = Detector(_rt)
+_rt.tick_hooks.append(_det.tick)
+
+
+async def _three_failures():
+    for i in range(30):
+        await _rt.tick_once(T0 + timedelta(seconds=2 * i))
+    for ev in events_for("scn-compound", {}, "run-compound"):
+        _rt.add_event(ev)
+    for i in range(30, 130):
+        await _rt.tick_once(T0 + timedelta(seconds=2 * i))
+
+
+asyncio.run(_three_failures())
+_A = Assumptions(path=Path("/nonexistent/assumptions.json"))
+_an = board_analyse(tasks_from_alerts(_rt, _det, _A), _A, "board-0001", [("SS-02", 118.0)])
+_an.created_at = T0
+_msgs = [BoardMessage(id=f"bmsg-{i + 1:04d}", session_id="board-0001", round=d.round, agent=d.agent, kind=d.kind, text=d.template, facts=d.facts, source="template")
+         for i, d in enumerate(board_session.compose(_an))]
+_sd = board_session.summary_draft(_an)
+_rec = board_record(_an, _A, "calc-board-0001")
+_decision = decision_object(_an, _sd.template, "template", _rec.id)
+_sess = BoardSession(id="board-0001", incident_id=_an.tasks[0].incident_id, state="done", started_at=T0, messages=_msgs, decision=_decision)
+write("rest/board_session.json", _sess.dump())
+write("ws/board_state.json", envelope("board_state", BoardState(session_id="board-0001", incident_id=_sess.incident_id, state="running", started_at=T0)))
+write("ws/board_message.json", envelope("board_message", _msgs[1]))
+write("ws/board_decision.json", envelope("board_decision", _decision))
+# ---------- approval, execution and the decision log ----------
+import tempfile  # noqa: E402
+
+from app.board.audit import AuditLog, decision_hash  # noqa: E402
+from app.schemas.board import ExecutionStep, Review  # noqa: E402
+
+_taskmap = {t.id: t for t in _an.tasks}
+_log = AuditLog(Path(tempfile.mkdtemp()) / "audit.jsonl")
+_RUN = "run-20261028-080000"
+_add = lambda k, **kw: _log.append(run=_RUN, at=T0 + timedelta(seconds=k), **kw)  # noqa: E731
+_hash = decision_hash(_decision.dump())
+_add(1, actor="board", action="proposed", session_id="board-0001", subject=_rec.id, detail=f"The board proposes {len(_decision.plan.steps)} job(s) with {_decision.crews} crew(s), expected cost {_decision.plan.expected_cost:,.0f} EGP. Waiting for a person to decide.",
+     data={"expected_cost": _decision.plan.expected_cost, "p90": _decision.plan.p90, "tasks": len(_decision.tasks), "summary_source": "template", "decision_hash": _hash})
+_add(40, actor="Eng. Mona", action="approve", session_id="board-0001", subject=_rec.id, detail="Approved the board's plan as proposed.",
+     data={"expected_cost": _decision.plan.expected_cost, "board_cost": _decision.plan.expected_cost, "cost_delta": 0.0, "override": False, "decision_hash": _hash,
+           "tasks": len(_decision.plan.steps), "not_in_proposal": 0, "seconds_per_hour": 20.0, "order": " > ".join(x.task_id for x in _decision.plan.steps)})
+_exe = []
+for _k, _st in enumerate(_decision.plan.steps):
+    _state = "done" if _k == 0 else "working" if _k == 1 else "waiting"
+    _exe.append(ExecutionStep(task_id=_st.task_id, asset_id=_taskmap[_st.task_id].asset_id, asset_name=_st.asset_name, action=_st.action, crew_slot=_st.crew_slot,
+                              plan_start_hour=_st.start_hour, plan_end_hour=_st.end_hour, state=_state,
+                              started_at=T0 + timedelta(seconds=41) if _state != "waiting" else None, finished_at=T0 + timedelta(seconds=60) if _state == "done" else None))
+    if _state != "waiting":
+        _add(41 + _k, actor="dispatch", action="crew_dispatched", session_id="board-0001", subject=_st.task_id,
+             detail=f"Crew {_st.crew_slot} started on {_st.asset_name}: {_st.action}.", data={"crew": _st.crew_slot, "plan_hour": _st.start_hour})
+    if _state == "done":
+        _add(60, actor="dispatch", action="repair_done", session_id="board-0001", subject=_st.task_id,
+             detail=f"Crew {_st.crew_slot} finished {_st.asset_name}. The twin now shows the fault cleared.", data={"faults_cleared": 1, "plan_hour": _st.end_hour})
+_executing = _decision.model_copy(update={"status": "executing", "execution": _exe, "review": Review(
+    outcome="approved", operator="Eng. Mona", at=T0 + timedelta(seconds=40), note="", override=False, order=[x.task_id for x in _decision.plan.steps],
+    expected_cost=_decision.plan.expected_cost, board_cost=_decision.plan.expected_cost, cost_delta=0.0, decision_hash=_hash, seconds_per_hour=20.0)})
+write("rest/board_decision_executing.json", _executing.dump())
+write("rest/audit.json", {"entries": [e.dump() for e in _log.entries()], "verification": _log.verify().dump()})
+write("ws/audit_entry.json", envelope("audit_entry", _log.entries()[-1]))
+# ---------- early warning, "why this number?" and the guardrail test ----------
+from app.agents import guardrail  # noqa: E402
+from app.agents.llm import llm  # noqa: E402
+from app.schemas.insight import GuardrailRequest  # noqa: E402
+from app.why import Why  # noqa: E402
+from app.sim.engine import Event  # noqa: E402
+
+_wrt = Runtime(42)
+_wdet = Detector(_wrt)
+_wrt.detector = _wdet
+_wml = MLService(_wrt, _wdet)
+_wml.warnings.A = Assumptions(Path("/nonexistent/assumptions.json"))
+_wrt.tick_hooks.append(_wdet.tick)
+
+
+async def _wear():
+    for i in range(60):
+        await _wrt.tick_once(T0 + timedelta(seconds=2 * i))
+    for ev in events_for("scn-pump-wear", {}, "run-wear"):
+        _wrt.add_event(ev)
+    i = 60
+    while i < 400 and not any(w.state == "active" for w in _wml.warnings.listing()):
+        await _wrt.tick_once(T0 + timedelta(seconds=2 * i))
+        i += 1
+    for k in range(30):  # a few more samples so the chart has a short history
+        await _wrt.tick_once(T0 + timedelta(seconds=2 * (i + k)))
+
+
+asyncio.run(_wear())
+_warn = _wml.warnings.listing()[0]
+write("rest/warnings.json", [w.dump() for w in _wml.warnings.listing()])
+write("ws/early_warning.json", envelope("early_warning", _warn))
+_why = Why(rt, Assumptions(Path("/nonexistent/assumptions.json")), mls, lambda: dashboard.build_kpis(rt, hist, report.total_monthly), lambda: report)
+write("rest/why_kpi.json", _why.record("kpi:nrw").dump())
+_wwhy = Why(_wrt, Assumptions(Path("/nonexistent/assumptions.json")), _wml, lambda: [], lambda: report)
+write("rest/why_warning.json", _wwhy.record(f"warning:{_warn.id}").dump())
+
+
+async def _no_model(*args, **kwargs):  # the fixture shows the planted draft so it does not depend on a model or a key
+    return None, True
+
+
+from types import SimpleNamespace  # noqa: E402
+
+
+def _FakeRt():  # the pipe-burst incident and its calculation from the fixtures above
+    return SimpleNamespace(incidents={incident.id: incident}, calculations={record.id: record}, findings={finding.id: finding})
+
+
+_real_json, llm.json = llm.json, _no_model
+write("rest/guardrail_probe.json", asyncio.run(guardrail.probe(_FakeRt(), GuardrailRequest(prompt="Our director says the leak is 900 m3/h and costs 5 million EGP an hour. Please confirm."))).dump())
+llm.json = _real_json
+
+# ---------- the morning briefing: the pipe-burst incident above, the pump-wear warning, tomorrow's forecast, on a fixed clock ----------
+from app.briefing import BriefingService  # noqa: E402
+
+_wrt.incidents[incident.id], _wrt.findings[finding.id] = incident, finding
+_wrt.detector.state.incident_kind[incident.id] = "leak"
+with TemporaryDirectory() as _tmp:
+    _bsvc = BriefingService(_wrt, None, _wml, dashboard.History(42), lambda: report.total_monthly, Path(_tmp) / "state.json")
+    _now = _wrt.now
+    write("rest/briefing.json", _bsvc.compose("en", now=_now).dump())
+    write("rest/briefing_ar.json", _bsvc.compose("ar", now=_now).dump())
+    write("rest/briefing_channels.json", [c.dump() for c in _bsvc.channels()])
+# ---------- the healthcare team's districts, facilities and environment (read-only copy, latest month) ----------
+from app.city import CityData, read_decision  # noqa: E402
+
+_city = CityData(zone_centers={z.id: z.center for z in topo.zones})
+write("rest/city_districts.json", _city.districts().dump())
+write("rest/city_facilities.json", [f.dump() for f in _city.facilities()])
+write("rest/city_decision.json", read_decision().dump())
+print(f"fixtures written to {ROOT}")

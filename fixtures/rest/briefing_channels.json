@@ -1,0 +1,12 @@
+[
+  {
+    "channel": "in_app",
+    "configured": true,
+    "detail": "Always available: the briefing is kept in the app."
+  },
+  {
+    "channel": "telegram",
+    "configured": true,
+    "detail": "Ready."
+  }
+]
