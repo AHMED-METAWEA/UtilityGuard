@@ -1,0 +1,1533 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دليل مذاكرة Care Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f3f5f9; --surface: #ffffff; --surface-2: #eef1f6; --line: #d6dce6;
+  --text: #13213a; --text-2: #46566f; --text-3: #6a7891;
+  --accent: #1b66d6; --accent-soft: #e4eefc;
+  --water: #2a78d6; --elec: #b87d00; --cool: #138a60;
+  --water-soft: #e4eefc; --elec-soft: #fbf0d6; --cool-soft: #dff4ea;
+  --why: #f6f1e4; --why-line: #d9c48f; --q: #eef3fb;
+  --code-bg: #eef1f6;
+  --font: "IBM Plex Sans Arabic", "Geeza Pro", "Segoe UI", Tahoma, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1220; --surface: #121b2c; --surface-2: #18233a; --line: #2a3853;
+    --text: #e6edf8; --text-2: #aab7cc; --text-3: #8191aa;
+    --accent: #5aa2ff; --accent-soft: #14284a;
+    --water: #5aa2ff; --elec: #e0a52a; --cool: #2fbf8a;
+    --water-soft: #13284a; --elec-soft: #2c2410; --cool-soft: #0f2c22;
+    --why: #231f14; --why-line: #6b5a2c; --q: #152238;
+    --code-bg: #18233a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1220; --surface: #121b2c; --surface-2: #18233a; --line: #2a3853;
+  --text: #e6edf8; --text-2: #aab7cc; --text-3: #8191aa;
+  --accent: #5aa2ff; --accent-soft: #14284a;
+  --water: #5aa2ff; --elec: #e0a52a; --cool: #2fbf8a;
+  --water-soft: #13284a; --elec-soft: #2c2410; --cool-soft: #0f2c22;
+  --why: #231f14; --why-line: #6b5a2c; --q: #152238;
+  --code-bg: #18233a;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: var(--font); font-size: 17px; line-height: 1.85;
+  -webkit-text-size-adjust: 100%;
+}
+bdi, code { unicode-bidi: isolate; }
+code {
+  direction: ltr; font-family: var(--mono); font-size: 0.86em;
+  background: var(--code-bg); padding: 1px 6px; border-radius: 5px; white-space: nowrap;
+}
+pre {
+  direction: ltr; text-align: left; font-family: var(--mono); font-size: 14px; line-height: 1.7;
+  background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px 16px; overflow-x: auto; margin: 14px 0;
+}
+pre code { background: none; padding: 0; white-space: pre; font-size: inherit; }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.layout { display: grid; grid-template-columns: 1fr; max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 1040px) { .layout { grid-template-columns: 260px minmax(0, 1fr); gap: 48px; } }
+
+nav.toc { position: relative; }
+@media (min-width: 1040px) {
+  nav.toc { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 28px 0; scrollbar-width: thin; }
+}
+nav.toc details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-top: 16px; }
+@media (min-width: 1040px) { nav.toc details { background: none; border: 0; padding: 0; margin: 0; } nav.toc summary { display: none; } }
+nav.toc summary { cursor: pointer; font-weight: 600; }
+nav.toc ol { list-style: none; margin: 8px 0 0; padding: 0; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; text-decoration: none; color: var(--text-2); font-size: 14.5px; line-height: 1.45; padding: 4px 8px; border-radius: 7px; }
+nav.toc a::before { content: counter(toc); color: var(--text-3); min-width: 1.4em; font-variant-numeric: tabular-nums; }
+nav.toc a:hover { background: var(--surface-2); color: var(--text); }
+
+main { min-width: 0; padding-bottom: 80px; }
+.content { max-width: 760px; }
+
+header.hero { padding: 48px 0 24px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.hero h1 { font-size: clamp(30px, 6vw, 44px); line-height: 1.25; margin: 0 0 10px; font-weight: 700; letter-spacing: -0.01em; }
+.hero p { color: var(--text-2); margin: 0; font-size: 18px; }
+.nets { display: flex; gap: 8px; margin: 18px 0 0; flex-wrap: wrap; }
+.net { font-size: 14px; padding: 3px 12px; border-radius: 999px; font-weight: 600; }
+.net.w { background: var(--water-soft); color: var(--water); }
+.net.e { background: var(--elec-soft); color: var(--elec); }
+.net.c { background: var(--cool-soft); color: var(--cool); }
+
+section { padding: 40px 0 8px; scroll-margin-top: 16px; }
+section > h2 { font-size: 27px; line-height: 1.35; margin: 0 0 14px; font-weight: 700; display: flex; gap: 12px; align-items: baseline; }
+section > h2 .n { color: var(--text-3); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+h3 { font-size: 20px; margin: 30px 0 8px; font-weight: 600; }
+h4 { font-size: 17px; margin: 22px 0 6px; font-weight: 600; }
+p { margin: 10px 0; }
+ul, ol { padding-inline-start: 24px; margin: 10px 0; }
+li { margin: 4px 0; }
+.lead { font-size: 18.5px; color: var(--text); }
+.muted { color: var(--text-2); }
+.small { font-size: 15px; color: var(--text-2); }
+
+.say { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+.say .label { font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+.say p { margin: 6px 0; }
+
+.why { background: var(--why); border: 1px solid var(--why-line); border-radius: 12px; padding: 14px 18px; margin: 16px 0; }
+.why .label { font-weight: 700; font-size: 15.5px; margin-bottom: 4px; }
+.why p, .why ul { margin: 6px 0; }
+
+.qbox { background: var(--q); border-radius: 12px; padding: 12px 18px; margin: 14px 0; }
+.qbox .label { font-weight: 700; font-size: 15px; color: var(--accent); }
+
+.tbl { overflow-x: auto; margin: 14px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 15.5px; line-height: 1.65; }
+th, td { text-align: start; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { background: var(--surface-2); font-weight: 600; font-size: 14.5px; color: var(--text-2); }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+figure { margin: 18px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+figure .scroll { overflow-x: auto; }
+figure svg { display: block; width: 100%; min-width: 720px; height: auto; direction: ltr; unicode-bidi: isolate; }
+figcaption { font-size: 15px; color: var(--text-2); padding: 8px 6px 2px; }
+svg text { font-family: var(--font); }
+svg .box { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.5; }
+svg .box.hl { fill: var(--accent-soft); stroke: var(--accent); }
+svg .box.ext { fill: var(--surface); stroke: var(--text-3); stroke-dasharray: 5 4; }
+svg .frame { fill: none; stroke: var(--text-3); stroke-width: 1.5; }
+svg .t { fill: var(--text); font-size: 16px; font-weight: 600; }
+svg .s { fill: var(--text-2); font-size: 13px; }
+svg .lbl { fill: var(--text-3); font-size: 13px; }
+svg .arrow { stroke: var(--text-3); stroke-width: 1.6; fill: none; }
+svg .arrow.acc { stroke: var(--accent); }
+svg .ah { fill: var(--text-3); }
+svg .ah.acc { fill: var(--accent); }
+svg .chip { stroke-width: 1.3; }
+svg .w { fill: var(--water-soft); stroke: var(--water); }
+svg .e { fill: var(--elec-soft); stroke: var(--elec); }
+svg .c { fill: var(--cool-soft); stroke: var(--cool); }
+svg .ch { fill: var(--accent-soft); stroke: var(--accent); }
+svg .band { fill: var(--surface-2); }
+svg .guide { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 4 5; }
+svg .ct { fill: var(--text); font-size: 13.5px; font-weight: 500; }
+svg .rn { fill: var(--text-3); font-size: 15px; font-weight: 700; }
+svg .rl { fill: var(--text); font-size: 14px; font-weight: 600; }
+svg .pt { fill: var(--text); font-size: 16px; font-weight: 700; }
+
+.steps { list-style: none; padding: 0; margin: 16px 0; counter-reset: st; }
+.steps > li { counter-increment: st; position: relative; margin: 0; padding: 2px 0 16px; padding-inline-start: 52px; }
+.steps > li::before {
+  content: counter(st); position: absolute; right: 0; top: 2px;
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 15px;
+}
+.steps > li::after { content: ""; position: absolute; right: 16px; top: 40px; bottom: 2px; width: 2px; background: var(--line); }
+.steps > li:last-child::after { display: none; }
+.steps b { display: block; }
+
+.flow { direction: ltr; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+.flow .node { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 6px 12px; font-family: var(--mono); font-size: 14px; }
+.flow .node.llm { border-color: var(--accent); background: var(--accent-soft); }
+.flow .arr { color: var(--text-3); }
+.legend { font-size: 14px; color: var(--text-2); }
+.legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--accent); background: var(--accent-soft); vertical-align: -1px; margin-inline-end: 4px; }
+
+details.qa { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin: 10px 0; }
+details.qa > summary { cursor: pointer; padding: 12px 18px; padding-inline-start: 44px; font-weight: 600; list-style: none; position: relative; }
+details.qa > summary::-webkit-details-marker { display: none; }
+details.qa > summary::before { content: "+"; color: var(--accent); font-weight: 700; position: absolute; inset-inline-start: 18px; top: 12px; }
+details.qa[open] > summary::before { content: "−"; }
+details.qa > div { padding: 0 18px 14px 18px; padding-inline-start: 44px; color: var(--text); }
+details.qa > div p { margin: 6px 0; }
+.qa-tools { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 4px; }
+.qa-tools button { font: inherit; font-size: 15px; background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 9px; padding: 6px 14px; cursor: pointer; }
+.qa-tools button:hover { background: var(--surface-2); }
+
+.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 14px 0; }
+.kv div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.kv b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+.kv span { font-size: 14.5px; color: var(--text-2); }
+
+footer { color: var(--text-3); font-size: 14px; border-top: 1px solid var(--line); margin-top: 48px; padding-top: 16px; }
+
+@media print {
+  nav.toc, .qa-tools { display: none; }
+  .layout { display: block; }
+  body { background: #fff; font-size: 13pt; }
+  details.qa > div { display: block !important; }
+  section { break-inside: auto; }
+  figure, .why, .say, table { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="المحتويات">
+  <details open>
+    <summary>المحتويات</summary>
+    <ol>
+      <li><a href="#start">إزاي تذاكر من الملف ده</a></li>
+      <li><a href="#pitch">المشروع في دقيقة</a></li>
+      <li><a href="#problem">المشكلة اللي بيحلها</a></li>
+      <li><a href="#arch">الصورة الكبيرة</a></li>
+      <li><a href="#journey">رحلة عطل واحد</a></li>
+      <li><a href="#sim">المحاكي</a></li>
+      <li><a href="#runtime">السيرفر وقلب النظام</a></li>
+      <li><a href="#detect">كشف الأعطال</a></li>
+      <li><a href="#ml">موديلات تعلّم الآلة</a></li>
+      <li><a href="#cost">محرك التكلفة</a></li>
+      <li><a href="#agents">الـ Agents</a></li>
+      <li><a href="#chat">الشات والـ Routing</a></li>
+      <li><a href="#board">مجلس الـ Agents</a></li>
+      <li><a href="#approve">الموافقة والتنفيذ والسجل</a></li>
+      <li><a href="#features">باقي المميزات</a></li>
+      <li><a href="#frontend">الواجهة</a></li>
+      <li><a href="#process">إزاي اتبنى</a></li>
+      <li><a href="#stack">التقنيات وليه اخترناها</a></li>
+      <li><a href="#health">مشروع جيهان والربط</a></li>
+      <li><a href="#numbers">أرقام لازم تحفظها</a></li>
+      <li><a href="#limits">الحدود</a></li>
+      <li><a href="#qa">أسئلة الإنترفيو</a></li>
+      <li><a href="#next">لو هتكمّل</a></li>
+      <li><a href="#glossary">قاموس المصطلحات</a></li>
+    </ol>
+  </details>
+</nav>
+
+<main>
+<div class="content">
+
+<header class="hero">
+  <h1>Care Grid من جوّه</h1>
+  <p>كل جزء في المشروع: بيعمل إيه، شغال إزاي، وليه اتعمل كده مش بطريقة تانية. مكتوب عشان تذاكره قبل أي إنترفيو.</p>
+  <div class="nets"><span class="net w">مياه</span><span class="net e">كهرباء</span><span class="net c">تبريد مركزي</span></div>
+</header>
+
+<!-- 1 -->
+<section id="start">
+  <h2><span class="n">1</span>إزاي تذاكر من الملف ده</h2>
+  <p>كل قسم بيشرح جزء واحد من المشروع، وفيه أربع حاجات:</p>
+  <ul>
+    <li><b>بيعمل إيه</b> في جملة أو اتنين.</li>
+    <li><b>شغال إزاي</b> بالتفصيل، ومعاه اسم الملف في الكود عشان لو حد فتح الكود قدامك.</li>
+    <li><b>ليه كده مش كده؟</b> في مربع أصفر: البديل اللي ممكن حد يقترحه، وليه ما اخترناهوش.</li>
+    <li><b>سؤال متوقع</b> في مربع أزرق.</li>
+  </ul>
+  <p>في الآخر فيه <a href="#qa">أسئلة إنترفيو</a> مقفولة. اقرا السؤال، جاوب في دماغك، وبعدين افتحه وقارن إجابتك.</p>
+  <p class="small">كل الأرقام هنا من ملفات القياس في <code>docs/measurements/</code> ومن النظام وهو شغال، لحد 18 نوفمبر 2026. أرقام التوقع بتتغير شوية كل يوم، لأن الموديل بيتدرّب من جديد كل يوم على آخر 270 يوم.</p>
+  <p class="small">كل البيانات محاكاة. مفيش بيانات حقيقية من شركة العاصمة <bdi>(ACUD)</bdi>. الجملة دي لازم تقولها إنت قبل ما حد يسألك عليها.</p>
+</section>
+
+<!-- 2 -->
+<section id="pitch">
+  <h2><span class="n">2</span>المشروع في دقيقة</h2>
+  <div class="say">
+    <div class="label">لو قالولك "عرّفنا بالمشروع" وعندك 30 ثانية</div>
+    <p><bdi>Care Grid</bdi> نسخة رقمية شغالة لايف لشبكات المياه والكهرباء والتبريد المركزي في حي من العاصمة الإدارية الجديدة. بيكشف الأعطال، ويحسب كل ساعة تأخير بتكلّف كام بالجنيه، ولو فرق الصيانة أقل من المشاكل بيقترح مين يروح فين الأول. الإنسان هو اللي بيوافق، والخطة بتتنفذ جوه النسخة الرقمية.</p>
+    <p>والأهم: كل رقم بيحسبه الكود من معادلة ليها اسم. الذكاء الاصطناعي بيشرح بس، وأي رقم يكتبه من عنده بيتمسح قبل ما يوصل للشاشة.</p>
+  </div>
+  <div class="say">
+    <div class="label">لو عندك دقيقتين</div>
+    <p>شركة المرافق عندها شبكات بتأثر في بعض: محطة الكهرباء لو فصلت، المضخات اللي عليها بتقف فالمياه بتقطع، ومحطة التبريد بتقف فالمباني بتسخن. وعندها عدد قليل من فرق الصيانة. لما تلات حاجات يبوظوا مع بعض، المهندس محتاج يعرف: إيه اللي حصل، التأخير بيكلّف كام، وأبدأ بإيه.</p>
+    <p>المشروع بيعمل كده في خمس خطوات. <b>الكشف</b>: 89 حساس بيبعتوا قراءة كل ثانيتين، وقواعد مقاسة بتحوّلها لحوادث. <b>التسعير</b>: معادلات بتحوّل كل حادثة لجنيه في الساعة، ومعاها نطاق. <b>القرار</b>: مجلس من <bdi>agents</bdi> بيجرّب كل ترتيبات الإصلاح الممكنة ويختار الأرخص. <b>الموافقة</b>: الإنسان يوافق أو يغيّر أو يرفض. <b>التنفيذ</b>: الفرق بتتحرك، والكاشف (مش الفريق) هو اللي بيأكد إن العطل خلص، وكل خطوة بتتسجل في سجل محدش يقدر يعدّل فيه من غير ما يبان.</p>
+    <p>وكل ده مقاس: الكشف بيمسك 93% من الأعطال، ومفيش ولا إنذار كاذب في 172.5 ساعة تشغيل.</p>
+  </div>
+  <div class="say">
+    <div class="label">الجملة اللي تفتح بيها</div>
+    <p>"ده مش داشبورد فيه <bdi>chatbot</bdi>. ده فريق <bdi>AI</bdi> بيشوف العطل، ويعرف مكانه، ويحسب تكلفته، ويقارن القرارات، ويثبت كل رقم قاله."</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="problem">
+  <h2><span class="n">3</span>المشكلة اللي بيحلها</h2>
+  <p>تخيّل مهندس في غرفة التحكم. الساعة 12 الضهر، ماسورة رئيسية اتكسرت، و<bdi>chiller</bdi> في محطة تبريد وقع، ومحطة كهرباء فصلت. كله في نفس الدقيقة. وعنده فريقين صيانة بس.</p>
+  <p>نظام الـ <bdi>SCADA</bdi> العادي بيقوله "فيه 3 إنذارات"، وخلاص. ما بيقولوش:</p>
+  <ol>
+    <li><b>إيه السبب الحقيقي؟</b> ساعات إنذار واحد بيجرّ عشرة وراه. لو المحطة فصلت، المضخات وقفت والضغط وقع، بس السبب واحد.</li>
+    <li><b>التأخير بيكلّف كام؟</b> ساعة من غير كهرباء في الحي الحكومي غير ساعة تسريب مياه.</li>
+    <li><b>أبعت الفريقين فين الأول؟</b> لو بدأ بالغلط ممكن يخسر ملايين.</li>
+  </ol>
+  <p>المشروع بيجاوب على التلات أسئلة دول بأرقام، وكل رقم ممكن تفتحه وتشوف جه منين.</p>
+  <h3>ليه الربط بين الشبكات هو المهم</h3>
+  <p>الشبكات التلاتة مش منفصلة. كل محطة كهرباء بتغذي مضخات مياه، وأحيانًا محطة تبريد:</p>
+  <div class="tbl"><table>
+    <tr><th>محطة الكهرباء</th><th>بتغذي</th></tr>
+    <tr><td><bdi>SS-01</bdi></td><td>المضخات <bdi>P-03</bdi> و<bdi>P-04</bdi>، ومحطة التبريد <bdi>DCP-02</bdi></td></tr>
+    <tr><td><bdi>SS-02</bdi></td><td>المضخات <bdi>P-01</bdi> و<bdi>P-02</bdi>، ومحطة التبريد <bdi>DCP-01</bdi></td></tr>
+    <tr><td><bdi>SS-03</bdi></td><td>المضخات <bdi>P-06</bdi> و<bdi>P-07</bdi></td></tr>
+    <tr><td><bdi>SS-04</bdi></td><td>المضخات <bdi>P-05</bdi> و<bdi>P-08</bdi> و<bdi>P-09</bdi></td></tr>
+  </table></div>
+  <p>يعني فصل <bdi>SS-02</bdi> مش مشكلة كهرباء بس. ده كمان مشكلة مياه ومشكلة تبريد. الجدول ده بيظهر في المحاكي، وفي اختيار الـ <bdi>agents</bdi>، وفي المجلس.</p>
+</section>
+
+<!-- 4 -->
+<section id="arch">
+  <h2><span class="n">4</span>الصورة الكبيرة: الـ Architecture</h2>
+  <p class="lead">المشروع برنامجين: <b>سيرفر</b> بلغة <bdi>Python</bdi> فيه كل الحسابات، و<b>واجهة</b> في المتصفح بتعرض. والسيرفر بيكلّم موديل لغة على الإنترنت <bdi>(Groq)</bdi> عشان الشرح بس.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 664" role="img" aria-labelledby="arch-t arch-d" dir="ltr">
+      <title id="arch-t">Care Grid architecture</title>
+      <desc id="arch-d">The browser frontend talks to the FastAPI backend over REST and WebSocket. Inside the backend, the simulator feeds the runtime, which runs the ML service and the detector every two seconds. The detector sends incidents to the agents, which use the cost engine and the Groq language model. The agents feed the board, the board feeds the dispatcher, and the dispatcher repairs the simulator. The board and dispatcher write to the audit log. The integration folder links the backend with Gehan's project.</desc>
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+        <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah acc"/></marker>
+      </defs>
+
+      <!-- frontend -->
+      <rect class="box hl" x="40" y="18" width="760" height="66" rx="12"/>
+      <text class="t" x="420" y="46" text-anchor="middle">Frontend: React + TypeScript + MapLibre</text>
+      <text class="s" x="420" y="68" text-anchor="middle">الواجهة في المتصفح: الخريطة والصفحات والشات</text>
+
+      <!-- frontend <-> backend -->
+      <line class="arrow" x1="250" y1="86" x2="250" y2="132" marker-end="url(#ah)"/>
+      <text class="lbl" x="262" y="104">REST /api/v1</text>
+      <text class="lbl" x="262" y="122">أوامر وأسئلة</text>
+      <line class="arrow acc" x1="590" y1="132" x2="590" y2="86" marker-end="url(#aha)"/>
+      <text class="lbl" x="602" y="104">WebSocket</text>
+      <text class="lbl" x="602" y="122">كل ثانيتين</text>
+
+      <!-- backend frame -->
+      <rect class="frame" x="40" y="136" width="760" height="400" rx="14"/>
+      <text class="lbl" x="58" y="158">Backend: FastAPI, port 8000</text>
+
+      <!-- row A -->
+      <rect class="box" x="58" y="176" width="165" height="84" rx="10"/>
+      <text class="t" x="140" y="208" text-anchor="middle">Simulator</text>
+      <text class="s" x="140" y="230" text-anchor="middle">المحاكي</text>
+      <text class="s" x="140" y="248" text-anchor="middle">seed 42 + Shadow engine</text>
+
+      <rect class="box" x="243" y="176" width="165" height="84" rx="10"/>
+      <text class="t" x="325" y="208" text-anchor="middle">Runtime</text>
+      <text class="s" x="325" y="230" text-anchor="middle">بيلف كل ثانيتين</text>
+
+      <rect class="box" x="428" y="176" width="165" height="84" rx="10"/>
+      <text class="t" x="510" y="208" text-anchor="middle">MLService</text>
+      <text class="s" x="510" y="230" text-anchor="middle">التوقع ودرجة الخطر</text>
+      <text class="s" x="510" y="248" text-anchor="middle">والإنذار المبكر</text>
+
+      <rect class="box hl" x="613" y="176" width="165" height="84" rx="10"/>
+      <text class="t" x="695" y="208" text-anchor="middle">Detector</text>
+      <text class="s" x="695" y="230" text-anchor="middle">قواعد الكشف</text>
+      <text class="s" x="695" y="248" text-anchor="middle">سبب واحد = حادثة واحدة</text>
+
+      <line class="arrow" x1="223" y1="218" x2="241" y2="218" marker-end="url(#ah)"/>
+      <line class="arrow" x1="408" y1="218" x2="426" y2="218" marker-end="url(#ah)"/>
+      <line class="arrow" x1="593" y1="218" x2="611" y2="218" marker-end="url(#ah)"/>
+
+      <!-- row B -->
+      <rect class="box" x="58" y="316" width="165" height="84" rx="10"/>
+      <text class="t" x="140" y="348" text-anchor="middle">Dispatcher</text>
+      <text class="s" x="140" y="370" text-anchor="middle">الفرق بعد الموافقة</text>
+
+      <rect class="box hl" x="243" y="316" width="165" height="84" rx="10"/>
+      <text class="t" x="325" y="348" text-anchor="middle">Board</text>
+      <text class="s" x="325" y="370" text-anchor="middle">أرخص ترتيب والاجتماع</text>
+
+      <rect class="box" x="428" y="316" width="165" height="84" rx="10"/>
+      <text class="t" x="510" y="348" text-anchor="middle">Cost engine</text>
+      <text class="s" x="510" y="370" text-anchor="middle">formulas + Monte Carlo</text>
+
+      <rect class="box hl" x="613" y="316" width="165" height="84" rx="10"/>
+      <text class="t" x="695" y="348" text-anchor="middle">Agents</text>
+      <text class="s" x="695" y="370" text-anchor="middle">LangGraph + checker</text>
+
+      <line class="arrow" x1="695" y1="260" x2="695" y2="314" marker-end="url(#ah)"/>
+      <text class="lbl" x="703" y="292">incident</text>
+      <line class="arrow" x1="593" y1="358" x2="611" y2="358" marker-end="url(#ah)"/>
+      <line class="arrow" x1="613" y1="386" x2="410" y2="386" marker-end="url(#ah)"/>
+      <line class="arrow" x1="243" y1="358" x2="225" y2="358" marker-end="url(#ah)"/>
+      <line class="arrow acc" x1="140" y1="316" x2="140" y2="262" marker-end="url(#aha)"/>
+      <text class="lbl" x="148" y="294">engine.repair</text>
+
+      <!-- row C -->
+      <rect class="box" x="58" y="440" width="350" height="84" rx="10"/>
+      <text class="t" x="233" y="468" text-anchor="middle">Audit log</text>
+      <text class="s" x="233" y="490" text-anchor="middle">سجل القرارات</text>
+      <text class="s" x="233" y="510" text-anchor="middle">SHA-256 hash chain</text>
+      <line class="arrow" x1="140" y1="400" x2="140" y2="438" marker-end="url(#ah)"/>
+      <line class="arrow" x1="325" y1="400" x2="325" y2="438" marker-end="url(#ah)"/>
+
+      <rect class="box" x="428" y="440" width="350" height="84" rx="10"/>
+      <text class="t" x="603" y="468" text-anchor="middle">Savings, Decision Studio, Build here</text>
+      <text class="s" x="603" y="490" text-anchor="middle">AI lab, Why, Briefing</text>
+      <text class="s" x="603" y="510" text-anchor="middle">كلها كود بيستعمل محرك التكلفة</text>
+
+      <!-- externals -->
+      <rect class="box ext" x="830" y="316" width="150" height="84" rx="10"/>
+      <text class="t" x="905" y="348" text-anchor="middle">Groq</text>
+      <text class="s" x="905" y="370" text-anchor="middle">gpt-oss-120b / 20b</text>
+      <text class="s" x="905" y="390" text-anchor="middle">للشرح بس</text>
+      <line class="arrow" x1="778" y1="358" x2="828" y2="358" marker-end="url(#ah)" marker-start="url(#ah)"/>
+
+      <rect class="box ext" x="830" y="176" width="150" height="84" rx="10"/>
+      <text class="t" x="905" y="208" text-anchor="middle">Telegram</text>
+      <text class="s" x="905" y="230" text-anchor="middle">تنبيهات وملخص الصبح</text>
+      <line class="arrow" x1="778" y1="218" x2="828" y2="218" marker-end="url(#ah)"/>
+
+      <!-- integration -->
+      <rect class="box" x="120" y="566" width="340" height="84" rx="10"/>
+      <text class="t" x="290" y="594" text-anchor="middle">integration/health</text>
+      <text class="s" x="290" y="616" text-anchor="middle">CSV files + SHA-256</text>
+      <text class="s" x="290" y="636" text-anchor="middle">الملفات اللي بين المشروعين</text>
+      <line class="arrow" x1="290" y1="538" x2="290" y2="564" marker-end="url(#ah)" marker-start="url(#ah)"/>
+
+      <rect class="box ext" x="540" y="566" width="340" height="84" rx="10"/>
+      <text class="t" x="710" y="594" text-anchor="middle">مشروع جيهان</text>
+      <text class="s" x="710" y="616" text-anchor="middle">Streamlit, port 8501</text>
+      <text class="s" x="710" y="636" text-anchor="middle">بيتقرا بس، ومحدش بيعدّل فيه</text>
+      <line class="arrow" x1="460" y1="609" x2="538" y2="609" marker-end="url(#ah)" marker-start="url(#ah)"/>
+    </svg>
+    </div>
+    <figcaption>المربعات الزرقا هي الأجزاء اللي بيتسأل عليها أكتر. المربعات المتقطعة برّه المشروع. السهم الأزرق اللي فوق هو الـ WebSocket (السيرفر بيبعت للمتصفح من غير ما يسأل). والسهم الأزرق اللي تحت على الشمال هو لحظة ما الفريق يخلّص التصليح.</figcaption>
+  </figure>
+
+  <h3>الطبقات وكل واحدة فين في الكود</h3>
+  <div class="tbl"><table>
+    <tr><th>الطبقة</th><th>المكان</th><th>بتعمل إيه</th></tr>
+    <tr><td>المحاكي</td><td><code>backend/app/sim/</code></td><td>بيولّد قراءات الحساسات من فيزياء مبسطة، وبيشغّل الأعطال.</td></tr>
+    <tr><td><bdi>Runtime</bdi></td><td><code>app/runtime.py</code></td><td>قلب النظام: كل 2 ثانية بيحرّك المحاكي ويشغّل باقي الأجزاء بالترتيب ويبعت للواجهة.</td></tr>
+    <tr><td>تعلّم الآلة</td><td><code>app/ml/</code></td><td>توقع الطلب، ودرجة خطر الأعطال، والإنذار المبكر.</td></tr>
+    <tr><td>الكشف</td><td><code>app/detection/</code></td><td>قواعد بتحوّل القراءات لتنبيهات وحوادث.</td></tr>
+    <tr><td>التكلفة</td><td><code>app/cost/</code></td><td>المعادلات والافتراضات و<bdi>Monte Carlo</bdi>.</td></tr>
+    <tr><td>الـ <bdi>Agents</bdi></td><td><code>app/agents/</code></td><td>الوكلاء المتخصصين، والمنسّق، وفاحص الأرقام، والتعامل مع موديل اللغة.</td></tr>
+    <tr><td>المجلس</td><td><code>app/board/</code></td><td>البحث عن أرخص ترتيب، والاجتماع، والموافقة، والتنفيذ، والسجل.</td></tr>
+    <tr><td>العقد</td><td><code>app/schemas/</code></td><td>شكل كل رسالة بين السيرفر والواجهة <bdi>(Pydantic)</bdi>.</td></tr>
+    <tr><td>الواجهة</td><td><code>frontend/src/</code></td><td><bdi>React</bdi> والخريطة والصفحات.</td></tr>
+    <tr><td>الربط مع جيهان</td><td><code>integration/health/</code></td><td>الملفات اللي بتنقل بين المشروعين.</td></tr>
+  </table></div>
+
+  <div class="why">
+    <div class="label">ليه كده مش كده؟ سيرفر واحد مش <bdi>microservices</bdi></div>
+    <p>كل حاجة في برنامج <bdi>Python</bdi> واحد على بورت واحد. ده مقصود: المحاكي والكاشف والتكلفة محتاجين يشوفوا نفس الحالة في نفس اللحظة كل ثانيتين. لو قسّمناهم خدمات منفصلة، هنحتاج نبعت البيانات بينهم على الشبكة ونتعامل مع تأخير وأعطال اتصال، من غير أي فايدة لمشروع على لابتوب واحد. لكن الكود متقسّم فولدرات واضحة، فلو شركة احتاجت تفصل جزء (مثلًا الكاشف يقرا من <bdi>SCADA</bdi> حقيقي) يتفصل بسهولة.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="journey">
+  <h2><span class="n">5</span>رحلة عطل واحد من أوله لآخره</h2>
+  <p class="lead">أسهل طريقة تفهم بيها المشروع إنك تمشي ورا عطل واحد. خلّينا نمشي ورا ماسورة اتكسرت.</p>
+  <ol class="steps">
+    <li><b>العطل يحصل.</b> سيناريو "كسر ماسورة" بيضيف حدث للمحاكي: الماسورة بقت بتسرّب حوالي 150 م³ في الساعة.</li>
+    <li><b>الحساسات تحس.</b> كل ثانيتين المحاكي بيطلّع قراءات الـ 89 حساس. التدفق زاد عن المعتاد والضغط وقع.</li>
+    <li><b>نعرف إن ده مش طبيعي.</b> فيه نسخة تانية من المحاكي اسمها <bdi>Shadow engine</bdi> شغالة بنفس الـ <bdi>seed</bdi> ونفس الساعة بس من غير أعطال. الفرق بين القراءة الحقيقية وقراءة النسخة دي هو "الانحراف".</li>
+    <li><b>الكاشف يتأكد.</b> قاعدة كسر الماسورة: فرق التدفق أكتر من 55 م³/س والضغط وقع أكتر من 0.4 بار. لازم تفضل صح 3 قراءات ورا بعض (6 ثواني) عشان نتأكد إنها مش رعشة. بعدها بيتفتح تنبيه <bdi>(alert)</bdi> وحادثة <bdi>(incident)</bdi>.</li>
+    <li><b>التكلفة تتحسب.</b> محرك التكلفة بيحسب: الحادثة دي بتكلّف كام في الساعة، والتصليح دلوقتي بكام، والتأجيل بكام، والفرق بينهم. ومعاه نطاق من 800 محاولة <bdi>Monte Carlo</bdi>.</li>
+    <li><b>وكيل المياه يشرح.</b> الـ <bdi>agent</bdi> بتاع المياه بياخد الأرقام من الكود، والموديل بيكتب الشرح والخطوات. فاحص الأرقام بيراجع كل رقم، وبعدين الكارت بيظهر على الشاشة ورسالة بتروح على <bdi>Telegram</bdi>.</li>
+    <li><b>المجلس يجتمع (لو فيه أكتر من مشكلة).</b> لو فيه مشاكل مفتوحة في شبكتين أو أكتر، المجلس بيستنى لحد ما مفيش جديد لمدة 20 ثانية، وبعدين يجرّب كل ترتيبات الإصلاح ويختار الأرخص.</li>
+    <li><b>الإنسان يقرر.</b> يوافق على الخطة، أو يغيّر الترتيب (والسيستم يقوله الفرق في التكلفة قبل ما يأكد)، أو يرفض بسبب. وبيكتب اسمه.</li>
+    <li><b>الفرق تتحرك.</b> كل ساعة شغل في الخطة = 20 ثانية في العرض. لما الفريق يخلّص، المحاكي بيصلّح العطل فعلًا <code>engine.repair</code>.</li>
+    <li><b>الكاشف يأكد، والسجل يحفظ.</b> الكاشف هو اللي بيقول "العطل راح"، مش الفريق. وكل خطوة (الاقتراح، الموافقة، التنفيذ، التأكيد) سطر في السجل المقفول.</li>
+  </ol>
+  <div class="qbox"><div class="label">سؤال متوقع</div>
+    <p>"ليه الكاشف هو اللي يقفل العطل ومش الفريق؟" لأن اللي بيصلّح ما ينفعش يكون هو اللي بيشهد إنه صلّح. لو الفريق قال "خلصت" والضغط لسه واقع، يبقى العطل ما اتصلّحش. فالتأكيد بييجي من القراءات نفسها.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="sim">
+  <h2><span class="n">6</span>المحاكي: منين بتيجي البيانات</h2>
+  <p class="lead">مفيش عندنا بيانات حقيقية من الشركة، فعملنا شبكة رقمية بتتصرف زي الحقيقية، على خريطة العاصمة الحقيقية.</p>
+  <h3>فيه إيه</h3>
+  <div class="kv">
+    <div><b>9</b><span>أحياء على الخريطة الحقيقية</span></div>
+    <div><b>48</b><span>أصل: مواسير و9 مضخات و4 محطات كهرباء ومحطتين تبريد</span></div>
+    <div><b>89</b><span>حساس بيقرا كل ثانيتين</span></div>
+    <div><b>53</b><span>وصلة بين الأصول</span></div>
+  </div>
+  <p>الملفات: <code>app/sim/topology.py</code> فيه الشبكة نفسها، و<code>app/sim/engine.py</code> فيه الفيزياء.</p>
+  <h3>شغال إزاي</h3>
+  <p>كل ثانيتين المحاكي بيحسب حالة الشبكة بعلاقات سبب ونتيجة مبسطة:</p>
+  <ul>
+    <li><b>الطلب</b> بيمشي على منحنى يومي حسب نوع الحي. الحي الحكومي بيشتغل الصبح وبيهدى الجمعة والسبت (الويك إند المصري). الحي السكني ليه ذروة الصبح وذروة بالليل. وفيه عطلات ورمضان وموجات حر.</li>
+    <li><b>الحرارة</b> بتتغير بالساعة وبيوم السنة.</li>
+    <li><b>الطلب يحدد التدفق، والتدفق يحدد الضغط.</b> المضخة السليمة بتحافظ على ضغط 4.7 بار.</li>
+    <li><b>الكهرباء</b> بتشغّل المضخات والـ <bdi>chillers</bdi>. لو المحطة فصلت، اللي عليها يقف.</li>
+    <li><b>الحر يزوّد حمل التبريد، وحمل التبريد يزوّد حمل الكهرباء.</b> الـ <bdi>chiller</bdi> بياخد حوالي 0.22 ميجاوات كهرباء لكل ميجاوات تبريد.</li>
+    <li><b>الأعطال</b> بتيجي من 15 سيناريو: كسر ماسورة، تسريب مخفي، فصل محطة، عطل مضخة، عطل تبريد، موجة حر، ذروة إفطار، حساس عالق أو منحرف أو ساكت، تآكل مضخة، وتلات أعطال في نفس الدقيقة، وغيرهم.</li>
+    <li><b>عطل الحساس</b> بيخلّي القراءة غير الحقيقة. الحساس العالق بيكرر نفس الرقم، فالكاشف لازم يفرّق بين "الحساس بايظ" و"الماسورة بايظة".</li>
+  </ul>
+  <p><b>الـ seed:</b> المحاكي بيستعمل رقم بداية ثابت (42) للعشوائية. نفس الـ <bdi>seed</bdi> بيطلّع نفس التشغيلة بالظبط، كل مرة.</p>
+  <p><b>الـ Shadow engine:</b> نسخة تانية بنفس الـ <bdi>seed</bdi> والساعة من غير أي عطل. بتقول "القراءة المفروض تكون كام دلوقتي". ده اللي بيخلّي الكشف يفرّق بين "الطلب عالي عشان الساعة 8 بالليل" و"الطلب عالي عشان فيه تسريب".</p>
+  <div class="why">
+    <div class="label">ليه كده مش كده؟</div>
+    <ul>
+      <li><b>ليه محاكاة مش بيانات حقيقية؟</b> لأن مفيش بيانات من الشركة. والمحاكاة ليها ميزة كبيرة: إحنا عارفين إمتى العطل بدأ وفين بالظبط، فنقدر نقيس الكاشف بأمانة (مسك كام عطل، وفوّت كام، وطلّع كام إنذار كاذب). في البيانات الحقيقية ده صعب جدًا لأن محدش عارف الحقيقة كاملة.</li>
+      <li><b>ليه seed ثابت؟</b> عشان أي نتيجة تتعاد. لو حد شك في رقم، يشغّل نفس الأمر ويطلعله نفس الرقم.</li>
+      <li><b>ليه فيزياء مبسطة مش برنامج زي <bdi>EPANET</bdi>؟</b> <bdi>EPANET</bdi> أدق في المياه بس. إحنا محتاجين تلات شبكات مربوطة ببعض وبتتحدث كل ثانيتين، والهدف نختبر الكشف والقرار، مش نصمم شبكة مواسير. في شركة حقيقية المحاكي ده كله يتشال، وتدخل مكانه قراءات الـ <bdi>SCADA</bdi>.</li>
+      <li><b>ليه خريطة حقيقية؟</b> لأن اللي هيقيّم من الشركة عارف العاصمة. الخريطة من <bdi>OpenStreetMap</bdi> ومحفوظة في المشروع، فبتشتغل من غير نت.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="runtime">
+  <h2><span class="n">7</span>السيرفر وقلب النظام</h2>
+  <p class="lead">السيرفر مكتوب بـ <bdi>FastAPI</bdi>. جواه حلقة بتلف كل ثانيتين اسمها <bdi>tick</bdi>، وكل لفة بتشغّل الأجزاء بترتيب ثابت.</p>
+  <h3>اللي بيحصل في كل tick</h3>
+  <ol>
+    <li>المحاكي بيطلّع القراءات، والسيرفر بيبعتها للمتصفح دفعة واحدة (89 قراءة).</li>
+    <li>حالة كل أصل بتتحدّث (طبيعي، تحذير، عطل، مفصول) ودرجة صحته.</li>
+    <li><bdi>MLService</bdi>: القيمة المتوقعة من الـ <bdi>Shadow engine</bdi>، وكل 10 <bdi>ticks</bdi> درجة الخطر والإنذار المبكر، وكل 150 <bdi>tick</bdi> (5 دقايق) تحديث التوقع.</li>
+    <li><bdi>Detector</bdi>: القواعد، والتأكيد، وفتح وقفل الحوادث.</li>
+    <li><bdi>Dispatcher</bdi>: تقدّم الفرق اللي شغالة.</li>
+    <li><bdi>Telegram</bdi>: رسالة لو مشكلة اتفتحت أو كبرت أو اتحلّت.</li>
+  </ol>
+  <p>تحليل الـ <bdi>agent</bdi> بيشتغل في الخلفية <bdi>(async task)</bdi>. يعني الحلقة ما بتستناش موديل اللغة، والقراءات بتفضل توصل كل ثانيتين حتى لو الموديل بطيء.</p>
+  <h3>إزاي السيرفر بيكلّم الواجهة</h3>
+  <ul>
+    <li><b><bdi>WebSocket</bdi> على <code>/ws/stream</code>:</b> اتصال مفتوح على طول، السيرفر بيبعت فيه من غير ما الواجهة تسأل. فيه 16 نوع رسالة، زي القراءات والتنبيهات والحوادث وكلام المجلس. أول رسالة دايمًا <code>snapshot</code> فيها كل الحالة، وبعدها التحديثات بس.</li>
+    <li><b><bdi>REST</bdi> على <code>/api/v1</code>:</b> للأوامر والأسئلة، زي "شغّل سيناريو" أو "غيّر سعر" أو "وافق على الخطة" أو "هات التقرير PDF".</li>
+    <li>السيرفر نفسه بيعرض الواجهة المبنية، فبورت واحد (8000) كفاية.</li>
+  </ul>
+  <p><b>الـ Sandbox:</b> لما حد يسأل في الشات "لو استنينا 12 ساعة؟"، السيرفر بيعمل نسخة منفصلة من التوأم <code>Runtime.clone()</code> ويجرّب فيها. التوأم الحقيقي ما بيتأثرش.</p>
+  <div class="why">
+    <div class="label">ليه كده مش كده؟</div>
+    <ul>
+      <li><b>ليه <bdi>FastAPI</bdi> مش <bdi>Flask</bdi> أو <bdi>Django</bdi>؟</b> محتاجين في نفس البرنامج: حلقة كل ثانيتين، و<bdi>WebSocket</bdi>، ونداءات لموديل اللغة بتاخد ثواني. <bdi>FastAPI</bdi> مبني على <bdi>async</bdi> فبيعمل التلاتة مع بعض من غير ما حاجة توقف حاجة. وبيستعمل <bdi>Pydantic</bdi>، فشكل كل رسالة متعرّف ومتراجع تلقائي. <bdi>Flask</bdi> ما فيهوش <bdi>WebSocket</bdi> ولا <bdi>async</bdi> بشكل طبيعي، و<bdi>Django</bdi> تقيل ومعمول لمواقع فيها قاعدة بيانات.</li>
+      <li><b>ليه <bdi>WebSocket</bdi> مش إن الواجهة تسأل كل ثانية <bdi>(polling)</bdi>؟</b> عندنا 89 قراءة كل ثانيتين، وتنبيهات لازم توصل فورًا. الـ <bdi>polling</bdi> هيبعت طلبات كتير ملهاش لازمة، والتنبيه ممكن يتأخر لحد السؤال الجاي.</li>
+      <li><b>ليه بايثون أصلًا؟</b> مكتبات تعلّم الآلة <bdi>(LightGBM, scikit-learn)</bdi> والـ <bdi>agents</bdi> <bdi>(LangGraph)</bdi> كلها بايثون.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="detect">
+  <h2><span class="n">8</span>كشف الأعطال</h2>
+  <p class="lead">الكاشف الرئيسي <b>قواعد</b>، مش تعلّم آلة. كل قاعدة ليها معنى فيزيائي، واتقاست بأرقام.</p>
+  <p>الملف: <code>app/detection/__init__.py</code></p>
+  <h3>القواعد (أمثلة)</h3>
+  <div class="tbl"><table>
+    <tr><th>العطل</th><th>القاعدة</th></tr>
+    <tr><td>فصل محطة كهرباء</td><td>الجهد أقل من 15 كيلوفولت</td></tr>
+    <tr><td>كسر ماسورة</td><td>فرق التدفق أكتر من 55 م³/س، والضغط وقع أكتر من 0.4 بار</td></tr>
+    <tr><td>تسريب مخفي</td><td>فرق ثابت 16 م³/س أو أكتر، والضغط واقع 0.08 بار أو أكتر</td></tr>
+    <tr><td>تسريب بيزيد ببطء</td><td>قاعدة خاصة بتتابع الزيادة البطيئة مع الوقت</td></tr>
+    <tr><td>عطل مضخة، عطل تبريد، حمل زائد، حساس بايظ</td><td>قواعد بعتبات زي دول، وكل سبب مربوط بحساس حقيقي كدليل</td></tr>
+  </table></div>
+  <h3>الحاجات اللي بتخلّي الكشف ذكي</h3>
+  <ul>
+    <li><b>التأكيد:</b> الحالة لازم تستمر 3 قراءات (6 ثواني) قبل ما ينطلق تنبيه. ده بيشيل الرعشة.</li>
+    <li><b>القفل على حد أقل:</b> التنبيه بيتفتح على حد ويتقفل على حد أقل منه <bdi>(hysteresis)</bdi>. من غير كده، قراءة بتلعب حوالين الحد كانت هتفتح وتقفل التنبيه كل شوية.</li>
+    <li><b>سبب واحد = حادثة واحدة:</b> لو المحطة فصلت والمضخات وقفت والضغط وقع، دي حادثة واحدة مش أربعة. التنبيه الجديد بيتربط بحادثة موجودة لو جه في نطاق تأثيرها، أو ليه نفس السبب الخارجي (زي الحر).</li>
+    <li><b>التصعيد:</b> لو الحادثة طلعت أكبر من الأول (تسريب بقى كسر)، بتكبر هي نفسها، مش بتتفتح حادثة جديدة.</li>
+    <li><b>الرجوع:</b> عطل رجع خلال 5 دقايق بيفتح نفس الحادثة تاني.</li>
+    <li><b>هوية المشكلة:</b> المشكلة متعرّفة بنوعها والأصل بتاعها، مش برقم التنبيه. اتعمل كده بعد ما اكتشفنا في تجربة إن الكاشف غيّر اسم كسر لتسريب في نص الخطة، والخطة نسيت تبعتله فريق.</li>
+  </ul>
+  <h3>اتقاس إزاي (مهم جدًا)</h3>
+  <p>بطريقة اسمها <b>الأزواج المتطابقة <bdi>(matched pairs)</bdi></b>: نشغّل المحاكي مرتين بنفس الـ <bdi>seed</bdi> ونفس الساعة، مرة فيها عطل ومرة من غيره. كده أي إنذار في التشغيلة النضيفة يبقى إنذار كاذب أكيد، وأي عطل ما اتكشفش يبقى فايت أكيد.</p>
+  <div class="kv">
+    <div><b>93%</b><span>من الأعطال اتمسكت (198 من 212). فترة الثقة 95%: من 89% لـ 96%</span></div>
+    <div><b>0</b><span>إنذار كاذب في 172.5 ساعة تشغيل نضيف</span></div>
+    <div><b>&lt; 2.14</b><span>إنذار كاذب لكل 100 ساعة: الحد الأعلى بثقة 95%</span></div>
+  </div>
+  <p>الـ 14 عطل اللي فاتوا كلهم أصغر تسريب مخفي، حوالي 24 م³/س. من 45 م³/س وطالع الكشف 100%.</p>
+  <p class="small">ليه بنقول "أقل من 2.14" ومش "صفر"؟ لأن صفر في 172.5 ساعة ما يثبتش إن المعدل صفر. ممكن يكون نادر بس. الحد الأعلى بيقول أسوأ احتمال معقول.</p>
+  <div class="why">
+    <div class="label">ليه كده مش كده؟ ليه قواعد مش تعلّم آلة؟</div>
+    <ul>
+      <li><b>الشرح:</b> كل تنبيه بيقول "الضغط في الحساس الفلاني وقع كذا". المهندس يقدر يراجعه. موديل تعلّم آلة بيقول "احتمال عطل 0.87" من غير سبب واضح.</li>
+      <li><b>مفيش بيانات أعطال حقيقية نتعلم منها.</b> لو دربنا موديل على أعطال المحاكي، ممكن يحفظ شكل المحاكي نفسه مش شكل الأعطال.</li>
+      <li><b>وجرّبنا البديل فعلًا:</b> في صفحة <bdi>AI lab</bdi> قارنّا 4 كواشف على نفس الأعطال، منهم <bdi>LightGBM</bdi> و<bdi>Isolation Forest</bdi>. شوف <a href="#ml">قسم الموديلات</a>.</li>
+    </ul>
+  </div>
+  <div class="qbox"><div class="label">حاجة لازم تعرفها قبل ما حد يكتشفها</div>
+    <p>جوه الكاشف فيه موديل <bdi>Isolation Forest</bdi> بيتحسب كل <bdi>tick</bdi>، بس مفيش حاجة بتقرا نتيجته. ما بيفتحش تنبيه ومش ظاهر في أي شاشة. اللي شغال فعلًا هو الـ <bdi>Isolation Forest</bdi> اللي في المختبر للمقارنة. فما تقولش "بنكشف بـ <bdi>Isolation Forest</bdi>". ولو اتسألت: "ده متحسب ومش متوصّل، وهو في قائمة التنضيف".</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="ml">
+  <h2><span class="n">9</span>موديلات تعلّم الآلة</h2>
+  <p class="lead">فيه موديلين تعلّم آلة شغالين فعلًا: واحد بيتوقع الطلب، وواحد بيرتّب الأصول حسب خطر العطل. وفوقهم قاعدة للإنذار المبكر، ومختبر بيقارن 4 كواشف.</p>
+
+  <h3>9.1 توقع الطلب: <bdi>LightGBM</bdi></h3>
+  <p><b>بيعمل إيه:</b> بيتوقع الطلب على المياه والكهرباء والتبريد في كل حي، من 24 لـ 72 ساعة قدّام. موديل لكل شبكة (يعني 3 موديلات)، والحي متغير جواه.</p>
+  <p><b>المدخلات (11 متغير):</b> الساعة، يوم الأسبوع، الويك إند، العطلة، الحرارة المتوقعة، طلب نفس الساعة امبارح، طلب نفس الساعة من أسبوع، حجم الحي ونوعه.</p>
+  <p><b>التدريب:</b> 270 يوم تاريخ من المحاكي. آخر 10 أيام محدش لمسهم في التدريب ولا في اختيار أي إعداد، ودول اللي بنقيس عليهم. والحرارة بتدخل بخطأ مقصود (±1 درجة) عشان الدقة تبقى واقعية، لأن توقع الطقس عمره ما بيبقى مظبوط.</p>
+  <div class="tbl"><table>
+    <tr><th>الشبكة</th><th class="num">نسبة الخطأ (MAPE)</th><th>بيشيل كام من خطأ أحسن طريقة بسيطة</th></tr>
+    <tr><td>المياه</td><td class="num">2.8%</td><td>59%</td></tr>
+    <tr><td>الكهرباء</td><td class="num">1.1%</td><td>62%</td></tr>
+    <tr><td>التبريد</td><td class="num">3.3%</td><td>83%</td></tr>
+  </table></div>
+  <p>"الطريقة البسيطة" يعني نقول "الطلب هيبقى زي امبارح في نفس الساعة" أو "زي الأسبوع اللي فات". لو الموديل مش أحسن منها، يبقى ملوش لازمة. والصفحة بتقول لوحدها لو الموديل <bdi>reliable</bdi> أو <bdi>indicative</bdi> أو <bdi>unreliable</bdi>، وبتوري الخطأ لكل نوع يوم (يوم عادي، ويك إند، عطلة، موجة حر).</p>
+  <p><b>دليل إنه بيتعلم فعلًا:</b> في أيام الحر والعطلات خطأ الكهرباء 1.13%. لو شلنا منه معلومة الحر والعطلة يبقى 5.36%. وفي التبريد من 3.17% لـ 27.74%.</p>
+  <h4>ليه 270 يوم؟ قسناها</h4>
+  <p>دربنا نفس الموديل على 75 و120 و180 و270 و365 يوم، بـ 3 <bdi>seeds</bdi>، وقسنا الكل على نفس الأيام العشرة. من 75 لـ 270 الخطأ قلّ حوالي الربع، و365 ما كانش أحسن.</p>
+  <h4>قارنّاه بـ 4 موديلات تانية</h4>
+  <div class="tbl"><table>
+    <tr><th>الموديل</th><th class="num">خطأ المياه (MAE)</th><th class="num">الكهرباء</th><th class="num">التبريد</th></tr>
+    <tr><td><b><bdi>LightGBM</bdi> (الشغال)</b></td><td class="num">105.23</td><td class="num">1.92</td><td class="num">1.22</td></tr>
+    <tr><td><bdi>Random Forest</bdi></td><td class="num">105.21</td><td class="num">1.88</td><td class="num">1.22</td></tr>
+    <tr><td><bdi>Ensemble (LightGBM + RF)</bdi></td><td class="num">104.52</td><td class="num">1.88</td><td class="num">1.19</td></tr>
+    <tr><td><bdi>Ridge</bdi></td><td class="num">234.35</td><td class="num">4.52</td><td class="num">3.42</td></tr>
+    <tr><td><bdi>Seasonal smoothing</bdi></td><td class="num">390.19</td><td class="num">7.88</td><td class="num">7.46</td></tr>
+  </table></div>
+  <p class="small">الأرقام من مراجعة 4 نوفمبر، وبتتغير شوية كل يوم مع التدريب اليومي.</p>
+  <div class="why">
+    <div class="label">ليه <bdi>LightGBM</bdi> مش <bdi>LSTM</bdi> أو <bdi>Prophet</bdi> أو <bdi>ARIMA</bdi>؟</div>
+    <ul>
+      <li>البيانات جدول: ساعة ويوم وحرارة وطلب امبارح. الموديلات اللي بتتبني من أشجار <bdi>(gradient boosting)</bdi> هي الأقوى في النوع ده، وبتمسك التداخل بين المتغيرات، زي إن العطلة بتغيّر شكل اليوم كله.</li>
+      <li>بيتدرّب في ثواني، وبيقول أهم المتغيرات. في الكهرباء مثلًا: طلب نفس الساعة من أسبوع 70%، والعطلة 13%، ونوع الحي 11%.</li>
+      <li><bdi>LSTM</bdi> محتاج بيانات أكتر ووقت تدريب أطول وصعب يتشرح، و<bdi>Prophet</bdi> و<bdi>ARIMA</bdi> بيتعاملوا مع السلسلة الزمنية لوحدها وأضعف في متغيرات زي الحر والعطلة. القرار ده مكتوب في <code>docs/decisions.md</code> (D5).</li>
+      <li><b>طب ليه مش الـ Ensemble وهو أحسن شوية؟</b> الفرق أقل من 1% في المياه وحوالي 2% في الكهرباء، واختبار إعادة العينة <bdi>(bootstrap)</bdi> بيقول ده تعادل. الاستثناء التبريد: الـ <bdi>Ensemble</bdi> أحسن بفرق ثابت بس صغير (3%). فاخترنا نفضل على <bdi>LightGBM</bdi> لأنه موديل واحد أبسط، والصفحة بتعرض المقارنة بصراحة. ولو اتسألت: "لو الفرق ده طلع ثابت على بيانات حقيقية، نغيّر".</li>
+    </ul>
+  </div>
+
+  <h3>9.2 درجة خطر الأعطال: <bdi>HistGradientBoosting</bdi></h3>
+  <p><b>بيعمل إيه:</b> بيدّي كل مضخة ومحوّل ومحطة درجة خطر من 0 لـ 1.</p>
+  <p><b>المدخلات (6):</b> العمر، ساعات التشغيل، الاهتزاز، تذبذب الضغط، معامل الحمل، زيادة الحرارة. أهمهم ساعات التشغيل (32%) ومعامل الحمل (23%) والاهتزاز (21%).</p>
+  <p><b>قيد مهم:</b> الموديل "رتيب" <bdi>(monotonic)</bdi>. يعني زيادة أي متغير عمرها ما تقلل الدرجة. اتضاف بعد ما اختبار لقى إن موديل من غير القيد بيقلل الدرجة لما الاهتزاز يزيد، وده ما ينفعش يتقال لمهندس.</p>
+  <p><b>التدريب:</b> 6,000 أصل معمولين بالكود. كل أصل بيتحدد عطله من معادلة خطر أنا كاتبها. والنتيجة <b><bdi>AUC = 0.858</bdi></b> على 25% محجوزة.</p>
+  <div class="qbox"><div class="label">لازم تقولها بنفسك</div>
+    <p>الـ <bdi>AUC</bdi> ده بيقيس قد إيه الموديل رجّع المعادلة اللي اتعملت بيها البيانات، مش قد إيه بيتوقع أعطال معدات حقيقية. والدرجة <b>ترتيب</b> (الأصل ده أخطر من ده)، <b>مش احتمال</b> (مش "احتمال يقع 30% الشهر ده"). عشان تبقى احتمال حقيقي، محتاجين سجل صيانة حقيقي ومعايرة <bdi>(calibration)</bdi>.</p>
+  </div>
+  <div class="why">
+    <div class="label">ليه <bdi>HistGradientBoosting</bdi>؟</div>
+    <p>لأنه موجود في <bdi>scikit-learn</bdi> وبيدعم القيد الرتيب مباشرة (<code>monotonic_cst</code>). القيد ده أهم من أي فرق صغير في الدقة: لو الموديل قال "الاهتزاز زاد فالخطر قلّ"، المهندس هيبطّل يصدّقه خالص.</p>
+  </div>
+
+  <h3>9.3 الإنذار المبكر</h3>
+  <p><b>بيعمل إيه:</b> بيلقط مضخة بتتآكل وهي لسه شغالة، قبل ما تقع.</p>
+  <p><b>إزاي:</b> مش موديل جديد. بيحسب درجة الخطر للمضخة مرتين: مرة بقراياتها هي، ومرة بقرايات وسيط المضخات اللي زيها. لو الفرق كبير (1.0 أو أكتر بمقياس <bdi>log-odds</bdi>) لمدة 3 قراءات والمضخة لسه شغالة، يطلع تحذير. وبيقفل لما الفرق ينزل تحت 0.5.</p>
+  <p><b>بيطلّع إيه:</b> التحذير، وكل إشارة ساهمت بكام في الفرق، وتكلفة الصيانة المخططة دلوقتي قصاد تكلفة العطل، و<b>نقطة التعادل</b>: لو احتمال العطل فوق النسبة دي، الصيانة تستاهل.</p>
+  <div class="kv">
+    <div><b>24 / 24</b><span>حالة تآكل اتحذّر منها قبل العطل</span></div>
+    <div><b>114 ث</b><span>وسيط المهلة (من 12 لـ 574 ثانية)</span></div>
+    <div><b>0</b><span>إنذار كاذب في باقي السيناريوهات</span></div>
+  </div>
+  <p class="small">العطل المفاجئ من غير مقدمات (سيناريو عطل المضخة) مالوش إنذار مبكر، وده الصح: مفيش حاجة كانت بتبان قبله.</p>
+  <div class="why">
+    <div class="label">ليه نقارن بالنظراء مش بحد ثابت؟</div>
+    <p>لأن الحد الثابت مش عارف الظروف. في يوم حر كل المضخات بتشتغل أكتر. لو قارنّا المضخة بأخواتها في نفس اللحظة، الظروف المشتركة بتتشال، واللي يفضل هو اللي خاص بالمضخة دي.</p>
+  </div>
+
+  <h3>9.4 مختبر الكشف <bdi>(AI lab)</bdi>: 4 كواشف على نفس الأعطال</h3>
+  <div class="tbl"><table>
+    <tr><th>الكاشف</th><th class="num">نسبة الكشف</th><th class="num">إنذار كاذب لكل 100 ساعة</th><th class="num">وسيط التأخير</th></tr>
+    <tr><td>D1 حد ثابت (زي <bdi>SCADA</bdi>)</td><td class="num">79%</td><td class="num">6.0</td><td class="num">5 دقايق</td></tr>
+    <tr><td>D2 <bdi>CUSUM</bdi></td><td class="num">100%</td><td class="num">1.2</td><td class="num">14 دقيقة</td></tr>
+    <tr><td>D3 <bdi>Isolation Forest</bdi></td><td class="num">82%</td><td class="num">0</td><td class="num">5 دقايق</td></tr>
+    <tr><td><b>D4 <bdi>LightGBM classifier</bdi></b></td><td class="num"><b>100%</b></td><td class="num"><b>0</b></td><td class="num"><b>4 دقايق</b></td></tr>
+  </table></div>
+  <p>100% هنا يعني 160 من 160 تشغيلة اختبار، والحد الأدنى بثقة 95% حوالي 97%. وفيه 3 أحياء محجوزة ما شافهاش التدريب خالص، و<bdi>D4</bdi> كشف فيها 100% برضه.</p>
+  <p class="small">ده مختبر مقارنة، مش الكاشف اللي بيفتح الحوادث في النظام.</p>
+
+  <h3>9.5 تحديد مكان التسريب</h3>
+  <p>لكل ماسورة شغّلنا التوأم مرة بتسريب معروف، وحفظنا إزاي الـ 89 حساس بيتأثروا. دي "بصمة" الماسورة. لما يحصل تسريب، النظام بيدوّر على أنهي بصمة بتفسّر القراءات أحسن (حل رياضي بطريقة أقل مربعات بقيود، مش تعلّم آلة).</p>
+  <p><b>النتيجة:</b> 108 من 108 الماسورة الصح طلعت الأولى، بتسريبات من 18 لـ 270 م³/س. <b>بس قولها:</b> الشبكة فيها 9 مواسير بس، فالمسألة أسهل من شبكة حقيقية.</p>
+</section>
+
+<!-- 10 -->
+<section id="cost">
+  <h2><span class="n">10</span>محرك التكلفة</h2>
+  <p class="lead">كل حادثة بتتحول لجنيه في الساعة بمعادلات ليها أسماء، وكل رقم داخل في المعادلة ليه مصدر.</p>
+  <p>الملف: <code>app/cost/__init__.py</code>، والشرح الكامل في <code>docs/cost-model.md</code>.</p>
+  <h3>المعادلات الأربعة</h3>
+<pre><code>C_delay     = C_loss + C_disruption + C_secondary        (EGP per hour)
+ActNow      = C_repair_now + C_delay x t_response
+CostOfDelay = C_delay x t_delay + C_repair_now x late_multiplier
+Saving      = CostOfDelay - ActNow</code></pre>
+  <ul>
+    <li><bdi>C_delay</bdi>: العطل بيكلّف كام في الساعة. فيه الخسارة (مياه بتتسرب، كهرباء مش واصلة)، وتكلفة التعامل مع الناس المتأثرين، والآثار الجانبية (كهرباء زيادة اتشرت).</li>
+    <li><bdi>ActNow</bdi>: لو بعتنا الفريق دلوقتي. التصليح، والخسارة لحد ما الفريق يوصل.</li>
+    <li><bdi>CostOfDelay</bdi>: لو أجّلنا. الخسارة طول فترة التأجيل، والتصليح بعدين أغلى (معامل تأخير).</li>
+    <li><bdi>Saving</bdi>: الفرق. ده اللي بيتقال للمدير: "التصليح دلوقتي بيوفّر كذا".</li>
+  </ul>
+  <h3>مثال كامل بالإيد: كسر ماسورة</h3>
+  <div class="tbl"><table>
+    <tr><th>البند</th><th>الحساب</th><th class="num">النتيجة</th></tr>
+    <tr><td>الخسارة في الساعة</td><td>140 م³/س × 8 جنيه + 500 حساب × 5 جنيه + 0.125 ميجاوات × 1000 × 1.6</td><td class="num">3,820 جنيه/س</td></tr>
+    <tr><td>التصليح دلوقتي</td><td>3,400 فريق + 15,000 قطع غيار</td><td class="num">18,400</td></tr>
+    <tr><td>التصليح بعدين</td><td>18,400 × 1.7</td><td class="num">31,280</td></tr>
+    <tr><td>نصلّح دلوقتي</td><td>18,400 + 3,820 × ساعة واحدة</td><td class="num">22,220</td></tr>
+    <tr><td>نأجّل 6 ساعات</td><td>3,820 × 6 + 31,280</td><td class="num">54,200</td></tr>
+    <tr><td><b>التوفير</b></td><td>54,200 − 22,220</td><td class="num"><b>31,980</b></td></tr>
+  </table></div>
+  <p class="small">المثال ده من <code>docs/cost-model.md</code>، وفيه اختبار بيحسبه بالإيد ويقارنه بالكود.</p>
+  <h3>الافتراضات</h3>
+  <p>كل سعر (سعر متر المياه، تعريفة الكهرباء، تكلفة الفريق، وغيرهم) متسجّل ومعاه:</p>
+  <ul>
+    <li><b>قيمة، وأقل وأعلى قيمة معقولة.</b></li>
+    <li><b>الأساس:</b> ليه الرقم ده، وحالته (رسمي، مرجع، هندسي، تخطيطي).</li>
+    <li><b>مراجع عامة لو موجودة، وحكم عليها.</b> مثلًا تعريفة الكهرباء التجارية المنشورة 2026 أعلى من افتراضنا، والتطبيق بيقول كده صراحة. والمياه والتبريد مفيش ليهم رقم رسمي 2026، فمكتوب عليهم "تخطيطي".</li>
+  </ul>
+  <p>تقدر تغيّر أي سعر من الشاشة، وكل الحوادث المفتوحة بتتحسب تاني فورًا.</p>
+  <h3>النطاق بدل رقم واحد</h3>
+  <p><bdi>Monte Carlo</bdi>: بنعيد الحساب 800 مرة، وكل مرة كل افتراض بياخد قيمة عشوائية بين أقل وأعلى قيمة ليه، وتقدير التسريب بيتحرك ±15%. بعدين نطلّع <bdi>P10</bdi> و<bdi>P50</bdi> و<bdi>P90</bdi> (الواطي والوسط والعالي). ورسم <bdi>tornado</bdi> بيقول أنهي افتراض بيحرّك النتيجة أكتر، يعني أنهي سعر لازم نتأكد منه الأول.</p>
+  <div class="why">
+    <div class="label">ليه كده مش كده؟</div>
+    <ul>
+      <li><b>ليه الكود يحسب مش الـ <bdi>AI</bdi>؟</b> موديل اللغة ممكن يألّف رقم شكله مقنع. والمعادلة بتطلّع نفس الرقم كل مرة، وأي حد يقدر يراجعها بالآلة الحاسبة. في قرار فيه فلوس عامة، ده مش اختياري.</li>
+      <li><b>ليه نطاق مش رقم واحد؟</b> لأن الأسعار نفسها مش أكيدة. "التوفير 33 ألف، والمحتمل من 23 لـ 45" أصدق من "33 ألف" لوحده.</li>
+      <li><b>ليه ما غيّرناش الافتراضات عشان تطابق المراجع؟</b> المراجع صحافة ومواقع، مش جداول رسمية. فبنعرضها جنب الرقم وبنسيب القرار للمستخدم، وفيه زرار "جرّب" يوريك الأثر قبل ما تعتمده.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="agents">
+  <h2><span class="n">11</span>الـ Agents</h2>
+  <p class="lead">"الـ <bdi>agent</bdi>" هنا مش موديل حر بيعمل اللي هو عايزه. ده خط إنتاج من 5 خطوات، واحدة بس فيهم بتستعمل موديل اللغة.</p>
+  <h3>النظام كله: مين الـ agents</h3>
+  <div class="tbl"><table>
+    <tr><th>الـ agent</th><th>الموديل</th><th>شغلته</th></tr>
+    <tr><td><b>المنسّق</b> <bdi>(orchestrator)</bdi></td><td><bdi>gpt-oss-120b</bdi></td><td>في الشات بيختار الوكلاء ويجمّع ردودهم. وفي المجلس هو <b>رئيس الجلسة</b>.</td></tr>
+    <tr><td><b>وكيل المياه</b></td><td><bdi>gpt-oss-20b</bdi></td><td>المواسير والمضخات والخزانات والتسريب.</td></tr>
+    <tr><td><b>وكيل الكهرباء</b></td><td><bdi>gpt-oss-20b</bdi></td><td>المحطات والأحمال والفصل.</td></tr>
+    <tr><td><b>وكيل التبريد</b></td><td><bdi>gpt-oss-20b</bdi></td><td>محطات التبريد المركزي والـ <bdi>chillers</bdi>.</td></tr>
+  </table></div>
+  <p>والأربعة بيشتغلوا في <b>3 مواقف</b>:</p>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 392" role="img" aria-labelledby="ag-t ag-d">
+      <title id="ag-t">The three situations the agents work in</title>
+      <desc id="ag-d">Right: a new incident goes from the detector to one specialist agent, then to the number checker, then to a finding card and Telegram. Middle: a chat question goes to the orchestrator's router, then to the water, electricity and cooling agents that were chosen, then back to the orchestrator to combine, then to the checker. Left: for a board meeting, code computes the order first, writes every sentence, the chair and the three agents may only re-voice them, and a check rejects any rewrite that changes a figure.</desc>
+      <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs>
+
+      <rect class="box ext" x="680" y="8" width="300" height="376" rx="14"/>
+      <rect class="box ext" x="350" y="8" width="300" height="376" rx="14"/>
+      <rect class="box ext" x="20" y="8" width="300" height="376" rx="14"/>
+      <text class="pt" x="830" y="40" text-anchor="middle">حادثة جديدة</text>
+      <text class="pt" x="500" y="40" text-anchor="middle">سؤال في الشات</text>
+      <text class="pt" x="170" y="40" text-anchor="middle">اجتماع المجلس</text>
+
+      <!-- panel: incident -->
+      <rect class="box" x="720" y="62" width="220" height="56" rx="10"/>
+      <text class="t" x="830" y="86" text-anchor="middle">Detector</text>
+      <text class="s" x="830" y="106" text-anchor="middle">فتح حادثة</text>
+      <rect class="box" x="720" y="146" width="220" height="56" rx="10"/>
+      <text class="t" x="830" y="170" text-anchor="middle">Specialist (20b)</text>
+      <text class="s" x="830" y="190" text-anchor="middle">وكيل الشبكة بتاعة العطل</text>
+      <rect class="box" x="720" y="230" width="220" height="56" rx="10"/>
+      <text class="t" x="830" y="254" text-anchor="middle">checker</text>
+      <text class="s" x="830" y="274" text-anchor="middle">فاحص الأرقام</text>
+      <rect class="box hl" x="720" y="314" width="220" height="56" rx="10"/>
+      <text class="t" x="830" y="338" text-anchor="middle">Finding</text>
+      <text class="s" x="830" y="358" text-anchor="middle">كارت على الشاشة ورسالة تليجرام</text>
+      <line class="arrow" x1="830" y1="118" x2="830" y2="144" marker-end="url(#ah3)"/>
+      <line class="arrow" x1="830" y1="202" x2="830" y2="228" marker-end="url(#ah3)"/>
+      <line class="arrow" x1="830" y1="286" x2="830" y2="312" marker-end="url(#ah3)"/>
+
+      <!-- panel: chat -->
+      <rect class="ch chip" x="390" y="62" width="220" height="56" rx="10"/>
+      <text class="t" x="500" y="86" text-anchor="middle">router (120b)</text>
+      <text class="s" x="500" y="106" text-anchor="middle">المنسّق يختار الوكلاء</text>
+      <rect class="w chip" x="366" y="146" width="82" height="56" rx="10"/>
+      <text class="t" x="407" y="170" text-anchor="middle">Water</text>
+      <text class="s" x="407" y="190" text-anchor="middle">20b</text>
+      <rect class="e chip" x="459" y="146" width="82" height="56" rx="10"/>
+      <text class="t" x="500" y="170" text-anchor="middle">Power</text>
+      <text class="s" x="500" y="190" text-anchor="middle">20b</text>
+      <rect class="c chip" x="552" y="146" width="82" height="56" rx="10"/>
+      <text class="t" x="593" y="170" text-anchor="middle">Cooling</text>
+      <text class="s" x="593" y="190" text-anchor="middle">20b</text>
+      <rect class="ch chip" x="390" y="230" width="220" height="56" rx="10"/>
+      <text class="t" x="500" y="254" text-anchor="middle">synthesize (120b)</text>
+      <text class="s" x="500" y="274" text-anchor="middle">المنسّق يجمّع إجابة واحدة</text>
+      <rect class="box hl" x="390" y="314" width="220" height="56" rx="10"/>
+      <text class="t" x="500" y="338" text-anchor="middle">checker</text>
+      <text class="s" x="500" y="358" text-anchor="middle">الإجابة بعد فحص الأرقام</text>
+      <line class="arrow" x1="500" y1="118" x2="500" y2="144" marker-end="url(#ah3)"/>
+      <line class="arrow" x1="500" y1="202" x2="500" y2="228" marker-end="url(#ah3)"/>
+      <line class="arrow" x1="500" y1="286" x2="500" y2="312" marker-end="url(#ah3)"/>
+
+      <!-- panel: board -->
+      <rect class="box" x="60" y="62" width="220" height="56" rx="10"/>
+      <text class="t" x="170" y="86" text-anchor="middle">analysis.py</text>
+      <text class="s" x="170" y="106" text-anchor="middle">الكود يحسب أرخص ترتيب</text>
+      <rect class="box" x="60" y="146" width="220" height="56" rx="10"/>
+      <text class="t" x="170" y="170" text-anchor="middle">Drafts</text>
+      <text class="s" x="170" y="190" text-anchor="middle">الكود يكتب كلام كل وكيل</text>
+      <rect class="ch chip" x="60" y="230" width="220" height="56" rx="10"/>
+      <text class="t" x="170" y="254" text-anchor="middle">Chair 120b + agents 20b</text>
+      <text class="s" x="170" y="274" text-anchor="middle">يعيدوا الصياغة بس</text>
+      <rect class="box hl" x="60" y="314" width="220" height="56" rx="10"/>
+      <text class="t" x="170" y="338" text-anchor="middle">same-figures check</text>
+      <text class="s" x="170" y="358" text-anchor="middle">رقم اتغير؟ ترجع جملة الكود</text>
+      <line class="arrow" x1="170" y1="118" x2="170" y2="144" marker-end="url(#ah3)"/>
+      <line class="arrow" x1="170" y1="202" x2="170" y2="228" marker-end="url(#ah3)"/>
+      <line class="arrow" x1="170" y1="286" x2="170" y2="312" marker-end="url(#ah3)"/>
+    </svg>
+    </div>
+    <figcaption>الألوان: أزرق فاتح للمنسّق، وألوان الشبكات للوكلاء. في المواقف التلاتة، الموديل بيكتب كلام بس، والأرقام دايمًا من الكود، وفيه فحص قبل ما أي كلام يوصل للشاشة.</figcaption>
+  </figure>
+  <div class="qbox"><div class="label">نقطة بتتسأل كتير</div>
+    <p>الـ <bdi>agents</bdi> ما بيبعتوش رسايل لبعض بحرية. كل وكيل بيشتغل على البيانات اللي الكود بيدّيهاله. والمرة الوحيدة اللي بيبانوا فيها "بيتكلموا مع بعض" هي اجتماع المجلس، وده الكود هو اللي بيرتّبه ويكتب أرقامه. التفاصيل في <a href="#meeting">الاجتماع جولة جولة</a>.</p>
+  </div>
+
+  <h3>جوّه الوكيل المتخصص</h3>
+  <p>فيه 3 وكلاء متخصصين: مياه وكهرباء وتبريد. كل واحد بيحلل حوادث شبكته. الملف: <code>app/agents/specialists.py</code></p>
+  <div class="flow" aria-label="Specialist pipeline">
+    <span class="node">gather</span><span class="arr">→</span>
+    <span class="node">costing</span><span class="arr">→</span>
+    <span class="node llm">reason</span><span class="arr">→</span>
+    <span class="node">verify</span><span class="arr">→</span>
+    <span class="node">finalize</span>
+  </div>
+  <p class="legend"><span class="sw"></span>الخطوة الوحيدة اللي فيها موديل لغة</p>
+  <div class="tbl"><table>
+    <tr><th>الخطوة</th><th>بتعمل إيه</th></tr>
+    <tr><td><code>gather</code></td><td>تقرا الحساسات المتأثرة ونطاق التأثير.</td></tr>
+    <tr><td><code>costing</code></td><td>محرك التكلفة بيحسب كل الأرقام، ويعمل "سجل حساب" فيه كل رقم ومعادلته.</td></tr>
+    <tr><td><code>reason</code></td><td>الموديل <bdi>(gpt-oss-20b)</bdi> بيكتب الشرح والخطوات والأسباب المحتملة، بالعربي والإنجليزي، بصيغة <bdi>JSON</bdi>.</td></tr>
+    <tr><td><code>verify</code></td><td>فاحص الأرقام بيراجع كل رقم في كلام الموديل.</td></tr>
+    <tr><td><code>finalize</code></td><td>بيبني الكارت اللي بيظهر: العنوان، الأثر، الإجراء، التكلفة، و"ليه".</td></tr>
+  </table></div>
+
+  <h3>خط الدفاع الأول: الرموز</h3>
+  <p>الموديل ما بيكتبش الأرقام. بياخد جدول فيه كل رقم ومعاه رمز، زي <code>{{act_now}}</code>، ويكتب الرمز. والكود بعدين بيحط الرقم المحسوب مكانه.</p>
+  <p>ولو الموديل كتب تكلفة بالأرقام بنفسه، بتتشال حتى لو صح، والإجابة بترجع لصياغة الكود. كده كل تكلفة على الشاشة مربوطة بمعادلتها.</p>
+  <h3>خط الدفاع التاني: فاحص الأرقام</h3>
+  <p>الملف: <code>app/agents/checker.py</code>. بيقرا كل رقم في الكلام:</p>
+  <ul>
+    <li>بالأرقام الإنجليزي والعربي (٥٠٠ و500).</li>
+    <li>بالكلمات، زي "5 مليون" و"fifty thousand" و"36k"، فمحدش يقدر يستخبى ورا كلمة.</li>
+    <li>وبيقارنه بسجل الحساب. لو مش موجود (بسماحية حوالي 1%)، بيتشال. والشاشة بتقول لو الفحص "عدّى" أو "اتصلّح".</li>
+    <li>والأرقام الصغيرة اللي بعدها "ساعات" أو "دقايق" لازم تكون موجودة في البيانات هي كمان.</li>
+  </ul>
+  <h3>لو الموديل وقع</h3>
+  <ul>
+    <li>كل نداء للموديل بيعدّي على ملف واحد <code>app/agents/llm.py</code>: مهلة 12 ثانية، ومحاولتين زيادة، و<bdi>temperature</bdi> واطية (0.2) عشان الكلام يبقى ثابت، والرد لازم يبقى <bdi>JSON</bdi>.</li>
+    <li>لو فشل: إجابة متسجّلة من تشغيل قبل كده <code>fallback_cache.json</code>. ولو مفيش: صياغة جاهزة من الكود.</li>
+    <li>الشريط اللي فوق بيقول <bdi>Agents: live</bdi> أو <bdi>recorded</bdi>.</li>
+    <li><b>الأرقام عمرها ما بتتأثر</b>، لأنها جاية من الكود أصلًا.</li>
+  </ul>
+  <div class="why">
+    <div class="label">ليه كده مش كده؟</div>
+    <ul>
+      <li><b>ليه <bdi>LangGraph</bdi> مش <bdi>CrewAI</bdi> أو <bdi>AutoGen</bdi>؟</b> <bdi>CrewAI</bdi> و<bdi>AutoGen</bdi> معمولين عشان الوكلاء يتكلموا مع بعض بحرية ويقرروا الخطوة الجاية. ده بالظبط اللي مش عايزينه: محتاجين ترتيب ثابت، وخطوات كود بحتة (التكلفة والفحص) في النص بين خطوات الموديل. <bdi>LangGraph</bdi> بيخليك ترسم الخطوات بنفسك كـ <bdi>graph</bdi>، وكل خطوة دالة عادية. وبصراحة كان ممكن نعملها من غير مكتبة، بس <bdi>LangGraph</bdi> بيدّي حالة واضحة بتتنقل بين الخطوات وشكل منظم.</li>
+      <li><b>ليه رموز وفاحص مع بعض؟</b> الفاحص لوحده بيلقط الرقم الغلط بعد ما يتكتب. الرموز بتخلّي الرقم الغلط أو القديم مستحيل من الأول. ولو إجابة متسجّلة اتعرضت بعد ما سعر اتغير، الرمز بيحط رقم النهارده. والفاحص فاضل كخط تاني لأي رقم تاني. القرار ده D21 في <code>docs/decisions.md</code>.</li>
+      <li><b>ليه <bdi>Groq</bdi>؟</b> سريع جدًا في الرد (معمول على شرايح مخصوصة للموديلات)، وفيه خطة مجانية، وبيشغّل موديلات مفتوحة.</li>
+      <li><b>ليه <bdi>gpt-oss</bdi>؟</b> موديلات مفتوحة الأوزان <bdi>(open-weight)</bdi> برخصة <bdi>Apache 2.0</bdi>. يعني شركة حكومية تقدر تشغّل نفس الموديل على سيرفراتها من غير ما البيانات تطلع برّه. وكمان موديلات <bdi>Llama</bdi> ما كانتش متاحة على المفتاح ده.</li>
+      <li><b>ليه حجمين (120b و20b)؟</b> الكبير للحاجات اللي محتاجة تفكير أكتر: اختيار الوكلاء، والإجابة النهائية، ورئيس المجلس. والصغير للوكلاء المتخصصين، لأنهم بيتنادوا كتير وأسرع وبيستهلكوا من حد الاستخدام المجاني أقل.</li>
+      <li><b>ليه مش <bdi>GPT-4</bdi> أو موديل أقوى؟</b> لأن الموديل هنا بيشرح بس. الأرقام والقرار من الكود. فموديل أقوى هيحسّن الصياغة، مش صحة الأرقام.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="chat">
+  <h2><span class="n">12</span>الشات والـ Routing</h2>
+  <p class="lead">لما تسأل سؤال في الشات، فيه "منسّق" <bdi>(orchestrator)</bdi> بيقرر أنهي وكلاء يتسألوا، وبعدين بيجمّع ردودهم في إجابة واحدة.</p>
+  <p>الملف: <code>app/agents/orchestrator.py</code></p>
+  <div class="flow" aria-label="Chat pipeline">
+    <span class="node llm">router (120b)</span><span class="arr">→</span>
+    <span class="node">simulate</span><span class="arr">→</span>
+    <span class="node llm">consult (20b)</span><span class="arr">→</span>
+    <span class="node llm">synthesize (120b)</span><span class="arr">→</span>
+    <span class="node">checker</span>
+  </div>
+  <ol>
+    <li><b><bdi>router</bdi>:</b> بيختار الوكلاء. الشاشة بتعرضهم وبتقول ليه اختارهم.</li>
+    <li><b><bdi>simulate</bdi>:</b> لو السؤال "لو حصل كذا؟"، بيجرّبه في نسخة منفصلة من التوأم بنفس الكاشف ونفس محرك التكلفة.</li>
+    <li><b><bdi>consult</bdi>:</b> كل وكيل بيدّي رأيه من بيانات شبكته.</li>
+    <li><b><bdi>synthesize</bdi>:</b> الموديل الكبير بيجمّع إجابة واحدة.</li>
+    <li><b><bdi>checker</bdi>:</b> نفس فاحص الأرقام.</li>
+  </ol>
+  <h3>الـ Routing اتحسّن إزاي</h3>
+  <p>المشكلة الأولى كانت إن الموديل بيسأل وكلاء ملهمش لازمة "احتياطي". مثلًا سأل وكيل التبريد عن <bdi>SS-03</bdi>، وهي أصلًا ما بتغذيش أي محطة تبريد. اتصلّح بتلات حاجات:</p>
+  <ul>
+    <li><b>الـ prompt بقى فيه الربط الحقيقي:</b> كل محطة كهرباء بتغذي أنهي مضخات ومحطات تبريد، ومكتوب فيه "ما تزوّدش وكيل احتياطي".</li>
+    <li><b>أرضية من الشبكة:</b> لو السؤال عن أصل معيّن، كل وكيل الشبكة بتقول إنه متأثر بيتضاف، حتى لو الموديل نسيه. يعني الموديل ممكن يزوّد، بس عمره ما ينقص حاجة لازمة.</li>
+    <li><b>قواعد لو الموديل ما ردش:</b> <bdi>router</bdi> بكلمات مفتاحية بيفهم عربي وإنجليزي.</li>
+  </ul>
+  <h3>اتقاس على 54 سؤال</h3>
+  <p>54 سؤال (30 إنجليزي و24 عربي)، ولكل سؤال مكتوب الوكلاء اللازمين والمقبولين. والموديل اتسأل لايف.</p>
+  <div class="tbl"><table>
+    <tr><th>الطريقة</th><th class="num">صح</th><th class="num">نسي وكيل لازم</th><th class="num">زوّد وكيل مش لازم</th></tr>
+    <tr><td>الموديل قبل التحسين</td><td class="num">35 / 54</td><td class="num">0</td><td class="num">19</td></tr>
+    <tr><td>الموديل بعد ما الـ prompt بقى فيه الربط</td><td class="num">46 / 54</td><td class="num">1</td><td class="num">7</td></tr>
+    <tr><td><b>اللي شغال: الموديل + الأرضية + القواعد</b></td><td class="num"><b>47 / 54</b></td><td class="num"><b>0</b></td><td class="num"><b>7</b></td></tr>
+    <tr><td>القواعد لوحدها</td><td class="num">50 / 54</td><td class="num">2</td><td class="num">2</td></tr>
+  </table></div>
+  <div class="why">
+    <div class="label">طب ليه ما نستعملش القواعد لوحدها وهي 50 / 54؟</div>
+    <p>لأن الرقم ده متفائل: نفس الشخص كتب الكلمات المفتاحية وكتب الأسئلة، فالقواعد "شافت" الامتحان. الموديل ما شافش الإجابات، فرقمه هو الأصدق. وكمان الموديل بيفهم أسئلة متكتبتش بالكلمات المتوقعة. والغلطات السبعة اللي فاضلة كلها "زيادة"، مش "نقص"، والزيادة بتكلّف وقت مش رقم غلط، لأن كل وكيل بيتكلم عن شبكته بس.</p>
+  </div>
+  <div class="qbox"><div class="label">حد مهم</div>
+    <p>54 سؤال كتبهم شخص واحد. قبل ما يتقال الرقم ده لشركة، مهندسينها لازم يكتبوا 100 سؤال أو أكتر من شغلهم، ونعيد القياس عليهم.</p>
+  </div>
+</section>
+
+<!-- 13 -->
+<section id="board">
+  <h2><span class="n">13</span>مجلس الـ Agents</h2>
+  <p class="lead">لما يكون فيه مشاكل أكتر من الفرق، المجلس بيقرر الترتيب. والقرار نفسه حساب، مش نقاش بين موديلات.</p>
+  <p>الملفات: <code>app/board/plan.py</code> (الحساب)، <code>analysis.py</code> (الاختبارات)، <code>session.py</code> (الاجتماع).</p>
+  <h3>إمتى بيجتمع</h3>
+  <p>لوحده، لما يكون فيه مشاكل مفتوحة في شبكتين أو أكتر، بعد ما مجموعة المشاكل تفضل ثابتة 20 ثانية. أو يدوي من زرار.</p>
+  <h3>بيحسب إيه</h3>
+  <p>لكل مشكلة: تكلفتها في الساعة <bdi>(C)</bdi>، ووقت التصليح <bdi>(h)</bdi>، وتكلفة التصليح <bdi>(R)</bdi>. وتكلفة أي ترتيب:</p>
+<pre><code>Cost of an order = sum over problems of:
+    C x (hour the fix finishes)          the loss until it is fixed
+  + R x late multiplier(hours waited)    a repair started late costs more</code></pre>
+  <ul>
+    <li>الفريق بيوصل بعد ساعة (وقت الاستجابة)، وبين شغلانة والتانية نص ساعة.</li>
+    <li><b>بيجرّب كل الترتيبات:</b> لحد 6 مشاكل، يعني 6! = 720 ترتيب، وبيختار الأرخص. الحساب بـ <bdi>numpy</bdi> على كل الترتيبات مرة واحدة <bdi>(vectorised)</bdi>، فبياخد أقل من ثانية. لو المشاكل أكتر من 6، الزيادة بتتحط في الآخر بقاعدة <bdi>Smith</bdi>.</li>
+    <li><b>بيقارن</b> اختياره بترتيب الإنذارات (اللي جه الأول يتصلّح الأول)، وبترتيب كل وكيل لشبكته، وبأغلى ترتيب.</li>
+    <li><b>بيختبره على 300 سيناريو أسعار:</b> بيغيّر الأسعار جوه نطاقها 300 مرة، ويشوف الترتيب بيكسب كام مرة، والخسارة لو طلع غلط <bdi>(regret)</bdi>.</li>
+    <li><b>بيقول إيه اللي يغيّر رأيه:</b> "لو تكلفة الساعة للمشكلة دي بقت كذا، الترتيب يتغير".</li>
+    <li><b>بيقول فريق زيادة يوفّر كام</b>، ونوعه.</li>
+    <li><b>مشكلة بتحل مشكلة:</b> لو محطة فصلت ومحطة تانية بقت محمّلة زيادة، تصليح الأولى بيشيل حمل التانية، فالتانية بتبطّل تكلّف ساعتها.</li>
+  </ul>
+  <h3>الفرق نوعين</h3>
+  <ul>
+    <li><b>فرق عامة</b> تشتغل على أي شبكة (الافتراضي 2).</li>
+    <li><b>فرق لكل شبكة</b>: مياه وكهرباء وتبريد (الافتراضي 0). فريق الكهرباء ما بياخدش غير شغل كهرباء، فمستحيل يتبعت يصلّح ماسورة.</li>
+    <li>أي توزيع يسيب شبكة فيها مشكلة من غير فريق يقدر يشتغل عليها بيترفض.</li>
+  </ul>
+  <h3 id="meeting">الاجتماع جولة جولة: الـ agents بيتناقشوا إزاي</h3>
+  <p class="lead">أهم حاجة تفهمها: الاجتماع مش نقاش حر بين موديلات. الكود بيحسب كل حاجة الأول، وبعدين بيكتب كلام كل وكيل من الأرقام دي. الموديل ممكن يعيد صياغة الجملة بأسلوب الوكيل، وبس.</p>
+  <p>الملف: <code>app/board/session.py</code> (والعربي في <code>session_ar.py</code>).</p>
+  <p><b>قبل ما الجلسة تبدأ</b>، <code>analysis.py</code> بيحسب أرخص ترتيب، وكمان بيحسب لكل وكيل "مصلحته" بالأرقام:</p>
+  <ul>
+    <li><b>لو شغلي بدأ الأول:</b> هخلّص إمتى، والباقيين هيدفعوا كام زيادة.</li>
+    <li><b>لو استنيت دوري في الترتيب المختار:</b> أنا هدفع كام زيادة.</li>
+    <li><b>نقطة القلب:</b> تكلفة الساعة بتاعتي لازم توصل لكام عشان الترتيب يتغير لصالحي.</li>
+  </ul>
+  <p>الأرقام دي هي "حجة" كل وكيل في النقاش. فالتعارض بين الشبكات بيبان بالجنيه، مش بالكلام.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 530" role="img" aria-labelledby="mt-t mt-d">
+      <title id="mt-t">The board meeting, round by round</title>
+      <desc id="mt-d">Before the meeting, code in analysis.py computes every figure. Then six rounds: round 0 the chair opens; round 1 the water, electricity and cooling agents each state their problem and its cost; round 2 each says what waiting its turn costs; round 3 the chair announces the decision; round 4 each agent accepts and says when its work starts; round 5 the chair summarises for the person in charge. The result is a proposed decision that goes to the audit log and waits for a person.</desc>
+      <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs>
+
+      <rect class="box" x="95" y="8" width="740" height="56" rx="12"/>
+      <text class="t" x="465" y="32" text-anchor="middle">board/analysis.py (code, no model)</text>
+      <text class="s" x="465" y="52" text-anchor="middle">بيحسب كل أرقام الجلسة قبل ما تبدأ</text>
+
+      <!-- lane headers -->
+      <rect class="ch chip" x="665" y="80" width="170" height="46" rx="10"/>
+      <text class="ct" x="750" y="99" text-anchor="middle">Chair (120b)</text>
+      <text class="s" x="750" y="117" text-anchor="middle">رئيس المجلس</text>
+      <rect class="w chip" x="475" y="80" width="170" height="46" rx="10"/>
+      <text class="ct" x="560" y="99" text-anchor="middle">Water (20b)</text>
+      <text class="s" x="560" y="117" text-anchor="middle">وكيل المياه</text>
+      <rect class="e chip" x="285" y="80" width="170" height="46" rx="10"/>
+      <text class="ct" x="370" y="99" text-anchor="middle">Electricity (20b)</text>
+      <text class="s" x="370" y="117" text-anchor="middle">وكيل الكهرباء</text>
+      <rect class="c chip" x="95" y="80" width="170" height="46" rx="10"/>
+      <text class="ct" x="180" y="99" text-anchor="middle">Cooling (20b)</text>
+      <text class="s" x="180" y="117" text-anchor="middle">وكيل التبريد</text>
+
+      <!-- row bands -->
+      <rect class="band" x="85" y="136" width="905" height="50" rx="8"/>
+      <rect class="band" x="85" y="236" width="905" height="50" rx="8"/>
+      <rect class="band" x="85" y="336" width="905" height="50" rx="8"/>
+
+      <line class="guide" x1="750" y1="126" x2="750" y2="436"/>
+      <line class="guide" x1="560" y1="126" x2="560" y2="436"/>
+      <line class="guide" x1="370" y1="126" x2="370" y2="436"/>
+      <line class="guide" x1="180" y1="126" x2="180" y2="436"/>
+
+      <!-- round labels -->
+      <text class="rn" x="978" y="166" text-anchor="end">0</text><text class="rl" x="955" y="166" text-anchor="end">الافتتاح</text>
+      <text class="rn" x="978" y="216" text-anchor="end">1</text><text class="rl" x="955" y="216" text-anchor="end">المواقف</text>
+      <text class="rn" x="978" y="266" text-anchor="end">2</text><text class="rl" x="955" y="266" text-anchor="end">تمن الانتظار</text>
+      <text class="rn" x="978" y="316" text-anchor="end">3</text><text class="rl" x="955" y="316" text-anchor="end">القرار</text>
+      <text class="rn" x="978" y="366" text-anchor="end">4</text><text class="rl" x="955" y="366" text-anchor="end">الردود</text>
+      <text class="rn" x="978" y="416" text-anchor="end">5</text><text class="rl" x="955" y="416" text-anchor="end">الملخص</text>
+
+      <!-- round 0 -->
+      <rect class="ch chip" x="665" y="144" width="170" height="34" rx="9"/><text class="ct" x="750" y="166" text-anchor="middle">كام مشكلة وكام فريق</text>
+      <!-- round 1 -->
+      <rect class="w chip" x="475" y="194" width="170" height="34" rx="9"/><text class="ct" x="560" y="216" text-anchor="middle">مشكلتي وتكلفتها</text>
+      <rect class="e chip" x="285" y="194" width="170" height="34" rx="9"/><text class="ct" x="370" y="216" text-anchor="middle">مشكلتي وتكلفتها</text>
+      <rect class="c chip" x="95" y="194" width="170" height="34" rx="9"/><text class="ct" x="180" y="216" text-anchor="middle">مشكلتي وتكلفتها</text>
+      <!-- round 2 -->
+      <rect class="w chip" x="475" y="244" width="170" height="34" rx="9"/><text class="ct" x="560" y="266" text-anchor="middle">لو استنيت دوري</text>
+      <rect class="e chip" x="285" y="244" width="170" height="34" rx="9"/><text class="ct" x="370" y="266" text-anchor="middle">لو استنيت دوري</text>
+      <rect class="c chip" x="95" y="244" width="170" height="34" rx="9"/><text class="ct" x="180" y="266" text-anchor="middle">لو استنيت دوري</text>
+      <!-- round 3 -->
+      <rect class="ch chip" x="665" y="294" width="170" height="34" rx="9"/><text class="ct" x="750" y="316" text-anchor="middle">الترتيب والتكلفة</text>
+      <!-- round 4 -->
+      <rect class="w chip" x="475" y="344" width="170" height="34" rx="9"/><text class="ct" x="560" y="366" text-anchor="middle">موافق، وأبدأ إمتى</text>
+      <rect class="e chip" x="285" y="344" width="170" height="34" rx="9"/><text class="ct" x="370" y="366" text-anchor="middle">موافق، وأبدأ إمتى</text>
+      <rect class="c chip" x="95" y="344" width="170" height="34" rx="9"/><text class="ct" x="180" y="366" text-anchor="middle">موافق، وأبدأ إمتى</text>
+      <!-- round 5 -->
+      <rect class="ch chip" x="665" y="394" width="170" height="34" rx="9"/><text class="ct" x="750" y="416" text-anchor="middle">اعمل كذا وليه</text>
+
+      <line class="arrow" x1="750" y1="428" x2="750" y2="466" marker-end="url(#ah4)"/>
+      <rect class="box hl" x="285" y="468" width="550" height="54" rx="12"/>
+      <text class="t" x="560" y="491" text-anchor="middle">BoardDecision: proposed</text>
+      <text class="s" x="560" y="511" text-anchor="middle">بيتسجل في سجل القرارات، ويستنى إنسان يوافق أو يغيّر أو يرفض</text>
+    </svg>
+    </div>
+    <figcaption>كل عمود وكيل، وكل صف جولة. الوكيل اللي مالوش مشكلة مفتوحة ما بيتكلمش، إلا لو معداته وقفت بسبب محطة كهرباء فصلت.</figcaption>
+  </figure>
+
+  <h4>كل جولة بيتقال فيها إيه</h4>
+  <p class="small">الجمل هنا بالمعنى. على الشاشة بتظهر بالعربي الفصيح أو بالإنجليزي، والأرقام اللي بين الأقواس بتيجي من <code>analysis.py</code>.</p>
+  <div class="tbl"><table>
+    <tr><th>الجولة</th><th>مين</th><th>بيقول إيه</th><th>الرقم جاي منين</th></tr>
+    <tr><td>0 الافتتاح</td><td>الرئيس</td><td>"المجلس منعقد. فيه [عدد] مشاكل في [عدد] شبكات، و[عدد] فرق. لو اتسابوا بيكلّفوا [س] جنيه كل ساعة. الفرق أقل من المشاكل، فالترتيب مهم."</td><td>عدد المشاكل والفرق، ومجموع تكلفة الساعة</td></tr>
+    <tr><td>1 المواقف</td><td>كل وكيل عنده مشكلة</td><td>"[الأصل]: [الإجراء]. لو اتساب بيكلّف [س] جنيه في الساعة ومحتاج [ساعات] من وقت الفريق، يعني كل ساعة فريق بترجّع [س]. لو بدأت الأول أخلّص الساعة [س]. ولو بدأت الأول، الباقيين هيدفعوا [س] زيادة."</td><td>تكلفة الساعة، ووقت التصليح، والعائد لكل ساعة فريق، و"الباقيين هيدفعوا كام"</td></tr>
+    <tr><td>1 حالة خاصة</td><td>وكيل مالوش تصليح، بس معداته وقفت</td><td>"معنديش تصليح، بس [عدد] مضخات وقفوا لما [المحطة] فصلت. تكلفتهم محسوبة جوه ضرر الكهرباء، فمش بطلب فريق. رجوع المحطة بيرجّعهم."</td><td>الربط بين المحطات والمضخات ومحطات التبريد</td></tr>
+    <tr><td>2 تمن الانتظار</td><td>كل وكيل (لو فيه تعارض)</td><td>"لو استنيت دوري، شغلي هيكلّف [س] جنيه أكتر من لو بدأت الأول، وهيبدأ الساعة [س]." أو: "شغلي يبدأ على طول على فريق لوحده، فالترتيب مش مكلّفني حاجة."</td><td>الفرق بين تكلفته في الترتيب المختار وتكلفته لو بدأ الأول</td></tr>
+    <tr><td>3 القرار</td><td>الرئيس</td><td>"القرار: الأول [الأصل] على الفريق A من الساعة [س] للساعة [س]، والتاني... التكلفة المتوقعة [س]. ده أقل بـ [س] من ترتيب الإنذارات. جرّبت كل الترتيبات، والترتيب ده الأرخص في [نسبة]% من 300 سيناريو أسعار."</td><td>البحث في كل الترتيبات، والـ 300 سيناريو</td></tr>
+    <tr><td>4 الردود</td><td>كل وكيل</td><td>"موافق. شغلي يبدأ الساعة [س]. رجّعوني لو تكلفتي في الساعة عدّت [حد]، هي دلوقتي [س]." أو: "مفهوم. فريقي يبدأ على طول وأسلّمه الساعة [س]."</td><td>نقطة القلب لكل مشكلة</td></tr>
+    <tr><td>5 الملخص</td><td>الرئيس للمسؤول</td><td>"اعمل كده: [الخطوات بالترتيب والفرق والساعات]. السبب: [الأول] بيكلّف [س] كل ساعة. التكلفة المتوقعة [س]، وفي حالة وحشة (1 من 10) [س]. الترتيب يتغير لو [شرط]. فريق [نوعه] زيادة يوفّر [س]."</td><td><bdi>P90</bdi> من الـ 300 سيناريو، ونقطة القلب، وتوفير الفريق الزيادة</td></tr>
+  </table></div>
+  <p class="small">الفرق اسمها A وB وC بالحروف، عشان ما يبقاش فيه أرقام زيادة في الكلام والفاحص يتلخبط فيها.</p>
+
+  <h4>إعادة الصياغة بالموديل، وإزاي بتتراجع</h4>
+  <ol>
+    <li>كل رسالة بتبدأ <b>جملة من الكود</b>، ومعاها قايمة أرقامها وأسماء الأصول المسموح تتذكر.</li>
+    <li>بالإنجليزي، الموديل بيعيد صياغتها بصوت الوكيل: الرئيس بـ <bdi>120b</bdi> والوكلاء بـ <bdi>20b</bdi>. والـ <bdi>temperature</bdi> هنا 0.4، أعلى شوية من باقي النظام عشان الكلام يبان طبيعي.</li>
+    <li>الصياغة بتتقبل بس لو:
+      <ul>
+        <li>فيها <b>نفس الأرقام بالظبط</b>، من غير رقم زيادة ولا رقم ناقص.</li>
+        <li>كل رقم فيها موجود في قايمة الأرقام.</li>
+        <li>ما ذكرتش أصل مش في القايمة.</li>
+        <li>طولها قريب من جملة الكود (من النص لمرة ونص تقريبًا).</li>
+      </ul>
+    </li>
+    <li>لو أي شرط وقع، <b>جملة الكود هي اللي بتظهر</b>. وكل رسالة متعلّم عليها مصدرها: <code>llm</code> أو <code>template</code>.</li>
+    <li><b>بالعربي:</b> الافتراضي إن جملة الكود هي اللي بتظهر على طول. لما جرّبنا، الموديل غلط في النحو وهو بيتكلم بصيغة المتكلم (كتب "أُعزل" بدل "أعزل"). والفحص بيراجع الأرقام والأصول، مش النحو. ولو عايز الموديل يعيد الصياغة بالعربي، فيه إعداد <code>BOARD_AR_LLM=1</code> بنفس الفحص.</li>
+    <li>رسايل الجولة الواحدة بتتصاغ مع بعض في نفس الوقت، وبتظهر على الشاشة ورا بعض بفرق حوالي ثانية.</li>
+  </ol>
+
+  <h4>بعد الجلسة</h4>
+  <ul>
+    <li>القرار بيتحفظ بحالة <bdi>proposed</bdi> (مقترح)، ومعاه سجل حساب فيه كل رقم.</li>
+    <li>بيتكتب سطر في سجل القرارات فيه بصمة القرار، عشان محدش يغيّر اللي اتعرض على الإنسان.</li>
+    <li>لو فيه اقتراح قديم محدش قرر فيه، بيتعلّم عليه <bdi>superseded</bdi> (اتبدّل بالجديد).</li>
+    <li>ولو فرق اتبعتت بالفعل للمشاكل دي بخطة اتوافق عليها، الاقتراح الجديد بيتعلّم عليه <bdi>stale</bdi> (قديم) وما بيتعرضش.</li>
+  </ul>
+
+  <div class="why">
+    <div class="label">ليه مش نقاش حر بين الموديلات؟</div>
+    <ul>
+      <li><b>النقاش الحر بيكسب فيه اللي بيتكلم أحسن، مش اللي رقمه أصح.</b> موديل ممكن "يقنع" التاني بترتيب أغلى.</li>
+      <li><b>مش هتقدر تعيده:</b> نفس المشاكل ممكن تطلّع قرار مختلف كل مرة. هنا نفس المشاكل والأسعار بتطلّع نفس القرار دايمًا.</li>
+      <li><b>مش هتقدر تراجعه:</b> مين حسب الرقم ده؟ هنا كل جملة وراها رقم في سجل الحساب.</li>
+      <li><b>طب ليه نعمل اجتماع أصلًا لو الكود بيقرر؟</b> عشان المسؤول يشوف مصلحة كل شبكة والتعارض بينهم بلغة بسيطة، ويفهم ليه شبكة معينة اتأخرت وكان تمن ده كام. ولما التعارض يبان بالأرقام ("لو أنا الأول، الباقيين هيدفعوا كذا")، القرار بيبقى أسهل في القبول.</li>
+    </ul>
+  </div>
+  <div class="qbox"><div class="label">سؤال متوقع</div>
+    <p>"يبقى ده مش <bdi>multi-agent</bdi> بجد؟" هو <bdi>multi-agent</bdi> في التقسيم: كل وكيل متخصص في شبكة، وعنده أدواته وبياناته، والمنسّق بيوزّع ويجمّع. بس أنا عمدًا ما خلّيتش الوكلاء يقرروا بالنقاش، لأن القرار فيه فلوس عامة ولازم يتراجع. الموديلات بتشرح، والكود بيقرر.</p>
+  </div>
+  <div class="why">
+    <div class="label">ليه كده مش كده؟</div>
+    <ul>
+      <li><b>ليه نجرّب كل الترتيبات مش طريقة تقريبية <bdi>(greedy)</bdi> أو <bdi>solver</bdi>؟</b> لأن 720 ترتيب حاجة صغيرة، والكمبيوتر بيخلّصها في أقل من ثانية. يعني بنضمن أحسن ترتيب، مش ترتيب كويس. ومن غير أي مكتبة <bdi>solver</bdi>، وسهل تشرحه: "جرّبنا كله واخترنا الأرخص". الطريقة التقريبية ممكن تفوّت الأحسن، والـ <bdi>solver</bdi> زيادة على حجم كده.</li>
+      <li><b>ليه مش قاعدة <bdi>Smith</bdi> وخلاص؟</b> قاعدة <bdi>Smith</bdi> (رتّب حسب التكلفة في الساعة ÷ وقت التصليح) مثالية لفريق واحد بس. مع أكتر من فريق، ومعامل التأخير، ومشاكل بتحل مشاكل، ما بقتش مضمونة. فبنستعملها بس للمشاكل اللي بعد السادسة.</li>
+      <li><b>ليه الموديلات ما تقررش بالنقاش؟</b> لأن موديل بيجادل بأرقامه ما ينفعش حد يراجعه. القرار حساب، والكلام شرح للحساب. القرار ده D15 في <code>docs/decisions.md</code>.</li>
+      <li><b>ليه 300 سيناريو أسعار؟</b> عشان نعرف القرار ثابت ولا هش. لو الترتيب بيكسب في 95% من السيناريوهات، يبقى مش معتمد على سعر واحد ممكن يطلع غلط.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 14 -->
+<section id="approve">
+  <h2><span class="n">14</span>الموافقة والتنفيذ والسجل</h2>
+  <p class="lead">المجلس بيقترح بس. ولا فريق بيتحرك من غير إنسان.</p>
+  <ul>
+    <li><b>توافق:</b> تكتب اسمك وتدوس <bdi>Approve plan</bdi>.</li>
+    <li><b>تغيّر الترتيب:</b> تحرّك شغلانة، والسيرفر بيحسب الترتيب بتاعك ويقولك بيكلّف زيادة كام قبل ما تأكد. والفرق بيتسجل.</li>
+    <li><b>ترفض:</b> لازم تكتب السبب (3 حروف على الأقل)، والسيرفر بيرفض الرفض من غير سبب.</li>
+  </ul>
+  <p><b>التنفيذ:</b> الملف <code>app/board/dispatch.py</code>. ساعة الشغل في الخطة = 20 ثانية في العرض، عشان تصليح 3 ساعات ما ينفعش حد يتفرج عليه. الأرقام نفسها ما بتتغيرش، الساعة بس اللي بتتسرّع. ولما الفريق يخلّص: <code>engine.repair</code>، وبعدين الكاشف هو اللي يأكد.</p>
+  <h3>سجل القرارات</h3>
+  <p>الملف: <code>app/board/audit.py</code>. كل اقتراح وموافقة ورفض وحركة فريق سطر في ملف <code>data/audit.jsonl</code>.</p>
+  <p><b>إزاي محدش يقدر يعدّل فيه:</b> كل سطر فيه بصمة <bdi>SHA-256</bdi> للسطر اللي قبله. لو حد غيّر أو مسح سطر، بصمته هتتغير، فالسطر اللي بعده مش هيطابق، وكل اللي بعده هيبوظ. زرار <bdi>Verify now</bdi> بيحسب السلسلة كلها من الأول ويقول لو فيه مشكلة وفين. والسجل ما بيتمسحش مع <bdi>reset</bdi>: "سجل تقدر تمسحه مش سجل".</p>
+  <div class="why">
+    <div class="label">ليه كده مش كده؟</div>
+    <ul>
+      <li><b>ليه <bdi>hash chain</bdi> مش قاعدة بيانات؟</b> قاعدة البيانات بتحفظ، بس اللي معاه صلاحية يقدر يعدّل سطر ومحدش يعرف. السلسلة بتخلّي أي تعديل يبان، ومن غير أي برامج زيادة.</li>
+      <li><b>ليه مش <bdi>blockchain</bdi>؟</b> الـ <bdi>blockchain</bdi> معمول عشان أطراف كتير ما بيثقوش في بعض يتفقوا. هنا فيه طرف واحد بيكتب، فالسلسلة لوحدها كفاية.</li>
+      <li><b>الحد الصريح:</b> حد عنده الملف كله يقدر يعيد كتابة السلسلة من الأول ببصمات جديدة. في نظام حقيقي بنحفظ آخر بصمة برّه (أو نوقّعها) كل فترة. وكمان مفيش تسجيل دخول، الاسم بيتكتب باليد.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 15 -->
+<section id="features">
+  <h2><span class="n">15</span>باقي المميزات باختصار</h2>
+  <div class="tbl"><table>
+    <tr><th>الميزة</th><th>بتعمل إيه</th><th>فيها موديل لغة؟</th></tr>
+    <tr><td><bdi>Decision Studio</bdi></td><td>"أصلّح دلوقتي ولا أستنى 6 أو 24 أو 72 ساعة؟" مع الندم لو طلع غلط، ونقطة التعادل.</td><td>لأ</td></tr>
+    <tr><td><bdi>Savings</bdi></td><td>فرص توفير شهرية (تخفيض التبريد بعد مواعيد العمل، إدارة الضغط بالليل، رفع حرارة المياه المبردة، تنضيف المكثفات، الصيانة المخططة)، وكل فرصة بمعادلة ونطاق من 600 محاولة واستثمار وفترة استرداد و<bdi>NPV</bdi> على 3 سنين.</td><td>لأ</td></tr>
+    <tr><td><bdi>Build here</bdi></td><td>تحط مستشفى أو عيادة في حي، وتشوف تأثيرها على الشبكات في يوم عادي وموجة حر (46 درجة) وفصل محطة، والتكلفة.</td><td>لأ</td></tr>
+    <tr><td><bdi>Why this number?</bdi></td><td>أي رقم في الداشبورد بيفتح معادلته والأرقام اللي اتحطت فيها ومصدر كل واحد. وفيه اختبار بيفشل لو رقم ملوش شرح.</td><td>لأ</td></tr>
+    <tr><td><bdi>Try to fool the AI</bdi></td><td>تبعت ادعاء مش في البيانات، والموديل يرد، والفاحص يعلّم كل رقم "متحقق" أو "اتشال" قدامك.</td><td>أيوه، والفاحص بيحكم</td></tr>
+    <tr><td>تنبيهات <bdi>Telegram</bdi></td><td>رسالة بكل التفاصيل لما مشكلة تتفتح أو تكبر أو تتحل، ولكل إنذار مبكر. بحد أقصى 30 في الساعة.</td><td>بتضم شرح الوكيل بعد الفحص، والباقي كود</td></tr>
+    <tr><td>ملخص الصبح</td><td>كل يوم الساعة 7: قرار مستني موافقة، والحوادث بالترتيب حسب تكلفة التأخير، والإنذارات، وتوقع الـ 24 ساعة.</td><td>لأ، عشان يوصل حتى لو الموديل واقع</td></tr>
+    <tr><td>تقرير <bdi>PDF</bdi></td><td>لكل حادثة، بالعربي (من اليمين للشمال) أو الإنجليزي.</td><td>بيضم شرح الوكيل</td></tr>
+    <tr><td>عربي / إنجليزي</td><td>الوكلاء والمجلس والشات والتنبيهات والتقرير باللغة اللي تختارها، بنفس الأرقام ونفس الفحص.</td><td>—</td></tr>
+    <tr><td>وضع <bdi>Offline</bdi></td><td><code>LLM_OFFLINE=1</code>: الوكلاء يردّوا من إجابات متسجّلة، والأرقام زي ما هي.</td><td>—</td></tr>
+  </table></div>
+  <p class="small">نقطة ضعف في <bdi>Savings</bdi>: الصيانة المخططة حوالي 54% من التوفير كله، ومبنية على اعتبار درجة الخطر احتمال، ودي لسه مش معايَرة. قولها لو حد سأل عن رقم التوفير.</p>
+</section>
+
+<!-- 16 -->
+<section id="frontend">
+  <h2><span class="n">16</span>الواجهة</h2>
+  <p class="lead">تطبيق <bdi>React</bdi> بـ <bdi>TypeScript</bdi>، بيستقبل كل حاجة من الـ <bdi>WebSocket</bdi> ويعرضها على خريطة وصفحات.</p>
+  <div class="tbl"><table>
+    <tr><th>الجزء</th><th>التقنية</th><th>ليه</th></tr>
+    <tr><td>الإطار</td><td><bdi>React 18 + TypeScript</bdi></td><td>الأنواع <bdi>(types)</bdi> بتمسك غلطات شكل البيانات قبل ما الكود يشتغل، وده مهم مع 16 نوع رسالة.</td></tr>
+    <tr><td>البناء</td><td><bdi>Vite</bdi></td><td>سريع جدًا في التطوير والبناء، وبسيط في الإعداد.</td></tr>
+    <tr><td>الحالة</td><td><bdi>Zustand</bdi></td><td>مكان واحد للبيانات (القراءات، الحوادث، المجلس، الشات)، والـ <bdi>WebSocket</bdi> بيكتب فيه. أصغر وأبسط بكتير من <bdi>Redux</bdi>.</td></tr>
+    <tr><td>الخريطة</td><td><bdi>MapLibre GL</bdi> + بيانات <bdi>OpenStreetMap</bdi></td><td>مفتوح المصدر ومن غير مفتاح ولا فلوس، وبيرسم بالـ <bdi>WebGL</bdi> فسريع مع مباني كتير. والبيانات (مباني وطرق وحدائق والنهر الأخضر) محفوظة في <code>public/geo</code>، فبيشتغل من غير نت. <bdi>Google Maps</bdi> محتاج مفتاح وفلوس ونت، و<bdi>Leaflet</bdi> أضعف في رسم بيانات كتير.</td></tr>
+    <tr><td>الرسوم البيانية</td><td><bdi>SVG</bdi> مكتوب بإيدينا <code>src/charts/</code></td><td>تحكم كامل في الشكل والاتجاه من اليمين للشمال، وحجم صغير.</td></tr>
+    <tr><td>التنقل</td><td><bdi>Hash routing</bdi> (<code>#incidents</code>)</td><td>الواجهة ملفات ثابتة بيعرضها السيرفر، فالـ <bdi>hash</bdi> بيشتغل من غير أي إعداد في السيرفر.</td></tr>
+    <tr><td>اللغة</td><td><bdi>react-i18next</bdi></td><td>لغة الواجهة نفسها. ولغة الوكلاء إعداد منفصل محفوظ في السيرفر.</td></tr>
+  </table></div>
+  <p><b>حماية الشاشة:</b> كل رسالة جاية من الـ <bdi>WebSocket</bdi> بتتراجع شكلها <code>api/ws.ts</code>. الرسالة الغلط بتتهمل بدل ما توقع الصفحة. والحقول الجديدة ما بتبوّظش الواجهة القديمة.</p>
+  <p><b>9 صفحات:</b> <bdi>Live twin</bdi>، <bdi>Incidents</bdi>، <bdi>Savings</bdi>، <bdi>Forecast</bdi>، <bdi>AI lab</bdi>، <bdi>Executive</bdi>، <bdi>Build here</bdi>، <bdi>Healthcare</bdi>، <bdi>Decision log</bdi>.</p>
+  <div class="qbox"><div class="label">لو حد فتح <code>package.json</code></div>
+    <p>فيه مكتبات متسطّبة ومش مستعملة: <bdi>deck.gl</bdi> و<bdi>echarts</bdi> و<bdi>framer-motion</bdi> و<bdi>tailwindcss</bdi>. اتسطّبت في الأول وبعدين الرسوم اتكتبت بـ <bdi>SVG</bdi> والتصميم بـ <bdi>CSS</bdi> عادي. لو اتسألت: "دي في قائمة التنضيف".</p>
+  </div>
+</section>
+
+<!-- 17 -->
+<section id="process">
+  <h2><span class="n">17</span>إزاي اتبنى: طريقة الشغل</h2>
+  <p class="lead">أربع قواعد مشي عليها المشروع من أول يوم (28 أكتوبر 2026).</p>
+  <h3>1. العقد الأول <bdi>(contract first)</bdi></h3>
+  <p>قبل أي ميزة، بنحدد شكل البيانات اللي هتتنقل بين السيرفر والواجهة، بالترتيب ده:</p>
+  <ol>
+    <li><code>app/schemas/</code>: الشكل بـ <bdi>Pydantic</bdi> في السيرفر.</li>
+    <li><code>fixtures/</code>: أمثلة <bdi>JSON</bdi> حقيقية للشكل ده.</li>
+    <li><code>docs/contract.md</code>: الشرح.</li>
+    <li>الأنواع في الواجهة <bdi>TypeScript</bdi>.</li>
+  </ol>
+  <p>السيرفر بيتأكد إن الـ <bdi>fixtures</bdi> مطابقة للشكل، والواجهة بتقرا نفس الملفات في اختباراتها. لو حد غيّر ناحية ونسي التانية، الاختبار بيفشل.</p>
+  <div class="why">
+    <div class="label">ليه مش توليد تلقائي للأنواع <bdi>(codegen)</bdi>؟</div>
+    <p>التوليد التلقائي محتاج خطوة بناء زيادة وأدوات. الـ <bdi>fixtures</bdi> المشتركة بتعمل نفس الحماية بملفات <bdi>JSON</bdi> بسيطة، وبتشتغل كأمثلة للي بيقرا الكود. القرار D10.</p>
+  </div>
+  <p class="small">ملاحظة بيتسأل عليها: السيرفر بيكتب بـ <code>snake_case</code> والواجهة بتستقبل <code>camelCase</code>. <bdi>Pydantic</bdi> بيحوّل تلقائي.</p>
+  <h3>2. كل ادعاء مقاس</h3>
+  <p>أي رقم بيتقال في العرض ليه سكريبت بيطلّعه في <code>backend/scripts/stress/</code>، ونتيجته مكتوبة في <code>docs/measurements/</code>: الكشف، والإنذار المبكر، وطول التاريخ، والـ <bdi>routing</bdi>. ومعاه فترة الثقة، والحدود.</p>
+  <h3>3. اختبارات على الناحيتين</h3>
+  <ul>
+    <li><b>414 اختبار للسيرفر</b> بـ <bdi>pytest</bdi>، منهم اختبارات بتحسب أمثلة التكلفة بالإيد وتقارنها بالكود، واختبار بيقارن المجلس السريع بنسخة بطيئة بسيطة، واختبار بيحاول يلعب في السجل.</li>
+    <li><b>84 اختبار للواجهة.</b></li>
+    <li><code>scripts/demo_check.py</code>: بيمشي مسار العرض كله على سيرفر شغال.</li>
+  </ul>
+  <h3>4. كل قرار مكتوب بسببه</h3>
+  <p><code>docs/decisions.md</code> فيه كل قرار مهم (D1 لـ D28) وسببه. لو اتسألت "ليه عملتوا كذا؟" والإجابة مش في الملف ده، غالبًا هتلاقيها هناك.</p>
+  <p class="small">الكود على <bdi>GitHub</bdi>: الشغل على فرع <code>dev</code>، و<code>main</code> لسه فيه أول <bdi>commit</bdi> بس.</p>
+</section>
+
+<!-- 18 -->
+<section id="stack">
+  <h2><span class="n">18</span>التقنيات وليه اخترناها</h2>
+  <p class="lead">الجدول ده هو أكتر حاجة هتحتاجها في سؤال "ليه استخدمت كذا بدل كذا".</p>
+  <div class="tbl"><table>
+    <tr><th>التقنية</th><th>استعملناها في</th><th>ليه</th><th>البديل وليه لأ</th></tr>
+    <tr><td><bdi>Python 3.12</bdi></td><td>السيرفر كله</td><td>مكتبات تعلّم الآلة والـ <bdi>agents</bdi> كلها بايثون</td><td><bdi>Node</bdi>: مكتبات تعلّم الآلة فيه أضعف</td></tr>
+    <tr><td><bdi>FastAPI</bdi></td><td>الـ <bdi>API</bdi> والـ <bdi>WebSocket</bdi></td><td><bdi>async</bdi>، و<bdi>Pydantic</bdi> مدمج</td><td><bdi>Flask</bdi>: من غير <bdi>async</bdi>. <bdi>Django</bdi>: تقيل ومعمول لقاعدة بيانات</td></tr>
+    <tr><td><bdi>Pydantic v2</bdi></td><td>شكل كل رسالة</td><td>بيراجع البيانات تلقائي، وهو العقد نفسه</td><td><bdi>dataclasses</bdi> عادية: من غير مراجعة</td></tr>
+    <tr><td><bdi>WebSocket</bdi></td><td>القراءات والتنبيهات</td><td>السيرفر يبعت فورًا</td><td><bdi>Polling</bdi>: طلبات كتير وتأخير</td></tr>
+    <tr><td><bdi>NumPy, pandas</bdi></td><td>المحاكي والمجلس</td><td>حساب 720 ترتيب مرة واحدة</td><td>حلقات بايثون عادية: أبطأ بكتير</td></tr>
+    <tr><td><bdi>LightGBM</bdi></td><td>توقع الطلب</td><td>الأقوى في بيانات جدول، سريع، بيقول أهم المتغيرات</td><td><bdi>LSTM</bdi>، <bdi>Prophet</bdi>، <bdi>ARIMA</bdi>: شوف <a href="#ml">القسم 9</a></td></tr>
+    <tr><td><bdi>scikit-learn</bdi></td><td>موديل الأعطال والمقارنات</td><td><bdi>HistGradientBoosting</bdi> بقيد رتيب، و<bdi>Ridge</bdi> و<bdi>Random Forest</bdi> للمقارنة</td><td>—</td></tr>
+    <tr><td><bdi>LangGraph</bdi></td><td>خطوات الوكلاء والمنسّق</td><td>ترتيب ثابت تحدده إنت، وخطوات كود في النص</td><td><bdi>CrewAI</bdi>، <bdi>AutoGen</bdi>: الوكلاء بيقرروا لوحدهم</td></tr>
+    <tr><td><bdi>Groq</bdi></td><td>تشغيل موديل اللغة</td><td>سريع جدًا، فيه خطة مجانية</td><td><bdi>OpenAI</bdi>: أغلى، ومش محتاجين موديل أقوى</td></tr>
+    <tr><td><bdi>gpt-oss-120b / 20b</bdi></td><td>الشرح والـ <bdi>routing</bdi></td><td>مفتوح الأوزان، الشركة تقدر تشغّله عندها</td><td><bdi>Llama</bdi>: مش متاح على المفتاح</td></tr>
+    <tr><td><bdi>ReportLab</bdi></td><td>تقرير <bdi>PDF</bdi></td><td>بايثون بس، من غير أي برنامج على الجهاز</td><td>تحويل <bdi>HTML</bdi> لـ <bdi>PDF</bdi>: محتاج برامج نظام</td></tr>
+    <tr><td><bdi>arabic-reshaper, python-bidi</bdi></td><td>العربي في الـ <bdi>PDF</bdi></td><td>عشان الحروف تتوصل والسطر يبقى من اليمين</td><td>—</td></tr>
+    <tr><td><bdi>React + TypeScript</bdi></td><td>الواجهة</td><td>مكونات، وأنواع بتمسك الغلط</td><td><bdi>JavaScript</bdi> من غير أنواع: غلطات شكل البيانات تعدّي</td></tr>
+    <tr><td><bdi>Vite</bdi></td><td>بناء الواجهة</td><td>سريع وبسيط</td><td><bdi>Webpack</bdi>: إعداد أكتر وأبطأ</td></tr>
+    <tr><td><bdi>Zustand</bdi></td><td>حالة الواجهة</td><td>صغير، من غير كود كتير</td><td><bdi>Redux</bdi>: كود كتير لنفس الحاجة</td></tr>
+    <tr><td><bdi>MapLibre + OSM</bdi></td><td>الخريطة</td><td>مجاني، من غير مفتاح، بيشتغل من غير نت</td><td><bdi>Google Maps</bdi>، <bdi>Mapbox</bdi>: مفتاح وفلوس</td></tr>
+    <tr><td>ملفات <bdi>JSON</bdi> والذاكرة</td><td>التخزين</td><td>كفاية لعرض على جهاز واحد</td><td><bdi>PostgreSQL</bdi>: هيبقى لازم في شركة حقيقية</td></tr>
+    <tr><td><bdi>SHA-256 hash chain</bdi></td><td>سجل القرارات</td><td>أي تعديل يبان، من غير برامج</td><td><bdi>Blockchain</bdi>: زيادة على طرف واحد</td></tr>
+    <tr><td><bdi>Telegram Bot API</bdi></td><td>التنبيهات وملخص الصبح</td><td>مجاني وفوري ومن غير موافقات</td><td><bdi>WhatsApp Business</bdi>: محتاج موافقة ومراجعة. <bdi>SMS</bdi>: بفلوس</td></tr>
+    <tr><td><bdi>pytest</bdi></td><td>اختبارات السيرفر</td><td>المعيار في بايثون</td><td>—</td></tr>
+  </table></div>
+</section>
+
+<!-- 19 -->
+<section id="health">
+  <h2><span class="n">19</span>مشروع جيهان والربط بينّا</h2>
+  <p class="lead">مشروع جيهان مشروع منفصل، مش بتاعي. أنا ما كتبتش منه حاجة، وما عدّلتش فيه حاجة. اللي عملته هو الربط بين المشروعين.</p>
+
+  <h3>مشروع جيهان في سطرين (عشان تفهم الربط)</h3>
+  <p>اسمه <bdi>Healthcare Investment Planning</bdi>. داشبورد <bdi>Streamlit</bdi> لـ 15 حي (رقم كل حي <code>district_key</code> من 1001 لـ 1015). بيتوقع الطلب على الخدمات الصحية في كل حي، وبيقيس الضغط البيئي (هوا، مخلفات، تلوث مياه، حر)، وبيرتّب باقات استثمار صحي (عيادة جديدة، مستشفى، توسعة...) بمحرك سيناريوهات خاص بيها. وعندها موديلات <bdi>Ridge</bdi> و<bdi>LightGBM</bdi> و<bdi>Random Forest</bdi> بتاعتها.</p>
+
+  <h3>الفكرة في جملة</h3>
+  <div class="say"><p>هي بتقرر تبني مستشفى أو عيادة فين. وأنا بقول المياه والكهرباء والتبريد في المكان ده هتبقى موثوقة قد إيه، والعطل هناك بيكلّف كام.</p></div>
+
+  <div class="tbl"><table>
+    <tr><th></th><th><bdi>Care Grid</bdi> (مشروعي)</th><th>مشروع جيهان</th></tr>
+    <tr><td>وجهة النظر</td><td>المشغّل اللي بيحافظ على الخدمات شغالة</td><td>المستثمر اللي بيقرر يحط فلوس الصحة فين</td></tr>
+    <tr><td>السؤال</td><td>إيه اللي بيبوظ، التأخير بيكلّف كام، مين يروح الأول؟</td><td>فين الطلب الصحي أعلى، وفين القدرة ناقصة، وأنهي باقة تتموّل؟</td></tr>
+    <tr><td>الأداة</td><td><bdi>FastAPI + React</bdi>، بورت 8000</td><td><bdi>Streamlit</bdi>، بورت 8501</td></tr>
+  </table></div>
+
+  <h3>القواعد الأربعة للربط</h3>
+  <ol>
+    <li><b>ولا مشروع بيعدّل ملفات التاني.</b> الربط كله عن طريق ملفات <bdi>CSV</bdi> في فولدر واحد <code>integration/health/</code>، ومعاها بصمات <bdi>SHA-256</bdi>.</li>
+    <li><b>بياناتها بتتعرض على إنها بتاعتها</b>، من غير تعديل، ومكتوب جنبها مصدرها.</li>
+    <li><b>أرقام المشروعين عمرها ما بتتجمع في رقم واحد.</b> بتتحط جنب بعض.</li>
+    <li><b>المطابقة بالحي</b>، ومكتوب قد إيه المطابقة دي أكيدة.</li>
+  </ol>
+
+  <h3>الربط شغال إزاي</h3>
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 -16 1000 376" role="img" aria-labelledby="hl-t hl-d" dir="ltr">
+      <title id="hl-t">How the two projects are linked</title>
+      <desc id="hl-d">Gehan's project is read only. Two extract scripts copy her environment data and run her what-if engine unchanged into the integration data folder, which the twin reads. In the other direction, the twin's export script runs failures in a sandbox and writes CSV tables to the out folder, which her dashboard can read. Her dashboard also runs on port 8501 and appears inside the twin's Healthcare tab.</desc>
+      <defs>
+        <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+      </defs>
+      <rect class="box ext" x="20" y="30" width="250" height="110" rx="12"/>
+      <text class="t" x="145" y="66" text-anchor="middle">مشروع جيهان</text>
+      <text class="s" x="145" y="90" text-anchor="middle">their-app (git-ignored)</text>
+      <text class="s" x="145" y="112" text-anchor="middle">بيتقرا بس</text>
+
+      <rect class="box" x="375" y="30" width="250" height="110" rx="12"/>
+      <text class="t" x="500" y="66" text-anchor="middle">integration/health/data</text>
+      <text class="s" x="500" y="90" text-anchor="middle">بيانات البيئة وباقاتها</text>
+      <text class="s" x="500" y="112" text-anchor="middle">+ SOURCE.json (commit + SHA-256)</text>
+
+      <rect class="box hl" x="730" y="30" width="250" height="110" rx="12"/>
+      <text class="t" x="855" y="66" text-anchor="middle">Care Grid</text>
+      <text class="s" x="855" y="90" text-anchor="middle">app/city.py</text>
+      <text class="s" x="855" y="112" text-anchor="middle">map, Executive, Healthcare</text>
+
+      <line class="arrow" x1="270" y1="85" x2="373" y2="85" marker-end="url(#ah2)"/>
+      <text class="lbl" x="322" y="74" text-anchor="middle">extract_*.py</text>
+      <line class="arrow" x1="625" y1="85" x2="728" y2="85" marker-end="url(#ah2)"/>
+      <text class="lbl" x="676" y="74" text-anchor="middle">قراءة</text>
+
+      <rect class="box" x="375" y="220" width="250" height="110" rx="12"/>
+      <text class="t" x="500" y="256" text-anchor="middle">integration/health/out</text>
+      <text class="s" x="500" y="280" text-anchor="middle">scenarios, hospital_exposure,</text>
+      <text class="s" x="500" y="302" text-anchor="middle">joint_decision ... + MANIFEST.json</text>
+
+      <path class="arrow" d="M855,140 L855,275 L627,275" marker-end="url(#ah2)"/>
+      <text class="lbl" x="845" y="190" text-anchor="end">export_for_health.py</text>
+      <text class="lbl" x="845" y="208" text-anchor="end">sandbox + detector + cost</text>
+      <path class="arrow" d="M375,275 L145,275 L145,142" marker-end="url(#ah2)"/>
+      <text class="lbl" x="260" y="264" text-anchor="middle">تقدر تقراها لو حبت</text>
+
+      <path class="arrow" d="M145,30 L145,12 L855,12 L855,28" marker-end="url(#ah2)" stroke-dasharray="5 4"/>
+      <text class="lbl" x="500" y="9" text-anchor="middle">run_all.sh runs her dashboard on 8501; it shows inside the Healthcare tab (iframe)</text>
+    </svg>
+    </div>
+    <figcaption>اتجاهين، والمشروعين كل واحد يشتغل لوحده من غير التاني.</figcaption>
+  </figure>
+
+  <h4>من عندها لعندي</h4>
+  <ul>
+    <li><code>extract_environment.py</code>: بياخد بياناتها البيئية الشهرية من ملفها <code>master_panel.csv</code> (قراءة بس).</li>
+    <li><code>extract_packages.py</code>: بيشغّل محرك السيناريوهات بتاعها <code>simulation_engine.py</code> زي ما هو، لكل حي، ويحفظ الضغط على المستشفيات قبل وبعد باقاتها الأربعة.</li>
+    <li><code>SOURCE.json</code>: بيسجّل من أنهي <bdi>commit</bdi> عندها اتاخدت البيانات وبصمتها، فلو بياناتها اتغيرت نعرف.</li>
+    <li><code>app/city.py</code> بيقرا ده كله ويعرضه: طبقات على الخريطة (15 حي و81 منشأة صحية منهم 30 مستشفى)، والجدول المشترك في صفحة <bdi>Executive</bdi>.</li>
+  </ul>
+  <h4>من عندي لعندها</h4>
+  <ul>
+    <li><code>backend/scripts/export_for_health.py</code>: لكل أصل بيشغّل "لو الأصل ده وقع" في نسخة منفصلة من التوأم، بنفس الكاشف ونفس محرك التكلفة. مفيش موديل جديد.</li>
+    <li>بيكتب الجداول في <code>out/</code>: تكلفة كل عطل، والمستشفيات المتأثرة <code>hospital_exposure.csv</code>، والجدول المشترك <code>joint_decision.csv</code>، وباقات الاعتمادية <code>reliability_packages.csv</code>. ومعاهم <code>MANIFEST.json</code> فيه بصمة كل ملف.</li>
+    <li>وجهزتلها صفحة <bdi>Streamlit</bdi> جاهزة <code>streamlit_example.py</code> تقرا الجداول دي لو حبت تضيفها.</li>
+  </ul>
+  <h4>وكمان</h4>
+  <p><code>run_all.sh</code> بينزّل مشروعها في <code>integration/health/their-app</code> (مش جوه الريبو بتاعي) ويعمله بيئة لوحده ويشغّله على 8501. وداشبوردها كامل بيظهر جوه تبويب <bdi>Healthcare</bdi>.</p>
+
+  <h3>مطابقة الأحياء</h3>
+  <p>أحياءها مش هي نفس أحيائي بالظبط. الملف <code>zone_mapping.csv</code> بيقول كل حي عندها يقابله أنهي حي عندي، وقد إيه:</p>
+  <div class="tbl"><table>
+    <tr><th>نوع المطابقة</th><th class="num">عدد</th><th>معناها</th></tr>
+    <tr><td><code>direct</code></td><td class="num">4</td><td>نفس الحي بالظبط (1002 و1009 و1010 و1012)</td></tr>
+    <tr><td><code>type</code></td><td class="num">10</td><td>حي من نفس النوع (سكني، حكومي...)</td></tr>
+    <tr><td><code>none</code></td><td class="num">1</td><td>مالوش مقابل (1015، حديقة)</td></tr>
+  </table></div>
+  <p class="small">وإحداثيات أحيائها تقريبية وبعيدة عن أحيائي من 1.4 لـ 4.7 كيلو، فكل حي بيترسم على مركز الحي المقابل عندي، والـ <bdi>tooltip</bdi> بيقول إن المكان تقريبي.</p>
+
+  <h3>ليه جنب بعض ومش رقم واحد؟</h3>
+  <div class="why">
+    <div class="label">ليه ما عملناش "مؤشر مشترك"؟</div>
+    <p>لأن رقمي بالجنيه ورقمها درجة من 0 لـ 100. عشان أجمعهم لازم أختار أوزان من دماغي (الجنيه يساوي كام درجة؟)، وده ما ينفعش حد يدافع عنه. جنب بعض، كل واحدة تدافع عن رقمها. وكل رقم بيتقارن بالحي الوسيط، فكل حي بيقع في واحدة من 4 مجموعات (الاتنين فوق الوسيط، واحد بس، ولا واحد). القرار D28.</p>
+  </div>
+  <div class="why">
+    <div class="label">ليه ملفات <bdi>CSV</bdi> مش <bdi>API</bdi> أو قاعدة بيانات مشتركة؟</div>
+    <p>مشروعها بيتأكد من بصمة بياناته في اختباراته، فأي تعديل فيها هيكسر اختباراتها. والملفات أبسط عقد ممكن: كل مشروع يشتغل لوحده، وأي حد يفتح الملف ويقراه. القرار D26.</p>
+  </div>
+
+  <h3>أهم النتايج</h3>
+  <ul>
+    <li><b>فصل <bdi>SS-02</bdi> بيوصل أكيد لـ 13 مستشفى</b> (3 في الحي الحكومي، و8 في المدينة الطبية، و2 في مدينة المعرفة). و<bdi>SS-01</bdi> بيوصل لـ 3.</li>
+    <li>5 أحياء تكلفة الأعطال فيها فوق الوسيط، و6 الضغط البيئي فيها فوق الوسيط، <b>وولا حي فوق الوسيط في الاتنين</b>. يعني الخطرين في أماكن مختلفة، وده في حد ذاته معلومة للمستثمر.</li>
+    <li><b>مثال باقة:</b> خط تغذية تاني لمحطة <bdi>SS-02</bdi> بـ 6 مليون جنيه على 5 سنين. فصل المحطة بيكلّف حوالي 3.7 مليون دلوقتي، وحوالي 0.8 مليون مع الباقة. فالباقة بتسدّ نفسها بعد حوالي فصلتين في 5 سنين. ومش بنفترض معدل أعطال: بنقول محتاج كام عطل، والقارئ يحكم.</li>
+    <li><b>أثر الانقطاع على مؤشرها البيئي صغير:</b> 24 ساعة انقطاع زيادة بتزوّد مؤشرها البيئي <bdi>(ESI)</bdi> 3 نقط بالكتير، فالانقطاع لوحده ما يوصّلش حي لـ "عالي". الأثر الأكبر على قدرة المستشفيات، ودي عندها مؤشرات سياق مش داخلة في الدرجة.</li>
+  </ul>
+  <div class="qbox"><div class="label">لو اتسألت عن موديلاتها</div>
+    <p>"دي موديلات جيهان في مشروعها، مش بتاعتي. أنا ما بشغّلهاش جوه نظامي، ومش بعرض أرقامها على إنها نتايجي. اللي باخده منها بياناتها البيئية ونتايج محرك السيناريوهات بتاعها، زي ما هي."</p>
+  </div>
+</section>
+
+<!-- 20 -->
+<section id="numbers">
+  <h2><span class="n">20</span>أرقام لازم تحفظها</h2>
+  <div class="tbl"><table>
+    <tr><th>الحاجة</th><th>الرقم</th></tr>
+    <tr><td>الشبكة</td><td>9 أحياء، 48 أصل، 89 حساس، قراءة كل 2 ثانية</td></tr>
+    <tr><td>السيناريوهات</td><td>15</td></tr>
+    <tr><td>الكشف</td><td>93% (198 من 212)، صفر إنذار كاذب في 172.5 ساعة (أقل من 2.14 لكل 100 ساعة)</td></tr>
+    <tr><td>أضعف نقطة في الكشف</td><td>تسريب مخفي حوالي 24 م³/س</td></tr>
+    <tr><td>تأكيد التنبيه</td><td>3 قراءات (6 ثواني)</td></tr>
+    <tr><td>خطأ التوقع</td><td>من 1% لـ 3.3%، وأحسن من الطرق البسيطة بـ 59% لـ 83%</td></tr>
+    <tr><td>تاريخ التدريب</td><td>270 يوم، و10 أيام اختبار ما اتلمسوش</td></tr>
+    <tr><td>موديل الأعطال</td><td><bdi>AUC 0.858</bdi>، 6 متغيرات، 6,000 أصل مولّد، ترتيب مش احتمال</td></tr>
+    <tr><td>الإنذار المبكر</td><td>24 من 24، وسيط المهلة 114 ثانية</td></tr>
+    <tr><td>مكان التسريب</td><td>108 من 108 (في شبكة 9 مواسير)</td></tr>
+    <tr><td><bdi>Monte Carlo</bdi></td><td>800 للحوادث، 600 للتوفير، 300 سيناريو أسعار للمجلس</td></tr>
+    <tr><td>المجلس</td><td>لحد 6 مشاكل = 720 ترتيب</td></tr>
+    <tr><td>الـ <bdi>Routing</bdi></td><td>47 من 54، صفر نسيان، 7 زيادة</td></tr>
+    <tr><td>ساعة العرض</td><td>ساعة شغل = 20 ثانية</td></tr>
+    <tr><td>الاختبارات</td><td>414 سيرفر، 84 واجهة</td></tr>
+    <tr><td>رسايل الـ <bdi>WebSocket</bdi></td><td>16 نوع</td></tr>
+    <tr><td>حد <bdi>Groq</bdi> المجاني</td><td>حوالي 8,000 <bdi>token</bdi> في الدقيقة و200,000 في اليوم</td></tr>
+    <tr><td>الربط مع جيهان</td><td>15 حي، 81 منشأة (30 مستشفى)، 4 مطابقة مباشرة، فصل <bdi>SS-02</bdi> = 13 مستشفى</td></tr>
+  </table></div>
+</section>
+
+<!-- 21 -->
+<section id="limits">
+  <h2><span class="n">21</span>الحدود: قولها قبل ما تتسأل</h2>
+  <p class="lead">اللجنة بتثق فيك أكتر لما إنت تقول نقط الضعف، مش لما هي تكتشفها.</p>
+  <ul>
+    <li><b>كل البيانات محاكاة</b> في المشروعين. الدقة دقة على محاكاة.</li>
+    <li><b>معظم الأسعار افتراضات تخطيطية.</b> الكهرباء ومعدل الخصم ليهم مرجع منشور، والمياه والتبريد مفيش ليهم رقم رسمي 2026.</li>
+    <li><b>درجة الخطر ترتيب مش احتمال</b>، وتوفير الصيانة المخططة (حوالي نص التوفير) معتمد عليها.</li>
+    <li><b>الكاشف بيفوّت أغلب التسريبات الأصغر من حوالي 24 م³/س.</b></li>
+    <li><b>المجلس بيرتّب الفرق بس:</b> ما بيبعتش فرق حقيقية، وما بيعيدش التخطيط وهي شغالة، ووقت التنقل ثابت نص ساعة ومش محسوب من الخريطة.</li>
+    <li><b>قياس الـ <bdi>routing</bdi></b> على 54 سؤال كتبهم شخص واحد.</li>
+    <li><b>مفيش تسجيل دخول.</b> الاسم بيتكتب باليد.</li>
+    <li><b>التخزين في الذاكرة وملفات <bdi>JSON</bdi></b>، ومحاكاة واحدة في المرة.</li>
+    <li><b>الـ <bdi>Isolation Forest</bdi> اللي في الكاشف</b> متحسب ومش متوصّل بحاجة.</li>
+    <li><b><bdi>Groq</bdi> المجاني</b> ليه حد يومي. لو خلص، الوكلاء بيردّوا من الإجابات المتسجّلة.</li>
+  </ul>
+</section>
+
+<!-- 22 -->
+<section id="qa">
+  <h2><span class="n">22</span>أسئلة الإنترفيو</h2>
+  <p>جاوب في دماغك الأول، وبعدين افتح السؤال.</p>
+  <div class="qa-tools">
+    <button type="button" id="open-all">افتح كل الإجابات</button>
+    <button type="button" id="close-all">اقفل كل الإجابات</button>
+  </div>
+
+  <h3>عامة</h3>
+  <details class="qa"><summary>إيه الجديد في مشروعك؟ ما هو فيه أنظمة <bdi>SCADA</bdi> و<bdi>dashboards</bdi> كتير.</summary><div>
+    <p>تلات حاجات. الأولى إنه بيربط تلات شبكات ببعض، فبيفهم إن فصل محطة كهرباء مشكلة مياه وتبريد كمان. التانية إنه بيحوّل الإنذار لقرار: تكلفة بالجنيه، وأحسن ترتيب للفرق، ومدى ثبات القرار ده. التالتة إن الـ <bdi>AI</bdi> فيه مش بيألّف: كل رقم من الكود، وأي رقم غلط بيتمسح قدامك.</p>
+  </div></details>
+  <details class="qa"><summary>البيانات حقيقية؟</summary><div>
+    <p>لأ، محاكاة على جغرافيا العاصمة الحقيقية، بفيزياء مبسطة وعلاقات سبب ونتيجة. ودي ميزة في القياس: لأني عارف كل عطل بدأ إمتى وفين، أقدر أقيس الكاشف بأمانة. في شركة حقيقية المحاكي يتشال وتدخل قراءات الـ <bdi>SCADA</bdi>، وباقي النظام زي ما هو.</p>
+  </div></details>
+  <details class="qa"><summary>لو شركة العاصمة عايزة تستعمله بكرة، ينفع؟</summary><div>
+    <p>مش بكرة. محتاج قبلها: ربط بالـ <bdi>SCADA</bdi> ونظام الصيانة بتاعهم، وأسعارهم الحقيقية، وقاعدة بيانات وتسجيل دخول وصلاحيات، ومعايرة موديل الأعطال على سجل صيانتهم. وأهم خطوة: <bdi>shadow mode</bdi>، يعني النظام يقترح ويسجّل من غير ما يبعت فرق، ونقيس كام مرة مهندسينهم كانوا هيوافقوا. ده أول <bdi>pilot</bdi> معقول.</p>
+  </div></details>
+  <details class="qa"><summary>إنت عملت إيه بالظبط ومشروع جيهان عمل إيه؟</summary><div>
+    <p><bdi>Care Grid</bdi> كله مشروعي: المحاكي والكاشف والموديلات والتكلفة والوكلاء والمجلس والواجهة. مشروع جيهان منفصل، وأنا ما عدّلتش فيه حاجة. اللي عملته هو الربط: سكريبتات بتقرا بياناتها وتشغّل محركها زي ما هو، وسكريبت بيطلّعلها جداول من التوأم، وعرض داشبوردها جوه نظامي. والربط كله ملفات <bdi>CSV</bdi> ببصمات.</p>
+  </div></details>
+
+  <h3>الـ AI والأرقام</h3>
+  <details class="qa"><summary>إيه اللي يضمن إن الـ <bdi>AI</bdi> ما يقولش رقم غلط؟</summary><div>
+    <p>خطين دفاع. الأول: الموديل ما بيكتبش أرقام أصلًا، بيكتب رموز زي <code>{{act_now}}</code> والكود بيحط الرقم. ولو كتب تكلفة بنفسه بتتشال حتى لو صح. التاني: فاحص بيقرا كل رقم في الكلام (عربي وإنجليزي وبالكلمات) ويقارنه بسجل الحساب، واللي مش موجود بيتمسح. وأقدر أوريه قدامك في صفحة <bdi>Try to fool the AI</bdi>.</p>
+  </div></details>
+  <details class="qa"><summary>لو الـ <bdi>AI</bdi> بيشرح بس، يبقى ليه محتاجه؟</summary><div>
+    <p>لأن المهندس محتاج يفهم بسرعة: إيه اللي حصل، وإيه الأسباب المحتملة، ويعمل إيه، بلغة عادية وبالعربي. ده اللي الموديل بيعمله كويس. وكمان في الشات بيفهم الأسئلة الحرة ويختار الوكلاء. لكن القرار والأرقام في المكان اللي ينفع يتراجع: الكود.</p>
+  </div></details>
+  <details class="qa"><summary>لو <bdi>Groq</bdi> وقع أو النت قطع؟</summary><div>
+    <p>النظام بيكمل. الوكلاء بيردّوا من إجابات متسجّلة من تشغيل قبل كده، ولو مفيش بصياغة جاهزة من الكود، والشاشة بتقول <bdi>recorded</bdi>. والكشف والتكلفة والمجلس والموافقة والسجل مش محتاجين الموديل أصلًا.</p>
+  </div></details>
+  <details class="qa"><summary>إيه هو الـ "agent" عندك؟ ده مجرد <bdi>prompt</bdi>؟</summary><div>
+    <p>لأ. كل وكيل خط من 5 خطوات بـ <bdi>LangGraph</bdi>: يجمع الحساسات، يحسب التكلفة بالكود، الموديل يكتب الشرح، الفاحص يراجع، وبعدين يبني الكارت. خطوة واحدة بس فيها موديل. وكل وكيل متخصص في شبكة وعنده أدوات بتقرا بياناتها.</p>
+  </div></details>
+  <details class="qa"><summary>ليه <bdi>LangGraph</bdi>؟</summary><div>
+    <p>لأني محتاج ترتيب خطوات ثابت أنا اللي أحدده، وخطوات كود بحتة (التكلفة والفحص) في النص بين خطوات الموديل. <bdi>LangGraph</bdi> بيخليني أرسم ده كـ <bdi>graph</bdi>، وكل خطوة دالة عادية. مكتبات زي <bdi>CrewAI</bdi> بتسيب الوكلاء يقرروا ويتكلموا بحرية، وده عكس اللي عايزه.</p>
+  </div></details>
+
+  <h3>الكشف والموديلات</h3>
+  <details class="qa"><summary>دقة الكشف كام؟ واتقاست إزاي؟</summary><div>
+    <p>93% من 212 عطل محقون، وفترة الثقة من 89% لـ 96%. وصفر إنذار كاذب في 172.5 ساعة، يعني المعدل أقل من 2.14 لكل 100 ساعة بثقة 95%. اتقاست بأزواج متطابقة: نفس الـ <bdi>seed</bdi> ونفس الساعة، مرة بالعطل ومرة من غيره. والضعف الوحيد التسريب المخفي الصغير حوالي 24 م³/س.</p>
+  </div></details>
+  <details class="qa"><summary>ليه الكاشف قواعد مش <bdi>machine learning</bdi>، والـ <bdi>LightGBM</bdi> في المختبر طلع أحسن؟</summary><div>
+    <p>القواعد كل واحدة ليها معنى المهندس يفهمه، وكل تنبيه بيقول أنهي حساس وأنهي رقم. والـ <bdi>LightGBM</bdi> اتدرّب واتختبر على أعطال من نفس المحاكي، فنجاحه ممكن يكون جزء منه إنه حافظ شكل المحاكي. عشان كده هو في المختبر للمقارنة، والكاشف الأساسي قواعد مقاسة. لو جت بيانات أعطال حقيقية، ممكن الموديل يبقى هو الأساسي بعد ما يتقاس عليها.</p>
+  </div></details>
+  <details class="qa"><summary>ليه <bdi>LightGBM</bdi> للتوقع؟</summary><div>
+    <p>البيانات جدول (ساعة، يوم، حرارة، طلب امبارح)، والموديلات المبنية على أشجار هي الأقوى فيه. بيتدرّب في ثواني وبيقول أهم المتغيرات. وقارنته بـ <bdi>Ridge</bdi> و<bdi>Random Forest</bdi> والتنعيم الموسمي و<bdi>Ensemble</bdi>. الـ <bdi>Ensemble</bdi> أحسن بفرق صغير جدًا، والـ <bdi>bootstrap</bdi> قال تعادل في المياه والكهرباء، فخليت الأبسط، والصفحة بتعرض المقارنة.</p>
+  </div></details>
+  <details class="qa"><summary>الموديل اتدرّب على كام يوم؟ وليه الرقم ده؟</summary><div>
+    <p>270 يوم. جربت 75 و120 و180 و270 و365 بـ 3 <bdi>seeds</bdi> على نفس الأيام العشرة. من 75 لـ 270 الخطأ قلّ حوالي الربع، و365 ما كانش أحسن.</p>
+  </div></details>
+  <details class="qa"><summary>إزاي تعرف إن نتايج التوقع مش متفصّلة على أيام الاختبار؟</summary><div>
+    <p>آخر 10 أيام ما اتلمسوش، لا في التدريب ولا في اختيار أي إعداد. والنطاق جاي من 5 طيّات <bdi>blocked cross-validation</bdi> على التدريب بس. والحاجة الوحيدة اللي ممكن تكون متفائلة شوية هي الاختيار بين 180 و270، لأن الفرق بينهم صغير.</p>
+  </div></details>
+  <details class="qa"><summary><bdi>AUC 0.858</bdi> لموديل الأعطال، يعني إيه؟</summary><div>
+    <p>يعني لو جبت أصل هيقع وأصل سليم، الموديل بيدّي الأول درجة أعلى في حوالي 86% من المرات. بس الأعطال نفسها معمولة من معادلة أنا كاتبها، فالرقم بيقيس قد إيه الموديل رجّع المعادلة دي، مش أعطال معدات حقيقية. والدرجة ترتيب مش احتمال.</p>
+  </div></details>
+  <details class="qa"><summary>ليه القيد الرتيب في موديل الأعطال؟</summary><div>
+    <p>عشان زيادة أي إشارة خطر (عمر، اهتزاز، حرارة) عمرها ما تقلل الدرجة. من غيره، اختبار لقى إن الموديل بيقلل الدرجة في حالات، وده مستحيل تقنع بيه مهندس.</p>
+  </div></details>
+
+  <h3>المجلس والتكلفة</h3>
+  <details class="qa"><summary>المجلس بيقرر الترتيب إزاي؟</summary><div>
+    <p>بيحسب تكلفة كل ترتيب ممكن: خسارة كل مشكلة لحد ما تتصلّح، وتكلفة التصليح اللي بتزيد مع التأخير. لحد 6 مشاكل يعني 720 ترتيب، كلهم بيتحسبوا في أقل من ثانية بـ <bdi>numpy</bdi>، ويختار الأرخص. وبعدين يختبره على 300 سيناريو أسعار ويقول إيه اللي يغيّر رأيه. والموديلات بتشرح بس.</p>
+  </div></details>
+  <details class="qa"><summary>الـ <bdi>agents</bdi> بيتناقشوا إزاي في المجلس؟</summary><div>
+    <p>في 6 جولات: الرئيس يفتح، وكل وكيل يقول مشكلته وتكلفتها و"لو أنا الأول الباقيين هيدفعوا كام"، وبعدين كل واحد يقول "لو استنيت دوري هدفع كام"، والرئيس يقرر، والوكلاء يوافقوا ويقولوا إمتى يبدأوا، والرئيس يلخّص للمسؤول. كل الأرقام دي محسوبة في <code>analysis.py</code> قبل الجلسة، وكل جملة الكود اللي بيكتبها. الموديل ممكن يعيد الصياغة بس، ولو غيّر رقم صياغته بتترفض.</p>
+  </div></details>
+  <details class="qa"><summary>يبقى ده مش <bdi>multi-agent</bdi> بجد؟</summary><div>
+    <p>هو <bdi>multi-agent</bdi> في التقسيم: كل وكيل متخصص في شبكة وعنده أدواته، والمنسّق بيوزّع ويجمّع. بس القرار عمدًا مش بالنقاش: النقاش الحر بيكسب فيه اللي بيتكلم أحسن، ومش بيتعاد، ومش بيتراجع. والقرار هنا فيه فلوس عامة.</p>
+  </div></details>
+  <details class="qa"><summary>طب لو المشاكل 20؟</summary><div>
+    <p>المشاكل بتترتب بقاعدة <bdi>Smith</bdi> (تكلفة الساعة ÷ وقت التصليح)، وأول 6 بيتجرّب فيهم كل الترتيبات، والباقي بيتحط بعدهم بنفس القاعدة. لو احتجنا أكتر من كده بانتظام، الخطوة الجاية <bdi>solver</bdi> زي <bdi>MILP</bdi> أو بحث محلي. بس في الواقع نادرًا ما يبقى فيه أكتر من 6 أعطال كبيرة مفتوحة في نفس الوقت في حي واحد.</p>
+  </div></details>
+  <details class="qa"><summary>الأسعار جت منين؟</summary><div>
+    <p>افتراضات تخطيطية، وكل واحدة مكتوب أساسها ونطاقها. الكهرباء ومعدل الخصم ليهم مراجع منشورة (وبقول إنها صحافة مش جداول رسمية)، والمياه والتبريد مفيش ليهم رقم 2026 منشور. وأي سعر يتغير من الشاشة والكل يتحسب تاني.</p>
+  </div></details>
+  <details class="qa"><summary>ليه <bdi>Monte Carlo</bdi>؟</summary><div>
+    <p>لأن الأسعار مش أكيدة. بعيد الحساب 800 مرة وكل مرة كل سعر بياخد قيمة في نطاقه، فبطلّع رقم واطي ووسط وعالي. ورسم <bdi>tornado</bdi> بيقول أنهي سعر لازم نتأكد منه الأول.</p>
+  </div></details>
+  <details class="qa"><summary>مين بيوافق على قرار الـ <bdi>AI</bdi>؟</summary><div>
+    <p>إنسان، دايمًا. ولا فريق بيتحرك من غير موافقة. ولو غيّر الترتيب، السيرفر بيقوله الفرق في التكلفة قبل ما يأكد. وكل ده بيتسجل باسمه في سجل لو اتعدّل يبان. الحد: مفيش تسجيل دخول لسه.</p>
+  </div></details>
+
+  <h3>تقني</h3>
+  <details class="qa"><summary>ليه <bdi>FastAPI</bdi>؟</summary><div>
+    <p>محتاج حلقة كل ثانيتين و<bdi>WebSocket</bdi> ونداءات لموديل بتاخد ثواني، كلهم في نفس البرنامج. <bdi>FastAPI</bdi> مبني على <bdi>async</bdi> فبيعملهم مع بعض، وبيستعمل <bdi>Pydantic</bdi> فشكل كل رسالة بيتراجع.</p>
+  </div></details>
+  <details class="qa"><summary>السيرفر والواجهة بيتفقوا على شكل البيانات إزاي؟</summary><div>
+    <p>العقد الأول: الشكل بـ <bdi>Pydantic</bdi>، وبعدين أمثلة <bdi>JSON</bdi> في <code>fixtures/</code>، وبعدين الشرح، وبعدين أنواع <bdi>TypeScript</bdi>. السيرفر بيختبر الأمثلة ضد الشكل، والواجهة بتقرا نفس الأمثلة في اختباراتها. ولو رسالة غلط وصلت الواجهة، بتتهمل بدل ما توقع الصفحة.</p>
+  </div></details>
+  <details class="qa"><summary>السجل ده إزاي محدش يقدر يعدّل فيه؟</summary><div>
+    <p>كل سطر فيه بصمة <bdi>SHA-256</bdi> للسطر اللي قبله. لو حد غيّر سطر، بصمته تتغير فالسلسلة كلها بعده تبوظ، والـ <bdi>Verify</bdi> بيقول فين. والحد: حد معاه الملف كله يقدر يعيد كتابة السلسلة، فالنظام الحقيقي يحفظ آخر بصمة برّه أو يوقّعها.</p>
+  </div></details>
+  <details class="qa"><summary>النظام بيستحمل حمل قد إيه؟ <bdi>scalable</bdi>؟</summary><div>
+    <p>هو معمول لعرض: محاكاة واحدة على جهاز واحد، والتخزين في الذاكرة وملفات. لشركة حقيقية: القراءات تتحفظ في قاعدة بيانات زمنية (زي <bdi>TimescaleDB</bdi>)، والكاشف يبقى خدمة بتقرا من طابور رسائل، وكل حي أو شبكة يتقسم. والكود متقسّم فولدرات واضحة فده ممكن، بس ما اتعملش.</p>
+  </div></details>
+
+  <h3>الربط مع جيهان</h3>
+  <details class="qa"><summary>الربط مع مشروع جيهان فايدته إيه فعلًا؟</summary><div>
+    <p>المستثمر بيقرر يبني مستشفى فين حسب الطلب الصحي. بس لو المكان ده الكهرباء فيه بتقطع كتير، المستشفى هيتأثر. الربط بيحط الاتنين جنب بعض لكل حي: تكلفة الأعطال عندي، والضغط البيئي والطلب عندها. ومثلًا لقينا إن فصل محطة واحدة بيوصل أكيد لـ 13 مستشفى، وإن ولا حي فوق الوسيط في الخطرين مع بعض.</p>
+  </div></details>
+  <details class="qa"><summary>ليه ما جمعتوش الرقمين في مؤشر واحد؟</summary><div>
+    <p>رقمي بالجنيه ورقمها درجة من 0 لـ 100. عشان أجمعهم لازم أوزان من دماغي، ومحدش يقدر يدافع عنها. جنب بعض، كل واحدة تدافع عن رقمها، والقارئ يشوف الاتنين.</p>
+  </div></details>
+  <details class="qa"><summary>المطابقة بين أحيائك وأحيائها دقيقة؟</summary><div>
+    <p>4 بس من 15 نفس الحي بالظبط، و10 من نفس النوع، و1 مالوش مقابل. وده مكتوب في عمود جنب كل صف، ومكتوب في الخريطة إن المكان تقريبي.</p>
+  </div></details>
+</section>
+
+<!-- 23 -->
+<section id="next">
+  <h2><span class="n">23</span>لو اتسألت "لو هتكمّل هتعمل إيه؟"</h2>
+  <p>بالأهمية:</p>
+  <ol>
+    <li><b>معايرة موديل الأعطال</b> على سجل صيانة حقيقي، عشان الدرجة تبقى احتمال. دي بتقفل أضعف رقم في التوفير.</li>
+    <li><b><bdi>Shadow mode</bdi>:</b> النظام يقترح ويسجّل من غير ما يبعت فرق، ونقيس كام مرة المهندسين وافقوا.</li>
+    <li><b>وقت التنقل بين الأعطال</b> يتحسب من المسافة على الخريطة بدل نص ساعة ثابت.</li>
+    <li><b>الفاحص يطابق الوحدة مع الرقم:</b> "3.2 بار" لازم تبقى قراءة ضغط.</li>
+    <li><b>مجموعة تقييم لإجابات الوكلاء</b> يكتبها مهندسين: السبب والإجراء صح ولا لأ.</li>
+    <li><b>تنضيف:</b> الـ <bdi>Isolation Forest</bdi> اللي مش متوصّل، والمكتبات اللي مش مستعملة في الواجهة.</li>
+    <li><b>للإنتاج:</b> قاعدة بيانات، وتسجيل دخول وصلاحيات، وربط بالـ <bdi>SCADA</bdi> ونظام الصيانة، وموديل شغال على سيرفرات الشركة.</li>
+  </ol>
+</section>
+
+<!-- 24 -->
+<section id="glossary">
+  <h2><span class="n">24</span>قاموس المصطلحات</h2>
+  <div class="tbl"><table>
+    <tr><th>المصطلح</th><th>معناه ببساطة</th></tr>
+    <tr><td><bdi>Digital twin</bdi></td><td>نسخة رقمية من الشبكة بتشتغل زيها لحظة بلحظة</td></tr>
+    <tr><td><bdi>Tick</bdi></td><td>لفة واحدة من الحلقة، كل ثانيتين</td></tr>
+    <tr><td><bdi>Seed</bdi></td><td>رقم بداية العشوائية. نفس الرقم = نفس النتيجة</td></tr>
+    <tr><td><bdi>Shadow engine</bdi></td><td>نسخة من المحاكي من غير أعطال، بتقول القراءة المفروض تبقى كام</td></tr>
+    <tr><td><bdi>Alert / Incident</bdi></td><td>التنبيه إشارة واحدة. الحادثة المشكلة كلها، وممكن يبقى فيها كذا تنبيه</td></tr>
+    <tr><td><bdi>Recall</bdi></td><td>نسبة الأعطال الحقيقية اللي اتمسكت</td></tr>
+    <tr><td><bdi>Precision</bdi></td><td>من الإنذارات اللي طلعت، كام واحد كان عطل حقيقي</td></tr>
+    <tr><td><bdi>Matched pairs</bdi></td><td>تشغيلتين متطابقتين، واحدة بالعطل وواحدة من غيره</td></tr>
+    <tr><td><bdi>Hysteresis</bdi></td><td>التنبيه يتفتح على حد ويتقفل على حد أقل، عشان ما يفضلش يفتح ويقفل</td></tr>
+    <tr><td><bdi>MAPE / MAE</bdi></td><td>متوسط نسبة الخطأ / متوسط الخطأ بالوحدة</td></tr>
+    <tr><td><bdi>AUC</bdi></td><td>قدرة الموديل يحط الأصل الخطر قبل السليم (1 مثالي، 0.5 عشوائي)</td></tr>
+    <tr><td><bdi>Monotonic</bdi></td><td>زيادة المدخل عمرها ما تقلل المخرج</td></tr>
+    <tr><td><bdi>Calibration</bdi></td><td>تظبيط الدرجة عشان تبقى احتمال حقيقي</td></tr>
+    <tr><td><bdi>Log-odds</bdi></td><td>مقياس للاحتمال بيخلّي الفرق بين 1% و2% زي الفرق بين 50% و67%</td></tr>
+    <tr><td><bdi>P10 / P50 / P90</bdi></td><td>الرقم الواطي والوسط والعالي لما الأسعار تتحرك جوه نطاقها</td></tr>
+    <tr><td><bdi>Monte Carlo</bdi></td><td>نعيد الحساب مرات كتير بقيم عشوائية ونشوف النتايج بتتوزع إزاي</td></tr>
+    <tr><td><bdi>Tornado</bdi></td><td>رسم بيرتّب الافتراضات حسب قد إيه بتحرّك النتيجة</td></tr>
+    <tr><td><bdi>VoLL</bdi></td><td>قيمة الكهرباء اللي ما وصلتش: الخسارة لكل كيلووات ساعة مقطوعة</td></tr>
+    <tr><td><bdi>NRW</bdi></td><td>مياه اتنتجت ومتفوترتش (تسريب أو عدادات)</td></tr>
+    <tr><td><bdi>FAVAD</bdi></td><td>معادلة بتقول التسريب بيقل قد إيه لما الضغط يقل</td></tr>
+    <tr><td><bdi>NPV</bdi></td><td>قيمة التوفير المستقبلي بفلوس النهارده</td></tr>
+    <tr><td><bdi>Regret</bdi></td><td>قد إيه هتخسر لو القرار طلع غلط في سيناريو معين</td></tr>
+    <tr><td>قاعدة <bdi>Smith</bdi></td><td>رتّب الشغل حسب (التكلفة في الساعة ÷ وقت التصليح). مثالية لفريق واحد</td></tr>
+    <tr><td><bdi>Routing</bdi></td><td>اختيار أنهي وكلاء يتسألوا</td></tr>
+    <tr><td><bdi>Orchestrator</bdi></td><td>المنسّق اللي بيوزّع السؤال ويجمّع الردود</td></tr>
+    <tr><td><bdi>Sandbox</bdi></td><td>نسخة منفصلة من التوأم للتجربة من غير ما الحقيقي يتأثر</td></tr>
+    <tr><td><bdi>Hash chain</bdi></td><td>سجل كل سطر فيه بصمة اللي قبله، فأي تعديل يبان</td></tr>
+    <tr><td><bdi>Contract first</bdi></td><td>نحدد شكل البيانات الأول وبعدين نكتب الكود</td></tr>
+    <tr><td><bdi>Fixture</bdi></td><td>مثال <bdi>JSON</bdi> حقيقي لشكل رسالة، بيستعمله السيرفر والواجهة في الاختبارات</td></tr>
+    <tr><td><bdi>DCP</bdi></td><td>محطة تبريد مركزي</td></tr>
+    <tr><td><bdi>Open-weight</bdi></td><td>موديل أوزانه منشورة، فأي حد يقدر يشغّله عنده</td></tr>
+  </table></div>
+</section>
+
+<footer>
+  <p>اتكتب 18 نوفمبر 2026 على فرع <code>dev</code>. المصادر: <code>docs/measurements/</code> و<code>docs/decisions.md</code> و<code>docs/models-used.md</code> و<code>docs/cost-model.md</code> و<code>integration/health/</code> والكود نفسه.</p>
+</footer>
+
+</div>
+</main>
+</div>
+<script>
+(function () {
+  var all = function () { return document.querySelectorAll('details.qa'); };
+  var o = document.getElementById('open-all'), c = document.getElementById('close-all');
+  if (o) o.addEventListener('click', function () { all().forEach(function (d) { d.open = true; }); });
+  if (c) c.addEventListener('click', function () { all().forEach(function (d) { d.open = false; }); });
+  var toc = document.querySelector('nav.toc details');
+  if (toc && window.matchMedia('(max-width: 1039px)').matches) toc.open = false;
+})();
+</script>
+</body>
+</html>
